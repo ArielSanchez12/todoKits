@@ -19,7 +19,7 @@ const sendMailToRegister = (userMail, token) => {
         from: 'admin@vet.com',
         to: userMail,
         subject: "SmartVET -🐶 😺",
-        html: `<p>Hola, haz clic <a href="${process.env.URL_BACKEND}confirmar/${token}">aquí</a> para confirmar tu cuenta.</p>
+        html: `<p>Hola, haz clic <a href="${process.env.URL_FRONTEND}confirmar/${token}">aquí</a> para confirmar tu cuenta.</p>
         <hr>
         <footer>El equipo de SmartVET te da la más cordial bienvenida.</footer>
         `

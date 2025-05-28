@@ -14,8 +14,8 @@ export const Register = () => {
     const registro = async (data) => {
         try {
             const url = "http://localhost:3000/api/registro"
-            const respuesta = await axios.post(url,data)
-            toast.success(respuesta.data.msg) // Mostrar mensaje de éxito
+            const response = await axios.post(url,data)
+            toast.success(response.data.msg) // Mostrar mensaje de éxito
         } catch (error) {
             toast.error(error.response.data.msg) // Mostrar mensaje de error
         }
@@ -78,9 +78,9 @@ export const Register = () => {
                         <div className="mb-3">
                             <label className="mb-2 block text-base font-semibold">Correo electrónico</label>
                             <input type="email" placeholder="Ingresa tu correo electrónico" className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500" 
-                            {...register("correo", { required: "Este campo es obligatorio!" })}
+                            {...register("email", { required: "Este campo es obligatorio!" })}
                             />
-                            {errors.correo && <p className="text-red-800">{errors.correo.message}</p>}
+                            {errors.email && <p className="text-red-800">{errors.email.message}</p>}
                         </div>
 
                         {/* Campo para contraseña */}

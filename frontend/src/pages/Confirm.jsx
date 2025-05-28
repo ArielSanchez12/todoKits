@@ -13,11 +13,11 @@ export const Confirm = () => {
     const verifyToken = async()=>{
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/confirmar/${token}`
-            const respuesta = await axios.get(url)
-            console.log(respuesta.data.msg)
-            toast.success(respuesta?.data?.msg)
+            const response = await axios.get(url)
+            console.log(response.data.msg)
+            toast.success(response?.data?.msg)
         } catch (error) {
-            console.log(error.response.data.msg)
+            console.log(error)
             toast.error(error?.response?.data?.msg)
         }
     }

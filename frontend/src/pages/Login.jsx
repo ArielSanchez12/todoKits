@@ -96,7 +96,7 @@ const Login = () => {
                         </div>
                         <Link
                             to="/forgot/id"
-                            className="underline text-base text-gray-400 hover:text-gray-900"
+                            className="underline text-base text-gray-500 hover:text-blue-600"
                         >
                             ¿Olvidaste tu contraseña?
                         </Link>
@@ -106,7 +106,7 @@ const Login = () => {
                     <div className="my-4">
                         <Link
                             to="/dashboard"
-                            className="py-2 w-full block text-center bg-black text-white rounded-xl hover:bg-blue-600 duration-300"
+                            className="py-2 w-full block text-center bg-black text-white hover:scale-105 rounded-xl hover:bg-blue-600 duration-300"
                     >
                         Iniciar sesión
                         </Link>
@@ -117,7 +117,7 @@ const Login = () => {
                         ¿No tienes cuenta?{' '}
                         <Link 
                             to="/register" 
-                            className="text-base text-gray-500 underline hover:text-black font-medium"
+                            className="text-base text-gray-500 underline hover:text-blue-600 font-medium"
                         >
                             Regístrate aquí
                         </Link>

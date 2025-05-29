@@ -116,15 +116,15 @@ export const Register = () => {
 
                         {/* Botón para enviar el formulario */}
                         <div className="mb-3">
-                            <button className="bg-gray-500 text-slate-300 border py-2 w-full rounded-xl mt-5 hover:scale-105 duration-300 hover:bg-gray-900 hover:text-white">Registrarse</button>
+                            <button className="bg-black text-white border py-2 w-full rounded-xl mt-5 hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white">Registrarse</button>
                         </div>
 
                     </form>
 
                     {/* Enlace para iniciar sesión si ya tiene una cuenta */}
-                    <div className="mt-3 text-base flex justify-between items-center">
+                    <div className="mt-5 text-base flex justify-between items-center">
                         <p>¿Ya posees una cuenta?</p>
-                        <Link to="/login" className="py-2 px-5 bg-gray-500 text-slate-300 border rounded-xl hover:scale-110 duration-300 hover:bg-gray-900">Iniciar sesión</Link>
+                        <Link to="/login" className="py-2 px-5 bg-black text-white border rounded-xl hover:scale-110 duration-300 hover:bg-blue-600">Iniciar sesión</Link>
                     </div>
 
                 </div>
@@ -132,7 +132,7 @@ export const Register = () => {
             </div>
 
             {/* Sección con imagen de fondo, solo visible en pantallas grandes */}
-            <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/public/images/dogregister.jpg')] bg-no-repeat bg-cover bg-center sm:block hidden"></div>
+            <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/public/images/buho.jpg')] bg-no-repeat bg-cover bg-center sm:block hidden"></div>
         </div>
     );
 };

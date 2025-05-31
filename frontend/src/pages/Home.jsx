@@ -2,7 +2,7 @@ import logoDarkMode from '../assets/dark.png'
 import logoDogCatMain from '../assets/dogmain.png'
 import AppStoreImage from '../assets/appstore.png'
 import GooglePlayImage from '../assets/googleplay.png'
-import logoDog from '../assets/dog-hand.webp'
+import logoEPN from '../assets/epn_dep.jpg'
 import { Link } from 'react-router'
 import { MdDashboard } from "react-icons/md";
 import { FaRobot } from "react-icons/fa";
@@ -71,7 +71,7 @@ export const Home = () => {
                 <div className='my-10 flex flex-col gap-10 items-center sm:flex-row sm:justify-around sm:items-center'>
 
                     <div className='sm:w-1/2'>
-                        <img src={logoDog} alt="App Store" className='w-full h-full object-cover' />
+                        <img src={logoEPN} alt="App Store" className='w-full h-full object-cover' />
                     </div>
 
                     <div className='px-10 sm:w-1/2'>

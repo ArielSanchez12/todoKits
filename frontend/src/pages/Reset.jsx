@@ -1,12 +1,26 @@
-import logoDog from '../assets/dog-hand.webp'
+import logoEPN from '../assets/epn_dep.jpg';
 import { ToastContainer } from 'react-toastify';
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import useFetch from '../hooks/useFetch';
+import { useParams } from 'react-router';
 
 
 const Reset = () => {
+
+    const { token } = useParams()
+    const { fetchDataBackend } = useFetch()
     const [tokenback, setTokenBack] = useState(false);
 
-    
+
+    useEffect(() => {
+        const verifyToken = async()=>{
+            const url = `${import.meta.env.VITE_BACKEND_URL}/recuperarpassword/${token}`
+            fetchDataBackend(url, null,'GET')
+            setTokenBack(true)
+        }
+        verifyToken()
+    }, [])
+
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <ToastContainer />
@@ -18,7 +32,7 @@ const Reset = () => {
             </small>
             <img
                 className="object-cover h-80 w-80 rounded-full border-4 border-solid border-slate-600"
-                src={logoDog}
+                src={logoEPN}
                 alt="image description"
             />
             {tokenback && (

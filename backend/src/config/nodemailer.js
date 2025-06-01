@@ -18,10 +18,10 @@ const sendMailToRegister = (userMail, token) => {
     let mailOptions = {
         from: 'admin@vet.com',
         to: userMail,
-        subject: "SmartVET -🐶 😺",
+        subject: "KITSLABORATORIO-🐒🏇🏿",
         html: `<p>Hola, haz clic <a href="${process.env.URL_FRONTEND}confirm/${token}">aquí</a> para confirmar tu cuenta.</p>
         <hr>
-        <footer>El equipo de SmartVET te da la más cordial bienvenida.</footer>
+        <footer>El equipo de la ESFOT te da la más cordial bienvenida.</footer>
         `
     }
 

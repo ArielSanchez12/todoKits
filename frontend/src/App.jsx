@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router'
+import { BrowserRouter, Route, Routes } from 'react-router'
+import { Home } from './pages/Home'
 import Login from './pages/Login'
 import { Register } from './pages/Register'
 import { Forgot } from './pages/Forgot'
@@ -21,9 +22,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         
-        <Route index element={<Navigate to="/login" replace />} />
-
-
+        <Route index element={<Home/>}/>
         <Route path='login' element={<Login/>}/>
         <Route path='register' element={<Register/>}/>
         <Route path='forgot/:id' element={<Forgot/>}/>

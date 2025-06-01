@@ -3,12 +3,13 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 
+// Looking to send emails in production? Check out our Email API/SMTP product!
 let transporter = nodemailer.createTransport({
   host: process.env.HOST_MAILTRAP,
   port: process.env.PORT_MAILTRAP,
   auth: {
     user: process.env.USER_MAILTRAP,
-    pass: process.env.PASS_MAILTRAP,
+    pass: process.env.PASS_MAILTRAP
   }
 });
 

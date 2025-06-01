@@ -34,7 +34,7 @@ const confirmarMail = async (req,res)=>{
     adminEmailBDD.token = null
     adminEmailBDD.confirmEmail=true
     await adminEmailBDD.save()
-    res.status(200).json({msg:"Token confirmado, ya puedes iniciar sesión"}) 
+    res.status(200).json({msg:"Token confirmado, ya puedes iniciar sesión"});
 }
 
 

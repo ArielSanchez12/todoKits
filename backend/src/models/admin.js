@@ -82,4 +82,5 @@ adminSchema.methods.createToken = function(){
 }
 
 //Aqui model es como nuestra tabla vacia y le pasamos el nombre del archivo (sin extension .js) y luego el schema
-export default model('Admin', adminSchema) 
+export default model('Admin', adminSchema)
+

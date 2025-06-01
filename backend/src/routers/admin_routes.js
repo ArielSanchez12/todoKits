@@ -7,6 +7,6 @@ const router = Router()
 router.post('/registro', registro)
        //Verbo  Ruta     Controlador
 
-router.get('/confirm/:token', confirmarMail)
+router.get('/confirmar/:token', confirmarMail)
 
 export default router

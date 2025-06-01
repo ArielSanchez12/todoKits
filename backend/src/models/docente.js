@@ -64,4 +64,5 @@ const docenteSchema = new Schema({
     timestamps:true 
 }) 
 
+//Falta confirmar si va aqui o no
 export default model('docente', docenteSchema) 

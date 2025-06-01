@@ -6,25 +6,21 @@ import { ToastContainer, toast } from 'react-toastify';
 
 export const Confirm = () => {
 
-    const { token } = useParams();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const verifyToken = async () => {
+    const { token } = useParams()
+    const verifyToken = async()=>{
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/confirm/${token}`;
-            const response = await axios.get(url);
-            console.log(response.data.msg);
-            toast.success(response?.data?.msg);
+            const url = `${import.meta.env.VITE_BACKEND_URL}/confirmar/${token}`
+            const respuesta = await axios.get(url)
+            toast.success(respuesta?.data?.msg)
         } catch (error) {
-            console.log(error);
-            toast.error(error?.response?.data?.msg);
+            toast.error(error?.response?.data?.msg)
         }
     }
-
     useEffect(() => {
-        verifyToken();
-    }, []);
+        verifyToken()
+    },[])
 
+    
     return (
         <div className="h-screen flex flex-col">
             <ToastContainer />

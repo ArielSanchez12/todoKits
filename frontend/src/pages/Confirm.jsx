@@ -11,7 +11,7 @@ export const Confirm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const verifyToken = async () => {
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/confirmar/${token}`;
+            const url = `${import.meta.env.VITE_BACKEND_URL}/confirm/${token}`;
             const response = await axios.get(url);
             console.log(response.data.msg);
             toast.success(response?.data?.msg);

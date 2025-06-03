@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { confirmarMail, registro } from "../controllers/admin_controller.js";
+import { comprobarTokenPassword, confirmarMail, recuperarPassword, registro } from "../controllers/admin_controller.js";
 
 const router = Router()
 
@@ -8,5 +8,7 @@ router.post('/registro', registro)
        //Verbo  Ruta     Controlador
 
 router.get('/confirmar/:token', confirmarMail)
+router.post('/recuperarPassword', recuperarPassword)
+router.get('/recuperarPassword/:token', comprobarTokenPassword)
 
 export default router

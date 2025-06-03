@@ -1,4 +1,4 @@
-import sendMailToRegister from "../config/nodemailer.js"
+import {sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodemailer.js"
 import admin from "../models/admin.js"
 
 
@@ -39,7 +39,7 @@ const recuperarPassword = async (req,res) => {
 
     const token = adminEmailBDD.createToken()//4. Crear token para la verificacion de correo
     adminEmailBDD.token = token
-    //Enviar email
+    await sendMailToRecoveryPassword(email,token)
     await adminEmailBDD.save()
 
     //5. Confirmacion
@@ -47,8 +47,14 @@ const recuperarPassword = async (req,res) => {
 }
 
 //Etapa 2
-const comprobarTokenPassword = (req,res) => {
-    res.send("Token confirmado")
+const comprobarTokenPassword = async (req,res) => {
+    const {token} = req.params
+    const adminEmailBDD = await admin.findOne({token})
+    if(adminEmailBDD.token !== token) return res.status(404).json({msg:"Lo sentimos, no se puede validar la cuenta"})
+
+    await adminEmailBDD.save()
+
+    res.status(200).json({msg:"Token confirmado, ya puedes crear tu nuevo password"})
 }
 
 //Etapa 3
@@ -61,4 +67,6 @@ const crearNuevoPassword = (req,res) => {
 export {
     registro,
     confirmarMail,
+    recuperarPassword,
+    comprobarTokenPassword
 }

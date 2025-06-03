@@ -58,8 +58,17 @@ const comprobarTokenPassword = async (req,res) => {
 }
 
 //Etapa 3
-const crearNuevoPassword = (req,res) => {
-    res.send("Felicitaciones, ya puedes iniciar sesión con tu nuueva contraseña")
+const crearNuevoPassword = async (req,res) => {
+    const {password, confirmpassword} = req.body
+    if (Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"})
+    if (password !== confirmpassword) return res.status(404).json({msg:"Lo sentimos, los passwords no coinciden"})
+    const adminEmailBDD = await admin.findOne({token:req.params.token})
+    if(adminEmailBDD.token !== req.params.token) return res.status(404).json({msg:"Lo sentimos, no se puede validar la cuenta"})
+    adminEmailBDD.token = null
+    adminEmailBDD.password = await adminEmailBDD.encryptPassword(password)
+    await adminEmailBDD.save()
+
+    res.status(200).json({msg:"Felicitaciones, ya puedes iniciar sesión con tu nuevo password"})
 }
 
 
@@ -68,5 +77,6 @@ export {
     registro,
     confirmarMail,
     recuperarPassword,
-    comprobarTokenPassword
+    comprobarTokenPassword,
+    crearNuevoPassword
 }

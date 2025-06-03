@@ -26,7 +26,7 @@ const Login = () => {
             {/* Logo encima del título */}
                 <div className="flex justify-center mt-0 mb-9">
                     <img 
-                        src="/public/images/logo_esfot_buho.png"
+                        src="/public/images/logo_esfot.png"
                         alt="Logo"
                         className="w-24 h-24 object-contain"
                     />

@@ -10,10 +10,10 @@ const registro = async (req,res) => {
     const nuevoAdmin = new admin(req.body)
     nuevoAdmin.password = await nuevoAdmin.encryptPassword(password)
     const token = nuevoAdmin.createToken()
-    await sendMailToRegister(email,token)
-
+    // PRIMERO guarda el usuario
     await nuevoAdmin.save()
-
+    // LUEGO envía el correo
+    await sendMailToRegister(email,token)
     res.status(200).json({msg: "Revisa tu correo electrónico"})
 }
 

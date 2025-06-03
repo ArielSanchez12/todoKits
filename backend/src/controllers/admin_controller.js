@@ -2,25 +2,15 @@ import sendMailToRegister from "../config/nodemailer.js"
 import admin from "../models/admin.js"
 
 
-const registro = async (req, res) => {
-
-    console.log(req)
-
+const registro = async (req,res) => {
     const {email,password} = req.body
-
-    if(Object.values(req.body).includes("")) return res.status(400).json
-    ({msg: "Todos los campos son obligatorios"})
-
+    if(Object.values(req.body).includes("")) return res.status(400).json({msg: "Todos los campos son obligatorios"})
     const adminEmailBDD = await admin.findOne({email})
-
     if (adminEmailBDD) return res.status(400).json({msg:"El email ya está registrado"})
-    
     const nuevoAdmin = new admin(req.body)
     nuevoAdmin.password = await nuevoAdmin.encryptPassword(password)
-
     const token = nuevoAdmin.createToken()
     await sendMailToRegister(email,token)
-
 
     await nuevoAdmin.save()
 
@@ -36,6 +26,36 @@ const confirmarMail = async (req,res)=>{
     await adminEmailBDD.save()
     res.status(200).json({msg:"Token confirmado, ya puedes iniciar sesión"});
 }
+
+//Etapa 1
+const recuperarPassword = async (req,res) => { 
+
+    const {email}= req.body//1. Obtener el email
+    if (Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"}) //2. Validar que no se deje vacio el campo correo
+    
+    const adminEmailBDD = await admin.findOne({email})
+    if(!adminEmailBDD) return res.status(404).json({msg:"Lo sentimos, el usuario no existe"}) //3. Validar que el correo exista
+
+
+    const token = adminEmailBDD.createToken()//4. Crear token para la verificacion de correo
+    adminEmailBDD.token = token
+    //Enviar email
+    await adminEmailBDD.save()
+
+    //5. Confirmacion
+    res.status(200).json({msg:"Revisa tu correo para restablecer tu contraseña"})
+}
+
+//Etapa 2
+const comprobarTokenPassword = (req,res) => {
+    res.send("Token confirmado")
+}
+
+//Etapa 3
+const crearNuevoPassword = (req,res) => {
+    res.send("Felicitaciones, ya puedes iniciar sesión con tu nuueva contraseña")
+}
+
 
 
 export {

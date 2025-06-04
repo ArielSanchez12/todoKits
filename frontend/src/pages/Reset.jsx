@@ -32,10 +32,10 @@ const Reset = () => {
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <ToastContainer />
-            <h1 className="text-3xl font-semibold mb-2 text-center text-gray-500">
-                Bienvenido nuevamente
+            <h1 className="text-3xl font-semibold mb-2 text-center text-black">
+                BIENVENIDO NUEVAMENTE
             </h1>
-            <small className="text-gray-400 block my-4 text-sm">
+            <small className="text-black block my-4 text-base">
                 Pro favor, ingrese los siguientes datos
             </small>
             <img
@@ -46,7 +46,7 @@ const Reset = () => {
             {tokenback && (
                 <form className="w-80" onSubmit={handleSubmit(changePassword)}>
                     <div className="mb-1">
-                        <label className="mb-2 block text-sm font-semibold">
+                        <label className="mb-2 block text-base font-semibold">
                             Nueva contraseña
                         </label>
                         <input
@@ -68,7 +68,7 @@ const Reset = () => {
                         {errors.confirmpassword && <p className="text-red-800">{errors.confirmpassword.message}</p>}
                     </div>
                     <div className="mb-3">
-                        <button className="bg-gray-600 text-slate-300 border py-2 w-full rounded-xl mt-5 hover:scale-105 duration-300 hover:bg-gray-900 hover:text-white">
+                        <button className="bg-black text-slate-300 border py-2 w-full rounded-xl mt-5 hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white">
                             Enviar
                         </button>
                     </div>

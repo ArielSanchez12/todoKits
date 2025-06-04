@@ -16,8 +16,8 @@ const Reset = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const changePassword = (data) => {
-        if (data.password !== data.confirmpassword) {
-        toast.error("Las contraseñas no coinciden");
+        if (data.password !== data.confirmpassword) { //Este if es para validar que coincidan las contraseñas y luego se haga la redireccion
+        toast.error("Las contraseñas no coinciden"); //porque si no coinciden no se puede cambiar la contraseña y mucho menos redireccionar al login
         return; // No continúa si no coinciden
     }
         const url = `${import.meta.env.VITE_BACKEND_URL}/nuevopassword/${token}`;

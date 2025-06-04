@@ -5,7 +5,9 @@ import useFetch from '../hooks/useFetch';
 import { useNavigate, useParams } from 'react-router';
 import { useForm } from 'react-hook-form';
 
+
 const Reset = () => {
+
     const { fetchDataBackend } = useFetch();
     const { token } = useParams();
     const navigate = useNavigate();
@@ -21,6 +23,7 @@ const Reset = () => {
     };
 
     useEffect(() => {
+
         const verifyToken = async () => {
             const url = `${import.meta.env.VITE_BACKEND_URL}/recuperarpassword/${token}`;
             fetchDataBackend(url, null, 'GET');
@@ -32,43 +35,46 @@ const Reset = () => {
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <ToastContainer />
-            <h1 className="text-3xl font-semibold mb-2 text-center text-black">
+            <h1 className="text-3xl font-semibold mb-3 text-center text-black">
                 BIENVENIDO NUEVAMENTE
             </h1>
-            <small className="text-black block my-4 text-base">
-                Pro favor, ingrese los siguientes datos
+            <small className="text-black block my-5 text-base">
+                Por favor, ingrese los siguientes datos
             </small>
             <img
-                className="object-cover h-80 w-80 rounded-full border-4 border-solid border-slate-600"
+                className="mb-10 object-cover h-80 w-80 rounded-full border-4 border-solid border-slate-600"
                 src={logoEPN}
                 alt="image description"
             />
             {tokenback && (
-                <form className="w-80" onSubmit={handleSubmit(changePassword)}>
+                <form className="w-90" onSubmit={handleSubmit(changePassword)}>
                     <div className="mb-1">
-                        <label className="mb-2 block text-base font-semibold">
+                        
+                        <label className="mb-1 block text-base font-semibold">
                             Nueva contraseña
                         </label>
                         <input
                             type="password"
                             placeholder="Ingresa tu nueva contraseña"
-                            className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
+                            className="mb-5 block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
                             {...register("password", { required: "Este campo es obligatorio!" })}
-                        />
-                        {errors.password && <p className="text-red-800">{errors.password.message}</p>}
-                        <label className="mb-2 block text-sm font-semibold">
+                            />
+                            {errors.password && <p className="text-red-800">{errors.password.message}</p>}
+                            
+                        <label className="mb-1 block text-base font-semibold">
                             Confirmar contraseña
                         </label>
                         <input
                             type="password"
                             placeholder="Repite tu contraseña"
-                            className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
+                            className="mb-5 block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
                             {...register("confirmpassword", { required: "Este campo es obligatorio!" })}
                         />
-                        {errors.confirmpassword && <p className="text-red-800">{errors.confirmpassword.message}</p>}
+                            {errors.confirmpassword && <p className="text-red-800">{errors.confirmpassword.message}</p>}
                     </div>
+
                     <div className="mb-3">
-                        <button className="bg-black text-slate-300 border py-2 w-full rounded-xl mt-5 hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white">
+                        <button className="mb-5 bg-black text-white border py-2 w-full rounded-xl mt-3 hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white">
                             Enviar
                         </button>
                     </div>

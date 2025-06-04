@@ -19,7 +19,7 @@ const sendMailToRegister = async(userMail,token)=>{
     to: userMail,
     subject: "Registro de cuenta en KITSLABORATORIO",
     html: `
-    <h1>KITSLABORATORIO-🐒🏇🏿/h1>
+    <h1>KITSLABORATORIO-🐒🏇🏿</h1>
     <hr>
     <p>Hola, haz clic <a href="${process.env.URL_FRONTEND}confirm/${token}">aquí</a> para confirmar tu cuenta.</p>
     <hr>
@@ -36,9 +36,9 @@ const sendMailToRecoveryPassword = async(userMail,token)=>{
     to: userMail,
     subject: "Correo para reestablecer tu contraseña",
     html: `
-    <h1>KITSLABORATORIO-🐒🏇🏿/h1>
+    <h1>KITSLABORATORIO-🐒🏇🏿</h1>
     <hr>
-    <a href=${process.env.URL_FRONTEND}recuperarpassword/${token}>Clic para reestablecer tu contraseña</a>
+    <a href=${process.env.URL_FRONTEND}reset/${token}>Clic para reestablecer tu contraseña</a>
     <hr>
     <footer>El equipo de la ESFOT te da la más cordial bienvenida.</footer>
     `

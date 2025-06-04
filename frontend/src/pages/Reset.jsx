@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import useFetch from '../hooks/useFetch';
 import { useNavigate, useParams } from 'react-router';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
+
 
 
 const Reset = () => {
@@ -16,14 +16,12 @@ const Reset = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const changePassword = (data) => {
-        if (data.password !== data.confirmpassword) { //Este if es para validar que coincidan las contraseñas y luego se haga la redireccion
-        toast.error("Las contraseñas no coinciden"); //porque si no coinciden no se puede cambiar la contraseña y mucho menos redireccionar al login
-        return; // No continúa si no coinciden
-    }
         const url = `${import.meta.env.VITE_BACKEND_URL}/nuevopassword/${token}`;
         fetchDataBackend(url, data, 'POST');
         setTimeout(() => {
-            navigate('/login');
+            if (data.password == data.confirmpassword) {//Este if es para validar que coincidan las contraseñas y luego se haga la redireccion
+                navigate('/login'); // No continúa si no coinciden
+            }
         }, 3000);
     };
 

@@ -1,18 +1,43 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router';
+import useFetch from '../hooks/useFetch';
+import { ToastContainer } from 'react-toastify';
 
 const Login = () => {
-    const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
 
+    const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const { register, handleSubmit, formState: { errors } } = useForm()
+    const { fetchDataBackend } = useFetch()
+
+    const loginUser = async(data) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/login`
+        const response = await fetchDataBackend(url, data,'POST')
+        if(response){
+            navigate('/dashboard')
+        }
+    }
+
+
+
+
+    // Estado para recordar la sesión ESTO ES APARTE DEL useForm - TOCA HACER NOSOTROS
+    const [rememberMe, setRememberMe] = useState(false);
     const handleCheckboxChange = () => {
         setRememberMe(!rememberMe);
         // Aquí puedes guardar en localStorage si deseas mantener sesión:
         // localStorage.setItem("rememberMe", !rememberMe);
     };
 
+
+
+
+
+
     return (
         <div className="flex flex-col sm:flex-row h-screen">
+            <ToastContainer />
 
             {/* Imagen de fondo */}
             <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/public/images/epnLogin.jpeg')] 
@@ -46,9 +71,8 @@ const Login = () => {
                             <span className="mx-2 text-gray-400 text-base whitespace-nowrap">OR LOGIN WITH EMAIL</span>
                         <hr className="flex-grow border-gray-400" />
                     </div>
-
+                    
                     <form>
-
                         {/* Correo electrónico */}
                         <div className="mb-3">
                             <label className="mb-2 block text-base font-semibold">Correo electrónico</label>

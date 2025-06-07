@@ -4,25 +4,26 @@ import { Link, useNavigate } from 'react-router';
 import useFetch from '../hooks/useFetch';
 import { ToastContainer } from 'react-toastify';
 
-const Login = () => {
 
+const Login = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-    const { register, handleSubmit, formState: { errors } } = useForm()
-    const { fetchDataBackend } = useFetch()
+    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { fetchDataBackend } = useFetch();
 
-    const loginUser = async(data) => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/login`
-        const response = await fetchDataBackend(url, data,'POST')
-        if(response){
-            navigate('/dashboard')
+    const loginUser = async (data) => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
+        const response = await fetchDataBackend(url, data, 'POST');
+        if (response) {
+            navigate('/dashboard');
         }
-    }
+    };
 
 
 
 
-    // Estado para recordar la sesión ESTO ES APARTE DEL useForm - TOCA HACER NOSOTROS
+
+       // Estado para recordar la sesión ESTO ES APARTE DEL useForm - TOCA HACER NOSOTROS
     const [rememberMe, setRememberMe] = useState(false);
     const handleCheckboxChange = () => {
         setRememberMe(!rememberMe);
@@ -44,16 +45,14 @@ const Login = () => {
             bg-no-repeat bg-cover bg-center sm:block hidden">
             </div>
 
-            {/* Contenedor de formulario */}
-            <div className="w-full sm:w-1/2 h-screen bg-white flex justify-center items-center">
-                <div className="md:w-4/5 sm:w-full">
-
-            {/* Logo encima del título */}
+            {/* Contenedor del formulario */}
+            <div className="w-full sm:w-1/2 flex flex-col justify-center px-8">
+                {/* Logo encima del título */}
                 <div className="flex justify-center mt-0 mb-9">
-                    <img 
+                    <img
                         src="/images/logo_esfot.png"
                         alt="Logo"
-                        className="w-24 h-24 object-contain"
+                        className="w-26 h-22 object-contain"
                     />
                 </div>
 
@@ -66,46 +65,55 @@ const Login = () => {
                     Sign in with Google
                 </button>
 
+                {/* Línea divisoria */}
                 <div className="flex items-center my-10">
                         <hr className="flex-grow border-gray-400" />
                             <span className="mx-2 text-gray-400 text-base whitespace-nowrap">OR LOGIN WITH EMAIL</span>
                         <hr className="flex-grow border-gray-400" />
                     </div>
-                    
-                    <form>
-                        {/* Correo electrónico */}
-                        <div className="mb-3">
-                            <label className="mb-2 block text-base font-semibold">Correo electrónico</label>
-                            <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-2 text-gray-500" />
-                        </div>
 
-                        {/* Contraseña */}
-                        <div className="mb-6 relative">
-                            <label className="mb-2 block text-base font-semibold">Contraseña</label>
-                            <div className="relative">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="********************"
-                                    className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500 pr-10"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute top-2 right-3 text-gray-500 hover:text-gray-700"
-                                >
-                                    {showPassword ? (
-                                        <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A9.956 9.956 0 0112 19c-4.418 0-8.165-2.928-9.53-7a10.005 10.005 0 0119.06 0 9.956 9.956 0 01-1.845 3.35M9.9 14.32a3 3 0 114.2-4.2m.5 3.5l3.8 3.8m-3.8-3.8L5.5 5.5" />
-                                        </svg>
-                                    ) : (
-                                        <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9.95 0a9.96 9.96 0 0119.9 0m-19.9 0a9.96 9.96 0 0119.9 0M3 3l18 18" />
-                                        </svg>
-                                    )}
-                                </button>
-                            </div>
+                {/* FORMULARIO */}
+                <form onSubmit={handleSubmit(loginUser)}>
+                    {/* Correo electrónico */}
+                    <div className="mb-3">
+                        <label className="mb-2 block text-base font-semibold">Correo electrónico</label>
+                        <input
+                            type="email"
+                            placeholder="Ingresa tu correo"
+                            className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-2 text-gray-500"
+                            {...register("email", { required: "Este campo es obligatorio!" })}
+                        />
+                        {errors.email && <p className="text-red-800">{errors.email.message}</p>}
+                    </div>
+
+                    {/* Contraseña */}
+                    <div className="mb-6 relative">
+                        <label className="mb-2 block text-base font-semibold">Contraseña</label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="********************"
+                                className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500 pr-10"
+                                {...register("password", { required: "Este campo es obligatorio!" })}
+                            />
+                            {errors.password && <p className="text-red-800">{errors.password.message}</p>}
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute top-2 right-3 text-gray-500 hover:text-gray-700"
+                            >
+                                {showPassword ? (
+                                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A9.956 9.956 0 0112 19c-4.418 0-8.165-2.928-9.53-7a10.005 10.005 0 0119.06 0 9.956 9.956 0 01-1.845 3.35M9.9 14.32a3 3 0 114.2-4.2m.5 3.5l3.8 3.8m-3.8-3.8L5.5 5.5" />
+                                    </svg>
+                                ) : (
+                                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9.95 0a9.96 9.96 0 0119.9 0m-19.9 0a9.96 9.96 0 0119.9 0M3 3l18 18" />
+                                    </svg>
+                                )}
+                            </button>
                         </div>
-                    </form>
+                    </div>
 
                     {/* Recordarme y Olvidaste tu contraseña */}
                     <div className="mb-7 flex justify-between items-center">
@@ -116,7 +124,7 @@ const Login = () => {
                                 onChange={handleCheckboxChange}
                                 className="mr-2"
                             />
-                            <label htmlFor="rememberMe" className="text-base text-gray-500">Recordarme</label>
+                            <label htmlFor="rememberMe" className="text-base text-black">Recordarme</label>
                         </div>
                         <Link
                             to="/forgot/id"
@@ -128,28 +136,24 @@ const Login = () => {
 
                     {/* Botón de iniciar sesión */}
                     <div className="my-4">
-                        <Link
-                            to="/dashboard"
-                            className="py-2 w-full block text-center bg-black text-white hover:scale-105 rounded-xl hover:bg-blue-600 duration-300"
-                    >
-                        Iniciar sesión
-                        </Link>
+                        <button className="py-2 w-full block text-center bg-black text-white border rounded-xl 
+                        hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white">Iniciar sesión</button>
                     </div>
+                </form>
 
-                        {/* Registrarse */}
-                    <div className="mt-4 text-base py-4 text-center text-gray-500">
-                        ¿No tienes cuenta?{' '}
-                        <Link 
-                            to="/register" 
-                            className="text-base text-gray-500 underline hover:text-blue-600 font-medium"
-                        >
-                            Regístrate aquí
-                        </Link>
-                    </div>
+                {/* Registrarse */}
+                <div className="mt-4 text-base py-4 text-center text-black">
+                    ¿No tienes cuenta?{' '}
+                    <Link
+                        to="/register"
+                        className="text-base text-gray-500 underline hover:text-blue-600 font-medium"
+                    >
+                        Regístrate aquí
+                    </Link>
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default Login;

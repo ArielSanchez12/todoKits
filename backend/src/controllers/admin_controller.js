@@ -39,8 +39,9 @@ const recuperarPassword = async (req,res) => {
 
     const token = adminEmailBDD.createToken()//4. Crear token para la verificacion de correo
     adminEmailBDD.token = token
+    await adminEmailBDD.save() //Cambie en el mismo orden del registro porque aca tampoco se cambia a null el token
+    // Enviar el correo con el token
     await sendMailToRecoveryPassword(email,token)
-    await adminEmailBDD.save()
 
     //5. Confirmacion
     res.status(200).json({msg:"Revisa tu correo para restablecer tu contraseña"})
@@ -71,6 +72,10 @@ const crearNuevoPassword = async (req,res) => {
     res.status(200).json({msg:"Felicitaciones, ya puedes iniciar sesión con tu nuevo password"})
 }
 
+const login = (req,res) => {
+    res.send("Login de administrador")
+}
+
 
 
 export {
@@ -78,5 +83,6 @@ export {
     confirmarMail,
     recuperarPassword,
     comprobarTokenPassword,
-    crearNuevoPassword
+    crearNuevoPassword,
+    login
 }

@@ -19,7 +19,7 @@ const Reset = () => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/nuevopassword/${token}`;
         fetchDataBackend(url, data, 'POST');
         setTimeout(() => {
-            if (data.password == data.confirmpassword) {//Este if es para validar que coincidan las contraseñas y luego se haga la redireccion
+            if (data.password == data.confirmpassword) { //Este if es para validar que coincidan las contraseñas y luego se haga la redireccion
                 navigate('/login'); // No continúa si no coinciden
             }
         }, 3000);

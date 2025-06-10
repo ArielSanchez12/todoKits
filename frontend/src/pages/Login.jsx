@@ -5,41 +5,45 @@ import useFetch from '../hooks/useFetch';
 import { ToastContainer } from 'react-toastify';
 
 
-
-
 const Login = () => {
-
-
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-    const { register, handleSubmit, formState: { errors } } = useForm();
+
+    // Leer email recordado si existe
+    const rememberedEmail = localStorage.getItem("rememberedEmail") || "";
+
+    const { register, handleSubmit, formState: { errors } } = useForm({
+        defaultValues: {
+            email: rememberedEmail
+        }
+    });
     const { fetchDataBackend } = useFetch();
 
+    // Estado para recordar la sesión
+    const [rememberMe, setRememberMe] = useState(() => {
+        return localStorage.getItem("rememberMe") === "true";
+    });
+
+    const handleCheckboxChange = () => {
+        setRememberMe(prev => {
+            localStorage.setItem("rememberMe", !prev);
+            return !prev;
+        });
+    };
 
     const loginUser = async (data) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
         const response = await fetchDataBackend(url, data, 'POST');
         if (response) {
+            // Si el usuario quiere recordar sesión, guarda el email
+            if (rememberMe) {
+                localStorage.setItem("rememberedEmail", data.email);
+            } else {
+                localStorage.removeItem("rememberedEmail");
+            }
             navigate('/dashboard');
         }
     };
-
-
-
-
-   // Estado para recordar la sesión ESTO ES APARTE DEL useForm - TOCA HACER NOSOTROS
-const [rememberMe, setRememberMe] = useState(() => {
-    // Al cargar, revisa si el usuario ya eligió recordar sesión
-    return localStorage.getItem("rememberMe") === "true";
-});
-const handleCheckboxChange = () => {
-    setRememberMe(prev => {
-        localStorage.setItem("rememberMe", !prev);
-        return !prev;
-    });
-};
-
-
 
 
 
@@ -106,6 +110,7 @@ const handleCheckboxChange = () => {
                                 {...register("password", { required: "Este campo es obligatorio!" })}
                             />
                             {errors.password && <p className="text-red-800">{errors.password.message}</p>}
+
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
@@ -131,7 +136,7 @@ const handleCheckboxChange = () => {
                                 id="rememberMe"
                                 type="checkbox"
                                 onChange={handleCheckboxChange}
-                                checked={rememberMe}
+                                checked={rememberMe} // Controla el estado del checkbox
                                 className="mr-2"
                             />
                             <label htmlFor="rememberMe" className="text-base text-black">Recordarme</label>

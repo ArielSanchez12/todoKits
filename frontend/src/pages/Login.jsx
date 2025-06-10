@@ -5,11 +5,16 @@ import useFetch from '../hooks/useFetch';
 import { ToastContainer } from 'react-toastify';
 
 
+
+
 const Login = () => {
+
+
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm();
     const { fetchDataBackend } = useFetch();
+
 
     const loginUser = async (data) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
@@ -22,14 +27,18 @@ const Login = () => {
 
 
 
+   // Estado para recordar la sesión ESTO ES APARTE DEL useForm - TOCA HACER NOSOTROS
+const [rememberMe, setRememberMe] = useState(() => {
+    // Al cargar, revisa si el usuario ya eligió recordar sesión
+    return localStorage.getItem("rememberMe") === "true";
+});
+const handleCheckboxChange = () => {
+    setRememberMe(prev => {
+        localStorage.setItem("rememberMe", !prev);
+        return !prev;
+    });
+};
 
-       // Estado para recordar la sesión ESTO ES APARTE DEL useForm - TOCA HACER NOSOTROS
-    const [rememberMe, setRememberMe] = useState(false);
-    const handleCheckboxChange = () => {
-        setRememberMe(!rememberMe);
-        // Aquí puedes guardar en localStorage si deseas mantener sesión:
-        // localStorage.setItem("rememberMe", !rememberMe);
-    };
 
 
 
@@ -122,6 +131,7 @@ const Login = () => {
                                 id="rememberMe"
                                 type="checkbox"
                                 onChange={handleCheckboxChange}
+                                checked={rememberMe}
                                 className="mr-2"
                             />
                             <label htmlFor="rememberMe" className="text-base text-black">Recordarme</label>

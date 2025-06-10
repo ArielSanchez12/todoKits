@@ -38,6 +38,7 @@ const Login = () => {
             // Si el usuario quiere recordar sesión, guarda el email
             if (rememberMe) {
                 localStorage.setItem("rememberedEmail", data.email);
+                
             } else {
                 localStorage.removeItem("rememberedEmail");
             }

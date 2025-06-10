@@ -72,8 +72,34 @@ const crearNuevoPassword = async (req,res) => {
     res.status(200).json({msg:"Felicitaciones, ya puedes iniciar sesión con tu nuevo password"})
 }
 
-const login = (req,res) => {
-    res.send("Login de administrador")
+const login = async (req,res) => {
+
+    //Obtencion de datos
+    const {email, password} = req.body
+
+    //Validacion de datos
+    if(Object.values(req.body).includes("")) return res.status(400).json({msg: "Todos los campos son obligatorios"})
+    
+    //Comprobacion de email/password
+    const adminEmailBDD = await admin.findOne({email}).select("-status -__v -token -createdAt -updatedAt")
+    if(adminEmailBDD?.confirmEmail === false) return res.status(401).json({msg:"Lo sentimos, debes verificar tu cuenta antes de iniciar sesión"})
+    if(!adminEmailBDD) return res.status(404).json({msg:"Lo sentimos, el usuario no existe"})
+    
+    const verificarPassword = await adminEmailBDD.matchPassword(password)
+    if(!verificarPassword) return res.status(401).json({msg:"Lo sentimos, el password es incorrecto"})
+    
+    //Desestructurar para mostrarle solo lo que queremos al usuario
+    const {nombre, apellido, direccion, celular, _id, rol} = adminEmailBDD //Esto es lo mismo que hacer un destructuring con select
+
+    //Aca mandamos el objeto que desestructuramos arriba
+    res.status(200).json({
+        rol,
+        nombre,
+        apellido,
+        direccion,
+        celular,
+        _id
+    })
 }
 
 

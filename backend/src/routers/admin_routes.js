@@ -11,6 +11,6 @@ router.get('/confirmar/:token', confirmarMail)
 router.post('/recuperarPassword', recuperarPassword)
 router.get('/recuperarPassword/:token', comprobarTokenPassword)
 router.post('/nuevopassword/:token', crearNuevoPassword)
-router.post('/login',login)
+router.post('/login', login)
 
 export default router

@@ -8,29 +8,24 @@ import { ToastContainer } from 'react-toastify';
 const Login = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-
     // Leer email recordado si existe
     const rememberedEmail = localStorage.getItem("rememberedEmail") || "";
-
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
             email: rememberedEmail
         }
     });
     const { fetchDataBackend } = useFetch();
-
     // Estado para recordar la sesión
     const [rememberMe, setRememberMe] = useState(() => {
         return localStorage.getItem("rememberMe") === "true";
     });
-
     const handleCheckboxChange = () => {
         setRememberMe(prev => {
             localStorage.setItem("rememberMe", !prev);
             return !prev;
         });
     };
-
     const loginUser = async (data) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
         const response = await fetchDataBackend(url, data, 'POST');
@@ -38,15 +33,13 @@ const Login = () => {
             // Si el usuario quiere recordar sesión, guarda el email
             if (rememberMe) {
                 localStorage.setItem("rememberedEmail", data.email);
-                
+
             } else {
                 localStorage.removeItem("rememberedEmail");
             }
             navigate('/dashboard');
         }
     };
-
-
 
 
 

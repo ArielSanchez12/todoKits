@@ -71,7 +71,7 @@ const Login = () => {
                 {/* Botón de inicio de sesión con Google */}
                 <button
                     className="bg-white border py-2 w-full rounded-xl mt-5 flex justify-center items-center text-base hover:scale-105 duration-300 hover:bg-black hover:text-white"
-                    onClick={() => loginWithRedirect({ connection: 'google-oauth2' })}
+                    onClick={() => loginWithRedirect()}
                     type="button"
                 >
                     <img className="w-5 mr-2" src="https://cdn-icons-png.flaticon.com/512/281/281764.png" alt="Google icon" />

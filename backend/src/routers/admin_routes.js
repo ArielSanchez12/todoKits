@@ -4,13 +4,13 @@ import { comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, recup
 const router = Router()
 
 //Aqui ya se completa esta ruta http://localhost:3000/api/registro
-router.post('/register', registro)
+router.post('/registro', registro)
        //Verbo  Ruta     Controlador
 
-router.get('/confirm/:token', confirmarMail)
-router.post('/passwordrecovery', recuperarPassword)
-router.get('/passwordrecovery/:token', comprobarTokenPassword)
-router.post('/newpassword/:token', crearNuevoPassword) //Todas las rutas en ingles y minusculas
+router.get('/confirmar/:token', confirmarMail)
+router.post('/recuperarPassword', recuperarPassword)
+router.get('/recuperarPassword/:token', comprobarTokenPassword)
+router.post('/nuevopassword/:token', crearNuevoPassword)
 router.post('/login', login)
 
 export default router

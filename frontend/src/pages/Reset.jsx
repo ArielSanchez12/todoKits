@@ -16,7 +16,7 @@ const Reset = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
 
     const changePassword = (data) => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/newpassword/${token}`;
+        const url = `${import.meta.env.VITE_BACKEND_URL}/nuevopassword/${token}`;
         fetchDataBackend(url, data, 'POST');
         setTimeout(() => {
             if (data.password == data.confirmpassword) { //Este if es para validar que coincidan las contraseñas y luego se haga la redireccion

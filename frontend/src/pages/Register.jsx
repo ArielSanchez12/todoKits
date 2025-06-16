@@ -13,7 +13,7 @@ export const Register = () => {
     // Función para manejar el envío del formulario al backend
     const registro = async (data) => {
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/registro` // URL del backend para el registro
+            const url = `${import.meta.env.VITE_BACKEND_URL}/register` // URL del backend para el registro
             // Enviar los datos del formulario al backend
             const response = await axios.post(url,data)
             toast.success(response.data.msg) // Mostrar mensaje de éxito

@@ -16,12 +16,10 @@ import Reset from './pages/Reset'
 
 
 
-
 function App() {
   return (
     <>
     <BrowserRouter>
-
       <Routes>
         
         <Route index element={<Login/>}/>
@@ -45,7 +43,6 @@ function App() {
 
 
       </Routes>
-
     </BrowserRouter>
     </>
   )

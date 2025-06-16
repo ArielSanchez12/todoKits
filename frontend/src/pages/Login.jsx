@@ -3,12 +3,10 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
 import useFetch from '../hooks/useFetch';
 import { ToastContainer } from 'react-toastify';
-import { useAuth0 } from "@auth0/auth0-react";
 
 
 const Login = () => {
     const navigate = useNavigate();
-    const { loginWithRedirect } = useAuth0();
     const [showPassword, setShowPassword] = useState(false);
     // Leer email recordado si existe
     const rememberedEmail = localStorage.getItem("rememberedEmail") || "";
@@ -43,7 +41,7 @@ const Login = () => {
         }
     };
 
-    
+
 
     return (
         <div className="flex flex-col sm:flex-row h-screen">
@@ -69,11 +67,7 @@ const Login = () => {
                 <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-black">BIENVENIDOS</h1>
 
                 {/* Botón de inicio de sesión con Google */}
-                <button
-                    className="bg-white border py-2 w-full rounded-xl mt-5 flex justify-center items-center text-base hover:scale-105 duration-300 hover:bg-black hover:text-white"
-                    onClick={() => loginWithRedirect()}
-                    type="button"
-                >
+                <button className="bg-white border py-2 w-full rounded-xl mt-5 flex justify-center items-center text-base hover:scale-105 duration-300 hover:bg-black hover:text-white">
                     <img className="w-5 mr-2" src="https://cdn-icons-png.flaticon.com/512/281/281764.png" alt="Google icon" />
                     Sign in with Google
                 </button>

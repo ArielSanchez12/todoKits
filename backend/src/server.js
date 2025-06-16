@@ -12,18 +12,7 @@ dotenv.config()
 
 // Configuraciones - Esto es un set de POO, es decir le establecemos el valor
 app.set('port',process.env.PORT || 3000) //Aqui lo que hacemos es traer la variable global desde .env O si falla, que sea 3000
-//app.use(cors()) //Para usar el framework cors, cada que veas 'estancia'.use('algo') es un MIDDLEWARE, es decir, un intermediario
-
-const allowedOrigins = [
-  'https://kitsfrontend-zeta.vercel.app',
-  'http://localhost:5173'
-];
-
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true // Si usas cookies o autenticación
-}));
-
+app.use(cors()) //Para usar el framework cors, cada que veas 'estancia'.use('algo') es un MIDDLEWARE, es decir, un intermediario
 
 // Middlewares 
 app.use(express.json()) //Esto lo que hace es que todos los datos de los formularios de express, se compacten en json para que el backend los pueda procesar

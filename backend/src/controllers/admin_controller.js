@@ -1,7 +1,5 @@
 import {sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodemailer.js"
 import admin from "../models/admin.js"
-import {auth} from "express-oauth2-jwt-bearer"
-import { UnauthorizedError } from "express-oauth2-jwt-bearer"
 
 
 const registro = async (req,res) => {
@@ -104,19 +102,6 @@ const login = async (req,res) => {
     })
 }
 
-//Autenticar con google
-const authenticateUser = auth({
-    audience: process.env.AUDIENCE,
-    issuerBaseURL: process.env.ISSUER_BASE_URL
-});
-
-if (!authenticateUser) {
-    throw new UnauthorizedError("Token invalido");
-}
-
-
-
-
 
 export {
     registro,
@@ -124,6 +109,5 @@ export {
     recuperarPassword,
     comprobarTokenPassword,
     crearNuevoPassword,
-    login,
-    authenticateUser
+    login
 }

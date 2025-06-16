@@ -1,11 +1,11 @@
-import logoBuho from '../assets/profesor-buho-logo.png';
+import logoBuho from '../assets/buho con lentes.png';
 import { Link } from 'react-router';
 
 export const NotFound = () => {
     return (
         <div className="flex flex-col items-center justify-center h-screen">
             <img
-                className="object-cover h-75 w-80 rounded-full border-4 border-solid border-slate-600"
+                className="object-cover h-115 w-115 rounded-full border-4 border-solid border-slate-600"
                 src={logoBuho}
                 alt="image description"
             />

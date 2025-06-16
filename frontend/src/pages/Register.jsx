@@ -134,7 +134,7 @@ export const Register = () => {
             </div>
 
             {/* Sección con imagen de fondo, solo visible en pantallas grandes */}
-            <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/images/buho.jpg')] bg-no-repeat bg-cover bg-center sm:block hidden"></div>
+            <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/images/dragon_y_poli.png')] bg-no-repeat bg-cover bg-center sm:block hidden"></div>
         </div>
     );
 };

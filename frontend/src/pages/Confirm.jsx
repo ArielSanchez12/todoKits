@@ -1,4 +1,4 @@
-import logobuhoPuente from '../assets/buhoPuente.jpg'
+import logobuhoPuente from '../assets/buho_mitad.png'
 import { Link, useParams } from 'react-router'
 import { useEffect } from 'react'
 import axios from 'axios';
@@ -22,29 +22,28 @@ export const Confirm = () => {
 
     
     return (
-        <div className="h-screen flex flex-col">
-            <ToastContainer />
+    <div className="h-screen flex flex-col items-center justify-center bg-white">
+        <ToastContainer />
 
-            {/* Imagen en la mitad superior */}
-            <div className="h-3/5 w-full">
-                <img 
-                    src={logobuhoPuente} 
-                    alt="image description" 
-                    className="w-full h-full object-cover" 
-                />
-            </div>
+        {/* Imagen circular centrada */}
+        <img
+            className="object-cover w-115 h-115 rounded-full border-4 border-solid border-slate-600 shadow-md"
+            src={logobuhoPuente}
+            alt="Descripción de la imagen"
+        />
 
-            {/* Contenido en la mitad inferior */}
-            <div className="h-1/3 flex flex-col items-center justify-center bg-white px-4">
-                <p className="text-3xl md:text-4xl lg:text-5xl text-black mt-4">Muchas Gracias</p>
-                <p className="md:text-lg lg:text-xl text-black mt-4">Ya puedes iniciar sesión</p>
-                <Link 
-                    to="/login" 
-                    className="p-3 mt-7 w-50 text-center bg-black text-white border rounded-xl hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white"
-                >
-                    Login
-                </Link>
-            </div>
+        {/* Mensajes y botón */}
+        <div className="mt-8 text-center px-4">
+            <p className="text-3xl md:text-4xl lg:text-5xl text-black">Muchas Gracias</p>
+            <p className="md:text-lg lg:text-xl text-black mt-4">Ya puedes iniciar sesión</p>
+            <Link
+                to="/login"
+                className="p-3 mt-7 inline-block w-48 text-center bg-black text-white border rounded-xl hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white"
+            >
+                Login
+            </Link>
         </div>
-    )
+    </div>
+);
+
 }

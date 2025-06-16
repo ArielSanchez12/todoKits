@@ -45,7 +45,7 @@ const Reset = () => {
                 Por favor, ingrese los siguientes datos
             </small>
             <img
-                className="mb-10 object-cover h-80 w-80 rounded-full border-4 border-solid border-slate-600"
+                className="mb-10 object-cover h-75 w-75 rounded-full border-4 border-solid border-slate-600"
                 src={logoEPN}
                 alt="image description"
             />

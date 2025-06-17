@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
-import { Home } from './pages/Home'
+// import { Home } from './pages/Home'
 import Login from './pages/Login'
 import { Register } from './pages/Register'
 import { Forgot } from './pages/Forgot'

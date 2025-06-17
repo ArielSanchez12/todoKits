@@ -1,4 +1,4 @@
-import logobuhoPuente from '../assets/buho_mitad.png'
+import logobuhoPuente from '../assets/buho_mitad.webp'
 import { Link, useParams } from 'react-router'
 import { useEffect } from 'react'
 import axios from 'axios';

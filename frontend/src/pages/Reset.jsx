@@ -1,4 +1,4 @@
-import logoEPN from '../assets/epn_dep.jpg';
+import logoEPN from '../assets/epn_dep.webp';
 import { ToastContainer } from 'react-toastify';
 import { useEffect, useState } from 'react';
 import useFetch from '../hooks/useFetch';

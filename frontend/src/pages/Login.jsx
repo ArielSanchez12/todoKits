@@ -48,7 +48,7 @@ const Login = () => {
             <ToastContainer />
 
             {/* Imagen de fondo */}
-            <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/public/images/epnLogin.jpeg')] 
+            <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/images/epnLogin.webp')] 
             bg-no-repeat bg-cover bg-center sm:block hidden">
             </div>
 

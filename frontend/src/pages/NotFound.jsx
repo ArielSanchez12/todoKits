@@ -1,4 +1,4 @@
-import logoBuho from '../assets/buho con lentes.png';
+import logoBuho from '../assets/buho_con_lentes.webp';
 import { Link } from 'react-router';
 
 export const NotFound = () => {

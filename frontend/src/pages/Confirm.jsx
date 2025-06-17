@@ -40,7 +40,7 @@ export const Confirm = () => {
                 to="/login"
                 className="p-3 mt-7 inline-block w-48 text-center bg-black text-white border rounded-xl hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white"
             >
-                Login
+                Iniciar Sesión
             </Link>
         </div>
     </div>

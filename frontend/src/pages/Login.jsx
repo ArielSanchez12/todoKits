@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router';
 import useFetch from '../hooks/useFetch';
 import { ToastContainer } from 'react-toastify';
+import storeAuth from '../context/storeAuth';
 
 
 const Login = () => {
@@ -16,6 +17,7 @@ const Login = () => {
         }
     });
     const { fetchDataBackend } = useFetch();
+    const {setToken, setRol} = storeAuth();
     // Estado para recordar la sesión
     const [rememberMe, setRememberMe] = useState(() => {
         return localStorage.getItem("rememberMe") === "true";
@@ -29,6 +31,9 @@ const Login = () => {
     const loginUser = async (data) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
         const response = await fetchDataBackend(url, data, 'POST');
+        setToken(response.token);
+        setRol(response.rol);
+        // Verifica si la respuesta es exitosa
         if (response) {
             // Si el usuario quiere recordar sesión, guarda el email
             if (rememberMe) {

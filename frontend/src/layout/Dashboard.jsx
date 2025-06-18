@@ -7,54 +7,54 @@ const Dashboard = () => {
     return (
         <div className='md:flex md:min-h-screen'>
 
-            <div className='md:w-1/5 bg-gray-800 px-5 py-4'>
+            <div className='md:w-1/6 bg-black px-5 py-4'>
 
-                <h2 className='text-4xl font-black text-center text-slate-200'>LabTRACK</h2>
+                <h2 className='text-5xl font-black text-center text-white font-sans'>LabTRACK</h2>
 
                 <img src="https://images.pexels.com/photos/32566238/pexels-photo-32566238.jpeg" alt="img-client" className="m-auto mt-8 p-1 border-2 border-slate-500 rounded-full" width={120} height={120} />
-                <p className='text-slate-400 text-center my-4 text-sm'> <span className='bg-green-600 w-3 h-3 inline-block rounded-full'></span> Bienvenido - </p>
-                <p className='text-slate-400 text-center my-4 text-sm'> Rol - </p>
-                <hr className="mt-5 border-slate-500" />
+                <p className='text-white text-center my-4 text-base'> <span className='bg-green-500 w-3 h-3 inline-block rounded-full'></span> Bienvenido - </p>
+                <p className='text-white text-center my-4 text-base'> Rol - </p>
+                <hr className="mt-6 border-slate-500" />
 
-                <ul className="mt-5">
+                <ul className="mt-6">
 
                     <li className="text-center">
-                        <Link to='/dashboard' className={`${urlActual === '/dashboard' ? 'text-slate-200 bg-gray-900 px-3 py-2 rounded-md text-center' : 'text-slate-600'} text-xl block mt-2 hover:text-slate-600`}>Perfil</Link>
+                        <Link to='/dashboard' className={`${urlActual === '/dashboard' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Perfil</Link>
                     </li>
 
                     <li className="text-center">
-                        <Link to='/dashboard/listar' className={`${urlActual === '/dashboard/listar' ? 'text-slate-200 bg-gray-900 px-3 py-2 rounded-md text-center' : 'text-slate-600'} text-xl block mt-2 hover:text-slate-600`}>Listar</Link>
+                        <Link to='/dashboard/listar' className={`${urlActual === '/dashboard/listar' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Listar</Link>
                     </li>
 
                     <li className="text-center">
-                        <Link to='/dashboard/crear' className={`${urlActual === '/dashboard/crear' ? 'text-slate-100 bg-gray-900 px-3 py-2 rounded-md text-center' : 'text-slate-600'} text-xl block mt-2 hover:text-slate-600`}>Crear</Link>
+                        <Link to='/dashboard/crear' className={`${urlActual === '/dashboard/crear' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Crear</Link>
                     </li>
 
                     <li className="text-center">
-                        <Link to='/dashboard/chat' className={`${urlActual === '/dashboard/chat' ? 'text-slate-100 bg-gray-900 px-3 py-2 rounded-md text-center' : 'text-slate-600'} text-xl block mt-2 hover:text-slate-600`}>Chat</Link>
+                        <Link to='/dashboard/chat' className={`${urlActual === '/dashboard/chat' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Chat</Link>
                     </li>
                 </ul>
 
             </div>
 
-            <div className='flex-1 flex flex-col justify-between h-screen bg-gray-100'>
-                <div className='bg-gray-800 py-2 flex md:justify-end items-center gap-5 justify-center'>
+            <div className='flex-1 flex flex-col justify-between h-screen bg-white'>
+                <div className='bg-black py-3 flex md:justify-end items-center gap-5 justify-center'>
                     <div className='text-md font-semibold text-slate-100'>
                         Usuario - 
                     </div>
                     <div>
-                        <img src="https://cdn-icons-png.flaticon.com/512/4715/4715329.png" alt="img-client" className="border-2 border-green-600 rounded-full" width={50} height={50} />
+                        <img src="https://cdn-icons-png.flaticon.com/512/4715/4715329.png" alt="img-client" className="border-2 border-green-500 rounded-full" width={50} height={50} />
                     </div>
                     <div>
-                        <Link to='/' className=" text-white mr-3 text-md block hover:bg-red-900 text-center
-                        bg-red-800 px-4 py-1 rounded-lg">Salir</Link>
+                        <Link to='/' className=" text-white mr-3 text-md block hover:bg-red-700 text-center
+                        bg-red-600 px-7 py-1 rounded-lg">Salir</Link>
                     </div>
                 </div>
                 <div className='overflow-y-scroll p-8'>
                     <Outlet />
                 </div>
-                <div className='bg-gray-800 h-12'>
-                    <p className='text-center  text-slate-100 leading-[2.9rem] underline'>Todos los derechos reservados</p>
+                <div className='bg-black h-12'>
+                    <p className='text-center  text-white leading-[2.9rem] underline'>Todos los derechos reservados</p>
                 </div>
 
             </div>

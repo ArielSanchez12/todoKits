@@ -1,4 +1,5 @@
 import {sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodemailer.js"
+import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
 
 
@@ -90,9 +91,11 @@ const login = async (req,res) => {
     
     //Desestructurar para mostrarle solo lo que queremos al usuario
     const {nombre, apellido, direccion, celular, _id, rol} = adminEmailBDD //Esto es lo mismo que hacer un destructuring con select
+    const tokenJWT = crearTokenJWT(adminEmailBDD._id, adminEmailBDD.rol)
 
     //Aca mandamos el objeto que desestructuramos arriba
     res.status(200).json({
+        token: tokenJWT,
         rol,
         nombre,
         apellido,
@@ -102,6 +105,10 @@ const login = async (req,res) => {
     })
 }
 
+const perfil = (req,res) => {
+    res.send("Perfil del administrador")
+}
+
 
 export {
     registro,
@@ -109,5 +116,6 @@ export {
     recuperarPassword,
     comprobarTokenPassword,
     crearNuevoPassword,
-    login
+    login,
+    perfil
 }

@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, recuperarPassword, registro } from "../controllers/admin_controller.js";
+import { comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, recuperarPassword, registro, perfil } from "../controllers/admin_controller.js";
+import { verificarTokenJWT} from "../middlewares/jwt.js";
 
 const router = Router()
 
@@ -12,7 +13,7 @@ router.post('/passwordrecovery', recuperarPassword)
 router.get('/passwordrecovery/:token', comprobarTokenPassword)
 router.post('/newpassword/:token', crearNuevoPassword)
 router.post('/login', login)
-router.get('/perfil', perfil)
+router.get('/perfil',verificarTokenJWT, perfil) //verificarTokenJWT es un MIDDLEWARE que se ejecuta antes de llegar al controlador perfil (así protegemos la ruta de acceso al perfil del administrador)
 
 
 export default router

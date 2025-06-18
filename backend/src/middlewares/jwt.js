@@ -11,7 +11,7 @@ const verificarTokenJWT = (req,res,next) => {
     
     try{
         const token = authorization.split(' ')[1]
-        const{id,rol} = jwt.verify(token, process.env.JWT_SECRET)
+        const{id,rol} = jwt.verify(token,process.env.JWT_SECRET)
         if(rol == "Administrador"){
             req.admin = admin.findById(id).lean().select("-password")
             next()

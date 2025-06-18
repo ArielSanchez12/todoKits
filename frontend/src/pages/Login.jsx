@@ -7,8 +7,10 @@ import storeAuth from '../context/storeAuth';
 
 
 const Login = () => {
+
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+
     // Leer email recordado si existe
     const rememberedEmail = localStorage.getItem("rememberedEmail") || "";
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -16,18 +18,22 @@ const Login = () => {
             email: rememberedEmail
         }
     });
+
     const { fetchDataBackend } = useFetch();
     const {setToken, setRol} = storeAuth();
+
     // Estado para recordar la sesión
     const [rememberMe, setRememberMe] = useState(() => {
         return localStorage.getItem("rememberMe") === "true";
     });
+
     const handleCheckboxChange = () => {
         setRememberMe(prev => {
             localStorage.setItem("rememberMe", !prev);
             return !prev;
         });
     };
+    
     const loginUser = async (data) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
         const response = await fetchDataBackend(url, data, 'POST');

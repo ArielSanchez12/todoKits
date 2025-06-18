@@ -5,23 +5,23 @@ const FormularioPerfil = () => {
     return (
         <form >
             <div>
-                <label className="mb-2 block text-sm font-semibold">Nombre</label>
+                <label className="mb-2 block text-base font-semibold">Nombre</label>
                 <input type="text" placeholder="Ingresa tu nombre" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
             <div>
-                <label className="mb-2 block text-sm font-semibold">Apellido</label>
+                <label className="mb-2 block text-base font-semibold">Apellido</label>
                 <input type="text" placeholder="Ingresa tu apellido" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
             <div>
-                <label className="mb-2 block text-sm font-semibold">Dirección</label>
+                <label className="mb-2 block text-base font-semibold">Dirección</label>
                 <input type="text" placeholder="Ingresa tu dirección" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
             <div>
-                <label className="mb-2 block text-sm font-semibold">Teléfono</label>
+                <label className="mb-2 block text-base font-semibold">Teléfono</label>
                 <input type="number" placeholder="Ingresa tu teléfono" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
             <div>
-                <label className="mb-2 block text-sm font-semibold">Correo electrónico</label>
+                <label className="mb-2 block text-base font-semibold">Correo electrónico</label>
                 <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
 

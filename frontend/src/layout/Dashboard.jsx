@@ -7,7 +7,7 @@ const Dashboard = () => {
     return (
         <div className='md:flex md:min-h-screen'>
 
-            <div className='md:w-1/6 bg-black px-5 py-4'>
+            <div className='md:w-1/6 bg-black px-8 py-6'>
 
                 <h2 className='text-5xl font-black text-center text-white font-sans'>LabTRACK</h2>
 

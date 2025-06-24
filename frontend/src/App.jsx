@@ -13,6 +13,7 @@ import Create from './pages/Create'
 import Update from './pages/Update'
 import Chat from './pages/Chat'
 import Reset from './pages/Reset'
+
 import PublicRoute from './routes/PublicRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
 
@@ -35,7 +36,7 @@ function App() {
         </Route>
 
 
-        <Route path='dashboard/*' element={
+        <Route path='dashboard/' element={
             <ProtectedRoute>
               <Routes>
                 <Route element={<Dashboard />}>
@@ -49,7 +50,6 @@ function App() {
               </Routes>
             </ProtectedRoute>
           } />
-
 
       </Routes>
     </BrowserRouter>

@@ -13,6 +13,8 @@ import Create from './pages/Create'
 import Update from './pages/Update'
 import Chat from './pages/Chat'
 import Reset from './pages/Reset'
+import PublicRoute from './routes/PublicRoute'
+import ProtectedRoute from './routes/ProtectedRoute'
 
 
 
@@ -22,6 +24,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         
+        <Route element={<PublicRoute />}>
         <Route index element={<Login/>}/>
         <Route path='login' element={<Login/>}/>
         <Route path='register' element={<Register/>}/>
@@ -29,17 +32,23 @@ function App() {
         <Route path='confirm/:token' element={<Confirm/>}/>
         <Route path='reset/:token' element={<Reset/>}/>
         <Route path='*' element={<NotFound />} />
-
-
-        <Route path='/dashboard' element={<Dashboard/>}>
-          <Route index element={<Profile/>}/>
-          <Route path='listar' element={<List/>}/>
-          <Route path='visualizar/:id' element={<Details/>}/>
-          <Route path='crear' element={<Create/>}/>
-          <Route path='actualizar/:id' element={<Update/>}/>
-          <Route path='chat' element={<Chat/>}/>
-
         </Route>
+
+
+        <Route path='dashboard/*' element={
+            <ProtectedRoute>
+              <Routes>
+                <Route element={<Dashboard />}>
+                  <Route index element={<Profile />} />
+                  <Route path='listar' element={<List />} />
+                  <Route path='visualizar/:id' element={<Details />} />
+                  <Route path='crear' element={<Create />} />
+                  <Route path='actualizar/:id' element={<Update />} />
+                  <Route path='chat' element={<Chat />} />
+                </Route>
+              </Routes>
+            </ProtectedRoute>
+          } />
 
 
       </Routes>

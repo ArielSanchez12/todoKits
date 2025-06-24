@@ -1,9 +1,12 @@
 import { Link, Outlet, useLocation } from 'react-router'
+import storeAuth from '../context/storeAuth'
 
 
 const Dashboard = () => {
     const location = useLocation()
     const urlActual = location.pathname
+    const { clearToken } = storeAuth()
+
     return (
         <div className='md:flex md:min-h-screen'>
 
@@ -46,8 +49,8 @@ const Dashboard = () => {
                         <img src="https://cdn-icons-png.flaticon.com/512/4715/4715329.png" alt="img-client" className="border-2 border-green-500 rounded-full" width={50} height={50} />
                     </div>
                     <div>
-                        <Link to='/' className=" text-white mr-3 text-md block hover:bg-red-700 text-center
-                        bg-red-600 px-7 py-1 rounded-lg">Salir</Link>
+                        <button to='/' className=" text-white mr-3 text-md block hover:bg-red-700 text-center
+                        bg-red-600 px-7 py-1 rounded-lg" onClick={() => clearToken()}>Salir</button>
                     </div>
                 </div>
                 <div className='overflow-y-scroll p-8'>

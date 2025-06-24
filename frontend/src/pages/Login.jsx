@@ -20,6 +20,8 @@ const Login = () => {
     });
 
     const { fetchDataBackend } = useFetch();
+
+    // Importar funciones del store de autenticación
     const {setToken, setRol} = storeAuth();
 
     // Estado para recordar la sesión
@@ -51,7 +53,6 @@ const Login = () => {
             navigate('/dashboard');
         }
     };
-
 
 
     return (

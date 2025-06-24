@@ -110,6 +110,22 @@ const perfil = (req,res) => {
     res.status(200).json(datosPerfil)
 }
 
+const actualizarPerfil = async (req, res) => {
+  try {
+    // req.admin lo pone el middleware verificarTokenJWT
+    const adminEmailBDD = await admin.findById(req.admin._id);
+    if (!adminEmailBDD)
+      return res.status(404).json({ msg: "Usuario no encontrado" });
+
+    // Actualiza solo los campos permitidos
+    adminEmailBDD.updateInfoFromProfile(req.body);
+    await adminEmailBDD.save();
+
+    res.status(200).json({ msg: "Perfil actualizado correctamente", admin: adminEmailBDD });
+  } catch (error) {
+    res.status(500).json({ msg: "Error al actualizar perfil" });
+  }
+};
 
 export {
     registro,
@@ -118,5 +134,6 @@ export {
     comprobarTokenPassword,
     crearNuevoPassword,
     login,
-    perfil
+    perfil,
+    actualizarPerfil
 }

@@ -1,9 +1,36 @@
+import axios from "axios"
+import storeAuth from "../../context/storeAuth"
 
 const FormularioPerfil = () => {
+    const { token } = storeAuth();
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const data = {
+            nombre: e.target.nombre.value,
+            apellido: e.target.apellido.value,
+            direccion: e.target.direccion.value,
+            celular: e.target.celular.value,
+            email: e.target.email.value,
+        };
+        try {
+            await axios.put(
+                `${import.meta.env.VITE_BACKEND_URL}/perfil`,
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log("Datos actualizados correctamente")
+        } catch (error) {
+            console.log(error)
+        }
+    };
 
     return (
-        <form >
+        <form onSubmit={handleSubmit}>
             <div>
                 <label className="mb-2 block text-base font-semibold">Nombre</label>
                 <input type="text" placeholder="Ingresa tu nombre" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />

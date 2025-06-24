@@ -81,6 +81,14 @@ adminSchema.methods.createToken = function(){
     return tokenGenerado
 }
 
+adminSchema.methods.updateInfoFromProfile = function (data) {
+    if (data.nombre) this.nombre = data.nombre;
+    if (data.apellido) this.apellido = data.apellido;
+    if (data.direccion) this.direccion = data.direccion;
+    if (data.celular) this.celular = data.celular;
+    if (data.email) this.email = data.email;
+};
+
 //Aqui model es como nuestra tabla vacia y le pasamos el nombre del archivo (sin extension .js) y luego el schema
 export default model('Admin', adminSchema)
 

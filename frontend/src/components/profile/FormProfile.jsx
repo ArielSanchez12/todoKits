@@ -33,23 +33,23 @@ const FormularioPerfil = () => {
         <form onSubmit={handleSubmit}>
             <div>
                 <label className="mb-2 block text-base font-semibold">Nombre</label>
-                <input type="text" placeholder="Ingresa tu nombre" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
+                <input type="text" name="nombre" placeholder="Ingresa tu nombre" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
             <div>
                 <label className="mb-2 block text-base font-semibold">Apellido</label>
-                <input type="text" placeholder="Ingresa tu apellido" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
+                <input type="text" name="apellido" placeholder="Ingresa tu apellido" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
             <div>
                 <label className="mb-2 block text-base font-semibold">Dirección</label>
-                <input type="text" placeholder="Ingresa tu dirección" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
+                <input type="text" name="direccion" placeholder="Ingresa tu dirección" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
             <div>
                 <label className="mb-2 block text-base font-semibold">Teléfono</label>
-                <input type="number" placeholder="Ingresa tu teléfono" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
+                <input type="number" name="celular" placeholder="Ingresa tu teléfono" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
             <div>
                 <label className="mb-2 block text-base font-semibold">Correo electrónico</label>
-                <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
+                <input type="email" name="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5" />
             </div>
 
             <input

@@ -1,31 +1,13 @@
 import { useEffect } from "react"
-import storeAuth from "../../context/storeAuth"
 import storeProfile from "../../context/storeProfile"
 import { useForm } from "react-hook-form"
-import axios from "axios"
 
 const FormularioPerfil = () => {
-
-    const { token } = storeAuth();
-    const { user } = storeProfile()
+    const { user,updateProfile } = storeProfile()
     const { register, handleSubmit, reset, formState: { errors } } = useForm()
-    console.log(user)
 
-    const updateUser = async (data) => {
-        try {
-            await axios.put(
-                `${import.meta.env.VITE_BACKEND_URL}/perfil`,
-                data,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            console.log("Datos actualizados correctamente")
-        } catch (error) {
-            console.log(error)
-        }
+    const updateUser = async(data) => {
+        updateProfile(data,user._id)
     }
 
     useEffect(() => {
@@ -39,10 +21,6 @@ const FormularioPerfil = () => {
             })
         }
     }, [user])
-
-
-
-
 
 
     return (

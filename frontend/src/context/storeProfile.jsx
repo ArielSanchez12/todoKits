@@ -24,7 +24,7 @@ const storeProfile = create((set) => ({
             } catch (error) {
                 console.error(error)
             }
-        },
+        }
     })
 )
 

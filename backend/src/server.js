@@ -3,7 +3,7 @@ import express from 'express' //Framework que vamos a usar
 import dotenv from 'dotenv'   //Este framework es para trabajar con variables globales, se definen en el archivo .env y luego se las usa donde querramos
 import cors from 'cors';      //Este funciona cuando trabajamos con distintos sitios de despliegue, por ejemplo el front lo subo a github y el server a otra pagina y con cors se pueden comunicar sin dar problemas
 import routerAdmin from './routers/admin_routes.js'; //Renombrar cada router para cada modelo, luego copia y pega abajo en app.use para que se ponga en azul
-
+import routerDocente from './routers/docente_routes.js';
 
 
 // Inicializaciones
@@ -26,6 +26,8 @@ app.get('/',(req,res)=>{   //Raiz -> '/', luego una funcion callback, y si respo
 //Rutas veterinario
 //Hasta aqui llega este paso http://localhost:3000/api
 app.use('/api', routerAdmin)//Aca copia y pega
+//Rutas docente
+app.use('/api', routerDocente)
 
 //Manejo de rutas inexistentes
 app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})

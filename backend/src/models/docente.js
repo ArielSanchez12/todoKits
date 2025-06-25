@@ -1,5 +1,5 @@
 import mongoose, {Schema, model} from 'mongoose'; //Librerias para generar el schema/modelo de nuestra BDD
-import bcrypt from 'bcryptjs'
+import bcrypt, { genSaltSync } from 'bcryptjs'
 
 //Y aqui es donde se definen las cosas que van en la tabla
 const docenteSchema = new Schema({
@@ -75,6 +75,18 @@ const docenteSchema = new Schema({
 }, {
     timestamps:true 
 }) 
+
+//Metodo para cifrar contraseña
+docenteSchema.methods.encryptPassword = async function(password){
+    const salt = await bcrypt.genSalt(10)
+    return bcrypt.hash(password,salt)
+}
+
+//Metodo para verificar la contraseña
+docenteSchema.methods.matchPassword() = async function(password){
+    const response = await bcrypt.compare(password,this.password) //Este this.password es el de arriba del modelo, ya que estamos usando el 'adminSchema'
+    return response
+}
 
 
 export default model('docente', docenteSchema) 

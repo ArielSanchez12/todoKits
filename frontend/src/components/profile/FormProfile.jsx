@@ -5,13 +5,13 @@ import { useForm } from "react-hook-form"
 import axios from "axios"
 
 const FormularioPerfil = () => {
-
     const { token } = storeAuth();
-    const { user } = storeProfile()
+    const { user, updateProfile} = storeProfile()
     const { register, handleSubmit, reset, formState: { errors } } = useForm()
     console.log(user)
 
     const updateUser = async (data) => {
+        updateProfile(data,user._id)
         try {
             await axios.put(
                 `${import.meta.env.VITE_BACKEND_URL}/perfil`,
@@ -39,9 +39,6 @@ const FormularioPerfil = () => {
             })
         }
     }, [user])
-
-
-
 
 
 

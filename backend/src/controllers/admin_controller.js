@@ -1,6 +1,7 @@
 import {sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
+import mongoose from "mongoose"
 
 
 const registro = async (req,res) => {
@@ -110,22 +111,30 @@ const perfil = (req,res) => {
     res.status(200).json(datosPerfil)
 }
 
-const actualizarPerfil = async (req, res) => {
-  try {
-    // req.admin lo pone el middleware verificarTokenJWT
-    const adminEmailBDD = await admin.findById(req.admin._id);
-    if (!adminEmailBDD)
-      return res.status(404).json({ msg: "Usuario no encontrado" });
-
-    // Actualiza solo los campos permitidos
-    adminEmailBDD.updateInfoFromProfile(req.body);
-    await adminEmailBDD.save();
-
-    res.status(200).json({ msg: "Perfil actualizado correctamente", admin: adminEmailBDD });
-  } catch (error) {
-    res.status(500).json({ msg: "Error al actualizar perfil" });
-  }
-};
+const actualizarPerfil = async (req,res)=>{
+    const {id} = req.params
+    const {nombre,apellido,direccion,celular,email} = req.body
+    if( !mongoose.Types.ObjectId.isValid(id) ) return res.status(404).json({msg:`Lo sentimos, debe ser un id válido`});
+    if (Object.values(req.body).includes("")) return res.status(400).json({msg:"Lo sentimos, debes llenar todos los campos"})
+    const adminEmailBDD = await admin.findById(id)
+    if(!adminEmailBDD) return res.status(404).json({msg:`Lo sentimos, no existe el usuario ${id}`})
+    if (adminEmailBDD.email != email)
+    {
+        const adminEmailBDD = await admin.findOne({email})
+        if (adminEmailBDD)
+        {
+            return res.status(404).json({msg:`Lo sentimos, el email existe ya se encuentra registrado`})  
+        }
+    }
+    adminEmailBDD.nombre = nombre ?? adminEmailBDD.nombre
+    adminEmailBDD.apellido = apellido ?? adminEmailBDD.apellido
+    adminEmailBDD.direccion = direccion ?? adminEmailBDD.direccion
+    adminEmailBDD.celular = celular ?? adminEmailBDD.celular
+    adminEmailBDD.email = email ?? adminEmailBDD.email
+    await adminEmailBDD.save()
+    console.log(adminEmailBDD)
+    res.status(200).json(adminEmailBDD)
+}
 
 export {
     registro,

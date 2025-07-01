@@ -136,7 +136,7 @@ const actualizarPerfil = async (req,res)=>{
     res.status(200).json(adminEmailBDD)
 }
 
-/*
+
 const actualizarPassword = async (req,res)=>{
     const adminEmailBDD = await admin.findById(req.adminEmailBDD._id)
     if(!adminEmailBDD) return res.status(404).json({msg:`Lo sentimos, no existe el administrador ${id}`})
@@ -146,24 +146,6 @@ const actualizarPassword = async (req,res)=>{
     await adminEmailBDD.save()
     res.status(200).json({msg:"Password actualizado correctamente"})
 }
-*/
-
-const actualizarPassword = async (req, res) => {
-
-    const { id } = req.params;
-    const adminEmailBDD = await admin.findById(id);
-    if (!adminEmailBDD) {
-        return res.status(404).json({ msg: `Lo sentimos, no existe el administrador ${id}` });
-    }
-    const verificarPassword = await adminEmailBDD.matchPassword(req.body.passwordactual);
-    if (!verificarPassword) {
-        return res.status(404).json({ msg: "Lo sentimos, el password actual no es el correcto" });
-    }
-    adminEmailBDD.password = await adminEmailBDD.encrypPassword(req.body.passwordnuevo);
-    await adminEmailBDD.save();
-    res.status(200).json({ msg: "Password actualizado correctamente" });
-};
-
 
 
 export {

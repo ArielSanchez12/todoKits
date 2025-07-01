@@ -31,12 +31,12 @@ const CardPassword = () => {
             <form onSubmit={handleSubmit(updatePassword)}>
 
                 <div className="relative">
-                    <label className="mb-2 block text-sm font-semibold">Contraseña actual</label>
+                    <label className="mb-2 block text-base font-semibold">Contraseña actual</label>
                     <input
                         type={showPasswordActual ? "text" : "password"}
                         placeholder="Ingresa tu contraseña actual"
-                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                        {...register("passwordactual", { required: "La contraseña actual es obligatoria" })}
+                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-2"
+                        {...register("passwordactual", { required: "Este campo es obligatorio!" })}
                     />
                     {/* Botón para mostrar/ocultar */}
                     <button
@@ -54,16 +54,16 @@ const CardPassword = () => {
                             </svg>
                         )}
                     </button>
-                    {errors.passwordactual && <p className="text-red-800">{errors.passwordactual.message}</p>}
+                    {errors.passwordactual && <p className="text-red-800 text-base mb-4">{errors.passwordactual.message}</p>}
                 </div>
 
                 <div className="relative">
-                    <label className="mb-2 block text-sm font-semibold">Nueva contraseña</label>
+                    <label className="mb-2 block text-base font-semibold">Nueva contraseña</label>
                     <input
                         type={showPasswordNuevo ? "text" : "password"}
                         placeholder="Ingresa la nueva contraseña"
-                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                        {...register("passwordnuevo", { required: "La nueva contraseña es obligatoria" })}
+                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-2"
+                        {...register("passwordnuevo", { required: "Este campo es obligatorio!" })}
                     />
                     {/* Botón para mostrar/ocultar */}
                     <button
@@ -81,13 +81,13 @@ const CardPassword = () => {
                             </svg>
                         )}
                     </button>
-                    {errors.passwordnuevo && <p className="text-red-800">{errors.passwordnuevo.message}</p>}
+                    {errors.passwordnuevo && <p className="text-red-800 text-base mb-4">{errors.passwordnuevo.message}</p>}
                 </div>
 
                 <input
                     type="submit"
-                    className='bg-gray-800 w-full p-2 text-slate-300 uppercase font-bold rounded-lg 
-                        hover:bg-gray-600 cursor-pointer transition-all'
+                    className='bg-black w-full p-2 mt-1 text-white uppercase font-bold rounded-lg 
+                        hover:bg-blue-600 hover:scale-105 duration-300 cursor-pointer transition-all'
                     value='Cambiar' />
 
             </form>

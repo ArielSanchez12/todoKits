@@ -20,8 +20,8 @@ cloudinary.config({
 })
 
 app.use(fileUpload({ //Cuando se haga una carga de imagenes, se usara la carpeta Temp de nuestra computadora para que la imagen original
-    useTempFiles : true, //se quede en nuestra compu antes de enviarla a Cloudinary
-    tempFileDir : '/tmp/' //Nuestra ruta se llamara temp(no uploads porque lo nuestro ya esta en la nube) y estara en la raiz del proyecto
+    useTempFiles : false, //se quede en nuestra compu antes de enviarla a Cloudinary
+    //tempFileDir : './tmp' //Nuestra ruta se llamara temp(no uploads porque lo nuestro ya esta en la nube) y estara en la raiz del proyecto
 }))
 
 // Configuraciones - Esto es un set de POO, es decir le establecemos el valor

@@ -20,12 +20,20 @@ const registrarDocente = async (req,res) => {
     admin: req.adminEmailBDD._id  
   })
 
-  if(req.files?.imagen){
-    const {secure_url, public_id} = await cloudinary.uploader.upload(req.files.imagen.tempFilePath,{folder:'Docentes'})
-    nuevoDocente.avatarDocente = secure_url
-    nuevoDocente.avatarDocenteIA = public_id
-    await fs.unlink(req.files.imagen.tempFilePath)
-  }
+  if (req.files?.imagen) {
+  await new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: 'Docentes' },
+      (error, result) => {
+        if (error) return reject(error);
+        nuevoDocente.avatarDocente = result.secure_url;
+        nuevoDocente.avatarDocenteIA = result.public_id;
+        resolve();
+      }
+    );
+    uploadStream.end(req.files.imagen.data);
+  });
+}
 
   await nuevoDocente.save()
   await sendMailToDocente(emailDocente, "KITS" + password) 

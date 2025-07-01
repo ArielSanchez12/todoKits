@@ -107,7 +107,7 @@ const login = async (req,res) => {
 }
 
 const perfil = (req,res) => {
-    const {token, confirmEmail, createdAt, updatedAt, __v,...datosPerfil} = req.admin //Quita todo lo que esta antes de ... y lo demas lo guarda en datosPerfil para almacenarlos en la respuesta req.admin
+    const {token, confirmEmail, createdAt, updatedAt, __v,...datosPerfil} = req.adminEmailBDD //Quita todo lo que esta antes de ... y lo demas lo guarda en datosPerfil para almacenarlos en la respuesta req.admin
     res.status(200).json(datosPerfil)
 }
 

@@ -66,5 +66,5 @@ const sendMailToDocente = async(userMail,password)=>{
 export {
     sendMailToRegister,
     sendMailToRecoveryPassword,
-    sendMailToPaciente
+    sendMailToDocente
 }

@@ -41,6 +41,7 @@ export const Form = () => {
     }
 
 
+
     const registerPatient = async (data) => {
         /*
         const data = {
@@ -76,8 +77,7 @@ export const Form = () => {
     }
 
 
-
-    return (
+        return (
         <form onSubmit={handleSubmit(registerPatient)}>
             <ToastContainer />
 

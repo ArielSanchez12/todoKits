@@ -21,19 +21,26 @@ const registrarDocente = async (req,res) => {
   })
 
   if (req.files?.imagen) {
-  await new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: 'Docentes' },
-      (error, result) => {
-        if (error) return reject(error);
-        nuevoDocente.avatarDocente = result.secure_url;
-        nuevoDocente.avatarDocenteIA = result.public_id;
-        resolve();
-      }
-    );
-    uploadStream.end(req.files.imagen.data); //SI AQUI SE LLAMA IMAGEN, EN LA PETICION DE POSTMAN TAMBIEN(no avatarDocente ni avatarDocenteIA)
-  });
-}
+    await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: 'Docentes' },
+        (error, result) => {
+          if (error) return reject(error);
+          nuevoDocente.avatarDocente = result.secure_url;
+          nuevoDocente.avatarDocenteIA = result.public_id;
+          resolve();
+        }
+      );
+      uploadStream.end(req.files.imagen.data);
+    });
+  }
+
+
+    // if(req.files?.imagen){
+    //     const { secure_url, public_id } = await cloudinary.uploader.upload(req.files.imagen.data,{folder:'Docentes'})
+    //     nuevoDocente.avatarDocente = secure_url
+    //     nuevoDocente.avatarDocenteIA = public_id
+    // }
 
   await nuevoDocente.save()
   await sendMailToDocente(emailDocente, "KITS" + password) 

@@ -83,9 +83,8 @@ docenteSchema.methods.encryptPassword = async function(password){
 }
 
 //Metodo para verificar la contraseña
-docenteSchema.methods.matchPassword() = async function(password){
-    const response = await bcrypt.compare(password,this.password) //Este this.password es el de arriba del modelo, ya que estamos usando el 'adminSchema'
-    return response
+docenteSchema.methods.matchPassword = async function(password){
+    return bcrypt.compare(password, this.passwordDocente)
 }
 
 

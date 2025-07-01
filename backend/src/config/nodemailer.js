@@ -46,7 +46,25 @@ const sendMailToRecoveryPassword = async(userMail,token)=>{
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
 }
 
+const sendMailToDocente = async(userMail,password)=>{
+    let info = await transporter.sendMail({
+    from: 'admin@kits.com',
+    to: userMail,
+    subject: "Correo de bienvenida - Docente de la ESFOT",
+    html: `
+    <h1>KITSLABORATORIO-🐒🏇🏿</h1>
+    <hr>
+    <p>Contraseña de acceso: ${password}</p>
+    <a href=${process.env.URL_FRONTEND}login>Clic para iniciar sesión</a>
+    <hr>
+    <footer>El equipo de la ESFOT te da la más cordial bienvenida.</footer>
+    `
+    });
+    console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+}
+
 export {
     sendMailToRegister,
-    sendMailToRecoveryPassword
+    sendMailToRecoveryPassword,
+    sendMailToPaciente
 }

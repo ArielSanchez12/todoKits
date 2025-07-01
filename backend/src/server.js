@@ -4,11 +4,25 @@ import dotenv from 'dotenv'   //Este framework es para trabajar con variables gl
 import cors from 'cors';      //Este funciona cuando trabajamos con distintos sitios de despliegue, por ejemplo el front lo subo a github y el server a otra pagina y con cors se pueden comunicar sin dar problemas
 import routerAdmin from './routers/admin_routes.js'; //Renombrar cada router para cada modelo, luego copia y pega abajo en app.use para que se ponga en azul
 import routerDocente from './routers/docente_routes.js';
+import cloudinary from 'cloudinary'
+import fileUpload from "express-fileupload"
 
 
 // Inicializaciones
 const app = express() //Crear instancia como en POO
 dotenv.config() 
+
+//Para usar Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+})
+
+app.use(fileUpload({ //Cuando se haga una carga de imagenes, se usara la carpeta Temp de nuestra computadora para que la imagen original
+    useTempFiles : true, //se quede en nuestra compu antes de enviarla a Cloudinary
+    tempFileDir : './uploads' //Nuestra ruta se llamara uploads y estara en la raiz del proyecto
+}))
 
 // Configuraciones - Esto es un set de POO, es decir le establecemos el valor
 app.set('port',process.env.PORT || 3000) //Aqui lo que hacemos es traer la variable global desde .env O si falla, que sea 3000

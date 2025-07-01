@@ -69,7 +69,7 @@ const docenteSchema = new Schema({
     },
     admin:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Admin' //Hacemos referencia a nuestro otro modelo(el nombre debe respetar mayusculas y minusculas)
+        ref:'admin' //Hacemos referencia a nuestro otro modelo(el nombre debe respetar mayusculas y minusculas)
     }
 
 }, {

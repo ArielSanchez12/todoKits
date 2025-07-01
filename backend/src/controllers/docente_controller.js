@@ -31,7 +31,7 @@ const registrarDocente = async (req,res) => {
         resolve();
       }
     );
-    uploadStream.end(req.files.imagen.data);
+    uploadStream.end(req.files.imagen.data); //SI AQUI SE LLAMA IMAGEN, EN LA PETICION DE POSTMAN TAMBIEN(no avatarDocente ni avatarDocenteIA)
   });
 }
 

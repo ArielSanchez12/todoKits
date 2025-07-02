@@ -35,17 +35,14 @@ const registrarDocente = async (req,res) => {
     });
   }
 
-  const listarDocentes = async (req,res)=>{
-    const docentes = await admin.find({estatusDocente:true}).where('docente').equals(req.adminEmailBDD).select("-salida -createdAt -updatedAt -__v").populate('docente','_id nombre apellido')
-    res.status(200).json(docentes)
-}
-
-
   await nuevoDocente.save()
   await sendMailToDocente(emailDocente, "KITS" + password) 
-
   res.status(201).json({msg: "Registro exitoso del docente"})
+}
 
+const listarDocentes = async (req,res) => {
+    const docentes = await admin.find({estatusDocente:true}).where('docente').equals(req.adminEmailBDD).select("-salida -createdAt -updatedAt -__v").populate('docente','_id nombre apellido')
+    res.status(200).json(docentes)
 }
 
 export {

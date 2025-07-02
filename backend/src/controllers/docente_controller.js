@@ -31,16 +31,15 @@ const registrarDocente = async (req,res) => {
           resolve();
         }
       );
-      uploadStream.end(req.files.imagen.data);
+      uploadStream.end(req.files.imagen.data); // si aqui se llama imagen, en la consulta de postman tambien se debe llamar imagen (no avatarDocente, ni avatarDocenteIA)
     });
   }
 
+  const listarDocentes = async (req,res)=>{
+    const docentes = await admin.find({estatusDocente:true}).where('docente').equals(req.adminEmailBDD).select("-salida -createdAt -updatedAt -__v").populate('docente','_id nombre apellido')
+    res.status(200).json(docentes)
+}
 
-    // if(req.files?.imagen){
-    //     const { secure_url, public_id } = await cloudinary.uploader.upload(req.files.imagen.data,{folder:'Docentes'})
-    //     nuevoDocente.avatarDocente = secure_url
-    //     nuevoDocente.avatarDocenteIA = public_id
-    // }
 
   await nuevoDocente.save()
   await sendMailToDocente(emailDocente, "KITS" + password) 
@@ -50,5 +49,6 @@ const registrarDocente = async (req,res) => {
 }
 
 export {
-  registrarDocente
+  registrarDocente,
+  listarDocentes
 }

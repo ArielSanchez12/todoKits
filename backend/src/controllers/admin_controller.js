@@ -136,7 +136,7 @@ const actualizarPerfil = async (req,res)=>{
     res.status(200).json(adminEmailBDD)
 }
 
-/*
+
 const actualizarPassword = async (req,res)=>{
     const adminEmailBDD = await admin.findById(req.adminEmailBDD._id)
     if(!adminEmailBDD) return res.status(404).json({msg:`Lo sentimos, no existe el administrador ${id}`})
@@ -146,30 +146,6 @@ const actualizarPassword = async (req,res)=>{
     await adminEmailBDD.save()
     res.status(200).json({msg:"Password actualizado correctamente"})
 }
-    */
-
-
-const actualizarPassword = async (req, res) => {
-    try {
-        // Asegúrate de que req.adminEmailBDD existe
-        if (!req.adminEmailBDD || !req.adminEmailBDD._id) {
-            return res.status(400).json({ msg: "No se encontró el usuario autenticado" });
-        }
-        const adminEmailBDD = await admin.findById(req.adminEmailBDD._id);
-        if (!adminEmailBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el administrador` });
-
-        const verificarPassword = await adminEmailBDD.matchPassword(req.body.passwordactual);
-        if (!verificarPassword) return res.status(400).json({ msg: "Lo sentimos, el password actual no es el correcto" });
-
-        adminEmailBDD.password = await adminEmailBDD.encryptPassword(req.body.passwordnuevo);
-        await adminEmailBDD.save();
-        res.status(200).json({ msg: "Password actualizado correctamente" });
-    } catch (error) {
-        console.error("Error en actualizarPassword:", error);
-        res.status(500).json({ msg: "Error interno del servidor", error: error.message });
-    }
-}
-
 
 export {
     registro,

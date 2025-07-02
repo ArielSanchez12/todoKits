@@ -41,7 +41,7 @@ const registrarDocente = async (req,res) => {
 }
 
 const listarDocentes = async (req,res) => {
-    const docentes = await admin.find({estatusDocente:true}).where('docente').equals(req.adminEmailBDD).select("-salida -createdAt -updatedAt -__v").populate('docente','_id nombre apellido')
+    const docentes = await docente.find({statusDocente:true}).where('admin').equals(req.adminEmailBDD).select("-salida -createdAt -updatedAt -__v").populate('admin','_id nombre apellido')
     res.status(200).json(docentes)
 }
 

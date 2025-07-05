@@ -1,11 +1,12 @@
 import { useForm } from "react-hook-form"
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import { useState } from "react";
 import storeProfile from "../../context/storeProfile";
 import storeAuth from "../../context/storeAuth";
 
+
 const CardPassword = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm()
+    const { register, handleSubmit, formState: { errors }, reset} = useForm()
     const { user, updatePasswordProfile } = storeProfile()
     const { clearToken } = storeAuth()
 
@@ -13,12 +14,21 @@ const CardPassword = () => {
     const [showPasswordActual, setShowPasswordActual] = useState(false);
     const [showPasswordNuevo, setShowPasswordNuevo] = useState(false);
 
-    const updatePassword = async (data) => {
-        const response = await updatePasswordProfile(data, user._id)
-        if (response) {
-            clearToken()
-        }
-    }
+    const updatePassword = (data) => {
+    updatePasswordProfile(data, user._id)
+        .then((response) => {
+            if (response?.msg) {
+                toast.success(response.msg)
+                clearToken()
+            } else if (response?.error) {
+                toast.error(response.error)
+            }
+            reset()
+        })
+        .catch((error) => {
+            toast.error(error?.response?.data?.msg || "Ocurrió un error al actualizar la contraseña")
+        });
+}
 
     return (
         <>

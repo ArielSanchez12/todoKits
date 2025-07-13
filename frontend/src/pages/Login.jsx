@@ -37,7 +37,9 @@ const Login = () => {
     };
     
     const loginUser = async (data) => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
+        const url = data.password.includes("VET")
+            ? `${import.meta.env.VITE_BACKEND_URL}/docente/login`
+            : `${import.meta.env.VITE_BACKEND_URL}/login`
         const response = await fetchDataBackend(url, data, 'POST');
         setToken(response.token);
         setRol(response.rol);

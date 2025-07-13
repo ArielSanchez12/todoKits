@@ -60,9 +60,8 @@ export const Form = () => {
                 formData.append(key, data[key]) // se guardan nombre y edad
             }
         })
-        const url = `${import.meta.env.VITE_BACKEND_URL}/docente/register`
+        const url = `${import.meta.env.VITE_BACKEND_URL}/paciente/registro`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
-        console.log(storedUser)
         const headers= {
                 "Content-Type": "multipart/form-data",
                 Authorization: `Bearer ${storedUser.state.token}`
@@ -77,7 +76,7 @@ export const Form = () => {
     }
 
 
-        return (
+    return (
         <form onSubmit={handleSubmit(registerPatient)}>
             <ToastContainer />
 

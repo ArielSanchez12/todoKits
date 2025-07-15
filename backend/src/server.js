@@ -4,6 +4,7 @@ import dotenv from 'dotenv'   //Este framework es para trabajar con variables gl
 import cors from 'cors';      //Este funciona cuando trabajamos con distintos sitios de despliegue, por ejemplo el front lo subo a github y el server a otra pagina y con cors se pueden comunicar sin dar problemas
 import routerAdmin from './routers/admin_routes.js'; //Renombrar cada router para cada modelo, luego copia y pega abajo en app.use para que se ponga en azul
 import routerDocente from './routers/docente_routes.js';
+import routerTratamiento from './routers/tratamiento_routes.js'; //Importar el router de tratamiento
 import cloudinary from 'cloudinary'
 import fileUpload from "express-fileupload"
 
@@ -42,6 +43,8 @@ app.get('/',(req,res)=>{   //Raiz -> '/', luego una funcion callback, y si respo
 app.use('/api', routerAdmin)//Aca copia y pega
 //Rutas docente
 app.use('/api', routerDocente)
+//Rutas tratamiento
+app.use('/api', routerTratamiento) 
 
 //Manejo de rutas inexistentes
 app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})

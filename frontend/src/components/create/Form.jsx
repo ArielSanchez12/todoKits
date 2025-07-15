@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react";
 import useFetch from "../../hooks/useFetch"
 import { useNavigate } from "react-router"
 import { useForm } from "react-hook-form"
@@ -6,7 +6,7 @@ import {generateAvatar,convertBlobToBase64} from "../../helpers/consultarIA"
 import { toast, ToastContainer } from "react-toastify"
 
 
-export const Form = () => {
+export const Form = (docente) => {
 
     const [avatar, setAvatar] = useState({
         image: "https://cdn-icons-png.flaticon.com/512/2138/2138440.png",
@@ -15,7 +15,7 @@ export const Form = () => {
     })
 
     const navigate = useNavigate()
-    const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm()
+    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm()
     const { fetchDataBackend } = useFetch()
 
 
@@ -60,15 +60,21 @@ export const Form = () => {
                 formData.append(key, data[key]) // se guardan nombre y edad
             }
         })
-        const url = `${import.meta.env.VITE_BACKEND_URL}/docente/register`
+        let url = `${import.meta.env.VITE_BACKEND_URL}/paciente/registro`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
-        console.log(storedUser)
         const headers= {
                 "Content-Type": "multipart/form-data",
                 Authorization: `Bearer ${storedUser.state.token}`
             }
         
-        const response = await fetchDataBackend(url, formData, "POST", headers)
+        let response
+        if (docente?._id) {
+            url = `${import.meta.env.VITE_BACKEND_URL}/paciente/actualizar/${docente._id}`
+            response = await fetchDataBackend(url, formData, "PUT", headers)
+        }
+        else{
+            response = await fetchDataBackend(url, formData, "POST", headers)
+        }
         if (response) {
             setTimeout(() => {
                 navigate("/dashboard/listar")
@@ -76,8 +82,23 @@ export const Form = () => {
         }
     }
 
+    useEffect(() => {
+        if (docente) {
+            reset({
+                cedulaPropietario: docente?.cedulaPropietario,
+                nombrePropietario: docente?.nombrePropietario,
+                emailPropietario: docente?.emailPropietario,
+                celularPropietario: docente?.celularPropietario,
+                nombreMascota: docente?.nombreMascota,
+                tipoMascota: docente?.tipoMascota,
+                fechaNacimientoMascota: new Date(docente?.fechaNacimientoMascota).toLocaleDateString('en-CA', {timeZone: 'UTC'}),
+                sintomasMascota: docente?.sintomasMascota
+            })
+        }
+    }, [])
 
-        return (
+
+    return (
         <form onSubmit={handleSubmit(registerPatient)}>
             <ToastContainer />
 
@@ -97,7 +118,9 @@ export const Form = () => {
                             className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"
                             {...register("cedulaPropietario", { required: "La cédula es obligatoria" })}
                         />
-                        <button className="py-1 px-8 bg-gray-600 text-slate-300 border rounded-xl hover:scale-110 duration-300 hover:bg-gray-900 hover:text-white sm:w-80">
+                        <button className="py-1 px-8 bg-gray-600 text-slate-300 border rounded-xl hover:scale-110 duration-300 hover:bg-gray-900 hover:text-white sm:w-80"
+                        disabled={docente}
+                        >
                             Consultar
                         </button>
                     </div>
@@ -177,7 +200,8 @@ export const Form = () => {
                         <input
                             type="radio"
                             value="upload"
-                            {...register("imageOption", { required: "Seleccione una opción" })}
+                            {...register("imageOption",{ required: !docente && "El nombre de la mascota es obligatorio"})}
+                            disabled={docente}
                         />
                         Subir Imagen
                     </label>
@@ -267,7 +291,7 @@ export const Form = () => {
                 type="submit"
                 className="bg-gray-800 w-full p-2 mt-5 text-slate-300 uppercase font-bold rounded-lg 
                 hover:bg-gray-600 cursor-pointer transition-all"
-                value="Registrar"
+                value={docente ? "Actualizar" : "Registrar"}
             />
         </form>
 

@@ -10,8 +10,8 @@ const Update = () => {
     const { fetchDataBackend } = useFetch()
 
     useEffect(() => {
-        const searchPatient = async () => {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/paciente/${id}`
+        const searchDocente = async () => {
+            const url = `${import.meta.env.VITE_BACKEND_URL}/docente/${id}`
             const storedUser = JSON.parse(localStorage.getItem("auth-token"))
             const headers= {
                     "Content-Type": "application/json",
@@ -20,7 +20,7 @@ const Update = () => {
             const response = await fetchDataBackend(url, null, "GET", headers)
             setDocentes(response || {})
         }
-        searchPatient()
+        searchDocente()
     }, [])
 
     return (

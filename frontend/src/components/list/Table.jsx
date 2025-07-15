@@ -19,6 +19,7 @@ const Table = () => {
             Authorization: `Bearer ${storedUser.state.token}`,
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
+        console.log(response)
         setDocentes(...docentes, response)
     }
 
@@ -37,7 +38,7 @@ const Table = () => {
     const deleteDocente = async(id) => {
         const confirmDelete = confirm("Vas registrar la salida del paciente, ¿Estás seguro?")
         if(confirmDelete){
-            const url = `${import.meta.env.VITE_BACKEND_URL}/docente/eliminar/${id}`
+            const url = `${import.meta.env.VITE_BACKEND_URL}/docente/delete/${id}`
             const storedUser = JSON.parse(localStorage.getItem("auth-token"))
             const options = {
                 headers: {

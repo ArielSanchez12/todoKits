@@ -6,19 +6,19 @@ import useFetch from "../hooks/useFetch"
 
 const Details = () => {
     const { id } = useParams()
-    const [patient, setPatient] = useState({})
+    const [docente, setDocente] = useState({})
     const [treatments, setTreatments] = useState([])
     const { fetchDataBackend } = useFetch()
 
-    const listPatient = async () => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/paciente/${id}`
+    const listDocente = async () => {
+        const url = `${import.meta.env.VITE_BACKEND_URL}/docente/${id}`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
         const headers= {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${storedUser.state.token}`
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
-        setPatient(response)
+        setDocente(response)
     }
 
     const formatDate = (date) => {
@@ -26,7 +26,7 @@ const Details = () => {
     }
 
     useEffect(() => {
-        listPatient()
+        listDocente()
     }, [])
 
 
@@ -49,19 +49,19 @@ const Details = () => {
 
                             <ul className="pl-5">
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Cédula: {patient?.cedulaPropietario} </span>
+                                    <span className="text-gray-600 font-bold">Cédula: {docente?.cedulaPropietario} </span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Nombres completos: {patient?.nombrePropietario}</span>
+                                    <span className="text-gray-600 font-bold">Nombres completos: {docente?.nombrePropietario}</span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Correo electrónico: {patient?.emailPropietario}</span>
+                                    <span className="text-gray-600 font-bold">Correo electrónico: {docente?.emailPropietario}</span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
-                                <span className="text-gray-600 font-bold">Celular: {patient?.celularPropietario}</span>
+                                <span className="text-gray-600 font-bold">Celular: {docente?.celularPropietario}</span>
                                 </li>
                             </ul>
 
@@ -71,26 +71,26 @@ const Details = () => {
 
                             <ul className="pl-5">
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Nombre: {patient?.nombreMascota}</span>
+                                    <span className="text-gray-600 font-bold">Nombre: {docente?.nombreMascota}</span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Tipo: {patient?.tipoMascota}</span>
+                                    <span className="text-gray-600 font-bold">Tipo: {docente?.tipoMascota}</span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Fecha de nacimiento: {formatDate(patient?.fechaNacimientoMascota)}</span>
+                                    <span className="text-gray-600 font-bold">Fecha de nacimiento: {formatDate(docente?.fechaNacimientoMascota)}</span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Estado: </span>
                                     <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                    {patient?.estadoMascota && "activo"}
+                                    {docente?.estadoMascota && "activo"}
                                     </span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-4">
-                                    <span className="text-gray-600 font-bold">Síntomas: {patient?.sintomasMascota}</span>
+                                    <span className="text-gray-600 font-bold">Síntomas: {docente?.sintomasMascota}</span>
                                 </li>
 
                             </ul>
@@ -98,7 +98,7 @@ const Details = () => {
                     </div>
 
                     <div>
-                        <img src={patient?.avatarMascota || patient?.avatarMascotaIA} alt="dogandcat" className='h-80 w-80 rounded-full' />
+                        <img src={docente?.avatarMascota || docente?.avatarMascotaIA} alt="dogandcat" className='h-80 w-80 rounded-full' />
                     </div>
                 </div>
 

@@ -3,12 +3,14 @@ import TableTreatments from "../components/treatments/Table"
 import ModalTreatments from "../components/treatments/Modal"
 import { useParams } from "react-router"
 import useFetch from "../hooks/useFetch"
+import storeAuth from "../context/storeAuth"
 
 const Details = () => {
     const { id } = useParams()
     const [docente, setDocente] = useState({})
     const [treatments, setTreatments] = useState([])
     const { fetchDataBackend } = useFetch()
+    const { rol } = storeAuth()
 
     const listDocente = async () => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/docente/${id}`
@@ -108,9 +110,14 @@ const Details = () => {
 
                     <p>Este módulo te permite gestionar los tratamientos</p>
 
-                    <button className="px-5 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700">
-                        Registrar
-                    </button>
+                        {
+                            rol==="admin" &&
+                            (
+                                <button className="px-5 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700">
+                                    Registrar
+                                </button>
+                            )
+                        }
 
                     {false && (<ModalTreatments />)}
 

@@ -14,12 +14,15 @@ import Update from './pages/Update'
 import Chat from './pages/Chat'
 import Reset from './pages/Reset'
 
-import PublicRoute from './routes/PublicRoute'
-import ProtectedRoute from './routes/ProtectedRoute'
 import { useEffect } from 'react'
 import storeProfile from './context/storeProfile'
 import storeAuth from './context/storeAuth'
+
+import PublicRoute from './routes/PublicRoute'
+import ProtectedRoute from './routes/ProtectedRoute'
 import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
+
+
 
 function App() {
 

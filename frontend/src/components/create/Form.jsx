@@ -60,7 +60,7 @@ export const Form = (docente) => {
                 formData.append(key, data[key]) // se guardan nombre y edad
             }
         })
-        let url = `${import.meta.env.VITE_BACKEND_URL}/paciente/registro`
+        let url = `${import.meta.env.VITE_BACKEND_URL}/docente/register`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
         const headers= {
                 "Content-Type": "multipart/form-data",
@@ -69,7 +69,7 @@ export const Form = (docente) => {
         
         let response
         if (docente?._id) {
-            url = `${import.meta.env.VITE_BACKEND_URL}/paciente/actualizar/${docente._id}`
+            url = `${import.meta.env.VITE_BACKEND_URL}/docente/update/${docente._id}`
             response = await fetchDataBackend(url, formData, "PUT", headers)
         }
         else{

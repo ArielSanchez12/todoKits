@@ -18,7 +18,20 @@ const storeProfile = create((set) => ({
         clearUser: () => set({ user: null }),
         profile: async () => {
             try {
+
                 const url = `${import.meta.env.VITE_BACKEND_URL}/perfil`;
+
+
+
+                /*
+                const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+                const endpoint = storedUser.state.rol ==="ad"
+                    ? "perfil"
+                    : "docente/perfil"
+                const url = `${import.meta.env.VITE_BACKEND_URL}/${endpoint}`;
+                */
+
+
                 const respuesta = await axios.get(url, getAuthHeaders())
                 console.log(respuesta) 
                 set({ user: respuesta.data })

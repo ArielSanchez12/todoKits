@@ -18,7 +18,7 @@ const Dashboard = () => {
                 <h2 className='text-5xl font-black text-center text-white font-sans'>LabTRACK</h2>
 
                 <img src="https://images.pexels.com/photos/32566238/pexels-photo-32566238.jpeg" alt="img-client" className="m-auto mt-8 p-1 border-2 border-slate-500 rounded-full" width={120} height={120} />
-                <p className='text-white text-center my-4 text-base'> <span className='bg-green-500 w-3 h-3 inline-block rounded-full'></span> Bienvenido - {user?.nombre} {user?.apellido} </p>
+                <p className='text-white text-center my-4 text-base'> <span className='bg-green-500 w-3 h-3 inline-block rounded-full'></span> Bienvenido - {user?.nombre} {user?.apellido}</p>
                 <p className='text-white text-center my-4 text-base'> Rol - {user?.rol}</p>
                 <hr className="mt-6 border-slate-500" />
 

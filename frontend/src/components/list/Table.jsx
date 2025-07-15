@@ -3,17 +3,15 @@ import useFetch from "../../hooks/useFetch";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router';
 import { ToastContainer } from "react-toastify";
-import storeAuth from "../../context/storeAuth";
 
 
 const Table = () => {
 
     const navigate = useNavigate()
     const { fetchDataBackend } = useFetch()
-    const [docentes, setDocente] = useState([])
-    const { rol } = storeAuth()
+    const [docentes, setDocentes] = useState([])
 
-    const listDocente = async () => {
+    const listPatients = async () => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/docente/list`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
         const headers= {
@@ -21,12 +19,11 @@ const Table = () => {
             Authorization: `Bearer ${storedUser.state.token}`,
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
-        console.log(response)
-        setDocente(...docentes, response)
+        setDocentes(...docentes, response)
     }
 
     useEffect(() => {
-        listDocente()
+        listPatients()
     }, [])
 
     if (docentes.length === 0) {
@@ -52,7 +49,7 @@ const Table = () => {
                 salidaMascota:new Date().toString()
             }
             await fetchDataBackend(url, data, "DELETE", options.headers)
-            setDocente((prevDocentes) => prevDocentes.filter(docente => docente._id !== id))
+            setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id))
         }
     }
     
@@ -85,31 +82,24 @@ const Table = () => {
                                 <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{docente.statusDocente && "activo"}</span>
                             </td>
                             <td className='py-2 text-center'>
-                            <MdInfo
-                                title="Más información"
-                                className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-600"
-                                onClick={() => navigate(`/dashboard/visualizar/${docente._id}`)}
-                            />
+                                <MdPublishedWithChanges
+                                    title="Actualizar"
+                                    className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-600"
+                                    onClick={() => navigate(`/dashboard/actualizar/${docente._id}`)}
+                                />
 
-                            {
-                                rol==="admin" &&
-                                    (
-                                        <>
-                                            <MdPublishedWithChanges
-                                            title="Actualizar"
-                                            className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-600"
-                                            onClick={() => navigate(`/dashboard/actualizar/${docente._id}`)}
-                                            />
+                                <MdInfo
+                                    title="Más información"
+                                    className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-600"
+                                    onClick={() => navigate(`/dashboard/visualizar/${docente._id}`)}
+                                />
 
-                                            <MdDeleteForever
-                                            title="Eliminar"
-                                            className="h-7 w-7 text-red-900 cursor-pointer inline-block hover:text-red-600"
-                                            onClick={()=>{deleteDocente(docente._id)}}
-                                            />
-                                        </>
-                                    )
-                            }
-                        </td>
+                                <MdDeleteForever
+                                    title="Eliminar"
+                                    className="h-7 w-7 text-red-900 cursor-pointer inline-block hover:text-red-600"
+                                    onClick={() => deleteDocente(docente._id)}
+                                />
+                            </td>
                         </tr>
                     ))
                 }

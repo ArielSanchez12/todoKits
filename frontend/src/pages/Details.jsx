@@ -55,15 +55,15 @@ const Details = () => {
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Nombres completos: {docente?.nombrePropietario}</span>
+                                    <span className="text-gray-600 font-bold">Nombre Docente: {docente?.nombreDocente}</span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Correo electrónico: {docente?.emailPropietario}</span>
+                                    <span className="text-gray-600 font-bold">Correo electrónico: {docente?.emailDocente}</span>
                                 </li>
 
                                 <li className="text-md text-gray-00 mt-2">
-                                <span className="text-gray-600 font-bold">Celular: {docente?.celularPropietario}</span>
+                                <span className="text-gray-600 font-bold">Celular: {docente?.celularDocente}</span>
                                 </li>
                             </ul>
 
@@ -87,7 +87,7 @@ const Details = () => {
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Estado: </span>
                                     <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                    {docente?.estadoMascota && "activo"}
+                                    {docente?.statusDocente && "activo"}
                                     </span>
                                 </li>
 
@@ -111,7 +111,7 @@ const Details = () => {
                     <p>Este módulo te permite gestionar los tratamientos</p>
 
                         {
-                            rol==="admin" &&
+                            rol==="Administrador" &&
                             (
                                 <button className="px-5 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700">
                                     Registrar

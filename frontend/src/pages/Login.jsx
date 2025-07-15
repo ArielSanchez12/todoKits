@@ -38,7 +38,7 @@ const Login = () => {
     
     const loginUser = async (data) => {
 
-        const url = data.password.includes("VET")
+        const url = data.password.includes("KITS")
             ? `${import.meta.env.VITE_BACKEND_URL}/docente/login`
             : `${import.meta.env.VITE_BACKEND_URL}/login`
             

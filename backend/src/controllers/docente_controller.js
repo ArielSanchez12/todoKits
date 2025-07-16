@@ -3,6 +3,7 @@ import { sendMailToDocente } from "../config/nodemailer.js"
 import { v2 as cloudinary } from 'cloudinary'
 import fs from "fs-extra"
 import mongoose from "mongoose"
+import Tratamiento from "../models/tratamiento.js"
 
 const registrarDocente = async (req,res) => {
   //Obtener los datos
@@ -57,7 +58,14 @@ const detalleDocente = async(req,res)=>{
   if( !mongoose.Types.ObjectId.isValid(id) ) return res.status(404).json({msg:`Lo sentimos, no existe el docente ${id}`});
   const docentes = await docente.findById(id).select("-createdAt -updatedAt -__v").populate('admin','_id nombre apellido')
   res.status(200).json(docentes)
+  
+  const tratamientos = Tratamiento.find().where('docente').equals(id)
+  res.status(200).json({
+    docentes,
+    tratamientos
+  })
 }
+
 
 const eliminarDocente = async (req,res)=>{
   const {id} = req.params

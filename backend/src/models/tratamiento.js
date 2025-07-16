@@ -16,9 +16,9 @@ const tratamientoSchema = new Schema({
         require:true,
         enum:['Baja','Media','Alta']
     },
-    paciente:{
+    docente:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Paciente'
+        ref:'Docente'
     },
     precio: {
         type: Number,

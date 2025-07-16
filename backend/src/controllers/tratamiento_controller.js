@@ -5,7 +5,7 @@ const registrarTratamiento = async (req, res) => {
   const {docente} = req.body;
   
   if (!mongoose.Types.ObjectId.isValid(docente)){
-    return res.status(400).json({error: "ID de docente inválido"})
+    return res.status(400).json({msg: "ID de docente inválido"})
   }
   
   await Tratamiento.create(req.body)

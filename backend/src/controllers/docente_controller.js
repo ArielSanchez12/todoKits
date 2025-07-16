@@ -53,17 +53,22 @@ const listarDocentes = async (req,res) => {
   }
 }
 
-const detalleDocente = async(req,res)=>{
-  const {id} = req.params
-  if( !mongoose.Types.ObjectId.isValid(id) ) return res.status(404).json({msg:`Lo sentimos, no existe el docente ${id}`});
-  const docentes = await docente.findById(id).select("-createdAt -updatedAt -__v").populate('admin','_id nombre apellido')
-  res.status(200).json(docentes)
-  
-  const tratamientos = Tratamiento.find().where('docente').equals(id)
+const detalleDocente = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
+  }
+
+  const docentes = await docente.findById(id)
+    .select("-createdAt -updatedAt -__v")
+    .populate('admin', '_id nombre apellido');
+
+  const tratamientos = await Tratamiento.find().where('docente').equals(id);
+
   res.status(200).json({
     docentes,
     tratamientos
-  })
+  });
 }
 
 

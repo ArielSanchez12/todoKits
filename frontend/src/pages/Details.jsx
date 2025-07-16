@@ -4,6 +4,9 @@ import ModalTreatments from "../components/treatments/Modal"
 import { useParams } from "react-router"
 import useFetch from "../hooks/useFetch"
 import storeAuth from "../context/storeAuth"
+import storeTreatments from "../context/storeTreatments"
+import { ToastContainer} from 'react-toastify'
+
 
 const Details = () => {
     const { id } = useParams()
@@ -11,6 +14,7 @@ const Details = () => {
     const [treatments, setTreatments] = useState([])
     const { fetchDataBackend } = useFetch()
     const { rol } = storeAuth()
+    const { modal, toggleModal } = storeTreatments()
 
     const listDocente = async () => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/docente/${id}`
@@ -34,6 +38,7 @@ const Details = () => {
 
     return (
         <>
+            <ToastContainer />
             <div>
                 <h1 className='font-black text-4xl text-gray-500'>Visualizar</h1>
                 <hr className='my-4 border-t-2 border-gray-300' />
@@ -109,17 +114,18 @@ const Details = () => {
                 <div className='flex justify-between items-center'>
 
                     <p>Este módulo te permite gestionar los tratamientos</p>
+                    {
+                        rol==="Administrador" && // Aqui decia veterinario
+                        (
+                            <button className="px-5 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700"
+                                    onClick={()=>{toggleModal("treatments")}}
+                            >
+                                Registrar
+                            </button>
+                        )
+                    }
 
-                        {
-                            rol==="Administrador" &&
-                            (
-                                <button className="px-5 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700">
-                                    Registrar
-                                </button>
-                            )
-                        }
-
-                    {false && (<ModalTreatments />)}
+                    {modal === "treatments" && (<ModalTreatments docenteID={docente._id}/>)}
 
                 </div>
 

@@ -24,7 +24,9 @@ const Details = () => {
                 Authorization: `Bearer ${storedUser.state.token}`
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
-        setDocente(response)
+        console.log(response)
+        setDocente(response.docentes)
+        setTreatments(response.tratamientos)
     }
 
     const formatDate = (date) => {
@@ -32,8 +34,10 @@ const Details = () => {
     }
 
     useEffect(() => {
-        listDocente()
-    }, [])
+        if(modal===false){
+            listDocente()
+        }
+    },[modal])
 
 
     return (
@@ -136,7 +140,7 @@ const Details = () => {
                             <span className="font-medium">No existen registros</span>
                         </div>
                         :
-                        <TableTreatments treatments={treatments} />
+                        <TableTreatments treatments={treatments} listDocente={listDocente}/>
                 }
             </div>
         </>

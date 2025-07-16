@@ -20,6 +20,7 @@ const storeTreatments = create(set=>({
     
     registerTreatments:async(data)=>{
         try {
+            console.log(data)
             const url = `${import.meta.env.VITE_BACKEND_URL}/tratamiento/register`;
             const respuesta = await axios.post(url, data,getAuthHeaders())
             set((state)=>({modal:!state.modal}))
@@ -27,7 +28,21 @@ const storeTreatments = create(set=>({
         } catch (error) {
             console.error(error)
         }
+    },
+
+    deleteTreatments:async(id)=>{
+        const isConfirmed  = confirm("Vas a eliminar el tratamiento ¿Estás seguro de realizar esta acción?")
+        if (isConfirmed ) {
+            try {
+                const url = `${import.meta.env.VITE_BACKEND_URL}/tratamiento/${id}`
+                const respuesta = await axios.delete(url,getAuthHeaders())
+                toast.success(respuesta.data.msg)
+            } catch (error) {
+                console.error(error)
+            }
+        }
     }
+
 }))
 
 

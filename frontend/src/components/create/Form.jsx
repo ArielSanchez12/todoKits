@@ -102,41 +102,58 @@ export const Form = (docente) => {
         <form onSubmit={handleSubmit(registerPatient)}>
             <ToastContainer />
 
-            {/* Información del propietario */}
+            {/* Información del docente */}
             <fieldset className="border-2 border-gray-500 p-6 rounded-lg shadow-lg">
                 <legend className="text-xl font-bold text-gray-700 bg-gray-200 px-4 py-1 rounded-md">
-                    Información del propietario
+                    Información del docente
                 </legend>
 
-                {/* Cédula */}
+                {/* Nombre */}
                 <div>
-                    <label className="mb-2 block text-sm font-semibold">Cédula</label>
-                    <div className="flex items-center gap-10 mb-5">
-                        <input
-                            type="number"
-                            placeholder="Ingresa la cédula"
-                            className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"
-                            {...register("cedulaPropietario", { required: "La cédula es obligatoria" })}
-                        />
-                        <button className="py-1 px-8 bg-gray-600 text-slate-300 border rounded-xl hover:scale-110 duration-300 hover:bg-gray-900 hover:text-white sm:w-80"
-                        disabled={docente}
-                        >
-                            Consultar
-                        </button>
-                    </div>
-                    {errors.cedulaPropietario && <p className="text-red-800">{errors.cedulaPropietario.message}</p>}
-                </div>
-
-                {/* Nombre completo */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold">Nombres completos</label>
+                    <label className="mb-2 block text-sm font-semibold">Nombre</label>
                     <input
                         type="text"
-                        placeholder="Ingresa nombre y apellido"
+                        placeholder="Ingresa el nombre"
                         className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                        {...register("nombrePropietario", { required: "El nombre completo es obligatorio" })}
+                        {...register("nombreDocente", { required: "El nombre es obligatorio" })}
                     />
-                    {errors.nombrePropietario && <p className="text-red-800">{errors.nombrePropietario.message}</p>}
+                    {errors.nombreDocente && <p className="text-red-800">{errors.nombreDocente.message}</p>}
+                </div>
+
+                {/* Apellido */}
+                <div>
+                    <label className="mb-2 block text-sm font-semibold">Apellido</label>
+                    <input
+                        type="text"
+                        placeholder="Ingresa el apellido"
+                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
+                        {...register("apellidoDocente", { required: "El apellido es obligatorio" })}
+                    />
+                    {errors.apellidoDocente && <p className="text-red-800">{errors.apellidoDocente.message}</p>}
+                </div>
+
+                {/* Dirección */}
+                <div>
+                    <label className="mb-2 block text-sm font-semibold">Dirección</label>
+                    <input
+                        type="text"
+                        placeholder="Ingresa la dirección"
+                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
+                        {...register("direccionDocente", { required: "La dirección es obligatoria" })}
+                    />
+                    {errors.direccionDocente && <p className="text-red-800">{errors.direccionDocente.message}</p>}
+                </div>
+
+                {/* Celular */}
+                <div>
+                    <label className="mb-2 block text-sm font-semibold">Celular</label>
+                    <input
+                        type="text"
+                        placeholder="Ingresa el celular"
+                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
+                        {...register("celularDocente", { required: "El celular es obligatorio" })}
+                    />
+                    {errors.celularDocente && <p className="text-red-800">{errors.celularDocente.message}</p>}
                 </div>
 
                 {/* Correo electrónico */}
@@ -146,145 +163,74 @@ export const Form = (docente) => {
                         type="email"
                         placeholder="Ingresa el correo electrónico"
                         className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                        {...register("emailPropietario", { required: "El correo electrónico es obligatorio" })}
+                        {...register("emailDocente", { required: "El correo electrónico es obligatorio" })}
                     />
-                    {errors.emailPropietario && <p className="text-red-800">{errors.emailPropietario.message}</p>}
-                </div>
-
-                {/* Celular */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold">Celular</label>
-                    <input
-                        type="number"
-                        placeholder="Ingresa el celular"
-                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                        {...register("celularPropietario", { required: "El celular es obligatorio" })}
-                    />
-                    {errors.celularPropietario && <p className="text-red-800">{errors.celularPropietario.message}</p>}
+                    {errors.emailDocente && <p className="text-red-800">{errors.emailDocente.message}</p>}
                 </div>
             </fieldset>
 
-            {/* Información de la mascota */}
-            <fieldset className="border-2 border-gray-500 p-6 rounded-lg shadow-lg mt-10">
-                <legend className="text-xl font-bold text-gray-700 bg-gray-200 px-4 py-1 rounded-md">
-                    Información de la mascota
-                </legend>
-
-                {/* Nombre de la mascota */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold">Nombre</label>
+            {/* Imagen del docente */}
+            <label className="mb-2 block text-sm font-semibold mt-10">Imagen del docente</label>
+            <div className="flex gap-4 mb-2">
+                {/* Opción: Imagen con IA */}
+                <label className="flex items-center gap-2">
                     <input
-                        type="text"
-                        placeholder="Ingresar nombre"
-                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                        {...register("nombreMascota", { required: "El nombre de la mascota es obligatorio" })}
+                        type="radio"
+                        value="ia"
+                        {...register("imageOption", { required: "Seleccione una opción" })}
                     />
-                    {errors.nombreMascota && <p className="text-red-800">{errors.nombreMascota.message}</p>}
-                </div>
-
-                {/* Imagen de la mascota*/}
-                <label className="mb-2 block text-sm font-semibold">Imagen de la mascota</label>
-                <div className="flex gap-4 mb-2">
-                    {/* Opción: Imagen con IA */}
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="radio"
-                            value="ia"
-                            {...register("imageOption", { required: "Seleccione una opción" })}
-                        />
-                        Generar con IA
-                    </label>
-
-                    {/* Opción: Subir Imagen */}
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="radio"
-                            value="upload"
-                            {...register("imageOption",{ required: !docente && "El nombre de la mascota es obligatorio"})}
-                            disabled={docente}
-                        />
-                        Subir Imagen
-                    </label>
-                </div>
-                {errors.imageOption && <p className="text-red-800">{errors.imageOption.message}</p>}
-
-                {/* Imagen con IA */}
-                {selectedOption === "ia" && (
-                    <div className="mt-5">
-                        <label className="mb-2 block text-sm font-semibold">Imagen con IA</label>
-                        <div className="flex items-center gap-10 mb-5">
-                            <input
-                                type="text"
-                                placeholder="Ingresa el prompt"
-                                className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"
-                                value={avatar.prompt}
-                                onChange={(e) => setAvatar(prev => ({ ...prev, prompt: e.target.value }))}
-                            />
-                            <button
-                                type="button"
-                                className="py-1 px-8 bg-gray-600 text-slate-300 border rounded-xl hover:scale-110 duration-300 hover:bg-gray-900 hover:text-white sm:w-80"
-                                onClick={handleGenerateImage}
-                                disabled={avatar.loading}
-                            >
-                                {avatar.loading ? "Generando..." : "Generar con IA"}
-                            </button>
-                        </div>
-                        {avatar.image && (
-                            <img src={avatar.image} alt="Avatar IA" width={100} height={100} />
-                        )}
-                    </div>
-                )}
-
-                {/* Subir Imagen */}
-                {selectedOption === "upload" && (
-                    <div className="mt-5">
-                        <label className="mb-2 block text-sm font-semibold">Subir Imagen</label>
-                        <input
-                            type="file"
-                            className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                            {...register("imagen")}
-                        />
-                    </div>
-                )}
-
-                {/* Tipo de mascota */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold">Tipo</label>
-                    <select
-                        id='prioridad'
-                        className='block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5'
-                        {...register("tipoMascota", { required: "El tipo de la mascota es obligatorio" })}
-                    >
-                        <option value="">--- Seleccionar ---</option>
-                        <option value="gato">Gato</option>
-                        <option value="perro">Perro</option>
-                        <option value="otro">Otro</option>
-                    </select>
-                    {errors.tipoMascota && <p className="text-red-800">{errors.tipoMascota.message}</p>}
-                </div>
-
-                {/* Fecha de nacimiento */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold">Fecha de nacimiento</label>
+                    Generar con IA
+                </label>
+                {/* Opción: Subir Imagen */}
+                <label className="flex items-center gap-2">
                     <input
-                        type="date"
-                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                        {...register("fechaNacimientoMascota", { required: "La fecha de nacimiento de la mascota es obligatorio" })}
+                        type="radio"
+                        value="upload"
+                        {...register("imageOption", { required: "Seleccione una opción" })}
                     />
-                    {errors.fechaNacimientoMascota && <p className="text-red-800">{errors.fechaNacimientoMascota.message}</p>}
-                </div>
+                    Subir Imagen
+                </label>
+            </div>
+            {errors.imageOption && <p className="text-red-800">{errors.imageOption.message}</p>}
 
-                {/* Síntomas */}
-                <div>
-                    <label className="mb-2 block text-sm font-semibold">Síntomas</label>
-                    <textarea
-                        placeholder="Ingresa los síntomas"
-                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
-                        {...register("sintomasMascota", { required: "El síntoma de la mascota es obligatorio" })}
-                    />
-                    {errors.sintomasMascota && <p className="text-red-800">{errors.sintomasMascota.message}</p>}
+            {/* Imagen con IA */}
+            {selectedOption === "ia" && (
+                <div className="mt-5">
+                    <label className="mb-2 block text-sm font-semibold">Imagen con IA</label>
+                    <div className="flex items-center gap-10 mb-5">
+                        <input
+                            type="text"
+                            placeholder="Ingresa el prompt"
+                            className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"
+                            value={avatar.prompt}
+                            onChange={(e) => setAvatar(prev => ({ ...prev, prompt: e.target.value }))}
+                        />
+                        <button
+                            type="button"
+                            className="py-1 px-8 bg-gray-600 text-slate-300 border rounded-xl hover:scale-110 duration-300 hover:bg-gray-900 hover:text-white sm:w-80"
+                            onClick={handleGenerateImage}
+                            disabled={avatar.loading}
+                        >
+                            {avatar.loading ? "Generando..." : "Generar con IA"}
+                        </button>
+                    </div>
+                    {avatar.image && (
+                        <img src={avatar.image} alt="Avatar IA" width={100} height={100} />
+                    )}
                 </div>
-            </fieldset>
+            )}
+
+            {/* Subir Imagen */}
+            {selectedOption === "upload" && (
+                <div className="mt-5">
+                    <label className="mb-2 block text-sm font-semibold">Subir Imagen</label>
+                    <input
+                        type="file"
+                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
+                        {...register("imagen")}
+                    />
+                </div>
+            )}
 
             {/* Botón de submit */}
             <input

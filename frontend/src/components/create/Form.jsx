@@ -26,38 +26,35 @@ export const Form = (docente) => {
         setAvatar(prev => ({ ...prev, loading: true }))
         const blob = await generateAvatar(avatar.prompt)
         if (blob.type === "image/jpeg") {
-            // blob:http://localhost/ea27cc7d-
             const imageUrl = URL.createObjectURL(blob)
-            // data:image/png;base64,iVBORw0KGg
             const base64Image = await convertBlobToBase64(blob)           
             setAvatar(prev => ({ ...prev, image: imageUrl, loading: false }))
-            setValue("avatarMascotaIA", base64Image)
+            setValue("avatarDocenteIA", base64Image) // Cambiado aquí
         }
         else {
             toast.error("Error al generar la imagen, vuelve a intentarlo dentro de 1 minuto");
             setAvatar(prev => ({ ...prev, image: "https://cdn-icons-png.flaticon.com/512/2138/2138440.png", loading: false }))
-            setValue("avatarMascotaIA", avatar.image)
+            setValue("avatarDocenteIA", avatar.image) // Cambiado aquí
         }
     }
 
 
 
     const registerPatient = async (data) => {
-        /*
-        const data = {
-            nombre: "Firulais",
-            edad: "2",
-            imagen: [File]  // un array con 1 imagen cargada por el usuario
-        }
-        */
-        // clase de JavaScript ideal para enviar datos como texto + imágenes al servidor
-        const formData = new FormData()
-        // Recorre todos los elementos del formulario
+        const formData = new FormData();
+        // Enviar los campos del formulario
         Object.keys(data).forEach((key) => {
-            if (key === "imagen") {
-                formData.append("imagen", data.imagen[0]) // se guarda el archivo real
-            } else {
-                formData.append(key, data[key]) // se guardan nombre y edad
+            // Subida manual de imagen
+            if (key === "imagen" && data.imagen && data.imagen.length > 0) {
+                formData.append("avatarDocente", data.imagen[0]);
+            } 
+            // Imagen generada por IA
+            else if (key === "avatarMascotaIA" && data.avatarMascotaIA) {
+                formData.append("avatarDocenteIA", data.avatarMascotaIA);
+            } 
+            // Otros campos
+            else if (key !== "imagen" && key !== "avatarMascotaIA") {
+                formData.append(key, data[key]);
             }
         })
         let url = `${import.meta.env.VITE_BACKEND_URL}/docente/register`

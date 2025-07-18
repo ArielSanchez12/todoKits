@@ -1,4 +1,3 @@
-
 import CardPassword from '../components/profile/CardPassword'
 import { CardProfile } from '../components/profile/CardProfile'
 import { CardProfileOwner } from '../components/profile/CardProfileOwner'
@@ -16,7 +15,7 @@ const Profile = () => {
                 <p className='mb-8'>Este módulo te permite gestionar el perfil del usuario</p>
             </div>
             {
-                user && user?.rol == "Docente"
+                user && user?.rol == "docente"
                     ? (<CardProfileOwner />)
                     : (
                         <div className='flex justify-around gap-x-8 flex-wrap gap-y-8 md:flex-nowrap'>

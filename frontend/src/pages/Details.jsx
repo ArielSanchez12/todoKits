@@ -100,7 +100,7 @@ const Details = () => {
 
                     <p>Este módulo te permite gestionar los tratamientos</p>
                     {
-                        rol==="Administrador" && // Aqui decia veterinario
+                        rol==="administrador" && // Aqui decia veterinario
                         (
                             <button className="px-5 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700"
                                     onClick={()=>{toggleModal("treatments")}}

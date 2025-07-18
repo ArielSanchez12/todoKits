@@ -19,12 +19,17 @@ const storeProfile = create((set) => ({
         profile: async () => {
             try {
 
-            
+                // esto se queda hasta que este perfilDocente en el backend
+                const url = `${import.meta.env.VITE_BACKEND_URL}/perfil`;
+
+
+                /*
                 const storedUser = JSON.parse(localStorage.getItem("auth-token"));
-                const endpoint = storedUser.state.rol ==="administrador"
+                const endpoint = storedUser.state.rol ==="Administrador"
                     ? "perfil"
                     : "docente/perfil"
                 const url = `${import.meta.env.VITE_BACKEND_URL}/${endpoint}`;
+                */
                 
 
                 const respuesta = await axios.get(url, getAuthHeaders())

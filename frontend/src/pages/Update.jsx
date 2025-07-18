@@ -6,11 +6,11 @@ import { Form } from "../components/create/Form"
 const Update = () => {
 
     const { id } = useParams()
-    const [docente, setDocentes] = useState({})
+    const [docente, setDocente] = useState({})
     const { fetchDataBackend } = useFetch()
 
     useEffect(() => {
-        const searchDocente = async () => {
+        const searchPatient = async () => {
             const url = `${import.meta.env.VITE_BACKEND_URL}/docente/${id}`
             const storedUser = JSON.parse(localStorage.getItem("auth-token"))
             const headers= {
@@ -18,9 +18,9 @@ const Update = () => {
                     Authorization: `Bearer ${storedUser.state.token}`
             }
             const response = await fetchDataBackend(url, null, "GET", headers)
-            setDocentes(response || {})
+            setDocente(response || {})
         }
-        searchDocente()
+        searchPatient()
     }, [])
 
     return (
@@ -31,7 +31,7 @@ const Update = () => {
             {
                 Object.keys(docente).length != 0 ?
                     (
-                        <Form patient={docente} />
+                        <Form docente={docente} />
                     )
                     :
                     (

@@ -91,7 +91,7 @@ const Table = () => {
                                 />
 
                                 {
-                                    rol==="administrador" &&
+                                    rol==="Administrador" && // Esto si vale para admin 
                                         (
                                             <>
                                                 <MdPublishedWithChanges

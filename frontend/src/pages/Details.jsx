@@ -29,9 +29,9 @@ const Details = () => {
         setTreatments(response.tratamientos)
     }
 
-    const formatDate = (date) => {
-        return new Date(date).toLocaleDateString('es-EC', { dateStyle: 'long', timeZone: 'UTC' })
-    }
+    //const formatDate = (date) => {
+        //return new Date(date).toLocaleDateString('es-EC', { dateStyle: 'long', timeZone: 'UTC' })
+    //}
 
     useEffect(() => {
         if(modal===false){
@@ -51,67 +51,48 @@ const Details = () => {
             <div>
 
                 <div className='m-5 flex justify-between'>
-
-                    <div>
-                        <ul className="list-disc pl-5">
-
-                            {/* Datos del paciente */}
-                            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del dueño</li>
-
-                            <ul className="pl-5">
-                                <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Cédula: {docente?.cedulaPropietario} </span>
-                                </li>
-
-                                <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Nombre Docente: {docente?.nombreDocente}</span>
-                                </li>
-
-                                <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Correo electrónico: {docente?.emailDocente}</span>
-                                </li>
-
-                                <li className="text-md text-gray-00 mt-2">
-                                <span className="text-gray-600 font-bold">Celular: {docente?.celularDocente}</span>
-                                </li>
-                            </ul>
-
-
-                            {/* Datos del dueño */}
-                            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del paciente</li>
-
-                            <ul className="pl-5">
-                                <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Nombre: {docente?.nombreMascota}</span>
-                                </li>
-
-                                <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Tipo: {docente?.tipoMascota}</span>
-                                </li>
-
-                                <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Fecha de nacimiento: {formatDate(docente?.fechaNacimientoMascota)}</span>
-                                </li>
-
-                                <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Estado: </span>
-                                    <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                    {docente?.statusDocente && "activo"}
-                                    </span>
-                                </li>
-
-                                <li className="text-md text-gray-00 mt-4">
-                                    <span className="text-gray-600 font-bold">Síntomas: {docente?.sintomasMascota}</span>
-                                </li>
-
-                            </ul>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <img src={docente?.avatarMascota || docente?.avatarMascotaIA} alt="dogandcat" className='h-80 w-80 rounded-full' />
-                    </div>
-                </div>
+    <div>
+        <ul className="list-disc pl-5">
+            {/* Datos del docente */}
+            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del docente</li>
+            <ul className="pl-5">
+                <li className="text-md text-gray-00 mt-2">
+                    <span className="text-gray-600 font-bold">Nombre: </span>
+                    {docente?.nombreDocente}
+                </li>
+                <li className="text-md text-gray-00 mt-2">
+                    <span className="text-gray-600 font-bold">Apellido: </span>
+                    {docente?.apellidoDocente}
+                </li>
+                <li className="text-md text-gray-00 mt-2">
+                    <span className="text-gray-600 font-bold">Dirección: </span>
+                    {docente?.direccionDocente}
+                </li>
+                <li className="text-md text-gray-00 mt-2">
+                    <span className="text-gray-600 font-bold">Celular: </span>
+                    {docente?.celularDocente}
+                </li>
+                <li className="text-md text-gray-00 mt-2">
+                    <span className="text-gray-600 font-bold">Correo electrónico: </span>
+                    {docente?.emailDocente}
+                </li>
+                <li className="text-md text-gray-00 mt-2">
+                    <span className="text-gray-600 font-bold">Estado: </span>
+                    <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                        {docente?.statusDocente ? "Activo" : "Inactivo"}
+                    </span>
+                </li>
+            </ul>
+        </ul>
+    </div>
+    <div>
+        <img
+            src={docente?.avatarDocente || docente?.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/2138/2138440.png"}
+            alt="avatar docente"
+            className='h-80 w-80 rounded-full object-cover'
+        />
+    </div>
+</div>
 
                 <hr className='my-4 border-t-2 border-gray-300' />
 

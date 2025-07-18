@@ -22,7 +22,7 @@ export const Form = (docente) => {
     const inputFileRef = useRef(null); // 🔧 referencia al input de archivo
 
     useEffect(() => {
-        // 🔄 Cuando cambia la opción de imagen, limpia la imagen subida
+        // Cuando cambia la opción de imagen, limpia la imagen subida
         if (selectedOption !== "upload") {
             setArchivoSeleccionado(null);
             setValue("imagen", null); // limpia en react-hook-form

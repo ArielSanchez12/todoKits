@@ -19,7 +19,7 @@ const registrarDocente = async (req,res) => {
 
   const nuevoDocente = new docente({
     ...req.body,
-    passwordDocente: await docente.prototype.encryptPassword(password),
+    passwordDocente: await docente.prototype.encryptPassword("KITS"+password),
     admin: req.adminEmailBDD._id  
   })
 
@@ -52,30 +52,30 @@ const loginDocente = async(req,res)=>{
   if(!verificarPassword) return res.status(404).json({msg:"Lo sentimos, el password no es el correcto"})
   const {_id,rolDocente} = docenteBDD
   const tokenJWT = crearTokenJWT(docenteBDD._id,docenteBDD.rolDocente)
+  console.log(tokenJWT,rolDocente)
   res.status(200).json({
     token: tokenJWT,
-    rolDocente,
+    rol: rolDocente,
     _id
   })
 }
 
 const perfilDocente = (req, res) => {
-    
-    const camposAEliminar = [
-        "statusDocente", "admin", "passwordDocente", 
-        "avatarDocente", "avatarDocenteIA","avatarDocenteID",
-        "createdAt", "updatedAt", "__v"
-    ]
+  const camposAEliminar = [
+    "statusDocente", "admin", "passwordDocente", 
+    "avatarDocente", "avatarDocenteIA","avatarDocenteID",
+    "createdAt", "updatedAt", "__v"
+  ]
 
-    camposAEliminar.forEach(campo => delete req.docenteBDD[campo])
+  camposAEliminar.forEach(campo => delete req.docenteBDD[campo])
 
-    res.status(200).json(req.docenteBDD)
+  res.status(200).json(req.docenteBDD)
 }
 
 
 const listarDocentes = async (req,res) => {
-  if (req.adminEmailBDD?.rol ==="admin"){
-    const docentes = await docente.find(req.adminEmailBDD._id).select("-salida -createdAt -updatedAt -__v").populate('admin','_id nombre apellido')
+  if (req.docenteBDD?.rolDocente ==="Docente"){
+    const docentes = await docente.find(req.docenteBDD._id).select("-salida -createdAt -updatedAt -__v").populate('admin','_id nombre apellido')
     res.status(200).json(docentes)
   }else{
     const docentes = await docente.find({statusDocente:true}).where('admin').equals(req.adminEmailBDD).select("-salida -createdAt -updatedAt -__v").populate('admin','_id nombre apellido')

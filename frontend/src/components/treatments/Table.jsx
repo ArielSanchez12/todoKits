@@ -45,7 +45,7 @@ const TableTreatments = ({ treatments, listDocente }) => {
                                 {treatment.estadoPago}
                             </td>
                             <td className="py-2 text-center">
-                                {rol === "docente" && ( //paciente
+                                {rol === "Docente" && ( //paciente
                                     <MdAttachMoney
                                         className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-600"
                                         title="Pagar"

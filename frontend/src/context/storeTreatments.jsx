@@ -41,6 +41,25 @@ const storeTreatments = create(set=>({
                 console.error(error)
             }
         }
+    },
+
+    payTreatments:async(data)=>{
+        try {
+            const storedUser = JSON.parse(localStorage.getItem("auth-token"))
+            const url = `${import.meta.env.VITE_BACKEND_URL}/tratamiento/payment`;
+            const options = {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${storedUser.state.token}`,
+                }
+            }
+            const respuesta = await axios.post(url,data,options)
+            set((state)=>({modal:!state.modal}))
+            toast.success(respuesta.data.msg)
+        } catch (error) {
+            console.error(error)
+        }
+        
     }
 
 }))

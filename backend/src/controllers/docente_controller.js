@@ -4,6 +4,7 @@ import { v2 as cloudinary } from 'cloudinary'
 import fs from "fs-extra"
 import mongoose from "mongoose"
 import Tratamiento from "../models/tratamiento.js"
+import { crearTokenJWT } from "../middlewares/jwt.js"
 
 const registrarDocente = async (req,res) => {
   //Obtener los datos
@@ -40,6 +41,35 @@ const registrarDocente = async (req,res) => {
   await nuevoDocente.save()
   await sendMailToDocente(emailDocente, "KITS" + password) 
   res.status(201).json({msg: "Registro exitoso del docente"})
+}
+
+const loginDocente = async(req,res)=>{
+    const {email:emailDocente,password:passwordDocente} = req.body
+    if (Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"})
+    const docenteBDD = await docente.findOne({emailDocente})
+    if(!docenteBDD) return res.status(404).json({msg:"Lo sentimos, el usuario no se encuentra registrado"})
+    const verificarPassword = await docenteBDD.matchPassword(passwordDocente)
+    if(!verificarPassword) return res.status(404).json({msg:"Lo sentimos, el password no es el correcto"})
+    const token = crearTokenJWT(docenteBDD._id,docenteBDD.rol)
+	const {_id,rol} = docenteBDD
+    res.status(200).json({
+        token,
+        rol,
+        _id
+    })
+}
+
+const perfilDocente = (req, res) => {
+    
+    const camposAEliminar = [
+        "statusDocente", "admin", "passwordDocente", 
+        "avatarDocente", "avatarDocenteIA","avatarDocenteID",
+        "createdAt", "updatedAt", "__v"
+    ]
+
+    camposAEliminar.forEach(campo => delete req.docenteBDD[campo])
+
+    res.status(200).json(req.docenteBDD)
 }
 
 
@@ -101,6 +131,8 @@ const actualizarDocente = async(req,res)=>{
 
 export {
   registrarDocente,
+  loginDocente,
+  perfilDocente,
   listarDocentes,
   detalleDocente,
   eliminarDocente,

@@ -31,7 +31,11 @@ const docenteSchema = new Schema({
     avatarDocente:{
         type:String
     },
-
+    
+    avatarDocenteID:{
+        type:String,
+        trim:true
+    },
     avatarDocenteIA:{ //Si el usuario no sube una imagen, se le asigna una con inteligencia artificial
         type:String
     },

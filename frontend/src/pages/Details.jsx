@@ -24,7 +24,7 @@ const Details = () => {
                 Authorization: `Bearer ${storedUser.state.token}`
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
-        console.log(response)
+        console.log("----------------->",response)
         setDocente(response.docentes)
         setTreatments(response.tratamientos)
     }

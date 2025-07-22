@@ -7,6 +7,7 @@ import storeProfile from '../context/storeProfile'
 
 const Profile = () => {
     const { user } = storeProfile()
+    console.log(user)
     return (
         <>
             <div>
@@ -15,7 +16,7 @@ const Profile = () => {
                 <p className='mb-8'>Este módulo te permite gestionar el perfil del usuario</p>
             </div>
             {
-                user && user?.rol == "Docente"
+                user && user?.rolDocente == "Docente"
                     ? (<CardProfileOwner />)
                     : (
                         <div className='flex justify-around gap-x-8 flex-wrap gap-y-8 md:flex-nowrap'>

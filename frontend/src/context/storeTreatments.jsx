@@ -42,11 +42,10 @@ const storeTreatments = create(set=>({
             }
         }
     },
-
     payTreatments:async(data)=>{
         try {
             const storedUser = JSON.parse(localStorage.getItem("auth-token"))
-            const url = `${import.meta.env.VITE_BACKEND_URL}/tratamiento/payment`
+            const url = `${import.meta.env.VITE_BACKEND_URL}/tratamiento/payment`;
             const options = {
                 headers: {
                     "Content-Type": "application/json",
@@ -59,9 +58,7 @@ const storeTreatments = create(set=>({
         } catch (error) {
             console.error(error)
         }
-        
     }
-
 }))
 
 

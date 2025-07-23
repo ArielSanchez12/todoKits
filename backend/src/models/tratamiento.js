@@ -18,7 +18,7 @@ const tratamientoSchema = new Schema({
     },
     docente:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Docente'
+        ref:'docente'
     },
     precio: {
         type: Number,

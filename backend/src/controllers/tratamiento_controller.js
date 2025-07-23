@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Tratamiento from "../models/tratamiento.js";
+import docente from "../models/docente.js";
 import { Stripe } from "stripe";
 
 
@@ -42,18 +43,17 @@ const pagarTratamiento = async (req, res) => {
   const {paymentMethodId, treatmentId, cantidad, motivo} = req.body
 
   try {
-    const tratamiento = await Tratamiento.findById(treatmentId).populate('docente')
+    const tratamiento = await Tratamiento.findById(treatmentId)
     if (!tratamiento) return res.status(404).json({msg: "Tratamiento no encontrado"})
     if (tratamiento.estadoPago === 'Pagado') return res.status(400).json({msg: "El tratamiento ya ha sido pagado"})
     if (!paymentMethodId) return res.status(400).json({msg: "paymentMethodId no proporcionado" })
 
-    let [docente] = (await stripe.customers.list({ email:tratamiento.emailPropietario, limit: 1 })).data || [];
+    let [docente] = (await stripe.customers.list({ email:tratamiento.emailDocente, limit: 1 })).data || [];
     
     if (!docente) {
-        docente = await stripe.customers.create({ name:tratamiento.nombrePropietario, email:tratamiento.emailPropietario });
+        docente = await stripe.customers.create({ name:tratamiento.nombreDocente, email:tratamiento.emailDocente });
     }
     
-
     const payment = await stripe.paymentIntents.create({
         amount:cantidad,
         currency: "USD",

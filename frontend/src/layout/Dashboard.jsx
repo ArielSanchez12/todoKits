@@ -17,10 +17,9 @@ const Dashboard = () => {
 
                 <h2 className='text-5xl font-black text-center text-white font-sans'>LabTRACK</h2>
 
-                <img src="https://images.pexels.com/photos/32566238/pexels-photo-32566238.jpeg" alt="img-client" className="m-auto mt-8 p-1 border-2 border-slate-500 rounded-full" width={120} height={120} />
+                <img src="https://cdn-icons-png.flaticon.com/512/4715/4715329.png" alt="img-client" className="m-auto mt-8 p-1 border-2 border-slate-500 rounded-full" width={120} height={120} />
                 <p className='text-white text-center my-4 text-base'>
-                <span className='bg-green-500 w-3 h-3 inline-block rounded-full'></span>
-                    Bienvenido - {user?.nombre || user?.nombreDocente} {user?.apellido || user?.apellidoDocente}
+                <span className='bg-green-500 w-3 h-3 inline-block rounded-full'></span> Bienvenido - {user?.nombre || user?.nombreDocente} {user?.apellido || user?.apellidoDocente}
                 </p>
                 <p className='text-white text-center my-4 text-base'> Rol - {user?.rol || user?.rolDocente}</p>
                 <hr className="mt-6 border-slate-500" />
@@ -56,8 +55,8 @@ const Dashboard = () => {
                         <img src="https://cdn-icons-png.flaticon.com/512/4715/4715329.png" alt="img-client" className="border-2 border-green-500 rounded-full" width={50} height={50} />
                     </div>
                     <div>
-                        <button to='/' className=" text-white mr-3 text-md block hover:bg-red-700 text-center
-                        bg-red-600 px-7 py-1 rounded-lg" onClick={() => clearToken()}>Salir</button>
+                        <button to='/' className=" text-white mr-3 text-md block hover:bg-red-600 text-center
+                        bg-red-700 px-7 py-1 rounded-lg hover:scale-115 duration-300" onClick={() => clearToken()}>Salir</button>
                     </div>
                 </div>
                 <div className='overflow-y-scroll p-8'>

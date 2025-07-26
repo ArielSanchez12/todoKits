@@ -10,7 +10,7 @@ export const CardProfileOwner = () => {
 
             <div>
                 <img
-                    src={user.avatarDocente || user.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/2138/2138440.png"}
+                    src={user.avatarDocente || user.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"}
                     alt="img-docente"
                     className="m-auto rounded-full object-cover"
                     width={120}

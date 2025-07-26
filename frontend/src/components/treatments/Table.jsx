@@ -22,7 +22,7 @@ const TableTreatments = ({ treatments, listDocente }) => {
     return (
         <>
             <table className="w-full mt-5 table-auto shadow-lg bg-white">
-                <thead className="bg-gray-800 text-slate-400">
+                <thead className="bg-black text-white">
                     <tr>
                         <th className="p-2">N°</th>
                         <th className="p-2">Nombre</th>
@@ -41,7 +41,7 @@ const TableTreatments = ({ treatments, listDocente }) => {
                             <td>{treatment.descripcion}</td>
                             <td>{treatment.prioridad}</td>
                             <td>$ {treatment.precio}</td>
-                            <td className={treatment.estadoPago === "Pagado" ? "text-green-500 text-sm" : "text-red-500 text-sm"}>
+                            <td className={treatment.estadoPago === "Pagado" ? "text-green-500 text-base" : "text-red-500 text-base"}>
                                 {treatment.estadoPago}
                             </td>
                             <td className="py-2 text-center">
@@ -49,8 +49,8 @@ const TableTreatments = ({ treatments, listDocente }) => {
                                     <MdOutlinePayments
                                         className={
                                             treatment.estadoPago === "Pagado"
-                                            ? "h-7 w-7 text-gray-500 pointer-events-none inline-block mr-2"
-                                            : "h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-600"
+                                            ? "h-8 w-8 text-gray-600 pointer-events-none inline-block mr-2"
+                                            : "h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-500"
                                         }
                                         title="Pagar"
                                         onClick={() => {
@@ -64,8 +64,8 @@ const TableTreatments = ({ treatments, listDocente }) => {
                                     <MdDeleteForever
                                         className={
                                             treatment.estadoPago === "Pagado"
-                                                ? "h-8 w-8 text-gray-500 pointer-events-none inline-block"
-                                                : "h-8 w-8 text-red-900 cursor-pointer inline-block hover:text-red-600"
+                                                ? "h-8 w-8 text-gray-600 pointer-events-none inline-block"
+                                                : "h-8 w-8 text-red-800 cursor-pointer inline-block hover:text-red-500"
                                         }
                                         title="Eliminar"
                                         onClick={() => handleDelete(treatment._id)}

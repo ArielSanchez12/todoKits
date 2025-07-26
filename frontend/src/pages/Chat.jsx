@@ -65,7 +65,7 @@ const Chat = () => {
 
                                 {
                                     responses.map((response, index) => (
-                                        <div key={index} className={`my-2 p-4 text-sm rounded-md text-white  ${response.from === nameUser ? 'bg-slate-700' : 'bg-black ml-auto'}`}>
+                                        <div key={index} className={`my-2 p-4 text-base rounded-md text-white  ${response.from === nameUser ? 'bg-slate-700' : 'bg-black ml-auto'}`}>
                                             {response.from} - {response.body}
                                         </div>
                                     ))

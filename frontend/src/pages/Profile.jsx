@@ -11,9 +11,9 @@ const Profile = () => {
     return (
         <>
             <div>
-                <h1 className='font-black text-4xl text-gray-500'>Perfil</h1>
-                <hr className='x' />
-                <p className='mb-8'>Este módulo te permite gestionar el perfil del usuario</p>
+                <h1 className='font-black text-4xl text-black'>Perfil</h1>
+                <hr className='my-2 border-t-2 border-gray-300' />
+                <p className='mb-8'>Este módulo te permite gestionar el perfil del administrador</p>
             </div>
             {
                 user && user?.rolDocente == "Docente"

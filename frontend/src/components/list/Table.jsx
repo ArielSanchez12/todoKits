@@ -30,7 +30,7 @@ const Table = () => {
 
     if (docentes.length === 0) {
         return (
-            <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <div className="p-4 mb-4 text-base text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
                 <span className="font-medium">No existen registros</span>
             </div>
         )
@@ -62,9 +62,9 @@ const Table = () => {
 
         <table className="w-full mt-5 table-auto shadow-lg bg-white">
             <ToastContainer />
-            <thead className="bg-gray-800 text-slate-400">
+            <thead className="bg-black text-white">
                 <tr>
-                    {["N°", "Nombre Docente", "Apellido Docente", "Dirección Docente", "Celular Docente", "Email Docente", "Estado", "Acciones"].map((header) => (
+                    {["N°", "Nombre", "Apellido", "Dirección", "Celular", "Email", "Estado", "Acciones"].map((header) => (
                         <th key={header} className="p-2">{header}</th>
                     ))}
                 </tr>
@@ -85,8 +85,8 @@ const Table = () => {
                             </td>
                             <td className='py-2 text-center'>
                                 <MdInfo
-                                    title="Más información"
-                                    className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-600"
+                                    title="Detalles"
+                                    className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-500"
                                     onClick={() => navigate(`/dashboard/visualizar/${docente._id}`)}
                                 />
 
@@ -96,13 +96,13 @@ const Table = () => {
                                             <>
                                                 <MdPublishedWithChanges
                                                 title="Actualizar"
-                                                className="h-7 w-7 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-600"
+                                                className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-500"
                                                 onClick={() => navigate(`/dashboard/actualizar/${docente._id}`)}
                                                 />
 
                                                 <MdDeleteForever
                                                 title="Eliminar"
-                                                className="h-7 w-7 text-red-900 cursor-pointer inline-block hover:text-red-600"
+                                                className="h-8 w-8 text-red-800 cursor-pointer inline-block hover:text-red-500"
                                                 onClick={()=>{deleteDocente(docente._id)}}
                                                 />
                                             </>

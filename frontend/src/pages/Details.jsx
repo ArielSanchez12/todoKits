@@ -24,7 +24,6 @@ const Details = () => {
                 Authorization: `Bearer ${storedUser.state.token}`
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
-        console.log("----------------->",response)
         setDocente(response.docentes)
         setTreatments(response.tratamientos)
     }
@@ -44,8 +43,8 @@ const Details = () => {
         <>
             <ToastContainer />
             <div>
-                <h1 className='font-black text-4xl text-gray-500'>Visualizar</h1>
-                <hr className='my-4 border-t-2 border-gray-300' />
+                <h1 className='font-black text-4xl text-black'>Visualizar</h1>
+                <hr className='my-2 border-t-2 border-gray-300' />
                 <p className='mb-8'>Este módulo te permite visualizar todos los datos</p>
             </div>
             <div>
@@ -87,9 +86,9 @@ const Details = () => {
     </div>
     <div>
         <img
-            src={docente?.avatarDocente || docente?.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/2138/2138440.png"}
+            src={docente?.avatarDocente || docente?.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"}
             alt="avatar docente"
-            className='h-80 w-80 rounded-full object-cover'
+            className='h-70 w-70 rounded-full object-cover'
         />
     </div>
 </div>
@@ -102,7 +101,7 @@ const Details = () => {
                     {
                         rol==="Administrador" &&
                         (
-                            <button className="px-5 py-2 bg-green-800 text-white rounded-lg hover:bg-green-700"
+                            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-black hover:scale-105 duration-300"
                                     onClick={()=>{toggleModal("treatments")}}
                             >
                                 Registrar
@@ -117,7 +116,7 @@ const Details = () => {
                 {
                     treatments.length == 0
                         ?
-                        <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                        <div className="p-4 mb-4 text-base text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
                             <span className="font-medium">No existen registros</span>
                         </div>
                         :

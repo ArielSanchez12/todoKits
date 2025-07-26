@@ -103,7 +103,7 @@ const Login = () => {
                         <input
                             type="email"
                             placeholder="Ingresa tu correo"
-                            className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-2 text-gray-500"
+                            className="block w-full rounded-md border border-gray-300 focus:border-black focus:outline-none focus:ring-1 focus:ring-black py-1 px-2 text-gray-500"
                             {...register("email", { required: "Este campo es obligatorio!" })}
                         />
                         {errors.email && <p className="text-red-800">{errors.email.message}</p>}
@@ -116,7 +116,7 @@ const Login = () => {
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="********************"
-                                className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500 pr-10"
+                                className="block w-full rounded-md border border-gray-300 focus:border-black focus:outline-none focus:ring-1 focus:ring-black py-1 px-1.5 text-gray-500 pr-10"
                                 {...register("password", { required: "Este campo es obligatorio!" })}
                             />
                             {errors.password && <p className="text-red-800">{errors.password.message}</p>}

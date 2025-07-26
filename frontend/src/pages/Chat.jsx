@@ -2,16 +2,12 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { io } from 'socket.io-client'
 
-
 const Chat = () => {
-
     const [responses, setResponses] = useState([])
     const [socket, setSocket] = useState(null)
     const [chat, setChat] = useState(true)
     const [nameUser, setNameUser] = useState("")
     const { register, handleSubmit, formState: { errors }, reset } = useForm()
-
-
 
     const handleEnterChat = (data) => {
         setNameUser(data.name)
@@ -19,9 +15,7 @@ const Chat = () => {
     }
 
     const handleMessageChat = (data) => {
-
         if (!socket) return console.error("No hay conexión con el servidor")
-
         const newMessage = {
             body: data.message,
             from: nameUser,
@@ -32,7 +26,7 @@ const Chat = () => {
     }
 
     useEffect(() => {
-        const newSocket = io("http://localhost:3000");
+        const newSocket = io("http://localhost:3000")
         setSocket(newSocket)
         newSocket.on("enviar-mensaje-front-back", (payload) => {
             setResponses((prev) => [...prev, payload])
@@ -40,60 +34,77 @@ const Chat = () => {
         return () => newSocket.disconnect()
     }, [])
 
+    const avatarUser = "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+    const avatarBot = "https://cdn-icons-png.flaticon.com/512/3594/3594507.png"
 
     return (
-        <>
+        <div className="max-w-4xl mx-auto mt-4 bg-gray-100 text-black rounded-2xl shadow-xl p-6 border border-black">
             {
-                chat
-                    ? (
-                        <div>
-                            <form onSubmit={handleSubmit(handleEnterChat)} className="flex justify-center gap-5">
+                chat ? (
+                    <div>
+                        <form onSubmit={handleSubmit(handleEnterChat)} className="flex flex-col sm:flex-row justify-center gap-4">
+                            <input
+                                type="text"
+                                placeholder="Ingresa tu nombre de usuario"
+                                className="flex-1 rounded-md border border-black/30 bg-white text-gray-800 py-2 px-4 focus:outline-none focus:ring-2 focus:ring-black"
+                                {...register("name", { required: "El nombre de usuario es obligatorio!" })}
+                            />
+                            <button className="bg-blue-700 text-white py-2 px-6 rounded-md hover:bg-blue-600 hover:scale-105 transition duration-300">
+                                Ingresar al chat
+                            </button>
+                        </form>
+                        {errors.name && <p className="text-red-500 mt-2">{errors.name.message}</p>}
+                    </div>
+                ) : (
+                    <div className="flex flex-col justify-between h-[70vh]">
+                        <div className="flex flex-col space-y-4 p-4 overflow-y-auto bg-gray-50 rounded-md h-full scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 border border-black/20">
+                            {
+                                responses.map((response, index) => {
+                                    const isUser = response.from === nameUser
+                                    const bubbleColor = isUser
+                                        ? "bg-blue-100 border border-blue-600 text-blue-900"
+                                        : "bg-red-100 border border-red-600 text-red-900"
+                                    const align = isUser ? "self-end flex-row-reverse" : "self-start"
+                                    const avatar = isUser ? avatarUser : avatarBot
+
+                                    return (
+                                        <div key={index} className={`flex items-start gap-3 ${align}`}>
+                                            <img
+                                                src={avatar}
+                                                alt="avatar"
+                                                className="w-10 h-10 rounded-full object-cover border border-black/30"
+                                            />
+                                            <div className={`max-w-[70%] p-3 rounded-2xl shadow-sm ${bubbleColor}`}>
+                                                <p className="font-semibold text-base mb-1">{response.from}</p>
+                                                <p className="text-base">{response.body}</p>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+
+                        <div className="border-t border-black pt-4 mt-4">
+                            <form onSubmit={handleSubmit(handleMessageChat)} className="flex flex-col sm:flex-row items-center gap-3">
                                 <input
                                     type="text"
-                                    placeholder="Ingresa tu nombre de usuario"
-                                    className="block w-1/2 rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-2 text-gray-500"
-                                    {...register("name", { required: "El nombre de usuario es obligatorio" })}
+                                    placeholder="Escribe tu mensaje..."
+                                    className="flex-1 bg-white text-gray-800 rounded-md py-2 px-4 border border-black/30 focus:outline-none focus:ring-2 focus:ring-black"
+                                    {...register("message", { required: "El mensaje es obligatorio!" })}
                                 />
-                                <button className="py-2 w-1/2 block text-center bg-gray-500 text-slate-300 border rounded-xl hover:scale-100 duration-300 hover:bg-gray-900 hover:text-white">Ingresar al chat</button>
+                                <button
+                                    type="submit"
+                                    className="bg-red-700 text-white py-2 px-6 rounded-lg hover:bg-red-600 hover:scale-105 transition duration-300"
+                                >
+                                    Enviar
+                                </button>
                             </form>
-                            {errors.name && <p className="text-red-800">{errors.name.message}</p>}
+                            {errors.message && <p className="text-red-500 mt-2">{errors.message.message}</p>}
                         </div>
-                    )
-                    : (
-                        <div className="flex flex-col justify-center h-full ">
-                            <div className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
-
-                                {
-                                    responses.map((response, index) => (
-                                        <div key={index} className={`my-2 p-4 text-base rounded-md text-white  ${response.from === nameUser ? 'bg-slate-700' : 'bg-black ml-auto'}`}>
-                                            {response.from} - {response.body}
-                                        </div>
-                                    ))
-                                }
-
-                            </div>
-
-                            <div className="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
-                                <form onSubmit={handleSubmit(handleMessageChat)}>
-                                    <div className="relative flex">
-                                        <input type="text" placeholder="Escribe tu mensaje!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-2 bg-gray-200 rounded-md py-3"
-                                            {...register("message", { required: "El mensaje es obligatorio" })} />
-
-                                        <button className="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-green-800 hover:bg-green-600 focus:outline-none"
-
-                                        >
-                                            <span className="font-bold">Enviar</span>
-                                        </button>
-
-                                    </div>
-                                    {errors.message && <p className="text-red-800">{errors.message.message}</p>}
-                                </form>
-                            </div>
-                        </div>
-
-                    )
+                    </div>
+                )
             }
-        </>
+        </div>
     )
 }
 

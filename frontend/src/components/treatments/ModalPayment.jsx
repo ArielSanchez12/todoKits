@@ -31,7 +31,7 @@ function ModalPayment({ treatment }) {
 
     return (
         <>
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[4px]">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
                 <div className="w-full max-w-2xl bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 bg-opacity-95 rounded-2xl shadow-xl p-8 overflow-y-auto animate-fadeScale">
 
                     <p className="text-white font-bold text-xl mb-6 text-center">Pagar Tratamiento</p>
@@ -53,8 +53,8 @@ function ModalPayment({ treatment }) {
 
                         <div>
                             <label className="block text-base font-semibold text-gray-200">Tarjeta de crédito</label>
-                            <div className="p-3 border border-gray-600 rounded-lg bg-gray-700">
-                                <CardElement options={{ style: { base: { fontSize: '16px', color: 'white' } } }} />
+                            <div className="p-3 border border-gray-600 rounded-lg bg-gray-200">
+                                <CardElement options={{ style: { base: { fontSize: '16px', color: 'black' } } }} />
                             </div>
                         </div>
 

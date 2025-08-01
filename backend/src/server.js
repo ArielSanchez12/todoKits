@@ -58,7 +58,7 @@ app.use('/api', routerDocente)
 //Rutas tratamiento
 app.use('/api', routerTratamiento)
 //Ruta de autenticación con Google
-app.use('/auth', routerAuth) 
+app.use('/api', routerAuth) 
 
 
 //Manejo de rutas inexistentes
@@ -66,5 +66,3 @@ app.use((req, res) => { res.status(404).send("Endpoint no encontrado") })
 
 // Exportar la instancia de express por medio de app
 export default  app //Este metodo(default) es porque solo exportamos una cosa
-
-//nueva rama para el registro/login con google

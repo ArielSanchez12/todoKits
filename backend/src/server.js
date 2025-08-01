@@ -6,7 +6,11 @@ import routerAdmin from './routers/admin_routes.js'; //Renombrar cada router par
 import routerDocente from './routers/docente_routes.js';
 import cloudinary from 'cloudinary'
 import fileUpload from "express-fileupload"
-
+//IMPORTACIONES NUEVAS PARA GOOGLE LOGIN
+import session from 'express-session'
+import passport from 'passport'
+import './config/google.js' // Importa configuración de Google OAuth
+import routerAuth from './routers/auth_routes.js' // Nueva ruta para login con Google
 
 // Inicializaciones
 const app = express() //Crear instancia como en POO
@@ -28,7 +32,15 @@ app.use(fileUpload({ //Cuando se haga una carga de imagenes, se usara la carpeta
 app.set('port',process.env.PORT || 3000) //Aqui lo que hacemos es traer la variable global desde .env O si falla, que sea 3000
 app.use(cors()) //Para usar el framework cors, cada que veas 'estancia'.use('algo') es un MIDDLEWARE, es decir, un intermediario
 
-// Middlewares 
+// Middlewares
+// Middleware para sesiones y passport
+app.use(session({
+    secret: 'secreth1z1', 
+    resave: false,
+    saveUninitialized: true
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 app.use(express.json()) //Esto lo que hace es que todos los datos de los formularios de express, se compacten en json para que el backend los pueda procesar
 
 
@@ -42,6 +54,7 @@ app.get('/',(req,res)=>{   //Raiz -> '/', luego una funcion callback, y si respo
 app.use('/api', routerAdmin)//Aca copia y pega
 //Rutas docente
 app.use('/api', routerDocente)
+app.use('/auth', routerAuth) //Ruta de autenticación con Google
 
 //Manejo de rutas inexistentes
 app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})

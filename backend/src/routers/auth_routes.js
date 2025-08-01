@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { authenticate } from 'passport';
+import passport from 'passport';
 
 const router = Router();
 
 router.get('/google',
-  authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
 router.get('/google/callback',
-  authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     // Autenticación exitosa
     res.send("Inicio de sesión con Google exitoso");

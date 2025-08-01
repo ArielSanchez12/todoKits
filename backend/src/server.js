@@ -48,3 +48,5 @@ app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})
 
 // Exportar la instancia de express por medio de app
 export default  app //Este metodo(default) es porque solo exportamos una cosa
+
+//nueva rama para el registro/login con google

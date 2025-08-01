@@ -21,8 +21,7 @@ import storeAuth from './context/storeAuth'
 import PublicRoute from './routes/PublicRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
-
-import LoginSuccess from "../pages/LoginSuccess";
+import LoginSuccess from "./pages/LoginSuccess";
 
 
 

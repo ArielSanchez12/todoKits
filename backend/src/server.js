@@ -55,9 +55,11 @@ app.get('/', (req, res) => {   //Raiz -> '/', luego una funcion callback, y si r
 app.use('/api', routerAdmin)//Aca copia y pega
 //Rutas docente
 app.use('/api', routerDocente)
-app.use('/auth', routerAuth) //Ruta de autenticación con Google
 //Rutas tratamiento
 app.use('/api', routerTratamiento)
+//Ruta de autenticación con Google
+app.use('/auth', routerAuth) 
+
 
 //Manejo de rutas inexistentes
 app.use((req, res) => { res.status(404).send("Endpoint no encontrado") })

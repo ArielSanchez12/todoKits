@@ -22,6 +22,8 @@ import PublicRoute from './routes/PublicRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
 
+import LoginSuccess from "../pages/LoginSuccess";
+
 
 
 function App() {
@@ -49,6 +51,7 @@ function App() {
             <Route path='confirm/:token' element={<Confirm />} />
             <Route path='reset/:token' element={<Reset />} />
             <Route path='*' element={<NotFound />} />
+            <Route path="/login-success" element={<LoginSuccess />} />
           </Route>
 
 

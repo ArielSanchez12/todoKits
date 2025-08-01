@@ -6,7 +6,7 @@ import storeAuth from "../../context/storeAuth";
 
 
 const CardPassword = () => {
-    const { register, handleSubmit, formState: { errors }, reset} = useForm()
+    const { register, handleSubmit, formState: { errors }, reset } = useForm()
     const { user, updatePasswordProfile } = storeProfile()
     const { clearToken } = storeAuth()
 
@@ -15,20 +15,20 @@ const CardPassword = () => {
     const [showPasswordNuevo, setShowPasswordNuevo] = useState(false);
 
     const updatePassword = (data) => {
-    updatePasswordProfile(data, user._id)
-        .then((response) => {
-            if (response?.msg) {
-                toast.success(response.msg)
-                clearToken()
-            } else if (response?.error) {
-                toast.error(response.error)
-            }
-            reset()
-        })
-        .catch((error) => {
-            toast.error(error?.response?.data?.msg || "Ocurrió un error al actualizar la contraseña")
-        });
-}
+        updatePasswordProfile(data, user._id)
+            .then((response) => {
+                if (response?.msg) {
+                    toast.success(response.msg)
+                    clearToken()
+                } else if (response?.error) {
+                    toast.error(response.error)
+                }
+                reset()
+            })
+            .catch((error) => {
+                toast.error(error?.response?.data?.msg || "Ocurrió un error al actualizar la contraseña")
+            });
+    }
 
     return (
         <>

@@ -22,7 +22,7 @@ const Login = () => {
     const { fetchDataBackend } = useFetch();
 
     // Importar funciones del store de autenticación
-    const {setToken, setRol} = storeAuth();
+    const { setToken, setRol } = storeAuth();
 
     // Estado para recordar la sesión
     const [rememberMe, setRememberMe] = useState(() => {
@@ -35,13 +35,13 @@ const Login = () => {
             return !prev;
         });
     };
-    
+
     const loginUser = async (data) => {
 
         const url = data.password.includes("KITS")
             ? `${import.meta.env.VITE_BACKEND_URL}/docente/login`
             : `${import.meta.env.VITE_BACKEND_URL}/login`
-            
+
         const response = await fetchDataBackend(url, data, 'POST');
         setToken(response.token);
         setRol(response.rol);
@@ -90,10 +90,10 @@ const Login = () => {
 
                 {/* Línea divisoria */}
                 <div className="flex items-center my-10">
-                        <hr className="flex-grow border-gray-400" />
-                            <span className="mx-2 text-gray-400 text-base whitespace-nowrap">O CONÉCTESE CON SU CORREO ELECTRÓNICO</span>
-                        <hr className="flex-grow border-gray-400" />
-                    </div>
+                    <hr className="flex-grow border-gray-400" />
+                    <span className="mx-2 text-gray-400 text-base whitespace-nowrap">O CONÉCTESE CON SU CORREO ELECTRÓNICO</span>
+                    <hr className="flex-grow border-gray-400" />
+                </div>
 
                 {/* FORMULARIO */}
                 <form onSubmit={handleSubmit(loginUser)}>

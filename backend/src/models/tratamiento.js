@@ -1,24 +1,24 @@
-import mongoose, {Schema,model} from 'mongoose'
+import mongoose, { Schema, model } from 'mongoose'
 
 const tratamientoSchema = new Schema({
-    nombre:{
-        type:String,
-        require:true,
-        trim:true
+    nombre: {
+        type: String,
+        require: true,
+        trim: true
     },
-    descripcion:{
-        type:String,
-        require:true,
-        trim:true
+    descripcion: {
+        type: String,
+        require: true,
+        trim: true
     },
-    prioridad:{
-        type:String,
-        require:true,
-        enum:['Baja','Media','Alta']
+    prioridad: {
+        type: String,
+        require: true,
+        enum: ['Baja', 'Media', 'Alta']
     },
-    docente:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'docente'
+    docente: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'docente'
     },
     precio: {
         type: Number,
@@ -30,8 +30,8 @@ const tratamientoSchema = new Schema({
         enum: ['Pendiente', 'Pagado'],
         default: 'Pendiente'
     }
-},{
-    timestamps:true
+}, {
+    timestamps: true
 })
 
-export default model('Tratamiento',tratamientoSchema)
+export default model('Tratamiento', tratamientoSchema)

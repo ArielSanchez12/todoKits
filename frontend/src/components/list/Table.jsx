@@ -16,7 +16,7 @@ const Table = () => {
     const listPatients = async () => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/docente/list`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
-        const headers= {
+        const headers = {
             "Content-Type": "application/json",
             Authorization: `Bearer ${storedUser.state.token}`,
         }
@@ -36,9 +36,9 @@ const Table = () => {
         )
     }
 
-    const deleteDocente = async(id) => {
+    const deleteDocente = async (id) => {
         const confirmDelete = confirm("Vas registrar la salida del paciente, ¿Estás seguro?")
-        if(confirmDelete){
+        if (confirmDelete) {
             const url = `${import.meta.env.VITE_BACKEND_URL}/docente/delete/${id}`
             const storedUser = JSON.parse(localStorage.getItem("auth-token"))
             const options = {
@@ -47,14 +47,14 @@ const Table = () => {
                     Authorization: `Bearer ${storedUser.state.token}`,
                 }
             }
-            const data ={
-                salidaMascota:new Date().toString()
+            const data = {
+                salidaMascota: new Date().toString()
             }
             await fetchDataBackend(url, data, "DELETE", options.headers)
             setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id))
         }
     }
-    
+
 
 
 
@@ -91,22 +91,22 @@ const Table = () => {
                                 />
 
                                 {
-                                    rol==="Administrador" && // Esto si vale para admin 
-                                        (
-                                            <>
-                                                <MdPublishedWithChanges
+                                    rol === "Administrador" && // Esto si vale para admin 
+                                    (
+                                        <>
+                                            <MdPublishedWithChanges
                                                 title="Actualizar"
                                                 className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-500"
                                                 onClick={() => navigate(`/dashboard/actualizar/${docente._id}`)}
-                                                />
+                                            />
 
-                                                <MdDeleteForever
+                                            <MdDeleteForever
                                                 title="Eliminar"
                                                 className="h-8 w-8 text-red-800 cursor-pointer inline-block hover:text-red-500"
-                                                onClick={()=>{deleteDocente(docente._id)}}
-                                                />
-                                            </>
-                                        )
+                                                onClick={() => { deleteDocente(docente._id) }}
+                                            />
+                                        </>
+                                    )
                                 }
                             </td>
                         </tr>

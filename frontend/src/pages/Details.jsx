@@ -5,7 +5,7 @@ import { useParams } from "react-router"
 import useFetch from "../hooks/useFetch"
 import storeAuth from "../context/storeAuth"
 import storeTreatments from "../context/storeTreatments"
-import { ToastContainer} from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 
 
 const Details = () => {
@@ -19,9 +19,9 @@ const Details = () => {
     const listDocente = async () => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/docente/${id}`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
-        const headers= {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${storedUser.state.token}`
+        const headers = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${storedUser.state.token}`
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
         setDocente(response.docentes)
@@ -29,14 +29,14 @@ const Details = () => {
     }
 
     //const formatDate = (date) => {
-        //return new Date(date).toLocaleDateString('es-EC', { dateStyle: 'long', timeZone: 'UTC' })
+    //return new Date(date).toLocaleDateString('es-EC', { dateStyle: 'long', timeZone: 'UTC' })
     //}
 
     useEffect(() => {
-        if(modal===false){
+        if (modal === false) {
             listDocente()
         }
-    },[modal])
+    }, [modal])
 
 
     return (
@@ -50,48 +50,48 @@ const Details = () => {
             <div>
 
                 <div className='m-5 flex justify-between'>
-    <div>
-        <ul className="list-disc pl-5">
-            {/* Datos del docente */}
-            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del docente</li>
-            <ul className="pl-5">
-                <li className="text-md text-gray-00 mt-2">
-                    <span className="text-gray-600 font-bold">Nombre: </span>
-                    {docente?.nombreDocente}
-                </li>
-                <li className="text-md text-gray-00 mt-2">
-                    <span className="text-gray-600 font-bold">Apellido: </span>
-                    {docente?.apellidoDocente}
-                </li>
-                <li className="text-md text-gray-00 mt-2">
-                    <span className="text-gray-600 font-bold">Dirección: </span>
-                    {docente?.direccionDocente}
-                </li>
-                <li className="text-md text-gray-00 mt-2">
-                    <span className="text-gray-600 font-bold">Celular: </span>
-                    {docente?.celularDocente}
-                </li>
-                <li className="text-md text-gray-00 mt-2">
-                    <span className="text-gray-600 font-bold">Correo electrónico: </span>
-                    {docente?.emailDocente}
-                </li>
-                <li className="text-md text-gray-00 mt-2">
-                    <span className="text-gray-600 font-bold">Estado: </span>
-                    <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                        {docente?.statusDocente ? "Activo" : "Inactivo"}
-                    </span>
-                </li>
-            </ul>
-        </ul>
-    </div>
-    <div>
-        <img
-            src={docente?.avatarDocente || docente?.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"}
-            alt="avatar docente"
-            className='h-70 w-70 rounded-full object-cover'
-        />
-    </div>
-</div>
+                    <div>
+                        <ul className="list-disc pl-5">
+                            {/* Datos del docente */}
+                            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del docente</li>
+                            <ul className="pl-5">
+                                <li className="text-md text-gray-00 mt-2">
+                                    <span className="text-gray-600 font-bold">Nombre: </span>
+                                    {docente?.nombreDocente}
+                                </li>
+                                <li className="text-md text-gray-00 mt-2">
+                                    <span className="text-gray-600 font-bold">Apellido: </span>
+                                    {docente?.apellidoDocente}
+                                </li>
+                                <li className="text-md text-gray-00 mt-2">
+                                    <span className="text-gray-600 font-bold">Dirección: </span>
+                                    {docente?.direccionDocente}
+                                </li>
+                                <li className="text-md text-gray-00 mt-2">
+                                    <span className="text-gray-600 font-bold">Celular: </span>
+                                    {docente?.celularDocente}
+                                </li>
+                                <li className="text-md text-gray-00 mt-2">
+                                    <span className="text-gray-600 font-bold">Correo electrónico: </span>
+                                    {docente?.emailDocente}
+                                </li>
+                                <li className="text-md text-gray-00 mt-2">
+                                    <span className="text-gray-600 font-bold">Estado: </span>
+                                    <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                        {docente?.statusDocente ? "Activo" : "Inactivo"}
+                                    </span>
+                                </li>
+                            </ul>
+                        </ul>
+                    </div>
+                    <div>
+                        <img
+                            src={docente?.avatarDocente || docente?.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"}
+                            alt="avatar docente"
+                            className='h-70 w-70 rounded-full object-cover'
+                        />
+                    </div>
+                </div>
 
                 <hr className='my-4 border-t-2 border-gray-300' />
 
@@ -99,17 +99,17 @@ const Details = () => {
 
                     <p>Este módulo te permite gestionar los tratamientos</p>
                     {
-                        rol==="Administrador" &&
+                        rol === "Administrador" &&
                         (
                             <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-black hover:scale-105 duration-300"
-                                    onClick={()=>{toggleModal("treatments")}}
+                                onClick={() => { toggleModal("treatments") }}
                             >
                                 Registrar
                             </button>
                         )
                     }
 
-                    {modal === "treatments" && (<ModalTreatments docenteID={docente._id}/>)}
+                    {modal === "treatments" && (<ModalTreatments docenteID={docente._id} />)}
 
                 </div>
 
@@ -120,7 +120,7 @@ const Details = () => {
                             <span className="font-medium">No existen registros</span>
                         </div>
                         :
-                        <TableTreatments treatments={treatments} listDocente={listDocente}/>
+                        <TableTreatments treatments={treatments} listDocente={listDocente} />
                 }
             </div>
         </>

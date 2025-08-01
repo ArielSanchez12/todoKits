@@ -105,7 +105,7 @@ export const Form = (docente) => {
                     <input
                         type="text"
                         placeholder="Ingresa el nombre"
-                        className="mb-2 block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"                        
+                        className="mb-2 block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"
                         {...register("nombreDocente", { required: "Este campo es obligatorio!" })}
                     />
                     {errors.nombreDocente && <p className="text-red-800 text-base mb-3">{errors.nombreDocente.message}</p>}
@@ -116,7 +116,7 @@ export const Form = (docente) => {
                     <input
                         type="text"
                         placeholder="Ingresa el apellido"
-                        className="mb-2 block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"   
+                        className="mb-2 block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"
                         {...register("apellidoDocente", { required: "Este campo es obligatorio!" })}
                     />
                     {errors.apellidoDocente && <p className="text-red-800 text-base mb-3">{errors.apellidoDocente.message}</p>}

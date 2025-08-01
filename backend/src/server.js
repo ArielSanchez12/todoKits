@@ -11,7 +11,7 @@ import fileUpload from "express-fileupload"
 
 // Inicializaciones
 const app = express() //Crear instancia como en POO
-dotenv.config() 
+dotenv.config()
 
 //Para usar Cloudinary
 cloudinary.config({
@@ -21,12 +21,12 @@ cloudinary.config({
 })
 
 app.use(fileUpload({ //Cuando se haga una carga de imagenes, se usara la carpeta Temp de nuestra computadora para que la imagen original
-    useTempFiles : false, //se quede en nuestra compu antes de enviarla a Cloudinary
+    useTempFiles: false, //se quede en nuestra compu antes de enviarla a Cloudinary
     //tempFileDir : './tmp' //Nuestra ruta se llamara temp(no uploads porque lo nuestro ya esta en la nube) y estara en la raiz del proyecto
 }))
 
 // Configuraciones - Esto es un set de POO, es decir le establecemos el valor
-app.set('port',process.env.PORT || 3000) //Aqui lo que hacemos es traer la variable global desde .env O si falla, que sea 3000
+app.set('port', process.env.PORT || 3000) //Aqui lo que hacemos es traer la variable global desde .env O si falla, que sea 3000
 app.use(cors()) //Para usar el framework cors, cada que veas 'estancia'.use('algo') es un MIDDLEWARE, es decir, un intermediario
 
 // Middlewares 
@@ -34,7 +34,7 @@ app.use(express.json()) //Esto lo que hace es que todos los datos de los formula
 
 
 // Rutas 
-app.get('/',(req,res)=>{   //Raiz -> '/', luego una funcion callback, y si responde, se envia ese texto, ejemplo http:localhost:3000/ si ejecutamos esa raiz al final de 3000, nos trae Server on
+app.get('/', (req, res) => {   //Raiz -> '/', luego una funcion callback, y si responde, se envia ese texto, ejemplo http:localhost:3000/ si ejecutamos esa raiz al final de 3000, nos trae Server on
     res.send("Server on")
 })
 
@@ -44,10 +44,10 @@ app.use('/api', routerAdmin)//Aca copia y pega
 //Rutas docente
 app.use('/api', routerDocente)
 //Rutas tratamiento
-app.use('/api', routerTratamiento) 
+app.use('/api', routerTratamiento)
 
 //Manejo de rutas inexistentes
-app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})
+app.use((req, res) => { res.status(404).send("Endpoint no encontrado") })
 
 // Exportar la instancia de express por medio de app
-export default  app //Este metodo(default) es porque solo exportamos una cosa
+export default app //Este metodo(default) es porque solo exportamos una cosa

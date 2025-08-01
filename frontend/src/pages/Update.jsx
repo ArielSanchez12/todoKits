@@ -13,9 +13,9 @@ const Update = () => {
         const searchDocente = async () => {
             const url = `${import.meta.env.VITE_BACKEND_URL}/docente/${id}`
             const storedUser = JSON.parse(localStorage.getItem("auth-token"))
-            const headers= {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${storedUser.state.token}`
+            const headers = {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${storedUser.state.token}`
             }
             const response = await fetchDataBackend(url, null, "GET", headers)
             setDocente(response || {})

@@ -52,7 +52,7 @@ const Reset = () => {
             {tokenback && (
                 <form className="w-90" onSubmit={handleSubmit(changePassword)}>
                     <div className="mb-1">
-                        
+
                         <label className="mb-1 block text-base font-semibold">
                             Nueva contraseña
                         </label>
@@ -61,9 +61,9 @@ const Reset = () => {
                             placeholder="Ingresa tu nueva contraseña"
                             className="mb-2 block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
                             {...register("password", { required: "Este campo es obligatorio!" })}
-                            />
-                            {errors.password && <p className="text-red-800 text-base mb-4">{errors.password.message}</p>}
-                            
+                        />
+                        {errors.password && <p className="text-red-800 text-base mb-4">{errors.password.message}</p>}
+
                         <label className="mb-1 block text-base font-semibold">
                             Confirmar contraseña
                         </label>
@@ -73,7 +73,7 @@ const Reset = () => {
                             className="mb-2 block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
                             {...register("confirmpassword", { required: "Este campo es obligatorio!" })}
                         />
-                            {errors.confirmpassword && <p className="text-red-800 text-base mt-1">{errors.confirmpassword.message}</p>}
+                        {errors.confirmpassword && <p className="text-red-800 text-base mt-1">{errors.confirmpassword.message}</p>}
                     </div>
 
                     <div className="mb-3">

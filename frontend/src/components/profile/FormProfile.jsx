@@ -3,11 +3,11 @@ import storeProfile from "../../context/storeProfile"
 import { useForm } from "react-hook-form"
 
 const FormularioPerfil = () => {
-    const { user,updateProfile } = storeProfile()
+    const { user, updateProfile } = storeProfile()
     const { register, handleSubmit, reset, formState: { errors } } = useForm()
 
-    const updateUser = async(data) => {
-        updateProfile(data,user._id)
+    const updateUser = async (data) => {
+        updateProfile(data, user._id)
     }
 
     useEffect(() => {

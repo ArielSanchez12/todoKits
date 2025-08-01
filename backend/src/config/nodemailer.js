@@ -13,12 +13,12 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-const sendMailToRegister = async(userMail,token)=>{
+const sendMailToRegister = async (userMail, token) => {
     let info = await transporter.sendMail({
-    from: 'admin@kits.com',
-    to: userMail,
-    subject: "Registro de cuenta en KITSLABORATORIO",
-    html: `
+        from: 'admin@kits.com',
+        to: userMail,
+        subject: "Registro de cuenta en KITSLABORATORIO",
+        html: `
     <h1>KITSLABORATORIO-🐒🏇🏿</h1>
     <hr>
     <p>Hola, haz clic <a href="${process.env.URL_FRONTEND}confirm/${token}">aquí</a> para confirmar tu cuenta.</p>
@@ -30,12 +30,12 @@ const sendMailToRegister = async(userMail,token)=>{
 }
 
 
-const sendMailToRecoveryPassword = async(userMail,token)=>{
+const sendMailToRecoveryPassword = async (userMail, token) => {
     let info = await transporter.sendMail({
-    from: 'admin@kits.com',
-    to: userMail,
-    subject: "Correo para reestablecer tu contraseña",
-    html: `
+        from: 'admin@kits.com',
+        to: userMail,
+        subject: "Correo para reestablecer tu contraseña",
+        html: `
     <h1>KITSLABORATORIO-🐒🏇🏿</h1>
     <hr>
     <a href=${process.env.URL_FRONTEND}reset/${token}>Clic para reestablecer tu contraseña</a>
@@ -46,12 +46,12 @@ const sendMailToRecoveryPassword = async(userMail,token)=>{
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
 }
 
-const sendMailToDocente = async(userMail,password)=>{
+const sendMailToDocente = async (userMail, password) => {
     let info = await transporter.sendMail({
-    from: 'admin@kits.com',
-    to: userMail,
-    subject: "Correo de bienvenida - Docente de la ESFOT",
-    html: `
+        from: 'admin@kits.com',
+        to: userMail,
+        subject: "Correo de bienvenida - Docente de la ESFOT",
+        html: `
     <h1>KITSLABORATORIO-🐒🏇🏿</h1>
     <hr>
     <p>Contraseña de acceso: ${password}</p>

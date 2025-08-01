@@ -49,8 +49,8 @@ const TableTreatments = ({ treatments, listDocente }) => {
                                     <MdOutlinePayments
                                         className={
                                             treatment.estadoPago === "Pagado"
-                                            ? "h-8 w-8 text-gray-600 pointer-events-none inline-block mr-2"
-                                            : "h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-500"
+                                                ? "h-8 w-8 text-gray-600 pointer-events-none inline-block mr-2"
+                                                : "h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-500"
                                         }
                                         title="Pagar"
                                         onClick={() => {

@@ -1,4 +1,4 @@
-const API_URL ="https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0"
+const API_URL = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0"
 const API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY
 
 async function generateAvatar(prompt) {
@@ -8,7 +8,7 @@ async function generateAvatar(prompt) {
             "Content-Type": "application/json",
         },
         method: "POST",
-        body: JSON.stringify({"inputs": prompt}),
+        body: JSON.stringify({ "inputs": prompt }),
     })
     return await response.blob()
 }

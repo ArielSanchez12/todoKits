@@ -26,11 +26,11 @@ import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
 
 function App() {
 
-  const { profile} = storeProfile()
+  const { profile } = storeProfile()
   const { token } = storeAuth()
 
   useEffect(() => {
-    if(token){
+    if (token) {
       profile()
     }
   }, [token])
@@ -38,21 +38,21 @@ function App() {
 
   return (
     <>
-    <BrowserRouter>
-      <Routes>
-        
-        <Route element={<PublicRoute />}>
-          <Route index element={<Login/>}/>
-          <Route path='login' element={<Login/>}/>
-          <Route path='register' element={<Register/>}/>
-          <Route path='forgot/:id' element={<Forgot/>}/>
-          <Route path='confirm/:token' element={<Confirm/>}/>
-          <Route path='reset/:token' element={<Reset/>}/>
-          <Route path='*' element={<NotFound />} />
-        </Route>
+      <BrowserRouter>
+        <Routes>
+
+          <Route element={<PublicRoute />}>
+            <Route index element={<Login />} />
+            <Route path='login' element={<Login />} />
+            <Route path='register' element={<Register />} />
+            <Route path='forgot/:id' element={<Forgot />} />
+            <Route path='confirm/:token' element={<Confirm />} />
+            <Route path='reset/:token' element={<Reset />} />
+            <Route path='*' element={<NotFound />} />
+          </Route>
 
 
-        <Route path='dashboard/*' element={
+          <Route path='dashboard/*' element={
             <ProtectedRoute>
               <Routes>
                 <Route element={<Dashboard />}>
@@ -77,8 +77,8 @@ function App() {
             </ProtectedRoute>
           } />
 
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
     </>
   )
 }

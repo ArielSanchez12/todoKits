@@ -13,12 +13,11 @@ router.get('/auth/google',
 
 // Ruta de callback (¡esta es la que importa!)
 router.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: `${process.env.URL_FRONTEND}/login`, session: false }),
+  passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    const user = req.user;
-    const tokenJWT = crearTokenJWT(user._id, user.rolDocente);
-
-    res.redirect(`${process.env.URL_FRONTEND}/login-success?token=${tokenJWT}&name=${encodeURIComponent(user.nombreDocente)}&email=${user.emailDocente}`);
+    // Redirige al frontend con el token
+    const token = req.user.token;
+    res.redirect(`https://kitsfrontend.vercel.app/dashboard?token=${token}`);
   }
 );
 

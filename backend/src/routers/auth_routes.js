@@ -12,7 +12,7 @@ router.get('/auth/google',
 );
 
 // Ruta de callback (¡esta es la que importa!)
-router.get('/google/callback',
+router.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL}/login` }),
   async (req, res) => {
     const user = req.user;

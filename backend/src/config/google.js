@@ -6,7 +6,7 @@ import { crearTokenJWT } from '../middlewares/jwt.js'
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://kitsbackend-zeta.vercel.app/auth/google/callback"
+  callbackURL: "https://kitsbackend.vercel.app/api/auth/google/callback"
 },
   async (accessToken, refreshToken, profile, done) => {
     try {

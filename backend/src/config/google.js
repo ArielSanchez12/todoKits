@@ -29,12 +29,7 @@ passport.use(new GoogleStrategy({
       }
       console.log("Usuario autenticado:", user);
       console.log("PERFIL GOOGLE:", profile);
-
-      // Genera el token JWT
-      const token = crearTokenJWT(user._id);
-
-      // Devuelve el usuario y el token
-      return done(null, { user, token });
+      return done(null, user);
     } catch (err) {
       console.error("Error en autenticación con Google:", err);
       return done(err, null);

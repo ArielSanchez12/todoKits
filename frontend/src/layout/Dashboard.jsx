@@ -1,5 +1,4 @@
 import { Link, Outlet, useLocation } from 'react-router'
-import { useEffect } from 'react';
 import storeAuth from '../context/storeAuth'
 import storeProfile from '../context/storeProfile'
 
@@ -9,16 +8,6 @@ const Dashboard = () => {
     const urlActual = location.pathname
     const { clearToken } = storeAuth()
     const { user } = storeProfile()
-
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
-        if (token) {
-            localStorage.setItem('authToken', token);
-            // Opcional: limpiar la URL
-            window.history.replaceState({}, document.title, "/dashboard");
-        }
-    }, []);
 
 
     return (

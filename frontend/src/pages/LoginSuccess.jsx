@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-
 const LoginSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -10,14 +9,16 @@ const LoginSuccess = () => {
     const query = new URLSearchParams(location.search);
     const name = query.get("name");
     const email = query.get("email");
+    const token = query.get("token");
 
-    if (name && email) {
+    if (name && email && token) {
       localStorage.setItem("user", JSON.stringify({ name, email }));
-      navigate("/dashboard"); // o cualquier ruta principal que tengas
+      localStorage.setItem("token", token);
+      navigate("/dashboard"); // Redirige al panel principal
     } else {
-      navigate("/login");
+      navigate("/login"); // Si falta algo, regresa al login
     }
-  }, []);
+  }, [location, navigate]);
 
   return <p>Cargando...</p>;
 };

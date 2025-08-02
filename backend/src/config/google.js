@@ -1,7 +1,7 @@
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import passport from 'passport'
-import docente from './models/docente.js'
-import { crearTokenJWT } from './middlewares/jwt.js'
+import docente from '../models/docente.js'
+import { crearTokenJWT } from '../middlewares/jwt.js'
 
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,

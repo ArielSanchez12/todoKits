@@ -1,6 +1,8 @@
 // authRoutes.js
 import { Router } from 'express';
 import passport from 'passport';
+import { crearTokenJWT } from '../middlewares/jwt.js';
+import docente from '../models/docente.js';
 
 const router = Router();
 

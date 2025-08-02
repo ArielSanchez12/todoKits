@@ -49,7 +49,9 @@ const docenteSchema = new Schema({
 
     passwordDocente: {
         type: String,
-        require: true
+        required: function () {
+            return !this.loginGoogle; // Solo requerido si NO es login por Google
+        }
     },
 
     statusDocente: {
@@ -66,7 +68,10 @@ const docenteSchema = new Schema({
         type: Boolean,
         default: false
     },
-
+    loginGoogle: {
+        type: Boolean,
+        default: false
+    },
     rolDocente: {
         type: String,
         default: "Docente"

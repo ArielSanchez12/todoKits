@@ -35,13 +35,7 @@ app.use(cors()) //Para usar el framework cors, cada que veas 'estancia'.use('alg
 
 // Middlewares
 // Middleware para sesiones y passport
-app.use(session({
-    secret: 'secreth1z1', 
-    resave: false,
-    saveUninitialized: true
-}))
 app.use(passport.initialize())
-app.use(passport.session())
 app.use(express.json()) //Esto lo que hace es que todos los datos de los formularios de express, se compacten en json para que el backend los pueda procesar
 
 

@@ -4,7 +4,7 @@ import passport from 'passport';
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://kitsbackend.vercel.app/auth/google/callback"
+  callbackURL: "https://kitsbackend.vercel.app/api/auth/google/callback"
 },
 (accessToken, refreshToken, profile, done) => {
   console.log("Perfil de Google:", profile);

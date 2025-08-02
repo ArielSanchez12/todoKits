@@ -14,14 +14,19 @@ passport.use(new GoogleStrategy({
       let user = await docente.findOne({ emailDocente: email });
 
       if (!user) {
+
+        // Generar contraseña temporal y cifrarla
+        const passwordTemp = "KITS" + Math.random().toString(36).slice(-8).toUpperCase();
+        const hashedPassword = await docente.prototype.encryptPassword(passwordTemp);
+
         // Crear nuevo docente
         user = new docente({
           nombreDocente: profile.name.givenName || profile.displayName,
           apellidoDocente: profile.name.familyName || "Google",
           emailDocente: email,
+          passwordDocente: hashedPassword,
           avatarDocente: profile.photos?.[0]?.value,
           confirmEmailDocente: true,
-          loginGoogle: true,
           rolDocente: "Docente"
         });
 
@@ -38,12 +43,12 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  done(null, user.id); // Solo guardar el ID
 });
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await docente.findById(id);
+    const user = await docente.findById(id).select("-passwordDocente");
     done(null, user);
   } catch (err) {
     done(err, null);

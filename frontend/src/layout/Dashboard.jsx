@@ -2,13 +2,11 @@ import { Link, Outlet, useLocation } from 'react-router'
 import storeAuth from '../context/storeAuth'
 import storeProfile from '../context/storeProfile'
 
-
 const Dashboard = () => {
     const location = useLocation()
     const urlActual = location.pathname
     const { clearToken } = storeAuth()
     const { user } = storeProfile()
-
 
     return (
         <div className='md:flex md:min-h-screen'>

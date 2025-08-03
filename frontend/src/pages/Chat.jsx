@@ -103,7 +103,7 @@ const Chat = () => {
     }, [watch("message")]);
 
     const avatarUser = "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
-    const avatarBot = "https://cdn-icons-png.flaticon.com/512/3594/3594507.png"
+    const avatarBot = "https://cdn-icons-png.flaticon.com/512/9387/9387914.png"
 
     return (
         <div className="max-w-4xl mx-auto mt-4 bg-gray-100 text-black rounded-2xl shadow-xl p-6 border border-black">

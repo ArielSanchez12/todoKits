@@ -96,7 +96,7 @@ const Chat = () => {
             {/* Sidebar de contactos */}
             <div className="w-1/4 bg-gray-200 p-4 overflow-y-auto">
                 <h2 className="font-bold mb-4">
-                    {userType === "docente" ? "Administrador" : "Docente"}
+                    {userType === "docente" ? "Administrador" : "Docentes"}
                 </h2>
                 {contacts.map(contact => (
                     <div
@@ -110,7 +110,12 @@ const Chat = () => {
                             className="w-10 h-10 rounded-full"
                         />
                         <div>
-                            <div className="font-semibold">{contact.nombreDocente || contact.nombreAdmin} {contact.apellidoDocente || contact.apellidoAdmin}</div>
+                            <div className="font-semibold">
+                                {(contact.nombreDocente || contact.nombre) + " " + (contact.apellidoDocente || contact.apellido)}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                                {contact.emailDocente || contact.email}
+                            </div>
                         </div>
                     </div>
                 ))}

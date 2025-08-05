@@ -13,14 +13,19 @@ const LoginSuccess = () => {
     const name = query.get("name");
     const email = query.get("email");
     const token = query.get("token");
-    // Si tu backend también puede enviar el rol, úsalo aquí
-    const rol = "Docente"; // O lee de query si lo envías
+    const id = query.get("id"); // <-- Asegúrate que el backend lo envía
+    const rol = query.get("rol") || "Docente"; // O lee de query si lo envías
 
-    if (name && email && token) {
-      console.log("Datos recibidos en login-success:", { name, email, token });
-      localStorage.setItem("user", JSON.stringify({ name, email }));
-      setToken(token); // <-- Usa Zustand para guardar el token
-      setRol(rol);     // <-- Guarda el rol si lo necesitas
+    if (name && email && token && id) {
+      // Guarda el usuario completo
+      localStorage.setItem("user", JSON.stringify({
+        _id: id,
+        nombreDocente: name, // o nombreAdmin si es admin
+        emailDocente: email, // o emailAdmin si es admin
+        rolDocente: rol // o rolAdmin si es admin
+      }));
+      setToken(token);
+      setRol(rol);
       navigate("/dashboard");
     } else {
       navigate("/login");
@@ -31,5 +36,3 @@ const LoginSuccess = () => {
 };
 
 export default LoginSuccess;
-
-      

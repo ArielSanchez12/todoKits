@@ -47,10 +47,23 @@ const Login = () => {
         setRol(response.rol);
         // Verifica si la respuesta es exitosa
         if (response) {
-            // Si el usuario quiere recordar sesión, guarda el email
+            // Guarda el usuario completo en localStorage
+            // Para docente: response.docenteBDD o response.usuario
+            // Para admin: response.adminEmailBDD o response.usuario
+            // Ajusta según cómo lo envíes desde el backend
+            if (response.usuario) {
+                localStorage.setItem("user", JSON.stringify(response.usuario));
+            } else if (response.docenteBDD) {
+                localStorage.setItem("user", JSON.stringify(response.docenteBDD));
+            } else if (response.adminEmailBDD) {
+                localStorage.setItem("user", JSON.stringify(response.adminEmailBDD));
+            } else {
+                // fallback: guarda todo el response
+                localStorage.setItem("user", JSON.stringify(response));
+            }
+
             if (rememberMe) {
                 localStorage.setItem("rememberedEmail", data.email);
-
             } else {
                 localStorage.removeItem("rememberedEmail");
             }

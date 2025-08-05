@@ -30,7 +30,10 @@ const Chat = () => {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
-            .then(data => setContacts(userType === "docente" ? [data] : data));
+            .then(data => {
+                // Si es docente, data es un solo admin, lo ponemos en array
+                setContacts(userType === "docente" ? (data ? [data] : []) : data);
+            });
     }, [token, userType]);
 
     // Cargar historial al seleccionar contacto
@@ -92,7 +95,9 @@ const Chat = () => {
         <div className="flex h-[80vh]">
             {/* Sidebar de contactos */}
             <div className="w-1/4 bg-gray-200 p-4 overflow-y-auto">
-                <h2 className="font-bold mb-4">{userType === "docente" ? "Administrador" : "Docentes"}</h2>
+                <h2 className="font-bold mb-4">
+                    {userType === "docente" ? "Administrador" : "Docentes"}
+                </h2>
                 {contacts.map(contact => (
                     <div
                         key={contact._id}

@@ -50,13 +50,23 @@ const loginDocente = async (req, res) => {
   if (!docenteBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no se encuentra registrado" })
   const verificarPassword = await docenteBDD.matchPassword(passwordDocente)
   if (!verificarPassword) return res.status(404).json({ msg: "Lo sentimos, el password no es el correcto" })
-  const { _id, rolDocente } = docenteBDD
   const tokenJWT = crearTokenJWT(docenteBDD._id, docenteBDD.rolDocente)
-  console.log(tokenJWT, rolDocente)
+  // Devuelve el usuario completo bajo la propiedad "usuario"
   res.status(200).json({
     token: tokenJWT,
-    rol: rolDocente,
-    _id
+    rol: docenteBDD.rolDocente,
+    usuario: {
+      _id: docenteBDD._id,
+      nombreDocente: docenteBDD.nombreDocente,
+      apellidoDocente: docenteBDD.apellidoDocente,
+      direccionDocente: docenteBDD.direccionDocente,
+      celularDocente: docenteBDD.celularDocente,
+      emailDocente: docenteBDD.emailDocente,
+      avatarDocente: docenteBDD.avatarDocente || null,
+      avatarDocenteIA: docenteBDD.avatarDocenteIA || null,
+      rolDocente: docenteBDD.rolDocente,
+      admin: docenteBDD.admin // para saber a qué admin pertenece
+    }
   })
 }
 

@@ -10,11 +10,14 @@ router.get('/google',
 );
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   (req, res) => {
-    // Genera el token
+    console.log("Usuario autenticado en callback:", req.user);
+    if (!req.user) {
+      console.error("No se recibió usuario en el callback");
+      return res.redirect(`${process.env.URL_FRONTEND}login?google=fail`);
+    }
     const token = crearTokenJWT(req.user._id, req.user.rolDocente);
-    // Redirige al frontend con los datos necesarios
     res.redirect(`${process.env.URL_FRONTEND}login-success?name=${encodeURIComponent(req.user.nombreDocente)}&email=${encodeURIComponent(req.user.emailDocente)}&token=${token}`);
   }
 );

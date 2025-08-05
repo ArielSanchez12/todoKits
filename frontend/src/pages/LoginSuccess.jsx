@@ -12,6 +12,7 @@ const LoginSuccess = () => {
     const token = query.get("token");
 
     if (name && email && token) {
+      console.log("Datos recibidos en login-success:", { name, email, token });
       localStorage.setItem("user", JSON.stringify({ name, email }));
       localStorage.setItem("token", token);
       navigate("/dashboard"); // Redirige al panel principal

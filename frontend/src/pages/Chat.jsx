@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import Pusher from "pusher-js";
 import storeAuth from "../context/storeAuth";
 
-const PUSHER_KEY = import.meta.env.PUSHER_KEY;
-const PUSHER_CLUSTER = import.meta.env.PUSHER_CLUSTER;
+const PUSHER_KEY = import.meta.env.VITE_PUSHER_APP_ID;
+const PUSHER_CLUSTER = import.meta.env.VITE_PUSHER_CLUSTER;
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://kitsbackend.vercel.app/api/chat";
 
 const Chat = () => {

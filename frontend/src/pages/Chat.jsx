@@ -109,7 +109,7 @@ const Chat = () => {
                             <div className="font-semibold">
                                 {contact.nombreDocente || contact.nombre} {contact.apellidoDocente || contact.apellido}</div>
                             <div className="text-xs text-gray-600">
-                                {contact.emailDocente || contact.emailAd}</div>
+                                {contact.emailDocente || contact.email}</div>
                         </div>
                     </div>
                 ))}

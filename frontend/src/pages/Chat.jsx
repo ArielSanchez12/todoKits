@@ -104,14 +104,17 @@ const Chat = () => {
                         className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-300 ${selectedContact?._id === contact._id ? "bg-gray-300" : ""}`}
                         onClick={() => setSelectedContact(contact)}
                     >
-                        <img src={contact.avatarDocente || contact.avatarAdmin || "/images/default.png"} alt="avatar" className="w-10 h-10 rounded-full" />
+                        <img
+                            src={contact.avatarDocente || contact.avatar || "/images/default.png"}
+                            alt="avatar"
+                            className="w-10 h-10 rounded-full"
+                        />
                         <div>
                             <div className="font-semibold">
-                                {/* Para admin */}
-                                {contact.nombre || contact.nombreDocente} {contact.apellido || contact.apellidoDocente}
+                                {(contact.nombreDocente || contact.nombre) + " " + (contact.apellidoDocente || contact.apellido)}
                             </div>
                             <div className="text-xs text-gray-600">
-                                {contact.email || contact.emailDocente}
+                                {contact.emailDocente || contact.email}
                             </div>
                         </div>
                     </div>

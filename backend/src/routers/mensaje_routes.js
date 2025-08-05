@@ -1,43 +1,16 @@
-import { Router } from "express";
-import pusher from "../config/pusher.js";
-import { verificarTokenJWT } from "../middlewares/jwt.js";
-import Mensaje from "../models/mensaje.js";
+import Docente from "../models/docente.js";
+import Admin from "../models/admin.js";
 
-const router = Router();
-
-router.post("/chat/send", verificarTokenJWT, async (req, res) => {
-  const { texto, para, paraTipo, paraNombre } = req.body;
-  const de = req.docenteBDD?._id || req.adminEmailBDD?._id;
-  const deTipo = req.docenteBDD ? "docente" : "admin";
-  const deNombre = req.docenteBDD?.nombreDocente || req.adminEmailBDD?.nombreAdmin || "Desconocido";
-  // Guarda el mensaje
-  const mensaje = await Mensaje.create({ texto, de, deTipo, deNombre, para, paraTipo, paraNombre });
-  // Notifica en tiempo real
-  pusher.trigger("chat", "nuevo-mensaje", {
-    _id: mensaje._id,
-    texto,
-    de,
-    deTipo,
-    deNombre,
-    para,
-    paraTipo,
-    paraNombre,
-    createdAt: mensaje.createdAt,
-  });
-  res.json(mensaje); // <-- Esto asegura que la respuesta es JSON
+// Obtener admin del docente autenticado
+router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
+  if (!req.docenteBDD) return res.status(401).json({ msg: "No autorizado" });
+  const admin = await Admin.findById(req.docenteBDD.admin).select("_id nombreAdmin apellidoAdmin avatarAdmin emailAdmin");
+  res.json(admin);
 });
 
-router.get("/chat/chat-history/:userId", verificarTokenJWT, async (req, res) => {
-  const miId = req.docenteBDD?._id || req.adminEmailBDD?._id;
-  const userId = req.params.userId;
-  // Busca mensajes entre los dos usuarios
-  const mensajes = await Mensaje.find({
-    $or: [
-      { de: miId, para: userId },
-      { de: userId, para: miId }
-    ]
-  }).sort({ createdAt: 1 });
-  res.json(mensajes);
+// Obtener docentes del admin autenticado
+router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
+  if (!req.adminEmailBDD) return res.status(401).json({ msg: "No autorizado" });
+  const docentes = await Docente.find({ admin: req.adminEmailBDD._id }).select("_id nombreDocente apellidoDocente avatarDocente emailDocente");
+  res.json(docentes);
 });
-
-export default router;

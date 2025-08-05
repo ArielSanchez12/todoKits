@@ -2,15 +2,25 @@ import { Router } from "express";
 import Mensaje from "../models/mensaje.js";
 import Docente from "../models/docente.js";
 import Admin from "../models/admin.js";
-import router from "./admin_routes.js";
 import { verificarTokenJWT } from "../middlewares/jwt.js";
 
 const router = Router();
 // Obtener admin del docente autenticado
 router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
   if (!req.docenteBDD) return res.status(401).json({ msg: "No autorizado" });
-  const admin = await Admin.findById(req.docenteBDD.admin).select("_id nombreAdmin apellidoAdmin avatarAdmin emailAdmin");
-  res.json(admin);
+  const admin = await Admin.findById(req.docenteBDD.admin).select("_id nombre apellido direccion celular email rol");
+  if (!admin) return res.status(404).json({ msg: "Admin no encontrado" });
+  // Mapea los campos para el frontend
+  res.json({
+    _id: admin._id,
+    nombre: admin.nombre,
+    apellido: admin.apellido,
+    direccion: admin.direccion,
+    celular: admin.celular,
+    email: admin.email,
+    rol: admin.rol
+    // avatar: admin.avatar || null // si algún día lo agregas
+  });
 });
 
 // Obtener docentes del admin autenticado

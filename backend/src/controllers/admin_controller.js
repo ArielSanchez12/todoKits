@@ -75,7 +75,6 @@ const crearNuevoPassword = async (req, res) => {
 }
 
 const login = async (req, res) => {
-
     //Obtencion de datos
     const { email, password } = req.body
 
@@ -91,7 +90,7 @@ const login = async (req, res) => {
     if (!verificarPassword) return res.status(401).json({ msg: "Lo sentimos, el password es incorrecto" })
 
     //Desestructurar para mostrarle solo lo que queremos al usuario
-    const { nombre, apellido, direccion, celular, _id, rol, emailAd, avatarAdmin } = adminEmailBDD; //Esto es lo mismo que hacer un destructuring con select
+    const { nombre, apellido, direccion, celular, _id, rol, emailAd } = adminEmailBDD;
     const tokenJWT = crearTokenJWT(adminEmailBDD._id, adminEmailBDD.rol)
 
     //Aca mandamos el objeto que desestructuramos arriba
@@ -100,13 +99,13 @@ const login = async (req, res) => {
         rol,
         usuario: {
             _id,
-            nombreAdmin: nombre,
-            apellidoAdmin: apellido,
-            direccionAdmin: direccion,
-            celularAdmin: celular,
-            emailAdmin: emailAd,
-            avatarAdmin: avatarAdmin || null,
-            rolAdmin: rol
+            nombre,
+            apellido,
+            direccion,
+            celular,
+            emailAd,
+            rol,
+            avatar: null // Si algún día agregas avatar, cámbialo aquí
         }
     });
 }

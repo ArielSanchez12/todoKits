@@ -14,7 +14,9 @@ passport.use(new GoogleStrategy({
       user = await docente.create({
         googleId: profile.id,
         nombreDocente: profile.displayName,
+        apellidoDocente: profile.name.familyName,
         emailDocente: profile.emails[0].value,
+        avatarDocente: profile.photos?.[0]?.value || "", // <-- FOTO DE GOOGLE
         confirmEmailDocente: true,
         loginGoogle: true
       });

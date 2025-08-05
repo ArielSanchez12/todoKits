@@ -14,7 +14,7 @@ passport.use(new GoogleStrategy({
       user = await docente.create({
         googleId: profile.id,
         nombreDocente: profile.displayName,
-        apellidoDocente: profile.name.familyName,
+        apellidoDocente: profile.name.familyName || "Google", // <-- Si no tiene apellido en su cuenta de google, se le asigna "Google User" 
         emailDocente: profile.emails[0].value,
         avatarDocente: profile.photos?.[0]?.value || "", // <-- FOTO DE GOOGLE
         confirmEmailDocente: true,
@@ -30,6 +30,6 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await admin.findById(id);
+  const user = await docente.findById(id);
   done(null, user);
 });

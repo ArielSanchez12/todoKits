@@ -18,26 +18,40 @@ const Chat = () => {
 
     // Detectar tipo de usuario
     useEffect(() => {
-        if (user.rolDocente) setUserType("docente");
-        else if (user.rolAdmin) setUserType("admin");
-    }, [user]);
+    console.log("Usuario actual:", user);
+    if (user.rolDocente) {
+        console.log("Es docente");
+        setUserType("docente");
+    } else if (user.rol === "Administrador") { // Cambio importante aquí
+        console.log("Es admin");
+        setUserType("admin");
+    }
+}, [user]);
 
     // Obtener contactos
     useEffect(() => {
         if (!token || !userType) return;
         const endpoint = userType === "docente" ? "/chat/admin" : "/chat/docentes";
+        console.log("UserType:", userType); // Para ver qué tipo de usuario es
+        console.log("Endpoint:", endpoint); // Para ver qué endpoint se está llamando
+
         fetch(`${BACKEND_URL}${endpoint}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => {
-                // Si es docente, data es un solo admin, lo ponemos en array
+                console.log("Datos recibidos:", data); // Para ver los datos que llegan
                 setContacts(userType === "docente" ? (data ? [data] : []) : data);
             });
     }, [token, userType]);
 
     // Cargar historial al seleccionar contacto
     useEffect(() => {
+        console.log("Estado actual:", {
+            userType,
+            contacts,
+            selectedContact
+        });
         if (!selectedContact) return;
         fetch(`${BACKEND_URL}/chat/chat-history/${selectedContact._id}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -90,7 +104,7 @@ const Chat = () => {
         });
         setMessage("");
     };
-
+    contacts.forEach(contact => console.log(contact));
     return (
         <div className="flex h-[80vh]">
             {/* Sidebar de contactos */}

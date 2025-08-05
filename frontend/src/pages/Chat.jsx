@@ -105,16 +105,24 @@ const Chat = () => {
                         onClick={() => setSelectedContact(contact)}
                     >
                         <img
-                            src={contact.avatarDocente || contact.avatar || "/images/default.png"}
+                            src={
+                                userType === "docente"
+                                    ? contact.avatar || "/images/default.png"
+                                    : contact.avatarDocente || "/images/default.png"
+                            }
                             alt="avatar"
                             className="w-10 h-10 rounded-full"
                         />
                         <div>
                             <div className="font-semibold">
-                                {(contact.nombreDocente || contact.nombre) + " " + (contact.apellidoDocente || contact.apellido)}
+                                {userType === "docente"
+                                    ? `${contact.nombre} ${contact.apellido}`
+                                    : `${contact.nombreDocente} ${contact.apellidoDocente}`}
                             </div>
                             <div className="text-xs text-gray-600">
-                                {contact.emailDocente || contact.email}
+                                {userType === "docente"
+                                    ? contact.email
+                                    : contact.emailDocente}
                             </div>
                         </div>
                     </div>

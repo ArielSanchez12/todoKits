@@ -64,18 +64,26 @@ const Chat = () => {
 
     // Enviar mensaje al backend
     const handleMessageChat = async (data) => {
-        if (!nameUser) return;
-        const user = JSON.parse(localStorage.getItem("user"));
-        const destinatario = { id: "idAdmin", nombre: "NombreAdmin" }; // selecciona el admin
+        const user = JSON.parse(localStorage.getItem("user")) || {};
+        const userId = user.id || user._id;
+        const userName = user.name || user.nombreDocente || user.nombreAdmin || "Desconocido";
+        const destinatario = { id: "idAdmin", nombre: "NombreAdmin" }; // O el admin seleccionado
+
+        if (!userId || !userName) {
+            alert("Usuario no autenticado. Por favor, inicia sesión.");
+            return;
+        }
+
         const newMessage = {
             texto: data.message,
-            de: user.id,
-            deNombre: user.name,
+            de: userId,
+            deNombre: userName,
             para: destinatario.id,
             paraNombre: destinatario.nombre,
             deTipo: "docente",
             paraTipo: "admin"
         };
+
         await fetch(`${BACKEND_URL}/send`, {
             method: "POST",
             headers: {
@@ -83,14 +91,18 @@ const Chat = () => {
                 Authorization: `Bearer ${token}`
             },
             body: JSON.stringify(newMessage)
+        })
+        .then(res => res.json())
+        .then(mensaje => {
+            setResponses(prev => [...prev, mensaje]);
         });
+
         reset({ message: "" });
         if (inputRef.current) {
             inputRef.current.style.height = "40px";
             inputRef.current.focus();
         }
     };
-
     // Emitir evento de escribiendo
     const handleTyping = () => {
         const user = JSON.parse(localStorage.getItem("user"));

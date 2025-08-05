@@ -15,18 +15,17 @@ router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
     _id: admin._id,
     nombre: admin.nombre,
     apellido: admin.apellido,
-    direccion: admin.direccion,
-    celular: admin.celular,
+    avatar: admin.avatar || null,
     email: admin.email,
     rol: admin.rol
-    // avatar: admin.avatar || null // si algún día lo agregas
   });
 });
 
 // Obtener docentes del admin autenticado
 router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
   if (!req.adminEmailBDD) return res.status(401).json({ msg: "No autorizado" });
-  const docentes = await Docente.find({ admin: req.adminEmailBDD._id }).select("_id nombreDocente apellidoDocente avatarDocente emailDocente");
+  const docentes = await Docente.find({ admin: req.adminEmailBDD._id })
+    .select("_id nombreDocente apellidoDocente avatarDocente emailDocente");
   res.json(docentes);
 });
 

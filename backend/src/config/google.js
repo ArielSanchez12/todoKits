@@ -1,56 +1,33 @@
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
-import passport from 'passport'
-import docente from '../models/docente.js'
-import { crearTokenJWT } from '../middlewares/jwt.js'
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import docente from '../models/docente.js';
 
 passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://kitsbackend.vercel.app/api/auth/google/callback"
-},
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: `${process.env.URL_BACKEND}/auth/google/callback`
+  },
   async (accessToken, refreshToken, profile, done) => {
-    try {
-      const email = profile.emails[0].value;
-      let user = await docente.findOne({ emailDocente: email });
-
-      if (!user) {
-
-        // Generar contraseña temporal y cifrarla
-        const passwordTemp = "KITS" + Math.random().toString(36).slice(-8).toUpperCase();
-        const hashedPassword = await docente.prototype.encryptPassword(passwordTemp);
-
-        // Crear nuevo docente
-        user = new docente({
-          nombreDocente: profile.name.givenName || profile.displayName,
-          apellidoDocente: profile.name.familyName || "Google",
-          emailDocente: email,
-          passwordDocente: hashedPassword,
-          avatarDocente: profile.photos?.[0]?.value,
-          confirmEmailDocente: true,
-          rolDocente: "Docente"
-        });
-
-        await user.save();
-      }
-      console.log("Usuario autenticado:", user);
-      console.log("PERFIL GOOGLE:", profile);
-      return done(null, user);
-    } catch (err) {
-      console.error("Error en autenticación con Google:", err);
-      return done(err, null);
+    // Busca o crea el usuario en tu base de datos
+    let user = await docente.findOne({ googleId: profile.id });
+    if (!user) {
+      user = await docente.create({
+        googleId: profile.id,
+        nombreDocente: profile.displayName,
+        emailDocente: profile.emails[0].value,
+        confirmEmailDocente: true,
+        loginGoogle: true
+      });
     }
+    return done(null, user);
   }
 ));
 
 passport.serializeUser((user, done) => {
-  done(null, user.id); // Solo guardar el ID
+  done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await docente.findById(id).select("-passwordDocente");
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
+  const user = await admin.findById(id);
+  done(null, user);
 });

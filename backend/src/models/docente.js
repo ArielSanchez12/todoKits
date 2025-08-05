@@ -46,7 +46,16 @@ const docenteSchema = new Schema({
         trim: true,
         unique: true
     },
-
+    loginGoogle: {
+        type: Boolean,
+        default: false
+    },
+    googleId: {
+        type: String,
+        default: null,
+        unique: true,
+        sparse: true
+    },
     passwordDocente: {
         type: String,
         required: function () {
@@ -65,10 +74,6 @@ const docenteSchema = new Schema({
     },
 
     confirmEmailDocente: {
-        type: Boolean,
-        default: false
-    },
-    loginGoogle: {
         type: Boolean,
         default: false
     },

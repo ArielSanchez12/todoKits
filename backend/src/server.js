@@ -12,6 +12,7 @@ import session from 'express-session'
 import passport from 'passport'
 import './config/google.js' // Importa configuración de Google OAuth
 import routerAuth from './routers/auth_routes.js' // Nueva ruta para login con Google
+import routerChat from './routers/chat_routes.js';
 
 // Inicializaciones
 const app = express() //Crear instancia como en POO
@@ -53,6 +54,8 @@ app.use('/api', routerDocente)
 app.use('/api', routerTratamiento)
 //Ruta de autenticación con Google
 app.use('/api/auth', routerAuth)
+//Ruta de chat
+app.use('/api', routerChat);
 
 
 //Manejo de rutas inexistentes

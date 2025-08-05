@@ -20,7 +20,7 @@ router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
     rol: admin.rol
   });
 });
-
+//este comentario es solo para poder hace commit
 // Obtener docentes del admin autenticado
 router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
   if (!req.adminEmailBDD) return res.status(401).json({ msg: "No autorizado" });

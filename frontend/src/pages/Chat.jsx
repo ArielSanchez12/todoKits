@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import Pusher from "pusher-js";
 import storeAuth from "../context/storeAuth";
 
-const PUSHER_KEY = import.meta.env.VITE_PUSHER_APP_ID;
+const PUSHER_KEY = import.meta.env.VITE_PUSHER_KEY;
 const PUSHER_CLUSTER = import.meta.env.VITE_PUSHER_CLUSTER;
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -106,8 +106,10 @@ const Chat = () => {
                     >
                         <img src={contact.avatarDocente || contact.avatarAdmin || "/images/default.png"} alt="avatar" className="w-10 h-10 rounded-full" />
                         <div>
-                            <div className="font-semibold">{contact.nombreDocente || contact.nombreAdmin} {contact.apellidoDocente || contact.apellidoAdmin}</div>
-                            <div className="text-xs text-gray-600">{contact.emailDocente || contact.emailAdmin}</div>
+                            <div className="font-semibold">
+                                {contact.nombreDocente || contact.nombre} {contact.apellidoDocente || contact.apellido}</div>
+                            <div className="text-xs text-gray-600">
+                                {contact.emailDocente || contact.email}</div>
                         </div>
                     </div>
                 ))}

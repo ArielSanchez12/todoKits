@@ -1,5 +1,6 @@
 import Docente from "../models/docente.js";
 import Admin from "../models/admin.js";
+import router from "./admin_routes.js";
 
 // Obtener admin del docente autenticado
 router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
@@ -14,3 +15,5 @@ router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
   const docentes = await Docente.find({ admin: req.adminEmailBDD._id }).select("_id nombreDocente apellidoDocente avatarDocente emailDocente");
   res.json(docentes);
 });
+
+export default router;

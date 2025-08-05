@@ -28,7 +28,7 @@
     "socket.io-client": "^4.8.1",
     "stripe": "^18.4.0",
     "tailwindcss": "^4.0.1",
-    "vercel": "^44.7.0",
+    "vercel": "^44.7.3",
     "zustand": "^5.0.4"
   },
   "devDependencies": {

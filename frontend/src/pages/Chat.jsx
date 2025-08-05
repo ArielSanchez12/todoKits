@@ -74,9 +74,9 @@ const Chat = () => {
         const newMessage = {
             texto: message,
             de: user._id,
-            deNombre: user.nombreDocente || user.nombre,
+            deNombre: user.nombreDocente || user.nombreAdmin,
             para: selectedContact._id,
-            paraNombre: selectedContact.nombreDocente || selectedContact.nombre,
+            paraNombre: selectedContact.nombreDocente || selectedContact.nombreAdmin,
             deTipo: userType,
             paraTipo: userType === "docente" ? "admin" : "docente"
         };
@@ -107,9 +107,12 @@ const Chat = () => {
                         <img src={contact.avatarDocente || contact.avatarAdmin || "/images/default.png"} alt="avatar" className="w-10 h-10 rounded-full" />
                         <div>
                             <div className="font-semibold">
-                                {contact.nombreDocente || contact.nombre} {contact.apellidoDocente || contact.apellido}</div>
+                                {/* Para admin */}
+                                {contact.nombre || contact.nombreDocente} {contact.apellido || contact.apellidoDocente}
+                            </div>
                             <div className="text-xs text-gray-600">
-                                {contact.emailDocente || contact.email}</div>
+                                {contact.email || contact.emailDocente}
+                            </div>
                         </div>
                     </div>
                 ))}

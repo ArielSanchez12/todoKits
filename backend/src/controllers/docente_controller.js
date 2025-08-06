@@ -16,7 +16,7 @@ const registrarDocente = async (req, res) => {
   if (verificarEmailBDD) return res.status(400).json({ msg: "Lo sentimos, el email ya se encuentra registrado" })
 
   const password = Math.random().toString(36).toUpperCase().slice(2, 5)
-
+  if ('googleId' in req.body) delete req.body.googleId;
   const nuevoDocente = new docente({
     ...req.body,
     passwordDocente: await docente.prototype.encryptPassword("KITS" + password),

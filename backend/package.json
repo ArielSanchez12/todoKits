@@ -37,6 +37,7 @@
     "jest": "^30.0.5",
     "mongodb-memory-server": "^10.2.0",
     "mongoose-mock": "^0.4.0",
-    "superset": "^2.0.1"
+    "superset": "^2.0.1",
+    "supertest": "^7.1.4"
   }
 }

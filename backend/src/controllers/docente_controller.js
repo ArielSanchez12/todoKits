@@ -113,12 +113,10 @@ const detalleDocente = async (req, res) => {
 
 
 const eliminarDocente = async (req, res) => {
-  const { id } = req.params
-  if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos" })
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` })
-  const { salidaDocente } = req.body
-  await docente.findByIdAndUpdate(req.params.id, { salidaDocente: Date.parse(salidaDocente), statusDocente: false })
-  res.status(200).json({ msg: "Fecha de salida del docente registrada exitosamente" })
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
+  await docente.findByIdAndUpdate(id, { statusDocente: false });
+  res.status(200).json({ msg: "Docente eliminado exitosamente" });
 }
 
 const actualizarDocente = async (req, res) => {

@@ -21,15 +21,15 @@ const Chat = () => {
 
     // Detectar tipo de usuario
     useEffect(() => {
-    console.log("Usuario actual:", user);
-    if (user.rolDocente) {
-        console.log("Es docente");
-        setUserType("docente");
-    } else if (user.rol === "Administrador") { // Cambio importante aquí
-        console.log("Es admin");
-        setUserType("admin");
-    }
-}, [user]);
+        console.log("Usuario actual:", user);
+        if (user.rolDocente) {
+            console.log("Es docente");
+            setUserType("docente");
+        } else if (user.rol === "Administrador") { // Cambio importante aquí
+            console.log("Es admin");
+            setUserType("admin");
+        }
+    }, [user]);
 
     // Obtener contactos
     useEffect(() => {
@@ -70,28 +70,28 @@ const Chat = () => {
         const channel = pusher.subscribe("chat");
         channelRef.current = channel;
         channel.bind("nuevo-mensaje", (data) => {
-        // Si el mensaje es del chat abierto, lo agrego al chat
-        if (
-            (data.de === user._id && data.para === selectedContact._id) ||
-            (data.de === selectedContact._id && data.para === user._id)
-        ) {
-            setResponses((prev) => [...prev, data]);
-        } else if (
-            data.para === user._id &&
-            (!selectedContact || data.de !== selectedContact._id)
-        ) {
-            setUnreadCounts(prev => ({
-                ...prev,
-                [data.de]: (prev[data.de] || 0) + 1
-            }));
-        }
-    });
-    return () => {
-        channel.unbind_all();
-        channel.unsubscribe();
-        pusher.disconnect();
-    };
-}, [selectedContact, user]);
+            // Si el mensaje es del chat abierto, lo agrego al chat
+            if (
+                (data.de === user._id && data.para === selectedContact._id) ||
+                (data.de === selectedContact._id && data.para === user._id)
+            ) {
+                setResponses((prev) => [...prev, data]);
+            } else if (
+                data.para === user._id &&
+                (!selectedContact || data.de !== selectedContact._id)
+            ) {
+                setUnreadCounts(prev => ({
+                    ...prev,
+                    [data.de]: (prev[data.de] || 0) + 1
+                }));
+            }
+        });
+        return () => {
+            channel.unbind_all();
+            channel.unsubscribe();
+            pusher.disconnect();
+        };
+    }, [selectedContact, user]);
 
     // Simulación: activa cuando el otro usuario está escribiendo
     useEffect(() => {
@@ -147,16 +147,16 @@ const Chat = () => {
                         onClick={() => setSelectedContact(contact)}
                     >
                         <img
-  src={
-    contact.avatarDocente ||
-    contact.avatarDocenteIA ||
-    contact.avatar ||
-    contact.avatarIA ||
-    "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
-  }
-  alt="avatar"
-  className="w-10 h-10 rounded-full"
-/>
+                            src={
+                                contact.avatarDocente ||
+                                contact.avatarDocenteIA ||
+                                contact.avatar ||
+                                contact.avatarIA ||
+                                "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                            }
+                            alt="avatar"
+                            className="w-10 h-10 rounded-full"
+                        />
                         <div>
                             <div className="font-semibold">
                                 {userType === "docente"
@@ -170,10 +170,10 @@ const Chat = () => {
                             </div>
                         </div>
                         {unreadCounts[contact._id] > 0 && (
-    <span className="ml-auto flex items-center justify-center w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold">
-        {unreadCounts[contact._id]}
-    </span>
-)}
+                            <span className="ml-auto flex items-center justify-center w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold">
+                                {unreadCounts[contact._id]}
+                            </span>
+                        )}
                     </div>
                 ))}
             </div>

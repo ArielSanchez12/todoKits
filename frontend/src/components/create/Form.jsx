@@ -48,7 +48,6 @@ export const Form = ({ docente }) => {
         let url = `${import.meta.env.VITE_BACKEND_URL}/docente/register`;
         const storedUser = JSON.parse(localStorage.getItem("auth-token"));
         const headers = {
-            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${storedUser.state.token}`
         };
 

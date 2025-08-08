@@ -86,8 +86,14 @@ const Details = () => {
                     </div>
                     <div>
                         <img
-                            src={docente?.avatarDocente || docente?.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"}
-                            alt="avatar docente"
+                            src={
+                                docente?.avatarDocente ||
+                                docente?.avatarDocenteIA ||
+                                docente?.avatar ||
+                                docente?.avatarIA ||
+                                "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                            }
+                            alt="avatar"
                             className='h-70 w-70 rounded-full object-cover'
                         />
                     </div>

@@ -34,10 +34,32 @@ app.use(fileUpload({ //Cuando se haga una carga de imagenes, se usara la carpeta
 app.set('port', process.env.PORT || 3000) //Aqui lo que hacemos es traer la variable global desde .env O si falla, que sea 3000
 app.use(cors()) //Para usar el framework cors, cada que veas 'estancia'.use('algo') es un MIDDLEWARE, es decir, un intermediario
 
+
+// ESTO ESTABA ANTES
+
+/*
 // Middlewares
 // Middleware para sesiones y passport
 app.use(passport.initialize());
 app.use(express.json()) //Esto lo que hace es que todos los datos de los formularios de express, se compacten en json para que el backend los pueda procesar
+*/
+
+
+// ESTO SE CAMBIO DESPUES PARA AUMENTAR EL TAMAÑO DE LOS DATOS QUE SE PUEDEN ENVIAR
+
+// Middlewares
+// Middleware para sesiones y passport
+app.use(passport.initialize());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+
+
+
+
+
+
+
 
 
 // Rutas 

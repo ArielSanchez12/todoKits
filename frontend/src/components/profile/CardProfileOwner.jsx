@@ -10,11 +10,15 @@ export const CardProfileOwner = () => {
 
             <div>
                 <img
-                    src={user.avatarDocente || user.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"}
-                    alt="img-docente"
-                    className="m-auto rounded-full object-cover"
-                    width={120}
-                    height={120}
+                    src={
+                        user.avatarDocente ||
+                        user.avatarDocenteIA ||
+                        user.avatar ||
+                        user.avatarIA ||
+                        "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                    }
+                    alt="avatar"
+                    className="h-70 w-70 rounded-full object-cover"
                 />
             </div>
             <div className="self-start">

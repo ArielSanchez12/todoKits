@@ -1,29 +1,39 @@
 import mongoose, { Schema, model } from 'mongoose'
 
 const tratamientoSchema = new Schema({
-    nombre: {
+    nombreMateria: {
         type: String,
-        require: true,
+        required: true,
         trim: true
     },
-    descripcion: {
+    motivo: {
         type: String,
-        require: true,
+        required: true,
         trim: true
     },
-    prioridad: {
+    tipoRecuperacion: {
         type: String,
-        require: true,
-        enum: ['Baja', 'Media', 'Alta']
+        required: true,
+        enum: ['Ninguna', 'Repetición regular', 'Examen supletorio', 'Curso de recuperación intensivo']
+    },
+    numeroCreditos: {
+        type: Number,
+        required: true,
+        min: 1
+    },
+    precioPorCredito: {
+        type: Number,
+        required: true,
+        min: 1
+    },
+    precioTotal: {
+        type: Number,
+        required: true,
+        min: 0
     },
     docente: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'docente'
-    },
-    precio: {
-        type: Number,
-        required: true,
-        min: 0
     },
     estadoPago: {
         type: String,

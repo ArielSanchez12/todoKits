@@ -97,7 +97,7 @@ export const Form = (docente) => {
 
             <fieldset className="border-2 border-gray-500 p-6 rounded-lg shadow-lg">
                 <legend className="text-xl font-bold text-black bg-gray-200 px-4 py-1 rounded-md">
-                    Información del docente
+                    Información del Estudiante
                 </legend>
 
                 <div>
@@ -156,7 +156,7 @@ export const Form = (docente) => {
                 </div>
             </fieldset>
 
-            <label className="mb-2 block text-base font-semibold mt-10">Imagen del docente</label>
+            <label className="mb-2 block text-base font-semibold mt-10">Imagen del estudiante</label>
             <div className="flex gap-4 mb-2">
                 <label className="flex items-center gap-2">
                     <input

@@ -22,8 +22,8 @@ function ModalPayment({ treatment }) {
         const data = {
             paymentMethodId: paymentMethod.id,
             treatmentId: treatment._id,
-            cantidad: Math.round(+treatment.precio * 100),
-            motivo: treatment.descripcion,
+            cantidad: Math.round(+treatment.precioTotal * 100), // Usar precioTotal
+            motivo: treatment.motivo,
         };
 
         payTreatments(data);
@@ -34,21 +34,23 @@ function ModalPayment({ treatment }) {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
                 <div className="w-full max-w-2xl bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 bg-opacity-95 rounded-2xl shadow-xl p-8 overflow-y-auto animate-fadeScale">
 
-                    <p className="text-white font-bold text-xl mb-6 text-center">Pagar Tratamiento</p>
+                    <p className="text-white font-bold text-xl mb-6 text-center">Pagar Materia</p>
 
                     <form onSubmit={handlePayment} className="space-y-6">
                         <div>
                             <label className="block text-base font-semibold text-gray-200">Detalle</label>
                             <ul className="text-gray-200 bg-gray-700 p-3 rounded-md space-y-1">
-                                <li><strong>Nombre:</strong> {treatment.nombre}</li>
-                                <li><strong>Descripción:</strong> {treatment.descripcion}</li>
-                                <li><strong>Prioridad:</strong> {treatment.prioridad}</li>
+                                <li><strong>Nombre:</strong> {treatment.nombreMateria}</li>
+                                <li><strong>Motivo:</strong> {treatment.motivo}</li>
+                                <li><strong>Tipo Recuperación:</strong> {treatment.tipoRecuperacion}</li>
+                                <li><strong>N° Créditos:</strong> {treatment.numeroCreditos}</li>
+                                <li><strong>Precio por crédito:</strong> $ {treatment.precioPorCredito}</li>
                             </ul>
                         </div>
 
                         <div>
-                            <label className="block text-base font-semibold text-gray-200">Precio</label>
-                            <p className="text-green-400 bg-gray-700 p-2 rounded-md font-bold">$ {treatment.precio}</p>
+                            <label className="block text-base font-semibold text-gray-200">Precio total</label>
+                            <p className="text-green-400 bg-gray-700 p-2 rounded-md font-bold">$ {treatment.precioTotal}</p>
                         </div>
 
                         <div>

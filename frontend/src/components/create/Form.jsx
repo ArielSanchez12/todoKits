@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef } from "react";
-import useFetch from "../../hooks/useFetch"
-import { useNavigate } from "react-router"
-import { useForm } from "react-hook-form"
-import { generateAvatar, convertBlobToBase64 } from "../../helpers/consultarIA"
-import { toast, ToastContainer } from "react-toastify"
+import { useState, useEffect } from "react";
+import useFetch from "../../hooks/useFetch";
+import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import { generateAvatar, convertBlobToBase64 } from "../../helpers/consultarIA";
+import { toast, ToastContainer } from "react-toastify";
 
-export const Form = (docente) => {
-
+export const Form = ({ docente }) => {
     const [avatar, setAvatar] = useState({
         image: "https://cdn-icons-png.flaticon.com/512/4715/4715329.png",
         prompt: "",
@@ -19,18 +18,6 @@ export const Form = (docente) => {
 
     const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
     const selectedOption = watch("imageOption");
-    const inputFileRef = useRef(null); // 🔧 referencia al input de archivo
-
-    useEffect(() => {
-        // Cuando cambia la opción de imagen, limpia la imagen subida
-        if (selectedOption !== "upload") {
-            setArchivoSeleccionado(null);
-            setValue("imagen", null); // limpia en react-hook-form
-            if (inputFileRef.current) {
-                inputFileRef.current.value = null; // limpia visualmente
-            }
-        }
-    }, [selectedOption]);
 
     const handleGenerateImage = async () => {
         setAvatar(prev => ({ ...prev, loading: true }));
@@ -43,20 +30,21 @@ export const Form = (docente) => {
         } else {
             toast.error("Error al generar la imagen, vuelve a intentarlo dentro de 1 minuto");
             setAvatar(prev => ({ ...prev, image: "https://cdn-icons-png.flaticon.com/512/4715/4715329.png", loading: false }));
-            setValue("avatarDocenteIA", avatar.image);
+            setValue("avatarDocenteIA", null);
         }
     };
 
     const registerDocente = async (data) => {
         const formData = new FormData();
         Object.keys(data).forEach((key) => {
-            if (key === "imagen") {
-                formData.append("imagen", data.imagen?.[0]); // puede ser undefined
+            if (key === "imagen" && data.imagen?.[0]) {
+                formData.append("imagen", data.imagen[0]);
+            } else if (key === "avatarDocenteIA" && data.avatarDocenteIA) {
+                formData.append("avatarDocenteIA", data.avatarDocenteIA);
             } else {
                 formData.append(key, data[key]);
             }
         });
-
         let url = `${import.meta.env.VITE_BACKEND_URL}/docente/register`;
         const storedUser = JSON.parse(localStorage.getItem("auth-token"));
         const headers = {
@@ -71,7 +59,6 @@ export const Form = (docente) => {
         } else {
             response = await fetchDataBackend(url, formData, "POST", headers);
         }
-
         if (response) {
             setTimeout(() => {
                 navigate("/dashboard/listar");
@@ -89,12 +76,13 @@ export const Form = (docente) => {
                 emailDocente: docente?.emailDocente,
             });
         }
-    }, []);
+    }, [docente, reset]);
 
     return (
         <form onSubmit={handleSubmit(registerDocente)}>
             <ToastContainer />
 
+            {/* Información del docente */}
             <fieldset className="border-2 border-gray-500 p-6 rounded-lg shadow-lg">
                 <legend className="text-xl font-bold text-black bg-gray-200 px-4 py-1 rounded-md">
                     Información del Estudiante
@@ -156,6 +144,7 @@ export const Form = (docente) => {
                 </div>
             </fieldset>
 
+            {/* Imagen del docente */}
             <label className="mb-2 block text-base font-semibold mt-10">Imagen del estudiante</label>
             <div className="flex gap-4 mb-2">
                 <label className="flex items-center gap-2">
@@ -206,19 +195,13 @@ export const Form = (docente) => {
             {selectedOption === "upload" && (
                 <div className="mt-5">
                     <label className="mb-2 block text-base font-semibold">Subir Imagen</label>
-                    <label className="inline-block px-4 py-2 bg-black text-white rounded-lg cursor-pointer hover:bg-red-700 transition hover:scale-105 duration-300">
-                        Elegir imagen
-                        <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            {...register("imagen")}
-                            onChange={(e) => {
-                                setArchivoSeleccionado(e.target.files[0]?.name || null);
-                            }}
-                            ref={inputFileRef}
-                        />
-                    </label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
+                        {...register("imagen")}
+                        onChange={e => setArchivoSeleccionado(e.target.files[0]?.name || null)}
+                    />
                     {archivoSeleccionado && (
                         <p className="text-green-600 text-base mt-2">Archivo seleccionado: {archivoSeleccionado}</p>
                     )}

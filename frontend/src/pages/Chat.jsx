@@ -147,14 +147,16 @@ const Chat = () => {
                         onClick={() => setSelectedContact(contact)}
                     >
                         <img
-                            src={
-                                userType === "docente"
-                                    ? contact.avatar || "/images/default.png"
-                                    : contact.avatarDocente || "/images/default.png"
-                            }
-                            alt="avatar"
-                            className="w-10 h-10 rounded-full"
-                        />
+  src={
+    contact.avatarDocente ||
+    contact.avatarDocenteIA ||
+    contact.avatar ||
+    contact.avatarIA ||
+    "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+  }
+  alt="avatar"
+  className="w-10 h-10 rounded-full"
+/>
                         <div>
                             <div className="font-semibold">
                                 {userType === "docente"

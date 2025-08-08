@@ -36,7 +36,7 @@ router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
 router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
   if (!req.adminEmailBDD) return res.status(401).json({ msg: "No autorizado" });
   const docentes = await Docente.find({ admin: req.adminEmailBDD._id })
-    .select("_id nombreDocente apellidoDocente avatarDocente emailDocente");
+    .select("_id nombreDocente apellidoDocente avatarDocente avatarDocenteIA avatar avatarIA emailDocente");
   res.json(docentes);
 });
 

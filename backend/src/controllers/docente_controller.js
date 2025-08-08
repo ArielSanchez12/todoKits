@@ -62,8 +62,8 @@ const loginDocente = async (req, res) => {
       direccionDocente: docenteBDD.direccionDocente,
       celularDocente: docenteBDD.celularDocente,
       emailDocente: docenteBDD.emailDocente,
-      avatarDocente: docenteBDD.avatarDocente || null,
-      avatarDocenteIA: docenteBDD.avatarDocenteIA || null,
+      avatarDocente: docenteBDD.avatarDocente,
+      avatarDocenteIA: docenteBDD.avatarDocenteIA,
       rolDocente: docenteBDD.rolDocente,
       admin: docenteBDD.admin // para saber a qué admin pertenece
     }

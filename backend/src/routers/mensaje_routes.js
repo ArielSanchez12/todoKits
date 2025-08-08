@@ -3,8 +3,19 @@ import Mensaje from "../models/mensaje.js";
 import Docente from "../models/docente.js";
 import Admin from "../models/admin.js";
 import { verificarTokenJWT } from "../middlewares/jwt.js";
+import Pusher from "pusher";
 
 const router = Router();
+
+// Configura Pusher con tus claves
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID,
+  key: process.env.PUSHER_KEY,
+  secret: process.env.PUSHER_SECRET,
+  cluster: process.env.PUSHER_CLUSTER,
+  useTLS: true
+});
+
 // Obtener admin del docente autenticado
 router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
   if (!req.docenteBDD) return res.status(401).json({ msg: "No autorizado" });
@@ -32,6 +43,8 @@ router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
 router.post("/chat/send", verificarTokenJWT, async (req, res) => {
   const { texto, de, deNombre, para, paraNombre, deTipo, paraTipo } = req.body;
   const mensaje = await Mensaje.create({ texto, de, deNombre, para, paraNombre, deTipo, paraTipo });
+  // Emitir evento a Pusher
+  pusher.trigger("chat", "nuevo-mensaje", mensaje);
   res.json(mensaje);
 });
 

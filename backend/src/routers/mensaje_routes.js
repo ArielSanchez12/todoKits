@@ -26,7 +26,7 @@ router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
     _id: admin._id,
     nombre: admin.nombre,
     apellido: admin.apellido,
-    avatar: admin.avatar || null,
+    avatar: admin.avatar,
     email: admin.email,
     rol: admin.rol
   });

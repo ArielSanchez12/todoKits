@@ -73,13 +73,13 @@ const loginDocente = async (req, res) => {
 const perfilDocente = (req, res) => {
   const camposAEliminar = [
     "statusDocente", "admin", "passwordDocente",
-    "avatarDocente", "avatarDocenteIA", "avatarDocenteID",
+    // "avatarDocente", "avatarDocenteIA", "avatarDocenteID", // <-- QUITA ESTOS CAMPOS
     "createdAt", "updatedAt", "__v"
-  ]
+  ];
 
-  camposAEliminar.forEach(campo => delete req.docenteBDD[campo])
+  camposAEliminar.forEach(campo => delete req.docenteBDD[campo]);
 
-  res.status(200).json(req.docenteBDD)
+  res.status(200).json(req.docenteBDD);
 }
 
 

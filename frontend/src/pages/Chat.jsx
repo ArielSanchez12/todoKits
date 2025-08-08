@@ -18,7 +18,6 @@ const Chat = () => {
     const [userType, setUserType] = useState(""); // "docente" o "admin"
     const channelRef = useRef(null);
     const messagesEndRef = useRef(null);
-    const pusherRef = useRef(null);
 
     // Detectar tipo de usuario
     useEffect(() => {
@@ -66,38 +65,33 @@ const Chat = () => {
 
     // Suscribirse a Pusher
     useEffect(() => {
-        // Solo crea Pusher una vez
-        if (!pusherRef.current) {
-            pusherRef.current = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
-        }
-        const channel = pusherRef.current.subscribe("chat");
+        if (!selectedContact) return;
+        const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+        const channel = pusher.subscribe("chat");
         channelRef.current = channel;
-
-        const handleNewMessage = (data) => {
-            if (
-                (data.de === user._id && data.para === selectedContact?._id) ||
-                (data.de === selectedContact?._id && data.para === user._id)
-            ) {
-                setResponses((prev) => [...prev, data]);
-            } else if (
-                data.para === user._id &&
-                (!selectedContact || data.de !== selectedContact._id)
-            ) {
-                setUnreadCounts(prev => ({
-                    ...prev,
-                    [data.de]: (prev[data.de] || 0) + 1
-                }));
-            }
-        };
-
-        channel.bind("nuevo-mensaje", handleNewMessage);
-
-        return () => {
-            channel.unbind("nuevo-mensaje", handleNewMessage);
-            // No desconectes Pusher aquí, solo desuscribe el canal si quieres
-            // pusherRef.current.unsubscribe("chat");
-        };
-    }, [selectedContact, user]);
+        channel.bind("nuevo-mensaje", (data) => {
+        // Si el mensaje es del chat abierto, lo agrego al chat
+        if (
+            (data.de === user._id && data.para === selectedContact._id) ||
+            (data.de === selectedContact._id && data.para === user._id)
+        ) {
+            setResponses((prev) => [...prev, data]);
+        } else if (
+            data.para === user._id &&
+            (!selectedContact || data.de !== selectedContact._id)
+        ) {
+            setUnreadCounts(prev => ({
+                ...prev,
+                [data.de]: (prev[data.de] || 0) + 1
+            }));
+        }
+    });
+    return () => {
+        channel.unbind_all();
+        channel.unsubscribe();
+        pusher.disconnect();
+    };
+}, [selectedContact, user]);
 
     // Simulación: activa cuando el otro usuario está escribiendo
     useEffect(() => {

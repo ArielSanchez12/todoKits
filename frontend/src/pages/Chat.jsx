@@ -129,6 +129,15 @@ const Chat = () => {
         }
     }, [responses, isTyping]);
 
+    const getLastMessage = (contactId) => {
+        const msgs = responses.filter(
+            msg =>
+                (msg.de === contactId && msg.para === user._id) ||
+                (msg.de === user._id && msg.para === contactId)
+        );
+        return msgs.length > 0 ? msgs[msgs.length - 1].texto : "";
+    };
+
     contacts.forEach(contact => console.log(contact));
     return (
         <div className="flex h-[80vh]">
@@ -152,22 +161,20 @@ const Chat = () => {
                                 "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
                             }
                             alt="avatar"
-                            className="w-13 h-13 rounded-full"
+                            className="w-10 h-10 rounded-full"
                         />
                         <div>
                             <div className="font-semibold">
-                                {userType === "docente"
-                                    ? `${contact.nombre} ${contact.apellido}`
-                                    : `${contact.nombreDocente} ${contact.apellidoDocente}`}
+                                {contact.nombreDocente
+                                    ? `${contact.nombreDocente} ${contact.apellidoDocente}`
+                                    : `${contact.nombre} ${contact.apellido}`}
                             </div>
-                            <div className="text-base text-gray-700">
-                                {userType === "docente"
-                                    ? contact.email
-                                    : contact.emailDocente}
+                            <div className="text-xs text-gray-600">
+                                {getLastMessage(contact._id) || "Sin mensajes"}
                             </div>
                         </div>
                         {unreadCounts[contact._id] > 0 && (
-                            <span className="ml-auto flex items-center justify-center w-6 h-6 rounded-full bg-red-700 text-white text-base font-bold">
+                            <span className="ml-auto flex items-center justify-center w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold">
                                 {unreadCounts[contact._id]}
                             </span>
                         )}

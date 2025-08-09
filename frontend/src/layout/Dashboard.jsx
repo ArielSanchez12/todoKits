@@ -5,6 +5,9 @@ import storeProfile from '../context/storeProfile'
 const Dashboard = () => {
     const location = useLocation()
     const urlActual = location.pathname
+    const isListarActive =
+        urlActual === "/dashboard/listar" ||
+        urlActual.startsWith("/dashboard/visualizar");
     const { clearToken } = storeAuth()
     const { user } = storeProfile()
 
@@ -29,7 +32,20 @@ const Dashboard = () => {
                     </li>
 
                     <li className="text-center">
-                        <Link to='/dashboard/listar' className={`${urlActual === '/dashboard/listar' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Listar</Link>
+                        <Link
+                            to={
+                                user?.rol === "docente"
+                                    ? `/dashboard/visualizar/${user?._id || user?.id || user?.docenteId}`
+                                    : "/dashboard/listar"
+                            }
+                            className={`${
+                                isListarActive
+                                    ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center'
+                                    : 'text-slate-400'
+                            } text-xl block mt-2 hover:text-white`}
+                        >
+                            Listar
+                        </Link>
                     </li>
 
                     <li className="text-center">

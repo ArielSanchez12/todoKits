@@ -129,13 +129,19 @@ const Chat = () => {
         }
     }, [responses, isTyping]);
 
-    const getLastMessage = (contactId) => {
+    const getLastMessageInfo = (contactId) => {
         const msgs = responses.filter(
             msg =>
                 (msg.de === contactId && msg.para === user._id) ||
                 (msg.de === user._id && msg.para === contactId)
         );
-        return msgs.length > 0 ? msgs[msgs.length - 1].texto : "Sin mensajes";
+        if (msgs.length === 0) return { texto: " ", esMio: false, estado: null };
+        const last = msgs[msgs.length - 1];
+        return {
+            texto: last.texto,
+            esMio: last.de === user._id,
+            estado: last.estado // si tienes estado de mensaje (enviado, recibido, leído)
+        };
     };
 
     contacts.forEach(contact => console.log(contact));
@@ -169,9 +175,38 @@ const Chat = () => {
                                     ? `${contact.nombreDocente} ${contact.apellidoDocente}`
                                     : `${contact.nombre} ${contact.apellido}`}
                             </div>
-                            <div className="text-xs text-gray-600">
-                                {getLastMessage(contact._id)}
-                            </div>
+                            {(() => {
+                                const lastMsg = getLastMessageInfo(contact._id);
+                                return (
+                                    <div className="text-base text-gray-600 flex items-center gap-1">
+                                        {lastMsg.esMio && <span className="font-bold text-black">tu:</span>}
+                                        <span>{lastMsg.texto}</span>
+                                        {/* Checks estilo WhatsApp */}
+                                        {lastMsg.esMio && lastMsg.texto !== "Sin mensajes" && (
+                                            <span className="ml-1 flex items-center">
+                                                {/* Un solo check */}
+                                                {lastMsg.estado === "enviado" && (
+                                                    <svg width="16" height="16" fill="gray" viewBox="0 0 16 16"><path d="M1 8l4 4 8-8" /></svg>
+                                                )}
+                                                {/* Doble check gris */}
+                                                {lastMsg.estado === "recibido" && (
+                                                    <>
+                                                        <svg width="16" height="16" fill="gray" viewBox="0 0 16 16"><path d="M1 8l4 4 8-8" /></svg>
+                                                        <svg width="16" height="16" fill="gray" viewBox="0 0 16 16"><path d="M3 10l4 4 8-8" /></svg>
+                                                    </>
+                                                )}
+                                                {/* Doble check azul */}
+                                                {lastMsg.estado === "leido" && (
+                                                    <>
+                                                        <svg width="16" height="16" fill="#4fc3f7" viewBox="0 0 16 16"><path d="M1 8l4 4 8-8" /></svg>
+                                                        <svg width="16" height="16" fill="#4fc3f7" viewBox="0 0 16 16"><path d="M3 10l4 4 8-8" /></svg>
+                                                    </>
+                                                )}
+                                            </span>
+                                        )}
+                                    </div>
+                                );
+                            })()}
                         </div>
                     </div>
                 ))}

@@ -12,7 +12,6 @@ const Chat = () => {
     const [responses, setResponses] = useState([]);
     const [message, setMessage] = useState("");
     const [isTyping, setIsTyping] = useState(false);
-    const [unreadCounts, setUnreadCounts] = useState({});
     const token = storeAuth((state) => state.token);
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const [userType, setUserType] = useState(""); // "docente" o "admin"
@@ -173,7 +172,7 @@ const Chat = () => {
         <div className="flex h-[80vh]">
             {/* Sidebar de contactos */}
             <div className="w-1/4 bg-gray-200 p-4 overflow-y-auto">
-                <h2 className="font-bold mb-4">
+                <h2 className="text-lg text-center text-black font-bold mb-4">
                     {userType === "docente" ? "Administrador" : "Docentes"}
                 </h2>
                 {contacts.map(contact => {
@@ -193,7 +192,7 @@ const Chat = () => {
                                     "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
                                 }
                                 alt="avatar"
-                                className="w-10 h-10 rounded-full"
+                                className="w-13 h-13 rounded-full"
                             />
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-center">
@@ -203,21 +202,15 @@ const Chat = () => {
                                             : `${contact.nombre} ${contact.apellido}`}
                                     </span>
                                     {/* Fecha tipo WhatsApp */}
-                                    <span className="text-xs text-gray-500 ml-2">
+                                    <span className="text-sm text-black ml-2">
                                         {formatLastMessageDate(lastMsg.createdAt)}
                                     </span>
                                 </div>
-                                <div className="text-xs text-gray-600 flex items-center gap-1 truncate">
+                                <div className="text-base text-black flex items-center gap-1 truncate">
                                     {lastMsg.esMio && <span className="font-bold text-black">tu:</span>}
                                     <span className="truncate">{lastMsg.texto}</span>
                                 </div>
                             </div>
-                            {/* Contador de mensajes no leídos */}
-                            {unreadCounts[contact._id] > 0 && (
-                                <span className="ml-2 flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-xs font-bold">
-                                    {unreadCounts[contact._id]}
-                                </span>
-                            )}
                         </div>
                     );
                 })}
@@ -226,23 +219,30 @@ const Chat = () => {
             <div className="flex-1 flex flex-col">
                 <div className="flex-1 p-4 overflow-y-auto">
                     {responses.map((msg, idx) => (
-                        <div key={idx} className={`mb-2 flex ${msg.de === user._id ? "justify-end" : "justify-start"}`}>
-                            <div className={`relative max-w-xs px-4 py-2 rounded-2xl shadow
-                                ${msg.de === user._id
-                                    ? "bg-gray-900 text-white rounded-br-none"
-                                    : "bg-gray-200 text-black rounded-bl-none"
-                                }`}>
-                                <div className="text-base font-bold mb-1">{msg.deNombre}</div>
-                                <div>{msg.texto}</div>
-                                <div className="text-[12px] text-white-500 text-right mt-1">
-                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        <div
+                            key={idx}
+                            className={`flex ${msg.de === user._id ? "justify-end" : "justify-start"} mb-1`}
+                        >
+                            <div
+                                className={`relative max-w-[75%] px-3 py-2 rounded-xl shadow
+                                    ${msg.de === user._id
+                                        ? "bg-gray-900 text-white rounded-br-none"
+                                        : "bg-gray-200 text-black rounded-bl-none"
+                                    }`}
+                                style={{ wordBreak: "break-word" }}
+                            >
+                                <div className="flex items-end gap-2">
+                                    <span className="text-base">{msg.texto}</span>
+                                    <span className="text-sm text-white-500 opacity-80 pb-[2px]">
+                                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
                                 </div>
                                 {/* Flechita tipo burbuja */}
-                                <span className={`absolute top-2 ${msg.de === user._id ? "right-[-10px]" : "left-[-10px]"}`}>
-                                    <svg width="12" height="20" viewBox="0 0 12 20">
+                                <span className={`absolute top-2 ${msg.de === user._id ? "right-[-11px]" : "left-[-11px]"}`}>
+                                    <svg width="12" height="20" viewBox="0 0 12 25">
                                         <polygon
                                             points={msg.de === user._id ? "0,0 12,10 0,20" : "12,0 0,10 12,20"}
-                                            fill={msg.de === user._id ? "#1f1f1fff" : "#e5e7eb"}
+                                            fill={msg.de === user._id ? "#000000ff" : "#e5e7eb"}
                                         />
                                     </svg>
                                 </span>
@@ -252,7 +252,7 @@ const Chat = () => {
                     {isTyping && (
                         <div className="flex items-center mb-2">
                             <div className="bg-gray-300 rounded-full px-4 py-2 flex items-center gap-2">
-                                <span className="text-base text-gray-700">Escribiendo</span>
+                                <span className="text-sm text-gray-700">Escribiendo</span>
                                 <span className="flex gap-1">
                                     <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
                                     <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:.2s]"></span>

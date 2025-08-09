@@ -16,6 +16,7 @@ const Chat = () => {
     const token = storeAuth((state) => state.token);
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const [userType, setUserType] = useState(""); // "docente" o "admin"
+    const pusherRef = useRef(null);
     const channelRef = useRef(null);
     const messagesEndRef = useRef(null);
 
@@ -66,30 +67,26 @@ const Chat = () => {
     // Suscribirse a Pusher
     useEffect(() => {
         if (!selectedContact) return;
-        const pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
-        const channel = pusher.subscribe("chat");
-        channelRef.current = channel;
-        channel.bind("nuevo-mensaje", (data) => {
-            // Si el mensaje es del chat abierto, lo agrego al chat
+        if (!pusherRef.current) {
+            pusherRef.current = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+            channelRef.current = pusherRef.current.subscribe("chat");
+        }
+        const channel = channelRef.current;
+
+        const handleNewMessage = (data) => {
             if (
-                (data.de === user._id && data.para === selectedContact._id) ||
-                (data.de === selectedContact._id && data.para === user._id)
+                (data.de === user._id && data.para === selectedContact?._id) ||
+                (data.de === selectedContact?._id && data.para === user._id)
             ) {
                 setResponses((prev) => [...prev, data]);
-            } else if (
-                data.para === user._id &&
-                (!selectedContact || data.de !== selectedContact._id)
-            ) {
-                setUnreadCounts(prev => ({
-                    ...prev,
-                    [data.de]: (prev[data.de] || 0) + 1
-                }));
             }
-        });
+        };
+
+        channel.bind("nuevo-mensaje", handleNewMessage);
+
         return () => {
-            channel.unbind_all();
-            channel.unsubscribe();
-            pusher.disconnect();
+            channel.unbind("nuevo-mensaje", handleNewMessage);
+            // No desconectes Pusher aquí, solo desuscribe el canal si quieres
         };
     }, [selectedContact, user]);
 

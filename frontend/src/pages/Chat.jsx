@@ -152,7 +152,7 @@ const Chat = () => {
                                 "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
                             }
                             alt="avatar"
-                            className="w-10 h-10 rounded-full"
+                            className="w-13 h-13 rounded-full"
                         />
                         <div>
                             <div className="font-semibold">
@@ -160,14 +160,14 @@ const Chat = () => {
                                     ? `${contact.nombre} ${contact.apellido}`
                                     : `${contact.nombreDocente} ${contact.apellidoDocente}`}
                             </div>
-                            <div className="text-xs text-gray-600">
+                            <div className="text-base text-gray-700">
                                 {userType === "docente"
                                     ? contact.email
                                     : contact.emailDocente}
                             </div>
                         </div>
                         {unreadCounts[contact._id] > 0 && (
-                            <span className="ml-auto flex items-center justify-center w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold">
+                            <span className="ml-auto flex items-center justify-center w-6 h-6 rounded-full bg-red-700 text-white text-base font-bold">
                                 {unreadCounts[contact._id]}
                             </span>
                         )}
@@ -181,17 +181,20 @@ const Chat = () => {
                         <div key={idx} className={`mb-2 flex ${msg.de === user._id ? "justify-end" : "justify-start"}`}>
                             <div className={`relative max-w-xs px-4 py-2 rounded-2xl shadow
                                 ${msg.de === user._id
-                                    ? "bg-blue-500 text-white rounded-br-none"
-                                    : "bg-gray-200 text-gray-900 rounded-bl-none"
+                                    ? "bg-gray-900 text-white rounded-br-none"
+                                    : "bg-gray-200 text-black rounded-bl-none"
                                 }`}>
-                                <div className="text-xs font-bold mb-1">{msg.deNombre}</div>
+                                <div className="text-base font-bold mb-1">{msg.deNombre}</div>
                                 <div>{msg.texto}</div>
+                                <div className="text-[12px] text-white-500 text-right mt-1">
+                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </div>
                                 {/* Flechita tipo burbuja */}
                                 <span className={`absolute top-2 ${msg.de === user._id ? "right-[-10px]" : "left-[-10px]"}`}>
                                     <svg width="12" height="20" viewBox="0 0 12 20">
                                         <polygon
                                             points={msg.de === user._id ? "0,0 12,10 0,20" : "12,0 0,10 12,20"}
-                                            fill={msg.de === user._id ? "#3b82f6" : "#e5e7eb"}
+                                            fill={msg.de === user._id ? "#1f1f1fff" : "#e5e7eb"}
                                         />
                                     </svg>
                                 </span>
@@ -201,7 +204,7 @@ const Chat = () => {
                     {isTyping && (
                         <div className="flex items-center mb-2">
                             <div className="bg-gray-300 rounded-full px-4 py-2 flex items-center gap-2">
-                                <span className="text-xs text-gray-700">Escribiendo</span>
+                                <span className="text-base text-gray-700">Escribiendo</span>
                                 <span className="flex gap-1">
                                     <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
                                     <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:.2s]"></span>
@@ -221,7 +224,7 @@ const Chat = () => {
                             className="flex-1 border rounded px-2 py-1"
                             placeholder="Escribe tu mensaje..."
                         />
-                        <button type="submit" className="ml-2 px-4 py-1 bg-blue-600 text-white rounded">Enviar</button>
+                        <button type="submit" className="ml-2 px-4 py-1 bg-black text-white rounded">Enviar</button>
                     </form>
                 )}
             </div>

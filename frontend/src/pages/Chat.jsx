@@ -135,14 +135,38 @@ const Chat = () => {
                 (msg.de === contactId && msg.para === user._id) ||
                 (msg.de === user._id && msg.para === contactId)
         );
-        if (msgs.length === 0) return { texto: " ", esMio: false, estado: null };
+        if (msgs.length === 0) return { texto: " ", esMio: false, estado: null, createdAt: null };
         const last = msgs[msgs.length - 1];
         return {
             texto: last.texto,
             esMio: last.de === user._id,
-            estado: last.estado // si tienes estado de mensaje (enviado, recibido, leído)
+            estado: last.estado,
+            createdAt: last.createdAt
         };
     };
+
+    function formatLastMessageDate(dateString) {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        const now = new Date();
+
+        const isToday = date.toDateString() === now.toDateString();
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        const isYesterday = date.toDateString() === yesterday.toDateString();
+
+        if (isToday) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (isYesterday) {
+            return "Ayer";
+        } else if (now - date < 7 * 24 * 60 * 60 * 1000) {
+            // Dentro de la última semana
+            return date.toLocaleDateString('es-ES', { weekday: 'short' }); // ej: "lun."
+        } else {
+            // Fecha completa
+            return date.toLocaleDateString();
+        }
+    }
 
     contacts.forEach(contact => console.log(contact));
     return (
@@ -152,64 +176,51 @@ const Chat = () => {
                 <h2 className="font-bold mb-4">
                     {userType === "docente" ? "Administrador" : "Docentes"}
                 </h2>
-                {contacts.map(contact => (
-                    <div
-                        key={contact._id}
-                        className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-300 ${selectedContact?._id === contact._id ? "bg-gray-300" : ""}`}
-                        onClick={() => setSelectedContact(contact)}
-                    >
-                        <img
-                            src={
-                                contact.avatarDocente ||
-                                contact.avatarDocenteIA ||
-                                contact.avatar ||
-                                contact.avatarIA ||
-                                "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
-                            }
-                            alt="avatar"
-                            className="w-10 h-10 rounded-full"
-                        />
-                        <div>
-                            <div className="font-semibold">
-                                {contact.nombreDocente
-                                    ? `${contact.nombreDocente} ${contact.apellidoDocente}`
-                                    : `${contact.nombre} ${contact.apellido}`}
+                {contacts.map(contact => {
+                    const lastMsg = getLastMessageInfo(contact._id);
+                    return (
+                        <div
+                            key={contact._id}
+                            className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-300 ${selectedContact?._id === contact._id ? "bg-gray-300" : ""}`}
+                            onClick={() => setSelectedContact(contact)}
+                        >
+                            <img
+                                src={
+                                    contact.avatarDocente ||
+                                    contact.avatarDocenteIA ||
+                                    contact.avatar ||
+                                    contact.avatarIA ||
+                                    "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                                }
+                                alt="avatar"
+                                className="w-10 h-10 rounded-full"
+                            />
+                            <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-center">
+                                    <span className="font-semibold truncate">
+                                        {contact.nombreDocente
+                                            ? `${contact.nombreDocente} ${contact.apellidoDocente}`
+                                            : `${contact.nombre} ${contact.apellido}`}
+                                    </span>
+                                    {/* Fecha tipo WhatsApp */}
+                                    <span className="text-xs text-gray-500 ml-2">
+                                        {formatLastMessageDate(lastMsg.createdAt)}
+                                    </span>
+                                </div>
+                                <div className="text-xs text-gray-600 flex items-center gap-1 truncate">
+                                    {lastMsg.esMio && <span className="font-bold text-black">tu:</span>}
+                                    <span className="truncate">{lastMsg.texto}</span>
+                                </div>
                             </div>
-                            {(() => {
-                                const lastMsg = getLastMessageInfo(contact._id);
-                                return (
-                                    <div className="text-base text-gray-600 flex items-center gap-1">
-                                        {lastMsg.esMio && <span className="font-bold text-black">tu:</span>}
-                                        <span>{lastMsg.texto}</span>
-                                        {/* Checks estilo WhatsApp */}
-                                        {lastMsg.esMio && lastMsg.texto !== "Sin mensajes" && (
-                                            <span className="ml-1 flex items-center">
-                                                {/* Un solo check */}
-                                                {lastMsg.estado === "enviado" && (
-                                                    <svg width="16" height="16" fill="gray" viewBox="0 0 16 16"><path d="M1 8l4 4 8-8" /></svg>
-                                                )}
-                                                {/* Doble check gris */}
-                                                {lastMsg.estado === "recibido" && (
-                                                    <>
-                                                        <svg width="16" height="16" fill="gray" viewBox="0 0 16 16"><path d="M1 8l4 4 8-8" /></svg>
-                                                        <svg width="16" height="16" fill="gray" viewBox="0 0 16 16"><path d="M3 10l4 4 8-8" /></svg>
-                                                    </>
-                                                )}
-                                                {/* Doble check azul */}
-                                                {lastMsg.estado === "leido" && (
-                                                    <>
-                                                        <svg width="16" height="16" fill="#4fc3f7" viewBox="0 0 16 16"><path d="M1 8l4 4 8-8" /></svg>
-                                                        <svg width="16" height="16" fill="#4fc3f7" viewBox="0 0 16 16"><path d="M3 10l4 4 8-8" /></svg>
-                                                    </>
-                                                )}
-                                            </span>
-                                        )}
-                                    </div>
-                                );
-                            })()}
+                            {/* Contador de mensajes no leídos */}
+                            {unreadCounts[contact._id] > 0 && (
+                                <span className="ml-2 flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-xs font-bold">
+                                    {unreadCounts[contact._id]}
+                                </span>
+                            )}
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
             {/* Chat principal */}
             <div className="flex-1 flex flex-col">

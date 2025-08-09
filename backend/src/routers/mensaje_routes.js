@@ -61,4 +61,13 @@ router.get("/chat/chat-history/:contactId", verificarTokenJWT, async (req, res) 
   res.json(mensajes);
 });
 
+// Obtener todos los mensajes del chat del usuario autenticado
+router.get("/chat/all-messages/:userId", verificarTokenJWT, async (req, res) => {
+  const { userId } = req.params;
+  const mensajes = await Mensaje.find({
+    $or: [{ de: userId }, { para: userId }]
+  }).sort({ createdAt: 1 });
+  res.json(mensajes);
+});
+
 export default router;

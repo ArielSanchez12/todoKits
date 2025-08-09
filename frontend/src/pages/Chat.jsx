@@ -135,7 +135,7 @@ const Chat = () => {
                 (msg.de === contactId && msg.para === user._id) ||
                 (msg.de === user._id && msg.para === contactId)
         );
-        return msgs.length > 0 ? msgs[msgs.length - 1].texto : "";
+        return msgs.length > 0 ? msgs[msgs.length - 1].texto : "Sin mensajes";
     };
 
     contacts.forEach(contact => console.log(contact));
@@ -170,14 +170,9 @@ const Chat = () => {
                                     : `${contact.nombre} ${contact.apellido}`}
                             </div>
                             <div className="text-xs text-gray-600">
-                                {getLastMessage(contact._id) || "Sin mensajes"}
+                                {getLastMessage(contact._id)}
                             </div>
                         </div>
-                        {unreadCounts[contact._id] > 0 && (
-                            <span className="ml-auto flex items-center justify-center w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold">
-                                {unreadCounts[contact._id]}
-                            </span>
-                        )}
                     </div>
                 ))}
             </div>

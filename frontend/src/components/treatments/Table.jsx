@@ -25,10 +25,12 @@ const TableTreatments = ({ treatments, listDocente }) => {
                 <thead className="bg-black text-white">
                     <tr>
                         <th className="p-2">N°</th>
-                        <th className="p-2">Nombre</th>
-                        <th className="p-2">Descripción</th>
-                        <th className="p-2">Prioridad</th>
-                        <th className="p-2">Precio</th>
+                        <th className="p-2">Nombre Materia</th>
+                        <th className="p-2">Motivo</th>
+                        <th className="p-2">Tipo Recuperación</th>
+                        <th className="p-2">N° Créditos</th>
+                        <th className="p-2">Precio x Crédito</th>
+                        <th className="p-2">Precio Total</th>
                         <th className="p-2">Estado pago</th>
                         <th className="p-2">Acciones</th>
                     </tr>
@@ -37,10 +39,12 @@ const TableTreatments = ({ treatments, listDocente }) => {
                     {treatments.map((treatment, index) => (
                         <tr className="hover:bg-gray-300 text-center" key={treatment._id || index}>
                             <td>{index + 1}</td>
-                            <td>{treatment.nombre}</td>
-                            <td>{treatment.descripcion}</td>
-                            <td>{treatment.prioridad}</td>
-                            <td>$ {treatment.precio}</td>
+                            <td>{treatment.nombreMateria}</td>
+                            <td>{treatment.motivo}</td>
+                            <td>{treatment.tipoRecuperacion}</td>
+                            <td>{treatment.numeroCreditos}</td>
+                            <td>$ {treatment.precioPorCredito}</td>
+                            <td>$ {treatment.precioTotal}</td>
                             <td className={treatment.estadoPago === "Pagado" ? "text-green-500 text-base" : "text-red-500 text-base"}>
                                 {treatment.estadoPago}
                             </td>
@@ -60,7 +64,7 @@ const TableTreatments = ({ treatments, listDocente }) => {
                                     />
                                 )}
 
-                                {rol === "Administrador" && ( // veterinaria 
+                                {rol === "Administrador" && (
                                     <MdDeleteForever
                                         className={
                                             treatment.estadoPago === "Pagado"
@@ -76,7 +80,6 @@ const TableTreatments = ({ treatments, listDocente }) => {
                     ))}
                 </tbody>
             </table>
-
             {modal === "payment" && selectedTreatment && (
                 <Elements stripe={stripePromise}>
                     <ModalPayment treatment={selectedTreatment} />

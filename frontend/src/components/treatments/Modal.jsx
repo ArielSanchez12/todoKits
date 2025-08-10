@@ -1,9 +1,21 @@
 import { useForm } from "react-hook-form";
 import storeTreatments from "../../context/storeTreatments";
+import { useEffect } from "react";
 
 const ModalTreatments = ({ docenteID }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm();
     const { toggleModal, registerTreatments } = storeTreatments();
+
+    // Observar los campos de créditos y precio por crédito
+    const numeroCreditos = watch("numeroCreditos");
+    const precioPorCredito = watch("precioPorCredito");
+
+    // Calcular el precio automáticamente
+    useEffect(() => {
+        const n = parseFloat(numeroCreditos) || 0;
+        const p = parseFloat(precioPorCredito) || 0;
+        setValue("precioTotal", n * p);
+    }, [numeroCreditos, precioPorCredito, setValue]);
 
     const registerTreatmentsForm = (data) => {
         const newData = { ...data, docente: docenteID };
@@ -15,57 +27,90 @@ const ModalTreatments = ({ docenteID }) => {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
                 <div className="w-full max-w-2xl bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 bg-opacity-95 rounded-2xl shadow-xl p-8 overflow-y-auto animate-fadeScale">
 
-                    <p className="text-white font-bold text-lg text-center mb-6">Tratamientos</p>
+                    <p className="text-white font-bold text-lg text-center mb-6">Registro de la Materia</p>
 
                     <form onSubmit={handleSubmit(registerTreatmentsForm)} className="space-y-5">
                         <div>
-                            <label className="mb-2 block text-base font-semibold text-gray-200">Nombre del tratamiento</label>
+                            <label className="mb-2 block text-base font-semibold text-gray-200">Nombre de la materia</label>
                             <input
                                 type="text"
                                 placeholder="Ingresa el nombre"
                                 className="block w-full rounded-md border border-gray-600 py-2 px-3 text-gray-900 bg-gray-200"
-                                {...register("nombre", { required: "El nombre es obligatorio" })}
+                                {...register("nombreMateria", { required: "Este campo es obligatorio!" })}
                             />
-                            {errors.nombre && <p className="text-red-400 text-base mt-1">{errors.nombre.message}</p>}
+                            {errors.nombreMateria && <p className="text-red-400 text-base mt-1">{errors.nombreMateria.message}</p>}
                         </div>
 
                         <div>
-                            <label className="mb-2 block text-base font-semibold text-gray-200">Descripción</label>
+                            <label className="mb-2 block text-base font-semibold text-gray-200">Motivo de perdida de la materia</label>
                             <textarea
                                 placeholder="Ingresa la descripción"
                                 className="block w-full rounded-md border border-gray-600 py-2 px-3 text-gray-900 bg-gray-200"
-                                {...register("descripcion", { required: "La descripción es obligatoria" })}
+                                {...register("motivo", { required: "Este campo es obligatorio!" })}
                             />
-                            {errors.descripcion && <p className="text-red-400 text-base mt-1">{errors.descripcion.message}</p>}
+                            {errors.motivo && <p className="text-red-400 text-base mt-1">{errors.motivo.message}</p>}
                         </div>
 
                         <div>
-                            <label className="mb-2 block text-base font-semibold text-gray-200">Prioridad</label>
+                            <label className="mb-2 block text-base font-semibold text-gray-200">Tipo de recuperación</label>
                             <select
                                 className="block w-full rounded-md border border-gray-600 py-2 px-3 text-gray-900 bg-gray-200"
-                                {...register("prioridad", { required: "La prioridad es obligatoria" })}
+                                {...register("tipoRecuperacion", { required: "Este campo es obligatorio!" })}
                             >
                                 <option value="">--- Seleccionar ---</option>
-                                <option value="Baja">Baja</option>
-                                <option value="Media">Media</option>
-                                <option value="Alta">Alta</option>
+                                <option value="Ninguna">Ninguna</option>
+                                <option value="Repetición regular">Repetición regular</option>
+                                <option value="Examen supletorio">Examen supletorio</option>
+                                <option value="Curso de recuperación intensivo">Curso de recuperación intensivo</option>
                             </select>
-                            {errors.prioridad && <p className="text-red-400 text-base mt-1">{errors.prioridad.message}</p>}
+                            {errors.tipoRecuperacion && <p className="text-red-400 text-base mt-1">{errors.tipoRecuperacion.message}</p>}
                         </div>
 
                         <div>
-                            <label className="mb-2 block text-base font-semibold text-gray-200">Precio</label>
+                            <label className="mb-2 block text-base font-semibold text-gray-200">Número de créditos</label>
                             <input
-                                type="number"
-                                step="any"
-                                placeholder="Ingresa el precio"
+                                type="text"
+                                min="0"
+                                placeholder="Ingres el número de créditos"
                                 className="block w-full rounded-md border border-gray-600 py-2 px-3 text-gray-900 bg-gray-200"
-                                {...register("precio", {
-                                    required: "El precio es obligatorio",
-                                    min: { value: 0, message: "El precio no puede ser negativo" }
-                                })}
+                                {...register("numeroCreditos", { required: "Este campo es obligatorio!", min: { value: 1, message: "Debe ser al menos 1" } })}
                             />
-                            {errors.precio && <p className="text-red-400 text-base mt-1">{errors.precio.message}</p>}
+                            {errors.numeroCreditos && <p className="text-red-400 text-base mt-1">{errors.numeroCreditos.message}</p>}
+                        </div>
+
+                        <div>
+                            <label className="mb-2 block text-base font-semibold text-gray-200">Precio por crédito</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                <input
+                                    type="text"
+                                    min="0"
+                                    step="any"
+                                    placeholder="ingrese el precio por crédito"
+                                    className="block w-full rounded-md border border-gray-600 py-2 pl-8 pr-3 text-gray-900 bg-gray-200"
+                                    {...register("precioPorCredito", { required: "Este campo es obligatorio!", min: { value: 1, message: "Debe ser mayor a 0" } })}
+                                />
+                            </div>
+                            {errors.precioPorCredito && <p className="text-red-400 text-base mt-1">{errors.precioPorCredito.message}</p>}
+                        </div>
+
+                        <div>
+                            <label className="mb-2 block text-base font-semibold text-gray-200">Precio total</label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                <input
+                                    type="text"
+                                    step="any"
+                                    placeholder=""
+                                    className="block w-full rounded-md border border-gray-600 py-2 pl-8 pr-3 text-gray-900 bg-gray-200"
+                                    {...register("precioTotal", {
+                                        required: "El precio es obligatorio",
+                                        min: { value: 0, message: "El precio no puede ser negativo" }
+                                    })}
+                                    readOnly
+                                />
+                            </div>
+                            {errors.precioTotal && <p className="text-red-400 text-base mt-1">{errors.precioTotal.message}</p>}
                         </div>
 
                         <div className="flex justify-center gap-4 pt-4">

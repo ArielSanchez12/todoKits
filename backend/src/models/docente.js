@@ -52,7 +52,6 @@ const docenteSchema = new Schema({
     },
     googleId: {
         type: String,
-        default: null,
         unique: true,
         sparse: true
     },

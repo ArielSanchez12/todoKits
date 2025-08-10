@@ -53,7 +53,7 @@ const Details = () => {
                     <div>
                         <ul className="list-disc pl-5">
                             {/* Datos del docente */}
-                            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del docente</li>
+                            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del estudiante</li>
                             <ul className="pl-5">
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Nombre: </span>
@@ -78,7 +78,7 @@ const Details = () => {
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Estado: </span>
                                     <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                        {docente?.statusDocente ? "Activo" : "Inactivo"}
+                                        {docente?.statusDocente ? "Matriculado" : "Inactivo"}
                                     </span>
                                 </li>
                             </ul>
@@ -86,8 +86,14 @@ const Details = () => {
                     </div>
                     <div>
                         <img
-                            src={docente?.avatarDocente || docente?.avatarDocenteIA || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"}
-                            alt="avatar docente"
+                            src={
+                                docente?.avatarDocente ||
+                                docente?.avatarDocenteIA ||
+                                docente?.avatar ||
+                                docente?.avatarIA ||
+                                "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                            }
+                            alt="avatar"
                             className='h-70 w-70 rounded-full object-cover'
                         />
                     </div>
@@ -97,14 +103,14 @@ const Details = () => {
 
                 <div className='flex justify-between items-center'>
 
-                    <p>Este módulo te permite gestionar los tratamientos</p>
+                    <p>Este módulo te permite gestionar las materias</p>
                     {
                         rol === "Administrador" &&
                         (
                             <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-black hover:scale-105 duration-300"
                                 onClick={() => { toggleModal("treatments") }}
                             >
-                                Registrar
+                                Registrar materia
                             </button>
                         )
                     }

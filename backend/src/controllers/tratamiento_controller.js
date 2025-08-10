@@ -8,11 +8,11 @@ const registrarTratamiento = async (req, res) => {
   const { docente } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(docente)) {
-    return res.status(400).json({ msg: "ID de docente inválido" })
+    return res.status(400).json({ msg: "ID del estudiante inválido" })
   }
 
   await Tratamiento.create(req.body)
-  res.status(201).json({ msg: "Tratamiento registrado exitosamente" })
+  res.status(201).json({ msg: "Materia registrado exitosamente" })
 
 }
 
@@ -25,11 +25,11 @@ const eliminarTratamiento = async (req, res) => {
   const { id } = req.params
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ msg: `ID de tratamiento no existe` });
+    return res.status(400).json({ msg: `ID de materia no existe` });
   }
 
   await Tratamiento.findByIdAndDelete(id)
-  res.status(200).json({ msg: "Tratamiento eliminado exitosamente" })
+  res.status(200).json({ msg: "Materia eliminado exitosamente" })
 }
 
 
@@ -44,8 +44,8 @@ const pagarTratamiento = async (req, res) => {
 
   try {
     const tratamiento = await Tratamiento.findById(treatmentId)
-    if (!tratamiento) return res.status(404).json({ msg: "Tratamiento no encontrado" })
-    if (tratamiento.estadoPago === 'Pagado') return res.status(400).json({ msg: "El tratamiento ya ha sido pagado" })
+    if (!tratamiento) return res.status(404).json({ msg: "Materia no encontrado" })
+    if (tratamiento.estadoPago === 'Pagado') return res.status(400).json({ msg: "La materia ya ha sido pagado" })
     if (!paymentMethodId) return res.status(400).json({ msg: "paymentMethodId no proporcionado" })
 
     let [docente] = (await stripe.customers.list({ email: tratamiento.emailDocente, limit: 1 })).data || [];
@@ -74,7 +74,7 @@ const pagarTratamiento = async (req, res) => {
     }
 
   } catch (error) {
-    res.status(500).json({ msg: "Error al intentar pagar el tratamiento", error });
+    res.status(500).json({ msg: "Error al intentar pagar la matyeria", error });
   }
 }
 

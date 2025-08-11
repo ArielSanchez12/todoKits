@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const emailGmail = /^[a-zA-Z0-9._%+-]{3,}@gmail\.com$/;
 const passwordFuerte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
-const passwordAdmin = /^[A-Z]{7}$/;
+const passwordTemporal = /^KITS[A-Z0-9]{3}$/;
 
 const noSoloRepetidos = (val) => {
   if (!val) return false;
@@ -34,20 +34,20 @@ export const loginSchema = z.object({
         // Contraseña fuerte válida
         return;
       }
-      if (passwordAdmin.test(val)) {
-        // Contraseña admin válida
-        return;
-      }
+        if (passwordTemporal.test(val)) {
+          // Contraseña temporal válida (KITSxxx)
+          return;
+        }
       // Si no es ninguna válida, mostrar mensajes diferenciados
-      if (val.length === 7 && /^[A-Z]+$/.test(val)) {
+        if (val.length === 7 && val.startsWith("KITS")) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "La contraseña temporal debe ser exactamente 7 letras mayúsculas (ejemplo: KITSBPE)"
+            message: "La contraseña temporal debe ser: KITS seguido de 3 mayúsculas o números (ejemplo: KITS41K)"
         });
       } else {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Contraseña segura (8-12 caracteres) o temporal de 7 mayúsculas"
+            message: "Contraseña segura (8-12 caracteres, mayúsculas, minúsculas, número y símbolo) o temporal tipo KITSxxx"
         });
       }
     }),

@@ -52,11 +52,12 @@ export const Form = ({ docente }) => {
     const registerDocente = async (data) => {
         const formData = new FormData();
         Object.keys(data).forEach((key) => {
+            // No enviar campos vacíos ni nulos
             if (key === "imagen" && data.imagen?.[0]) {
                 formData.append("imagen", data.imagen[0]);
             } else if (key === "avatarDocenteIA" && data.avatarDocenteIA) {
                 formData.append("avatarDocenteIA", data.avatarDocenteIA);
-            } else {
+            } else if (data[key] !== undefined && data[key] !== null && data[key] !== "") {
                 formData.append(key, data[key]);
             }
         });

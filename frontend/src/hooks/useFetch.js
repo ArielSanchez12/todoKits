@@ -5,13 +5,15 @@ function useFetch() {
     const fetchDataBackend = async (url, data = null, method = "GET", headers = {}) => {
         const loadingToast = toast.loading("Procesando solicitud...");
         try {
+            let customHeaders = { ...headers };
+            // Si los datos NO son FormData, agrega Content-Type JSON
+            if (!(data instanceof FormData)) {
+                customHeaders["Content-Type"] = "application/json";
+            }
             const options = {
                 method,
                 url,
-                headers: {
-                    "Content-Type": "application/json",
-                    ...headers,
-                },
+                headers: customHeaders,
             };
             // Solo agrega 'data' si el método lo necesita
             if (["POST", "PUT", "PATCH"].includes(method) && data) {

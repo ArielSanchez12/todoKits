@@ -100,7 +100,7 @@ export const Form = ({ docente }) => {
         }
     }, [docente, reset]);
 
-    
+
     return (
         <form onSubmit={handleSubmit(registerDocente)}>
             <ToastContainer />

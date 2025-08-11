@@ -46,8 +46,9 @@ const storeProfile = create((set) => ({
                 };
                 payload = data;
             }
-            const respuesta = await axios.put(url, payload, headers);
-            set({ user: respuesta.data });
+            await axios.put(url, payload, headers);
+            // Refresca el perfil después de actualizar
+            await storeProfile.getState().profile();
             toast.success("Perfil actualizado correctamente");
         } catch (error) {
             console.log(error);

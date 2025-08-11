@@ -7,15 +7,14 @@ export const CardProfileOwner = () => {
     return (
         <div className="bg-white border border-slate-200 h-auto p-4 
                         flex flex-col items-center justify-between shadow-xl rounded-lg">
-
             <div>
                 <img
                     src={
-                        user.avatarDocente ||
-                        user.avatarDocenteIA ||
-                        user.avatar ||
-                        user.avatarIA ||
-                        "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                        (user.avatarDocente ||
+                            user.avatarDocenteIA ||
+                            user.avatar ||
+                            user.avatarIA ||
+                            "https://cdn-icons-png.flaticon.com/512/4715/4715329.png") + `?t=${Date.now()}`
                     }
                     alt="avatar"
                     className="h-70 w-70 rounded-full object-cover"

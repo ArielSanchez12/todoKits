@@ -1,6 +1,7 @@
-import { create } from "zustand"
-import axios from "axios"
-import { toast } from "react-toastify"
+
+    import { create } from "zustand"
+    import axios from "axios"
+    import { toast } from "react-toastify"
 
 
 const getAuthHeaders = () => {
@@ -14,6 +15,17 @@ const getAuthHeaders = () => {
 }
 
 const storeTreatments = create(set => ({
+    updateTreatments: async (data) => {
+        try {
+            const url = `${import.meta.env.VITE_BACKEND_URL}/tratamiento/${data._id}`;
+            const respuesta = await axios.put(url, data, getAuthHeaders());
+            set((state) => ({ modal: !state.modal }));
+            toast.success(respuesta.data.msg);
+        } catch (error) {
+            console.error(error);
+            toast.error(error.response?.data?.msg || "Error al actualizar tratamiento");
+        }
+    },
     modal: false,
     toggleModal: (modalType) => set((state) => ({ modal: state.modal === modalType ? null : modalType })),
 

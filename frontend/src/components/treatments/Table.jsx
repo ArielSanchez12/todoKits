@@ -1,4 +1,5 @@
-import { MdDeleteForever, MdOutlinePayments } from "react-icons/md"
+import { MdDeleteForever, MdOutlinePayments, MdPublishedWithChanges } from "react-icons/md"
+import ModalTreatments from "./Modal.jsx"
 import storeTreatments from "../../context/storeTreatments"
 import storeAuth from "../../context/storeAuth"
 import ModalPayment from "./ModalPayment"
@@ -12,6 +13,7 @@ const TableTreatments = ({ treatments, listDocente }) => {
     const { rol } = storeAuth()
     const { modal, toggleModal } = storeTreatments()
     const [selectedTreatment, setSelectedTreatment] = useState(null)
+    const [editMode, setEditMode] = useState(false)
 
     const handleDelete = async (id) => {
         deleteTreatments(id);
@@ -65,15 +67,32 @@ const TableTreatments = ({ treatments, listDocente }) => {
                                 )}
 
                                 {rol === "Administrador" && (
-                                    <MdDeleteForever
-                                        className={
-                                            treatment.estadoPago === "Pagado"
-                                                ? "h-8 w-8 text-gray-600 pointer-events-none inline-block"
-                                                : "h-8 w-8 text-red-800 cursor-pointer inline-block hover:text-red-500"
-                                        }
-                                        title="Eliminar"
-                                        onClick={() => handleDelete(treatment._id)}
-                                    />
+                                    <>
+                                        <MdPublishedWithChanges
+                                            className={
+                                                treatment.estadoPago === "Pagado"
+                                                    ? "h-8 w-8 text-gray-600 pointer-events-none inline-block mr-2"
+                                                    : "h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-500"
+                                            }
+                                            title="Actualizar"
+                                            onClick={() => {
+                                                if (treatment.estadoPago !== "Pagado") {
+                                                    setSelectedTreatment(treatment);
+                                                    setEditMode(true);
+                                                    toggleModal("edit")
+                                                }
+                                            }}
+                                        />
+                                        <MdDeleteForever
+                                            className={
+                                                treatment.estadoPago === "Pagado"
+                                                    ? "h-8 w-8 text-gray-600 pointer-events-none inline-block"
+                                                    : "h-8 w-8 text-red-800 cursor-pointer inline-block hover:text-red-500"
+                                            }
+                                            title="Eliminar"
+                                            onClick={() => handleDelete(treatment._id)}
+                                        />
+                                    </>
                                 )}
                             </td>
                         </tr>
@@ -84,6 +103,18 @@ const TableTreatments = ({ treatments, listDocente }) => {
                 <Elements stripe={stripePromise}>
                     <ModalPayment treatment={selectedTreatment} />
                 </Elements>
+            )}
+            {modal === "edit" && selectedTreatment && (
+                <ModalTreatments 
+                    treatment={selectedTreatment} 
+                    editMode={editMode} 
+                    onClose={() => {
+                        setEditMode(false);
+                        setSelectedTreatment(null);
+                        toggleModal();
+                        listDocente(); // Refresca la tabla después de actualizar
+                    }}
+                />
             )}
         </>
     );

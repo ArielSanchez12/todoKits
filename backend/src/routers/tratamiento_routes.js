@@ -1,9 +1,12 @@
+
 import { Router } from "express";
-import { listarTratamiento, registrarTratamiento, eliminarTratamiento, pagarTratamiento } from "../controllers/tratamiento_controller.js";
+import { listarTratamiento, registrarTratamiento, eliminarTratamiento, pagarTratamiento, actualizarTratamiento } from "../controllers/tratamiento_controller.js";
 import { verificarTokenJWT } from "../middlewares/jwt.js";
 
 
+
 const router = Router()
+router.put('/tratamiento/:id', verificarTokenJWT, actualizarTratamiento)
 
 router.post('/tratamiento/register', verificarTokenJWT, registrarTratamiento)
 router.get('/tratamiento/list', verificarTokenJWT, listarTratamiento)

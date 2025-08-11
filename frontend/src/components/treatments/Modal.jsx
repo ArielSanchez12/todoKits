@@ -4,11 +4,27 @@ import { modalTreatmentsSchema } from "../../schemas/modalSchema";
 import storeTreatments from "../../context/storeTreatments";
 import { useEffect } from "react";
 
-const ModalTreatments = ({ docenteID }) => {
-    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm({
+
+const ModalTreatments = ({ docenteID, treatment, editMode, onClose }) => {
+    const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
         resolver: zodResolver(modalTreatmentsSchema)
     });
-    const { toggleModal, registerTreatments } = storeTreatments();
+    const { toggleModal, registerTreatments, updateTreatments } = storeTreatments();
+
+
+    // Si es edición, setear valores iniciales
+    useEffect(() => {
+        if (editMode && treatment) {
+            reset({
+                nombreMateria: treatment.nombreMateria,
+                motivo: treatment.motivo,
+                tipoRecuperacion: treatment.tipoRecuperacion,
+                numeroCreditos: String(treatment.numeroCreditos),
+                precioPorCredito: String(treatment.precioPorCredito),
+                precioTotal: String(treatment.precioTotal),
+            });
+        }
+    }, [editMode, treatment, reset]);
 
     // Observar los campos de créditos y precio por crédito
     const numeroCreditos = watch("numeroCreditos");
@@ -22,9 +38,15 @@ const ModalTreatments = ({ docenteID }) => {
         setValue("precioTotal", total === 0 ? "" : String(total));
     }, [numeroCreditos, precioPorCredito, setValue]);
 
+
     const registerTreatmentsForm = (data) => {
-        const newData = { ...data, docente: docenteID };
-        registerTreatments(newData);
+        if (editMode && treatment) {
+            updateTreatments({ ...data, _id: treatment._id });
+            if (onClose) onClose();
+        } else {
+            const newData = { ...data, docente: docenteID };
+            registerTreatments(newData);
+        }
     };
 
     return (
@@ -32,7 +54,7 @@ const ModalTreatments = ({ docenteID }) => {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-[2px]">
                 <div className="w-full max-w-2xl bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 bg-opacity-95 rounded-2xl shadow-xl p-8 overflow-y-auto animate-fadeScale">
 
-                    <p className="text-white font-bold text-lg text-center mb-6">Registro de la Materia</p>
+                    <p className="text-white font-bold text-lg text-center mb-6">{editMode ? "Actualizar Materia" : "Registro de la Materia"}</p>
 
                     <form onSubmit={handleSubmit(registerTreatmentsForm)} className="space-y-5">
                         <div>
@@ -122,7 +144,7 @@ const ModalTreatments = ({ docenteID }) => {
                             <input
                                 type="submit"
                                 className="bg-blue-700 px-6 py-2 text-white rounded-lg hover:bg-blue-900 cursor-pointer transition-all duration-200"
-                                value="Registrar"
+                                value={editMode ? "Actualizar" : "Registrar"}
                             />
                             <button
                                 type="button"

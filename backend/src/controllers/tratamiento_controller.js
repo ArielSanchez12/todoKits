@@ -1,3 +1,17 @@
+// Actualizar tratamiento
+export const actualizarTratamiento = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ msg: "ID de materia no existe" });
+  }
+  try {
+    const tratamiento = await Tratamiento.findByIdAndUpdate(id, req.body, { new: true });
+    if (!tratamiento) return res.status(404).json({ msg: "Materia no encontrada" });
+    res.status(200).json({ msg: "Materia actualizada exitosamente", tratamiento });
+  } catch (error) {
+    res.status(500).json({ msg: "Error al actualizar materia" });
+  }
+};
 import mongoose from "mongoose";
 import Tratamiento from "../models/tratamiento.js";
 import docente from "../models/docente.js";

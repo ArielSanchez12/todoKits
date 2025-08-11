@@ -7,17 +7,19 @@ function useFetch() {
         try {
             const options = {
                 method,
-                url,
                 headers: {
                     "Content-Type": "application/json",
                     ...headers,
                 },
-                data,
             }
-            const response = await axios(options)
+            // Solo agrega body si hay datos (para evitar enviar "null" en DELETE)
+            if (data !== undefined && data !== null) {
+                options.body = JSON.stringify(data);
+            }
+            const response = await fetch(url, options);
             toast.dismiss(loadingToast);
             toast.success(response?.data?.msg)
-            return response?.data
+            return response.json();
         } catch (error) {
             toast.dismiss(loadingToast);
             console.error(error)

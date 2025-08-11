@@ -114,8 +114,13 @@ const detalleDocente = async (req, res) => {
 
 const eliminarDocente = async (req, res) => {
   const { id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
-  await docente.findByIdAndUpdate(id, { statusDocente: false });
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
+  }
+  const docenteEliminado = await docente.findByIdAndDelete(id);
+  if (!docenteEliminado) {
+    return res.status(404).json({ msg: "Docente no encontrado" });
+  }
   res.status(200).json({ msg: "Docente eliminado exitosamente" });
 }
 

@@ -2,7 +2,7 @@ import { MdDeleteForever, MdInfo, MdPublishedWithChanges } from "react-icons/md"
 import useFetch from "../../hooks/useFetch";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router';
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import storeAuth from "../../context/storeAuth";
 
 
@@ -37,21 +37,19 @@ const Table = () => {
     }
 
     const deleteDocente = async (id) => {
-        const confirmDelete = confirm("Vas registrar la salida del paciente, ¿Estás seguro?")
+        const confirmDelete = confirm("¿Estás seguro de que deseas eliminar este estudiante?");
         if (confirmDelete) {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/docente/delete/${id}`
-            const storedUser = JSON.parse(localStorage.getItem("auth-token"))
+            const url = `${import.meta.env.VITE_BACKEND_URL}/docente/delete/${id}`;
+            const storedUser = JSON.parse(localStorage.getItem("auth-token"));
             const options = {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${storedUser.state.token}`,
                 }
-            }
-            const data = {
-                salidaMascota: new Date().toString()
-            }
-            await fetchDataBackend(url, data, "DELETE", options.headers)
-            setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id))
+            };
+            await fetchDataBackend(url, undefined, "DELETE", options.headers);
+            setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id));
+            toast.success("Docente eliminado exitosamente");
         }
     }
 

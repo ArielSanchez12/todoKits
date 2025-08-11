@@ -7,27 +7,28 @@ function useFetch() {
         try {
             const options = {
                 method,
+                url,
                 headers: {
                     "Content-Type": "application/json",
                     ...headers,
                 },
+            };
+            // Solo agrega 'data' si el método lo necesita
+            if (["POST", "PUT", "PATCH"].includes(method) && data) {
+                options.data = data;
             }
-            // Solo agrega body si hay datos (para evitar enviar "null" en DELETE)
-            if (data !== undefined && data !== null) {
-                options.body = JSON.stringify(data);
-            }
-            const response = await fetch(url, options);
+            const response = await axios(options);
             toast.dismiss(loadingToast);
-            toast.success(response?.data?.msg)
-            return response.json();
+            if (response?.data?.msg) toast.success(response.data.msg);
+            return response?.data;
         } catch (error) {
             toast.dismiss(loadingToast);
-            console.error(error)
-            toast.error(error.response?.data?.msg)
+            console.error(error);
+            toast.error(error.response?.data?.msg || "Error en la solicitud");
         }
-    }
+    };
 
-    return { fetchDataBackend }
+    return { fetchDataBackend };
 }
 
 export default useFetch;

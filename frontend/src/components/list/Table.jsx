@@ -21,7 +21,7 @@ const Table = () => {
             Authorization: `Bearer ${storedUser.state.token}`,
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
-        setDocentes(...docentes, response)
+        setDocentes(response) // <-- Cambia esto
     }
 
     useEffect(() => {
@@ -41,15 +41,18 @@ const Table = () => {
         if (confirmDelete) {
             const url = `${import.meta.env.VITE_BACKEND_URL}/docente/delete/${id}`;
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
-            const options = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${storedUser.state.token}`,
-                }
+            const headers = {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${storedUser.state.token}`,
             };
-            await fetchDataBackend(url, undefined, "DELETE", options.headers);
-            setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id));
-            toast.success("Docente eliminado exitosamente");
+            // No envíes undefined como body, solo headers
+            const response = await fetchDataBackend(url, null, "DELETE", headers);
+            if (response && response.msg === "Docente eliminado exitosamente") {
+                setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id));
+                // toast.success("Docente eliminado exitosamente");
+            } else {
+                toast.error(response?.msg || "Error al eliminar docente");
+            }
         }
     }
 

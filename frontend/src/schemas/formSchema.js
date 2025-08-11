@@ -58,9 +58,10 @@ export const formSchema = z.object({
 }).refine(
   (data) =>
     (data.imageOption === "ia" && data.avatarDocenteIA && data.avatarDocenteIA.length > 0) ||
-    (data.imageOption === "upload" && data.imagen && data.imagen.length > 0),
+    (data.imageOption === "upload" && data.imagen && data.imagen.length > 0) ||
+    (!!data.avatarDocenteIA), // Permite si ya hay una imagen previa
   {
-    message: "Debe subir una imagen o generar una con IA según la opción seleccionada",
+    message: "Debes seleccionar una opción de imagen (IA o subir archivo) y completar el avatar.",
     path: ["imagen"],
   }
 );

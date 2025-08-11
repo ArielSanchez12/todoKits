@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import useFetch from "../../hooks/useFetch";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "../../schemas/formSchema";
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/consultarIA";
 import { toast, ToastContainer } from "react-toastify";
 
@@ -14,7 +16,19 @@ export const Form = ({ docente }) => {
     });
 
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm();
+    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            nombreDocente: docente?.nombreDocente || "",
+            apellidoDocente: docente?.apellidoDocente || "",
+            direccionDocente: docente?.direccionDocente || "",
+            celularDocente: docente?.celularDocente || "",
+            emailDocente: docente?.emailDocente || "",
+            imageOption: "",
+            avatarDocenteIA: "",
+            imagen: null,
+        }
+    });
     const { fetchDataBackend } = useFetch();
 
     const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
@@ -67,15 +81,21 @@ export const Form = ({ docente }) => {
     };
 
     useEffect(() => {
-        console.log("Docente recibido en Form:", docente);
         if (docente) {
             reset({
-                nombreDocente: docente?.nombreDocente,
-                apellidoDocente: docente?.apellidoDocente,
-                direccionDocente: docente?.direccionDocente,
-                celularDocente: docente?.celularDocente,
-                emailDocente: docente?.emailDocente,
+                nombreDocente: docente?.nombreDocente || "",
+                apellidoDocente: docente?.apellidoDocente || "",
+                direccionDocente: docente?.direccionDocente || "",
+                celularDocente: docente?.celularDocente || "",
+                emailDocente: docente?.emailDocente || "",
+                imageOption: "", // O puedes poner el valor anterior si lo tienes
+                avatarDocenteIA: docente?.avatarDocenteIA || "",
+                imagen: null, // Si tienes la URL de la imagen subida, puedes ponerla aquí
             });
+            // Si tienes la imagen previa, también puedes mostrarla en el avatar
+            if (docente?.avatarDocenteIA) {
+                setAvatar(prev => ({ ...prev, image: docente.avatarDocenteIA }));
+            }
         }
     }, [docente, reset]);
 
@@ -204,9 +224,20 @@ export const Form = ({ docente }) => {
                         {...register("imagen")}
                         onChange={e => setArchivoSeleccionado(e.target.files[0]?.name || null)}
                     />
+                    {errors.imagen && (
+                        <span className="text-red-500">{errors.imagen.message}</span>
+                    )}
                     {archivoSeleccionado && (
                         <p className="text-green-600 text-base mt-2">Archivo seleccionado: {archivoSeleccionado}</p>
                     )}
+                </div>
+            )}
+
+            {!selectedOption && docente?.avatarDocenteIA && (
+                <div className="mt-5">
+                    <label className="mb-2 block text-base font-semibold">Avatar actual</label>
+                    <img src={docente.avatarDocenteIA} alt="Avatar actual" width={100} height={100} />
+                    <p className="mt-2 text-gray-600 text-sm">(Si no seleccionas una nueva imagen, se mantendrá la actual.)</p>
                 </div>
             )}
 

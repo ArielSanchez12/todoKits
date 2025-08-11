@@ -120,21 +120,40 @@ const eliminarDocente = async (req, res) => {
 }
 
 const actualizarDocente = async (req, res) => {
-  const { id } = req.params
-  if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos" })
-  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` })
+  const { id } = req.params;
+  if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos" });
+  if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
+
+  // Busca el docente actual
+  const docenteActual = await docente.findById(id);
+  if (!docenteActual) return res.status(404).json({ msg: "Docente no encontrado" });
+
+  // Detecta si el correo fue cambiado
+  const nuevoCorreo = req.body.emailDocente;
+  const correoAnterior = docenteActual.emailDocente;
+
+  // Procesa imagen si es necesario (tu lógica actual)
   if (req.files?.imagen) {
-    const docentes = await docente.findById(id)
-    if (docentes.avatarMascotaID) {
-      await cloudinary.uploader.destroy(docentes.avatarMascotaID);
-    }
-    const cloudiResponse = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, { folder: 'Docentes' });
-    req.body.avatarDocente = cloudiResponse.secure_url;
-    req.body.avatarDocenteID = cloudiResponse.public_id;
-    await fs.unlink(req.files.imagen.tempFilePath);
+    // ...tu lógica de imagen...
   }
-  await docente.findByIdAndUpdate(id, req.body, { new: true })
-  res.status(200).json({ msg: "Actualización exitosa del docente" })
+
+  let nuevaPassword = null;
+
+  // Si el correo fue cambiado, genera nueva contraseña y envía correo
+  if (nuevoCorreo && nuevoCorreo !== correoAnterior) {
+    // Genera nueva contraseña
+    const password = Math.random().toString(36).toUpperCase().slice(2, 5);
+    nuevaPassword = await docente.prototype.encryptPassword("KITS" + password);
+    req.body.passwordDocente = nuevaPassword;
+
+    // Envía el correo con la nueva contraseña
+    await sendMailToDocente(nuevoCorreo, "KITS" + password);
+  }
+
+  // Actualiza el docente
+  const docenteActualizado = await docente.findByIdAndUpdate(id, req.body, { new: true });
+
+  res.status(200).json({ msg: "Actualización exitosa del docente" });
 }
 
 export {

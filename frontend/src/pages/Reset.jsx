@@ -39,10 +39,10 @@ const Reset = () => {
         <div className="flex flex-col items-center justify-center h-screen">
             <ToastContainer />
             <h1 className="text-3xl font-semibold mb-3 text-center text-black">
-                BIENVENIDO NUEVAMENTE
+                BIENVENIDOS NUEVAMENTE
             </h1>
             <small className="text-black block my-5 text-base">
-                Por favor, ingrese los siguientes datos
+                Por favor, actualiza tu contraseña
             </small>
             <img
                 className="mb-10 object-cover h-90 w-90 rounded-full border-4 border-solid border-slate-600"

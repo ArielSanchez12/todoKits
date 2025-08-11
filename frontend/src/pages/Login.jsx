@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from '../schemas/loginSchema';
 import { Link, useNavigate } from 'react-router';
 import useFetch from '../hooks/useFetch';
 import { ToastContainer } from 'react-toastify';
@@ -14,6 +16,7 @@ const Login = () => {
     // Leer email recordado si existe
     const rememberedEmail = localStorage.getItem("rememberedEmail") || "";
     const { register, handleSubmit, formState: { errors } } = useForm({
+        resolver: zodResolver(loginSchema),
         defaultValues: {
             email: rememberedEmail
         }
@@ -111,7 +114,7 @@ const Login = () => {
                 {/* Línea divisoria */}
                 <div className="flex items-center my-10">
                     <hr className="flex-grow border-gray-400" />
-                    <span className="mx-2 text-gray-400 text-base whitespace-nowrap">O CONÉCTESE CON SU CORREO ELECTRÓNICO</span>
+                    <span className="mx-2 text-gray-400 text-base whitespace-nowrap">o conéctate con tu correo electrónico</span>
                     <hr className="flex-grow border-gray-400" />
                 </div>
 

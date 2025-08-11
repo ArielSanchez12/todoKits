@@ -1,12 +1,16 @@
 import { Link } from 'react-router'
 import useFetch from '../hooks/useFetch'
 import { useForm } from 'react-hook-form';
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ToastContainer } from 'react-toastify'
+import { forgotSchema } from '../schemas/forgotSchema';
 
 
 export const Forgot = () => {
 
-    const { register, handleSubmit, formState: { errors } } = useForm()
+    const { register, handleSubmit, formState: { errors } } = useForm({
+        resolver: zodResolver(forgotSchema)
+    });
     const { fetchDataBackend } = useFetch()
 
     const sendMail = (data) => {
@@ -24,7 +28,7 @@ export const Forgot = () => {
                 <div className="md:w-4/5 sm:w-full">
 
                     <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-black">!Olvidaste tu contraseña¡</h1>
-                    <small className="text-gray-400 block my-4 text-base">No te preocupes</small>
+                    <small className="text-gray-400 block my-4 text-base">No te preocupes, te ayudaremos a recuperarla.</small>
 
                     <form onSubmit={handleSubmit(sendMail)}>
 

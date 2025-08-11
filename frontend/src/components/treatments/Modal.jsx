@@ -1,9 +1,13 @@
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { modalTreatmentsSchema } from "../../schemas/modalSchema";
 import storeTreatments from "../../context/storeTreatments";
 import { useEffect } from "react";
 
 const ModalTreatments = ({ docenteID }) => {
-    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm();
+    const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm({
+        resolver: zodResolver(modalTreatmentsSchema)
+    });
     const { toggleModal, registerTreatments } = storeTreatments();
 
     // Observar los campos de créditos y precio por crédito
@@ -14,7 +18,8 @@ const ModalTreatments = ({ docenteID }) => {
     useEffect(() => {
         const n = parseFloat(numeroCreditos) || 0;
         const p = parseFloat(precioPorCredito) || 0;
-        setValue("precioTotal", n * p);
+        const total = n * p;
+        setValue("precioTotal", total === 0 ? "" : String(total));
     }, [numeroCreditos, precioPorCredito, setValue]);
 
     const registerTreatmentsForm = (data) => {

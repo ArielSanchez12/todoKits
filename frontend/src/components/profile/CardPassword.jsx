@@ -1,12 +1,16 @@
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ToastContainer, toast } from 'react-toastify';
 import { useState } from "react";
 import storeProfile from "../../context/storeProfile";
 import storeAuth from "../../context/storeAuth";
+import { cardPasswordSchema } from "../../schemas/cardPasswordSchema";
 
 
 const CardPassword = () => {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm()
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+        resolver: zodResolver(cardPasswordSchema)
+    });
     const { user, updatePasswordProfile } = storeProfile()
     const { clearToken } = storeAuth()
 

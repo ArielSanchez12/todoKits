@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import useFetch from "../../hooks/useFetch";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formSchema } from "../../schemas/formSchema";
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/consultarIA";
 import { toast, ToastContainer } from "react-toastify";
 
@@ -13,7 +15,9 @@ export const Form = ({ docente }) => {
     });
 
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm();
+    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm({
+        resolver: zodResolver(formSchema)
+    });
     const { fetchDataBackend } = useFetch();
 
     const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
@@ -68,11 +72,14 @@ export const Form = ({ docente }) => {
     useEffect(() => {
         if (docente) {
             reset({
-                nombreDocente: docente?.nombreDocente,
-                apellidoDocente: docente?.apellidoDocente,
-                direccionDocente: docente?.direccionDocente,
-                celularDocente: docente?.celularDocente,
-                emailDocente: docente?.emailDocente,
+                nombreDocente: docente?.nombreDocente ?? "",
+                apellidoDocente: docente?.apellidoDocente ?? "",
+                direccionDocente: docente?.direccionDocente ?? "",
+                celularDocente: docente?.celularDocente ?? "",
+                emailDocente: docente?.emailDocente ?? "",
+                imageOption: docente?.imageOption ?? "",
+                avatarDocenteIA: docente?.avatarDocenteIA ?? "",
+                imagen: docente?.imagen ?? "",
             });
         }
     }, [docente, reset]);

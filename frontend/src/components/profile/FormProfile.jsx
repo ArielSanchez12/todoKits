@@ -1,10 +1,14 @@
 import { useEffect } from "react"
 import storeProfile from "../../context/storeProfile"
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formProfileSchema } from "../../schemas/formProfileSchema";
 
 const FormularioPerfil = () => {
     const { user, updateProfile } = storeProfile()
-    const { register, handleSubmit, reset, formState: { errors } } = useForm()
+    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+        resolver: zodResolver(formProfileSchema)
+    });
 
     const updateUser = async (data) => {
         updateProfile(data, user._id)

@@ -29,16 +29,11 @@ const Update = () => {
             <hr className='my-4 border-t-2 border-gray-300' />
             <p className='mb-8'>Este módulo te permite actualizar un registro</p>
             {
-                Object.keys(docente).length != 0 ?
-                    (
-                        <Form docente={docente} />
-                    )
-                    :
-                    (
-                        <div className="p-4 mb-4 text-base text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                            <span className="font-medium">No existen registros </span>
-                        </div>
-                    )
+                docente.docentes
+                    ? <Form docente={docente.docentes} />
+                    : <div className="p-4 mb-4 text-base text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                        <span className="font-medium">No existen registros </span>
+                      </div>
             }
         </div>
     )

@@ -2,12 +2,11 @@ import { useState, useEffect } from "react";
 import useFetch from "../../hooks/useFetch";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formSchema } from "../../schemas/formSchema";
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/consultarIA";
 import { toast, ToastContainer } from "react-toastify";
 
 export const Form = ({ docente }) => {
+
     const [avatar, setAvatar] = useState({
         image: "https://cdn-icons-png.flaticon.com/512/4715/4715329.png",
         prompt: "",
@@ -15,9 +14,7 @@ export const Form = ({ docente }) => {
     });
 
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm({
-        resolver: zodResolver(formSchema)
-    });
+    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm();
     const { fetchDataBackend } = useFetch();
 
     const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
@@ -70,20 +67,19 @@ export const Form = ({ docente }) => {
     };
 
     useEffect(() => {
+        console.log("Docente recibido en Form:", docente);
         if (docente) {
             reset({
-                nombreDocente: docente?.nombreDocente ?? "",
-                apellidoDocente: docente?.apellidoDocente ?? "",
-                direccionDocente: docente?.direccionDocente ?? "",
-                celularDocente: docente?.celularDocente ?? "",
-                emailDocente: docente?.emailDocente ?? "",
-                imageOption: docente?.imageOption ?? "",
-                avatarDocenteIA: docente?.avatarDocenteIA ?? "",
-                imagen: docente?.imagen ?? "",
+                nombreDocente: docente?.nombreDocente,
+                apellidoDocente: docente?.apellidoDocente,
+                direccionDocente: docente?.direccionDocente,
+                celularDocente: docente?.celularDocente,
+                emailDocente: docente?.emailDocente,
             });
         }
     }, [docente, reset]);
 
+    
     return (
         <form onSubmit={handleSubmit(registerDocente)}>
             <ToastContainer />

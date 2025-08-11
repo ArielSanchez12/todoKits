@@ -42,12 +42,12 @@ export const loginSchema = z.object({
         if (val.length === 7 && val.startsWith("KITS")) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-            message: "La contraseña temporal debe ser: KITS seguido de 3 mayúsculas o números (ejemplo: KITS41K)"
+            message: "La contraseña temporal debe ser de 7 dígitos"
         });
       } else {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-            message: "Contraseña segura (8-12 caracteres, mayúsculas, minúsculas, número y símbolo) o temporal tipo KITSxxx"
+            message: "Contraseña segura (8-12 caracteres) o temporal de 7 dígitos"
         });
       }
     }),

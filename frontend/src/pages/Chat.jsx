@@ -185,11 +185,21 @@ const Chat = () => {
                         >
                             <img
                                 src={
-                                    contact.avatarDocente ||
-                                    contact.avatarDocenteIA ||
-                                    contact.avatar ||
-                                    contact.avatarIA ||
-                                    "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                                    userType === "docente"
+                                        ? (
+                                            contact.avatar ||
+                                            contact.avatarIA ||
+                                            contact.avatarDocente ||
+                                            contact.avatarDocenteIA ||
+                                            "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                                        )
+                                        : (
+                                            contact.avatarDocente ||
+                                            contact.avatarDocenteIA ||
+                                            contact.avatar ||
+                                            contact.avatarIA ||
+                                            "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                                        )
                                 }
                                 alt="avatar"
                                 className="w-13 h-13 rounded-full"

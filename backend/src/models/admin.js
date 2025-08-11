@@ -40,6 +40,11 @@ const adminSchema = new Schema({
         require: true
     },
 
+
+    avatar: {
+        type: String,
+        default: null
+    },
     status: {
         type: Boolean,
         default: true

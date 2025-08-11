@@ -1,7 +1,9 @@
+
 import { sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
 import mongoose from "mongoose"
+import { v2 as cloudinary } from 'cloudinary'
 
 
 const registro = async (req, res) => {
@@ -115,27 +117,47 @@ const perfil = (req, res) => {
     res.status(200).json(datosPerfil)
 }
 
+
 const actualizarPerfil = async (req, res) => {
-    const { id } = req.params
-    const { nombre, apellido, direccion, celular, email } = req.body
+    const { id } = req.params;
+    const { nombre, apellido, direccion, celular, email } = req.body;
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
-    if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos" })
-    const adminEmailBDD = await admin.findById(id)
-    if (!adminEmailBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el usuario ${id}` })
+    if (Object.values(req.body).includes("") && !req.files?.avatar) return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos" });
+    const adminEmailBDD = await admin.findById(id);
+    if (!adminEmailBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el usuario ${id}` });
     if (adminEmailBDD.email != email) {
-        const adminEmailBDD = await admin.findOne({ email })
-        if (adminEmailBDD) {
-            return res.status(404).json({ msg: `Lo sentimos, el email existe ya se encuentra registrado` })
+        const adminEmailBDD2 = await admin.findOne({ email });
+        if (adminEmailBDD2) {
+            return res.status(404).json({ msg: `Lo sentimos, el email existe ya se encuentra registrado` });
         }
     }
-    adminEmailBDD.nombre = nombre ?? adminEmailBDD.nombre
-    adminEmailBDD.apellido = apellido ?? adminEmailBDD.apellido
-    adminEmailBDD.direccion = direccion ?? adminEmailBDD.direccion
-    adminEmailBDD.celular = celular ?? adminEmailBDD.celular
-    adminEmailBDD.email = email ?? adminEmailBDD.email
-    await adminEmailBDD.save()
-    console.log(adminEmailBDD)
-    res.status(200).json(adminEmailBDD)
+    adminEmailBDD.nombre = nombre ?? adminEmailBDD.nombre;
+    adminEmailBDD.apellido = apellido ?? adminEmailBDD.apellido;
+    adminEmailBDD.direccion = direccion ?? adminEmailBDD.direccion;
+    adminEmailBDD.celular = celular ?? adminEmailBDD.celular;
+    adminEmailBDD.email = email ?? adminEmailBDD.email;
+
+    // Manejo de imagen/avatar
+    if (req.files?.avatar) {
+        try {
+            const uploadStream = cloudinary.uploader.upload_stream(
+                { folder: 'Admins' },
+                async (error, result) => {
+                    if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
+                    adminEmailBDD.avatar = result.secure_url;
+                    await adminEmailBDD.save();
+                    return res.status(200).json(adminEmailBDD);
+                }
+            );
+            uploadStream.end(req.files.avatar.data);
+            return;
+        } catch (err) {
+            return res.status(500).json({ msg: 'Error al procesar imagen', err });
+        }
+    }
+
+    await adminEmailBDD.save();
+    res.status(200).json(adminEmailBDD);
 }
 
 

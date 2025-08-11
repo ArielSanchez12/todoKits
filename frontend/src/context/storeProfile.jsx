@@ -33,13 +33,25 @@ const storeProfile = create((set) => ({
     },
     updateProfile: async (data, id) => {
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/${id}`
-            const respuesta = await axios.put(url, data, getAuthHeaders())
-            set({ user: respuesta.data })
-            toast.success("Perfil actualizado correctamente")
+            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/${id}`;
+            let payload = data;
+            let headers = getAuthHeaders();
+            // Si data es FormData, cambiar headers
+            if (data instanceof FormData) {
+                headers = {
+                    headers: {
+                        ...headers.headers,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                };
+                payload = data;
+            }
+            const respuesta = await axios.put(url, payload, headers);
+            set({ user: respuesta.data });
+            toast.success("Perfil actualizado correctamente");
         } catch (error) {
-            console.log(error)
-            toast.error(error.response?.data?.msg)
+            console.log(error);
+            toast.error(error.response?.data?.msg);
         }
     },
     updatePasswordProfile: async (data, id) => {

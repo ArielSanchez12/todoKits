@@ -27,7 +27,7 @@ export const CardProfileOwner = () => {
                 />
             </div>
             <div className="self-start">
-                <b>Docente 34545:</b>
+                <b>Docente:</b>
                 <p className="inline-block ml-3">{user.nombreDocente}</p>
             </div>
             <div className="self-start">

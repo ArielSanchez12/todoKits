@@ -18,7 +18,7 @@ router.get('/google/callback',
       return res.redirect(`${process.env.URL_FRONTEND}login?google=fail`);
     }
     const token = crearTokenJWT(req.user._id, req.user.rolDocente);
-    res.redirect(`${process.env.URL_FRONTEND}login-success?name=${encodeURIComponent(req.user.nombreDocente)}&email=${encodeURIComponent(req.user.emailDocente)}&token=${token}`);
+    res.redirect(`${process.env.URL_FRONTEND}login-success?name=${encodeURIComponent(req.user.nombreDocente)}&email=${encodeURIComponent(req.user.emailDocente)}&token=${token}&id=${req.user._id}&rol=${req.user.rolDocente}`);
   }
 );
 

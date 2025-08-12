@@ -16,7 +16,7 @@ const LoginSuccess = () => {
     const id = query.get("id"); // <-- Asegúrate que el backend lo envía
     const rol = query.get("rol") || "Docente"; // O lee de query si lo envías
 
-    if (name && email && token && id) {
+    if (name && email && token && id) { //tambien se podia quitar de aqui el id, pero es recomendable enviarlo desde el back en lugar de quitarlo en front
       // Guarda el usuario completo
       localStorage.setItem("user", JSON.stringify({
         _id: id,

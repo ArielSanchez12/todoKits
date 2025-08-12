@@ -37,6 +37,24 @@ const registrarDocente = async (req, res) => {
       uploadStream.end(req.files.imagen.data); // si aqui se llama imagen, en la consulta de postman tambien se debe llamar imagen (no avatarDocente, ni avatarDocenteIA)
     });
   }
+  // Subir imagen generada por IA (base64)
+  if (req.body.avatarDocenteIA && req.body.avatarDocenteIA.startsWith("data:image")) {
+    await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: 'Docentes' },
+        (error, result) => {
+          if (error) return reject(error);
+          nuevoDocente.avatarDocente = result.secure_url;
+          nuevoDocente.avatarDocenteIA = result.public_id;
+          resolve();
+        }
+      );
+      // Extraer solo la parte base64
+      const base64Data = req.body.avatarDocenteIA.split(',')[1];
+      const buffer = Buffer.from(base64Data, 'base64');
+      uploadStream.end(buffer);
+    });
+  }
 
   await nuevoDocente.save()
   await sendMailToDocente(emailDocente, "KITS" + password)
@@ -138,8 +156,21 @@ const actualizarDocente = async (req, res) => {
   const correoAnterior = docenteActual.emailDocente;
 
   // Procesa imagen si es necesario (tu lógica actual)
-  if (req.files?.imagen) {
-    // ...tu lógica de imagen...
+  if (req.body.avatarDocenteIA && req.body.avatarDocenteIA.startsWith("data:image")) {
+    await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: 'Docentes' },
+        (error, result) => {
+          if (error) return reject(error);
+          docenteActual.avatarDocente = result.secure_url;
+          docenteActual.avatarDocenteIA = result.public_id;
+          resolve();
+        }
+      );
+      const base64Data = req.body.avatarDocenteIA.split(',')[1];
+      const buffer = Buffer.from(base64Data, 'base64');
+      uploadStream.end(buffer);
+    });
   }
 
   let nuevaPassword = null;

@@ -4,24 +4,30 @@ export const CardProfileOwner = () => {
 
     const { user } = storeProfile()
 
+    // Unifica la lógica de Dashboard: avatarDocente, avatarDocenteIA, avatar, avatarIA, imagen por defecto
+    const avatarUrl =
+        user.avatarDocente ||
+        user.avatarDocenteIA ||
+        user.avatar ||
+        user.avatarIA ||
+        "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+
+    // Si es base64 (data:image), no agregar timestamp
+    const isBase64 = typeof avatarUrl === 'string' && avatarUrl.startsWith('data:image');
+    const imgSrc = isBase64 ? avatarUrl : avatarUrl + `?t=${Date.now()}`;
+
     return (
         <div className="bg-white border border-slate-200 h-auto p-4 
                         flex flex-col items-center justify-between shadow-xl rounded-lg">
             <div>
                 <img
-                    src={
-                        (user.avatarDocente ||
-                            user.avatarDocenteIA ||
-                            user.avatar ||
-                            user.avatarIA ||
-                            "https://cdn-icons-png.flaticon.com/512/4715/4715329.png") + `?t=${Date.now()}`
-                    }
+                    src={imgSrc}
                     alt="avatar"
                     className="h-70 w-70 rounded-full object-cover"
                 />
             </div>
             <div className="self-start">
-                <b>Docente:</b>
+                <b>Docente 34545:</b>
                 <p className="inline-block ml-3">{user.nombreDocente}</p>
             </div>
             <div className="self-start">

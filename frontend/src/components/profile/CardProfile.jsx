@@ -35,18 +35,21 @@ export const CardProfile = () => {
         }
     }
 
+    // Prioriza avatarDocente, luego preview, luego imagen por defecto
+    const avatarUrl =
+        (user?.avatarDocente && typeof user.avatarDocente === 'string' && user.avatarDocente.startsWith('http'))
+            ? user.avatarDocente
+            : (preview ||
+                user?.avatar ||
+                user?.avatarDocenteIA ||
+                user?.avatarIA ||
+                "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
+
     return (
         <div className="bg-gray-200 border border-black h-auto p-4 flex flex-col items-center justify-between shadow-xl rounded-lg">
             <div className="relative">
                 <img
-                    src={
-                        (preview ||
-                            user?.avatar ||
-                            user?.avatarDocente ||
-                            user?.avatarDocenteIA ||
-                            user?.avatarIA ||
-                            "https://cdn-icons-png.flaticon.com/512/4715/4715329.png") + `?t=${Date.now()}`
-                    }
+                    src={avatarUrl + `?t=${Date.now()}`}
                     alt="avatar"
                     className="w-32 h-32 max-w-full max-h-40 rounded-full border-2 border-gray-300 object-cover mx-auto"
                     style={{ aspectRatio: '1/1' }}

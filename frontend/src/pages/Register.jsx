@@ -62,15 +62,6 @@ export const Register = () => {
                             {errors.apellido && <p className="text-red-800">{errors.apellido.message}</p>}
                         </div>
 
-                        {/* aqui deberia ir direccion */}
-                        <div className="mb-3">
-                            <label className="mb-2 block text-base font-semibold">Dirección</label>
-                            <input type="text" placeholder="Ingresa tu dirección" className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
-                                {...register("direccion")}
-                            />
-                            {errors.direccion && <p className="text-red-800">{errors.direccion.message}</p>}
-                        </div>
-
                         {/* Campo para celular */}
                         <div className="mb-3">
                             <label className="mb-2 block text-base font-semibold">Celular</label>

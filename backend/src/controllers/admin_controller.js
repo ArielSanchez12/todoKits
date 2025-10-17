@@ -1,4 +1,3 @@
-
 import { sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
@@ -7,18 +6,26 @@ import { v2 as cloudinary } from 'cloudinary'
 
 
 const registro = async (req, res) => {
-    const { email, password } = req.body
-    if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Todos los campos son obligatorios" })
-    const adminEmailBDD = await admin.findOne({ email })
-    if (adminEmailBDD) return res.status(400).json({ msg: "El email ya está registrado" })
-    const nuevoAdmin = new admin(req.body)
-    nuevoAdmin.password = await nuevoAdmin.encryptPassword(password)
-    const token = nuevoAdmin.createToken()
-    // PRIMERO guarda el usuario
-    await nuevoAdmin.save()
-    // LUEGO envía el correo
-    await sendMailToRegister(email, token)
-    res.status(200).json({ msg: "Revisa tu correo electrónico" })
+    try {
+        // ahora usamos req.validated (viene del middleware)
+        const { nombre, apellido, celular, email, password } = req.validated || req.body;
+
+        // comprobacion de email existente
+        const adminEmailBDD = await admin.findOne({ email });
+        if (adminEmailBDD) return res.status(400).json({ msg: "El email ya está registrado" });
+
+        const nuevoAdmin = new admin({ nombre, apellido, celular, email });
+        nuevoAdmin.password = await nuevoAdmin.encryptPassword(password);
+        const token = nuevoAdmin.createToken();
+
+        await nuevoAdmin.save();
+        await sendMailToRegister(email, token);
+        res.status(200).json({ msg: "Revisa tu correo electrónico" });
+    } catch (error) {
+        console.error("registro error:", error);
+        if (error?.name === "ValidationError") return res.status(400).json({ msg: error.message });
+        res.status(500).json({ msg: "Error en el servidor" });
+    }
 }
 
 const confirmarMail = async (req, res) => {
@@ -120,7 +127,7 @@ const perfil = (req, res) => {
 
 const actualizarPerfil = async (req, res) => {
     const { id } = req.params;
-    const { nombre, apellido, direccion, celular, email } = req.body;
+    const { nombre, apellido, celular, email } = req.body;
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
     if (Object.values(req.body).includes("") && !req.files?.avatar) return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos" });
     const adminEmailBDD = await admin.findById(id);
@@ -133,7 +140,6 @@ const actualizarPerfil = async (req, res) => {
     }
     adminEmailBDD.nombre = nombre ?? adminEmailBDD.nombre;
     adminEmailBDD.apellido = apellido ?? adminEmailBDD.apellido;
-    adminEmailBDD.direccion = direccion ?? adminEmailBDD.direccion;
     adminEmailBDD.celular = celular ?? adminEmailBDD.celular;
     adminEmailBDD.email = email ?? adminEmailBDD.email;
 

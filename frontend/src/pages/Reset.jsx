@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import useFetch from '../hooks/useFetch';
 import { useNavigate, useParams } from 'react-router';
 import { useForm } from 'react-hook-form';
-import { resetSchema } from "../schemas/resetSchema";
+
 
 
 
@@ -24,21 +24,6 @@ const Reset = () => {
                 navigate('/login'); // No continúa si no coinciden
             }
         }, 3000);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            // Valida los datos con Zod
-            resetSchema.parse(formData);
-            // Si pasa la validación, continúa con el envío
-            // ...resto de tu código
-        } catch (error) {
-            // Maneja los errores de validación
-            if (error.issues) {
-                setError(error.issues[0].message);
-            }
-        }
     };
 
     useEffect(() => {

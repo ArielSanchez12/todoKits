@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
-import Tratamiento from '../../src/models/tratamiento.js';
+import Tratamiento from '../../models/tratamiento.js';
 
 describe('Tratamiento Model Test', () => {
   

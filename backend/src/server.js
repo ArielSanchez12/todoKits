@@ -52,16 +52,6 @@ app.use(express.json()) //Esto lo que hace es que todos los datos de los formula
 app.use(passport.initialize());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-
-
-
-
-
-
-
-
-
 // Rutas 
 app.get('/', (req, res) => {   //Raiz -> '/', luego una funcion callback, y si responde, se envia ese texto, ejemplo http:localhost:3000/ si ejecutamos esa raiz al final de 3000, nos trae Server on
     res.send("Server on")

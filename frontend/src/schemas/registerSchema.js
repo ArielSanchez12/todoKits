@@ -1,20 +1,20 @@
 import { z } from "zod";
 
 const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-const direccionValida = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s]+$/;
+const celularRegex = /^09\d{8}$/; // Ecuador: empieza con 09 y 10 dígitos
 const passwordFuerte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
-const emailRealista = /^[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-const emailGmail = /^[a-zA-Z0-9._%+-]{3,}@gmail\.com$/;
 
-// No solo repetidos ni repetidos+números, ni solo espacios
-const noSoloRepetidos = (val) => {
-  if (!val) return false;
-  const sinEspacios = val.replace(/\s/g, "");
-  if (sinEspacios.length === 0) return false; // solo espacios
-  // Solo un carácter repetido (letra o número)
-  if (/^([a-zA-ZñÑáéíóúÁÉÍÓÚ0-9])\1+$/.test(sinEspacios)) return false;
-  // Un carácter repetido seguido de números (ej: aaaaaa123)
-  if (/^([a-zA-ZñÑáéíóúÁÉÍÓÚ])\1+\d+$/.test(sinEspacios)) return false;
+// evita valores compuestos por un solo carácter repetido
+const noSoloRepetidos = (value) => {
+  if (!value) return false;
+  const t = value.replace(/\s+/g, "").toLowerCase();
+  if (!t) return false;
+  if (/^(.+)\1+$/.test(t)) return false;
+  if (/^([a-z0-9ñáéíóú])\1*$/.test(t)) return false;
+  const counts = {};
+  for (const ch of t) counts[ch] = (counts[ch] || 0) + 1;
+  const maxCount = Math.max(...Object.values(counts));
+  if (maxCount / t.length > 0.6) return false;
   return true;
 };
 
@@ -33,7 +33,7 @@ export const registerSchema = z.object({
     .max(50, "El apellido es demasiado largo")
     .regex(soloLetras, "El apellido solo debe contener letras y espacios")
     .refine(noSoloRepetidos, "El apellido no puede ser solo letras repetidas ni caracteres repetidos"),
-  // direccion eliminado intencionalmente
+  // direccion eliminada
   celular: z
     .string()
     .trim()
@@ -42,8 +42,7 @@ export const registerSchema = z.object({
     .string()
     .trim()
     .email("El correo electrónico no es válido")
-    .regex(/^[a-z0-9._%+-]+@gmail\.com$/, "El correo debe ser de Gmail y en minúsculas (ej: usuario@gmail.com)")
-    .refine((val) => val === val.toLowerCase(), "El correo debe estar en minúsculas"),
+    .regex(/^[a-z0-9._%+-]+@gmail\.com$/, "El correo debe ser de Gmail y en minúsculas (ej: usuario@gmail.com)"),
   password: z
     .string()
     .trim()

@@ -156,11 +156,8 @@ const actualizarPerfil = async (req, res) => {
         const adminEmailBDD = await admin.findById(id);
         if (!adminEmailBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el usuario ${id}` });
 
-        // Si cambian email, iniciar flujo de verificación
+        // Si cambian email, iniciar flujo de verificación (No hace falta verificar si los correos son iguales ya que el flujo solo se inicia si son diferentes, caso contrario se actualizan los otros campos)
         if (data.email && data.email !== adminEmailBDD.email) {
-            if (data.email === adminEmailBDD.email) {
-                return res.status(400).json({ msg: "El nuevo email debe ser diferente al actual" });
-            }
             // comprobar que no exista ese email ya en uso
             const existe = await admin.findOne({ email: data.email });
             if (existe) return res.status(400).json({ msg: "El email ya se encuentra registrado" });

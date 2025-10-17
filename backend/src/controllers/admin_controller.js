@@ -98,8 +98,8 @@ const login = async (req, res) => {
     const verificarPassword = await adminEmailBDD.matchPassword(password)
     if (!verificarPassword) return res.status(401).json({ msg: "Lo sentimos, el password es incorrecto" })
 
-    //Desestructurar para mostrarle solo lo que queremos al usuario
-    const { nombre, apellido, direccion, celular, _id, rol, emailAd } = adminEmailBDD;
+    //Desestructurar solo los campos permitidos (sin 'direccion')
+    const { nombre, apellido, celular, _id, rol, email: emailAd } = adminEmailBDD;
     const tokenJWT = crearTokenJWT(adminEmailBDD._id, adminEmailBDD.rol)
 
     //Aca mandamos el objeto que desestructuramos arriba
@@ -110,11 +110,10 @@ const login = async (req, res) => {
             _id,
             nombre,
             apellido,
-            direccion,
             celular,
             emailAd,
             rol,
-            avatar: null // Si algún día agregas avatar, cámbialo aquí
+            avatar: adminEmailBDD.avatar || null
         }
     });
 }

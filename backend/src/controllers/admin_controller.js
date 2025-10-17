@@ -1,4 +1,4 @@
-import { sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodemailer.js"
+import { sendMailToRegister, sendMailToRecoveryPassword, sendMailToChangeEmail } from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
 import mongoose from "mongoose"
@@ -123,58 +123,126 @@ const perfil = (req, res) => {
     res.status(200).json(datosPerfil)
 }
 
+// Confirmación de nuevo email (token enviado al nuevo correo)
+const confirmarNuevoEmail = async (req, res) => {
+    try {
+        const { token } = req.params;
+        if (!token) return res.status(400).json({ msg: "Token inválido" });
+
+        const adminEmailBDD = await admin.findOne({ token, pendingEmail: { $exists: true } });
+        if (!adminEmailBDD) return res.status(404).json({ msg: "Token inválido o expirado" });
+
+        // aplicar cambio de email
+        adminEmailBDD.email = adminEmailBDD.pendingEmail;
+        adminEmailBDD.pendingEmail = null;
+        adminEmailBDD.token = null;
+        // opcional: marcar confirmEmail true si deseas
+        adminEmailBDD.confirmEmail = true;
+        await adminEmailBDD.save();
+
+        return res.status(200).json({ msg: "Email confirmado y actualizado correctamente" });
+    } catch (error) {
+        console.error("confirmarNuevoEmail error:", error);
+        return res.status(500).json({ msg: "Error en el servidor" });
+    }
+};
 
 const actualizarPerfil = async (req, res) => {
-    const { id } = req.params;
-    const { nombre, apellido, celular, email } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
-    if (Object.values(req.body).includes("") && !req.files?.avatar) return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos" });
-    const adminEmailBDD = await admin.findById(id);
-    if (!adminEmailBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el usuario ${id}` });
-    if (adminEmailBDD.email != email) {
-        const adminEmailBDD2 = await admin.findOne({ email });
-        if (adminEmailBDD2) {
-            return res.status(404).json({ msg: `Lo sentimos, el email existe ya se encuentra registrado` });
+    try {
+        const { id } = req.params;
+        const data = req.validated || req.body; // datos validados por Zod
+        if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
+
+        const adminEmailBDD = await admin.findById(id);
+        if (!adminEmailBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el usuario ${id}` });
+
+        // Si cambian email, iniciar flujo de verificación
+        if (data.email && data.email !== adminEmailBDD.email) {
+            if (data.email === adminEmailBDD.email) {
+                return res.status(400).json({ msg: "El nuevo email debe ser diferente al actual" });
+            }
+            // comprobar que no exista ese email ya en uso
+            const existe = await admin.findOne({ email: data.email });
+            if (existe) return res.status(400).json({ msg: "El email ya se encuentra registrado" });
+
+            // Crear token y guardar email pendiente
+            const token = adminEmailBDD.createToken();
+            adminEmailBDD.pendingEmail = data.email;
+            adminEmailBDD.token = token;
+
+            // Actualizar otros campos
+            if (data.nombre) adminEmailBDD.nombre = data.nombre;
+            if (data.apellido) adminEmailBDD.apellido = data.apellido;
+            if (data.celular) adminEmailBDD.celular = data.celular;
+
+            await adminEmailBDD.save();
+            // enviar correo de verificación al nuevo email
+            await sendMailToChangeEmail(data.email, token);
+            return res.status(200).json({ msg: "Se envió un correo de confirmación al nuevo email. El cambio se aplicará cuando lo confirmes." });
         }
-    }
-    adminEmailBDD.nombre = nombre ?? adminEmailBDD.nombre;
-    adminEmailBDD.apellido = apellido ?? adminEmailBDD.apellido;
-    adminEmailBDD.celular = celular ?? adminEmailBDD.celular;
-    adminEmailBDD.email = email ?? adminEmailBDD.email;
 
-    // Manejo de imagen/avatar
-    if (req.files?.avatar) {
-        try {
-            const uploadStream = cloudinary.uploader.upload_stream(
-                { folder: 'Admins' },
-                async (error, result) => {
-                    if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
-                    adminEmailBDD.avatar = result.secure_url;
-                    await adminEmailBDD.save();
-                    return res.status(200).json(adminEmailBDD);
-                }
-            );
-            uploadStream.end(req.files.avatar.data);
-            return;
-        } catch (err) {
-            return res.status(500).json({ msg: 'Error al procesar imagen', err });
+        // Si no hay cambio de email, actualiza directamente
+        if (data.nombre) adminEmailBDD.nombre = data.nombre;
+        if (data.apellido) adminEmailBDD.apellido = data.apellido;
+        if (data.celular) adminEmailBDD.celular = data.celular;
+
+        // Manejo de avatar (si llega file)
+        if (req.files?.avatar) {
+            try {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: 'Admins' },
+                    async (error, result) => {
+                        if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
+                        adminEmailBDD.avatar = result.secure_url;
+                        await adminEmailBDD.save();
+                        return res.status(200).json(adminEmailBDD);
+                    }
+                );
+                uploadStream.end(req.files.avatar.data);
+                return;
+            } catch (err) {
+                return res.status(500).json({ msg: 'Error al procesar imagen', err });
+            }
         }
+
+        await adminEmailBDD.save();
+        return res.status(200).json({
+            msg: "Perfil actualizado correctamente",
+            admin: {
+                nombre: adminEmailBDD.nombre,
+                apellido: adminEmailBDD.apellido,
+                email: adminEmailBDD.email,
+                celular: adminEmailBDD.celular
+            }
+        });
+    } catch (error) {
+        console.error("actualizarPerfil error:", error);
+        return res.status(500).json({ msg: "Error en el servidor" });
     }
-
-    await adminEmailBDD.save();
-    res.status(200).json(adminEmailBDD);
-}
-
+};
 
 const actualizarPassword = async (req, res) => {
-    const adminEmailBDD = await admin.findById(req.adminEmailBDD._id)
-    if (!adminEmailBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el administrador ${id}` })
-    const verificarPassword = await adminEmailBDD.matchPassword(req.body.passwordactual)
-    if (!verificarPassword) return res.status(404).json({ msg: "Lo sentimos, el password actual no es el correcto" })
-    adminEmailBDD.password = await adminEmailBDD.encryptPassword(req.body.passwordnuevo)
-    await adminEmailBDD.save()
-    res.status(200).json({ msg: "Password actualizado correctamente" })
-}
+    try {
+        // Datos validados por Zod (incluye confirmpassword y que password sea diferente)
+        const { passwordactual, passwordnuevo, confirmpassword } = req.validated || {};
+
+        // Verificar token JWT y obtener admin
+        const adminEmailBDD = await admin.findById(req.adminEmailBDD._id);
+        if (!adminEmailBDD) return res.status(404).json({ msg: "Administrador no encontrado" });
+
+        // Verificar contraseña actual
+        const verificarPassword = await adminEmailBDD.matchPassword(passwordactual);
+        if (!verificarPassword) return res.status(400).json({ msg: "La contraseña actual es incorrecta" });
+
+        // Aquí Zod ya verificó que passwordnuevo !== passwordactual
+        adminEmailBDD.password = await adminEmailBDD.encryptPassword(passwordnuevo);
+        await adminEmailBDD.save();
+        return res.status(200).json({ msg: "Contraseña actualizada correctamente" });
+    } catch (error) {
+        console.error("actualizarPassword error:", error);
+        return res.status(500).json({ msg: "Error del servidor" });
+    }
+};
 
 export {
     registro,
@@ -185,5 +253,6 @@ export {
     login,
     perfil,
     actualizarPerfil,
-    actualizarPassword
+    actualizarPassword,
+    confirmarNuevoEmail
 }

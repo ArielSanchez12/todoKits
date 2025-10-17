@@ -5,8 +5,6 @@ dotenv.config()
 
 let transporter = nodemailer.createTransport({
     service: 'gmail',
-    host: process.env.HOST_MAILTRAP,
-    port: process.env.PORT_MAILTRAP,
     auth: {
         user: process.env.USER_MAILTRAP,
         pass: process.env.PASS_MAILTRAP,
@@ -14,7 +12,10 @@ let transporter = nodemailer.createTransport({
 });
 
 const sendMailToRegister = async (userMail, token) => {
+    console.log("Enviando email a:", userMail);
+    const startTime = Date.now();
     let info = await transporter.sendMail({
+        priority: 'high',
         from: 'admin@kits.com',
         to: userMail,
         subject: "Registro de cuenta en KITSLABORATORIO",
@@ -27,11 +28,15 @@ const sendMailToRegister = async (userMail, token) => {
     `
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+    console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 }
 
 
 const sendMailToRecoveryPassword = async (userMail, token) => {
+    console.log("Enviando email a:", userMail);
+    const startTime = Date.now();
     let info = await transporter.sendMail({
+        priority: 'high',
         from: 'admin@kits.com',
         to: userMail,
         subject: "Correo para reestablecer tu contraseña",
@@ -44,10 +49,14 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
     `
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+    console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 }
 
 const sendMailToDocente = async (userMail, password) => {
+    console.log("Enviando email a:", userMail);
+    const startTime = Date.now();
     let info = await transporter.sendMail({
+        priority: 'high',
         from: 'admin@kits.com',
         to: userMail,
         subject: "Correo de bienvenida - Docente de la ESFOT",
@@ -61,7 +70,26 @@ const sendMailToDocente = async (userMail, password) => {
     `
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+    console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 }
+
+export const sendMailToChangeEmail = async (userMail, token) => {
+    console.log("Enviando email a:", userMail);
+    const startTime = Date.now();
+    let info = await transporter.sendMail({
+        priority: 'high',
+        from: 'admin@kits.com',
+        to: userMail,
+        subject: "KITS - Confirma tu nuevo correo electrónico",
+        text: "Confirma tu nuevo correo para KITS",
+        html: `<p>Hola, has solicitado cambiar tu correo electrónico</p>
+            <p>Para confirmar este cambio, haz clic en el siguiente enlace:</p>
+            <a href="${process.env.URL_BACKEND}/administrador/confirm-new-email/${token}">Confirmar cambio de correo</a>
+            <p>Si no solicitaste este cambio, por favor ignora este mensaje.</p>`
+    });
+    console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+    console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
+};
 
 export {
     sendMailToRegister,

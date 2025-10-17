@@ -37,7 +37,6 @@ const adminSchema = new Schema({
         require: true
     },
 
-
     avatar: {
         type: String,
         default: null
@@ -60,6 +59,11 @@ const adminSchema = new Schema({
     rol: {
         type: String,
         default: "Administrador"
+    },
+
+    pendingEmail: { // nuevo campo
+        type: String,
+        default: null
     }
 
 }, {

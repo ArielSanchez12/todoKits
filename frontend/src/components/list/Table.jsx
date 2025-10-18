@@ -14,7 +14,7 @@ const Table = () => {
     const { rol } = storeAuth()
 
     const listPatients = async () => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/docente/list`
+        const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/list`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
         const headers = {
             "Content-Type": "application/json",

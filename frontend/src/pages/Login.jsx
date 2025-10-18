@@ -76,16 +76,16 @@ const Login = () => {
 
 
     return (
-        <div className="flex flex-col sm:flex-row h-screen min-h-screen">
+        <div className="flex flex-col sm:flex-row h-screen overflow-hidden">
             <ToastContainer />
 
             {/* Imagen de fondo */}
-            <div className="w-full sm:w-1/2 h-screen bg-[url('/images/epnLogin.webp')] 
-            bg-no-repeat bg-cover bg-center sm:block hidden">
+            <div className="hidden sm:block sm:w-1/2 h-screen overflow-hidden">
+                <div className="w-full h-full bg-[url('/images/epnLogin.webp')] bg-no-repeat bg-cover bg-center"></div>
             </div>
 
             {/* Contenedor del formulario */}
-            <div className="w-full sm:w-1/2 flex flex-col justify-center items-center px-8 py-12 sm:py-0">
+            <div className="w-full sm:w-1/2 flex flex-col justify-center items-center px-8 py-12 sm:py-0 overflow-y-auto">
                 <div className="w-full max-w-md">
                     {/* Logo encima del título */}
                     <div className="flex justify-center mb-6">
@@ -121,21 +121,19 @@ const Login = () => {
                         </div>
 
                         {/* Contraseña */}
-                        <div className="mb-6 relative">
+                        <div className="mb-6">
                             <label className="mb-2 block text-base font-semibold">Contraseña</label>
                             <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="********************"
-                                    className="block w-full rounded-md border border-gray-300 focus:border-black focus:outline-none focus:ring-1 focus:ring-black py-2 px-2 text-gray-500 pr-10"
+                                    className="block w-full rounded-md border border-gray-300 focus:border-black focus:outline-none focus:ring-1 focus:ring-black py-2 px-2 pr-10 text-gray-500"
                                     {...register("password", { required: "Este campo es obligatorio!" })}
                                 />
-                                {errors.password && <p className="text-red-800 text-sm mt-1">{errors.password.message}</p>}
-
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute top-9 right-3 text-gray-500 hover:text-gray-700"
+                                    className="absolute top-1/2 -translate-y-1/2 right-3 text-gray-500 hover:text-gray-700"
                                 >
                                     {showPassword ? (
                                         <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -147,6 +145,7 @@ const Login = () => {
                                         </svg>
                                     )}
                                 </button>
+                                {errors.password && <p className="text-red-800 text-sm mt-1">{errors.password.message}</p>}
                             </div>
                         </div>
 

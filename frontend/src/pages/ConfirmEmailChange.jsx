@@ -16,7 +16,7 @@ const ConfirmEmailChange = () => {
         const confirmarCambioEmail = async () => {
             try {
                 const response = await fetchData({
-                    url: `${import.meta.env.VITE_API_URL}/administrador/confirm-new-email/${token}`,
+                    url: `${import.meta.env.VITE_BACKEND_URL}/administrador/confirm-new-email/${token}`,
                     options: {
                         method: 'GET',
                         headers: {

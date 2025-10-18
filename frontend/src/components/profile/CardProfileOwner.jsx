@@ -26,7 +26,7 @@ export const CardProfileOwner = () => {
             </div>
             <div className="self-start">
                 <b>Docente:</b>
-                <p className="inline-block ml-3">{user.nombreDocente && ' ' && user.apellidoDocente}</p>
+                <p className="inline-block ml-3">{user.nombreDocente} {user.apellidoDocente}</p>
             </div>
             <div className="self-start">
                 <b>Email:</b>

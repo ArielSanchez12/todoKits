@@ -16,18 +16,32 @@ const FormularioPerfil = () => {
     const updateUser = async (data) => {
         setLoading(true);
         try {
+            // Detectar si hay cambio de email
+            const isEmailChange = data.email && data.email !== user.email;
+
             const response = await updateProfile(data, user._id);
 
             if (response?.msg) {
-                toast.success(response.msg || "Perfil actualizado correctamente");
-
-                // Si se actualiza el email, mostrar mensaje especial
-                if (data.email && data.email !== user.email) {
-                    toast.info("Se ha enviado un correo de confirmación. Verifica tu bandeja de entrada.");
+                // Mostrar mensaje personalizado si es cambio de email
+                if (isEmailChange) {
+                    toast.success("Se envió un correo de confirmación al nuevo email", {
+                        position: "top-right",
+                        autoClose: 8000, // Mostrar más tiempo
+                    });
+                    toast.info("Para completar el cambio, revisa tu bandeja de entrada y confirma tu nuevo correo", {
+                        position: "top-right",
+                        autoClose: 10000, // Mostrar por más tiempo
+                        delay: 500
+                    });
+                } else {
+                    // Para otros campos
+                    toast.success("Perfil actualizado correctamente");
                 }
             }
         } catch (error) {
-            toast.error(error?.response?.data?.msg || "Error al actualizar perfil");
+            const errorMsg = error?.response?.data?.msg || "Error al actualizar perfil";
+            toast.error(errorMsg);
+            console.error("Error updating profile:", error);
         } finally {
             setLoading(false);
         }

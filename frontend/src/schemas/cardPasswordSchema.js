@@ -16,7 +16,6 @@ export const cardPasswordSchema = z.object({
       passwordFuerte,
       "La contraseña debe tener mayúscula, minúscula, número, símbolo y entre 8 y 12 caracteres"
     ),
-
   confirmpassword: z
     .string()
     .trim()

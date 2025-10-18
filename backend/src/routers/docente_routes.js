@@ -2,9 +2,6 @@ import { Router } from 'express'
 import { 
   loginDocente, 
   perfilDocente, 
-  detalleDocente, 
-  eliminarDocente, 
-  actualizarDocente, 
   actualizarPasswordDocente, 
   recuperarPasswordDocente, 
   crearNuevoPasswordDocente, 
@@ -14,7 +11,7 @@ import {
 } from '../controllers/docente_controller.js'
 import { verificarTokenJWT } from '../middlewares/jwt.js'
 import { validate } from "../middlewares/zodValidations.js"
-import { updateDocenteSchema, updateDocentePasswordSchema } from "../schemas/docenteSchema.js"
+import { updateDocentePasswordSchema } from "../schemas/docenteSchema.js"
 import { recuperarPasswordSchema, crearNuevoPasswordSchema } from "../schemas/passwordSchema.js"
 
 const router = Router()
@@ -23,9 +20,6 @@ const router = Router()
 router.get('/docente/confirm/:token', confirmarMailDocente)
 router.post('/docente/login', loginDocente)
 router.get('/docente/profile', verificarTokenJWT, perfilDocente)
-router.get("/docente/:id", verificarTokenJWT, detalleDocente)
-router.delete("/docente/delete/:id", verificarTokenJWT, eliminarDocente)
-router.put("/docente/update/:id", verificarTokenJWT, validate(updateDocenteSchema), actualizarDocente)
 
 // Nuevas rutas para manejar contraseña y correo similar a admin
 router.put("/docente/actualizarpassword/:id", verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)

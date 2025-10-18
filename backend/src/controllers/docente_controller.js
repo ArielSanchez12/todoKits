@@ -57,125 +57,6 @@ const perfilDocente = (req, res) => {
   }
 };
 
-
-
-const detalleDocente = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
-    }
-
-    const docentes = await docente.findById(id)
-      .select("-passwordDocente -createdAt -updatedAt -__v")
-      .populate('admin', '_id nombre apellido');
-
-    if (!docentes) {
-      return res.status(404).json({ msg: "Docente no encontrado" });
-    }
-
-    const tratamientos = await Tratamiento.find().where('docente').equals(id);
-
-    res.status(200).json({
-      docentes,
-      tratamientos
-    });
-  } catch (error) {
-    console.error("Error al obtener detalle de docente:", error);
-    res.status(500).json({ msg: "Error en el servidor" });
-  }
-};
-
-const eliminarDocente = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
-    }
-
-    const docenteEliminado = await docente.findByIdAndDelete(id);
-    if (!docenteEliminado) {
-      return res.status(404).json({ msg: "Docente no encontrado" });
-    }
-
-    res.status(200).json({ msg: "Docente eliminado exitosamente" });
-  } catch (error) {
-    console.error("Error al eliminar docente:", error);
-    res.status(500).json({ msg: "Error en el servidor" });
-  }
-};
-
-const actualizarDocente = async (req, res) => {
-  try {
-    const { id } = req.params;
-    // Datos ya validados por Zod
-    const datosDocente = req.validated || req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
-    }
-
-    // Busca el docente actual
-    const docenteActual = await docente.findById(id);
-    if (!docenteActual) {
-      return res.status(404).json({ msg: "Docente no encontrado" });
-    }
-
-    // Detecta si el correo fue cambiado
-    const nuevoCorreo = datosDocente.emailDocente;
-    const correoAnterior = docenteActual.emailDocente;
-
-    // Si el correo fue cambiado
-    if (nuevoCorreo && nuevoCorreo !== correoAnterior) {
-      // Verificar si el nuevo correo ya está en uso
-      const existeCorreo = await docente.findOne({ emailDocente: nuevoCorreo });
-      if (existeCorreo) {
-        return res.status(400).json({ msg: "El correo ya está en uso por otro docente" });
-      }
-
-      // Generar token para confirmar cambio de email
-      const token = docenteActual.createToken();
-
-      // Guardar el email pendiente de confirmación
-      docenteActual.pendingEmailDocente = nuevoCorreo;
-      await docenteActual.save();
-
-      // Enviar email de confirmación
-      await sendMailToChangeEmailDocente(nuevoCorreo, token);
-
-      // Quitar el email de los datos a actualizar para evitar que se cambie directamente
-      delete datosDocente.emailDocente;
-    }
-
-    // Procesa imagen si es necesario
-    if (req.files?.imagen) {
-      await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: 'Docentes' },
-          (error, result) => {
-            if (error) return reject(error);
-            datosDocente.avatarDocente = result.secure_url;
-            resolve();
-          }
-        );
-        uploadStream.end(req.files.imagen.data);
-      });
-    }
-
-    // Actualiza el docente
-    const docenteActualizado = await docente.findByIdAndUpdate(id, datosDocente, { new: true });
-
-    res.status(200).json({
-      msg: nuevoCorreo && nuevoCorreo !== correoAnterior ?
-        "Se ha enviado un correo de confirmación para actualizar tu email" :
-        "Actualización exitosa del docente"
-    });
-  } catch (error) {
-    console.error("Error al actualizar docente:", error);
-    res.status(500).json({ msg: "Error en el servidor" });
-  }
-};
-
 const actualizarPasswordDocente = async (req, res) => {
   try {
     const { id } = req.params;
@@ -340,9 +221,6 @@ const confirmarMailDocente = async (req, res) => {
 export {
   loginDocente,
   perfilDocente,
-  detalleDocente,
-  eliminarDocente,
-  actualizarDocente,
   actualizarPasswordDocente,
   confirmarNuevoEmailDocente,
   recuperarPasswordDocente,

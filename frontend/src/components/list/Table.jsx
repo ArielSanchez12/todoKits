@@ -14,14 +14,14 @@ const Table = () => {
     const { rol } = storeAuth()
 
     const listPatients = async () => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/list`
+        const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/listDocentes`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
         const headers = {
             "Content-Type": "application/json",
             Authorization: `Bearer ${storedUser.state.token}`,
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
-        setDocentes(response) // <-- Cambia esto
+        setDocentes(response) 
     }
 
     useEffect(() => {
@@ -37,9 +37,9 @@ const Table = () => {
     }
 
     const deleteDocente = async (id) => {
-        const confirmDelete = confirm("¿Estás seguro de que deseas eliminar este estudiante?");
+        const confirmDelete = confirm("¿Estás seguro de que deseas eliminar este docente?");
         if (confirmDelete) {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/docente/delete/${id}`;
+            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/deleteDocente/${id}`;
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
             const headers = {
                 "Content-Type": "application/json",
@@ -49,7 +49,6 @@ const Table = () => {
             const response = await fetchDataBackend(url, null, "DELETE", headers);
             if (response && response.msg === "Docente eliminado exitosamente") {
                 setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id));
-                // toast.success("Docente eliminado exitosamente");
             } else {
                 toast.error(response?.msg || "Error al eliminar docente");
             }
@@ -78,11 +77,10 @@ const Table = () => {
                             <td>{index + 1}</td>
                             <td>{docente.nombreDocente}</td>
                             <td>{docente.apellidoDocente}</td>
-                            <td>{docente.direccionDocente}</td>
                             <td>{docente.celularDocente}</td>
                             <td>{docente.emailDocente}</td>
                             <td>
-                                <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{docente.statusDocente && "Matriculado"}</span>
+                                <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{docente.statusDocente && "Activo"}</span>
                             </td>
                             <td className='py-2 text-center'>
                                 <MdInfo

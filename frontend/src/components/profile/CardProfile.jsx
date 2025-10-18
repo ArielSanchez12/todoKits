@@ -33,6 +33,7 @@ export const CardProfile = () => {
                 await updateProfile(formData, user._id)
                 setPreview(URL.createObjectURL(file))
                 //recarga la página para ver la nueva imagen
+                //si sirvió, ya se recarga sola y se muestra la nueva imagen, ademas direccion ya se borro de perfil
                 window.location.reload() 
             } catch (error) {
                 console.error("Error al actualizar la imagen:", error)

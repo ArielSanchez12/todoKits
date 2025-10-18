@@ -23,11 +23,18 @@ const Details = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${storedUser.state.token}`
         }
-        const response = await fetchDataBackend(url, null, "GET", headers)
-        setDocente(response.docentes)
-        setTreatments(response.tratamientos)
+        const response = await fetchDataBackend(url, null, "GET", false, headers)
+        
+        console.log("Response completa:", response); // Para debug
+        
+        setDocente(response?.docentes || {})
+        setTreatments(response?.tratamientos || [])
     }
 
+
+    useEffect(() => {
+        listDocente()
+    }, [id])
 
     useEffect(() => {
         if (modal === false) {
@@ -70,8 +77,12 @@ const Details = () => {
                                 </li>
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Estado: </span>
-                                    <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                        {docente?.statusDocente ? "Activo" : "Inactivo"}
+                                    <span className={`text-xs font-medium mr-2 px-2.5 py-0.5 rounded ${
+                                        docente?.statusDocente === true 
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
+                                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                    }`}>
+                                        {docente?.statusDocente === true ? "Activo" : "Inactivo"}
                                     </span>
                                 </li>
                             </ul>
@@ -111,7 +122,7 @@ const Details = () => {
                 </div>
 
                 {
-                    treatments.length == 0
+                    treatments.length === 0
                         ?
                         <div className="p-4 mb-4 text-base text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
                             <span className="font-medium">No existen registros</span>

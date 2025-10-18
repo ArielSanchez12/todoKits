@@ -20,8 +20,8 @@ const Table = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${storedUser.state.token}`,
         }
-        const response = await fetchDataBackend(url, null, "GET", headers)
-        setDocentes(response) 
+        const response = await fetchDataBackend(url, null, "GET", false, headers)
+        setDocentes(response || [])
     }
 
     useEffect(() => {
@@ -45,8 +45,7 @@ const Table = () => {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${storedUser.state.token}`,
             };
-            // No envíes undefined como body, solo headers
-            const response = await fetchDataBackend(url, null, "DELETE", headers);
+            const response = await fetchDataBackend(url, null, "DELETE", false, headers);
             if (response && response.msg === "Docente eliminado exitosamente") {
                 setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id));
             } else {
@@ -55,11 +54,7 @@ const Table = () => {
         }
     }
 
-
-
-
     return (
-
         <table className="w-full mt-5 table-auto shadow-lg bg-white">
             <ToastContainer />
             <thead className="bg-black text-white">
@@ -80,7 +75,13 @@ const Table = () => {
                             <td>{docente.celularDocente}</td>
                             <td>{docente.emailDocente}</td>
                             <td>
-                                <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{docente.statusDocente && "Activo"}</span>
+                                <span className={`text-xs font-medium mr-2 px-2.5 py-0.5 rounded ${
+                                    docente.statusDocente === true 
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
+                                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                }`}>
+                                    {docente.statusDocente === true ? "Activo" : "Inactivo"}
+                                </span>
                             </td>
                             <td className='py-2 text-center'>
                                 <MdInfo
@@ -90,7 +91,7 @@ const Table = () => {
                                 />
 
                                 {
-                                    rol === "Administrador" && // Esto si vale para admin 
+                                    rol === "Administrador" &&
                                     (
                                         <>
                                             <MdPublishedWithChanges

@@ -22,6 +22,7 @@ import PublicRoute from './routes/PublicRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
 import LoginSuccess from "./pages/LoginSuccess";
+import ConfirmEmailChange from "./pages/ConfirmEmailChange"
 
 
 
@@ -51,6 +52,7 @@ function App() {
             <Route path='reset/:token' element={<Reset />} />
             <Route path='*' element={<NotFound />} />
             <Route path="/login-success" element={<LoginSuccess />} />
+            <Route path="/confirm-email/:token" element={<ConfirmEmailChange />} />
           </Route>
 
 

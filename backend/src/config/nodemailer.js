@@ -84,7 +84,7 @@ export const sendMailToChangeEmail = async (userMail, token) => {
         text: "Confirma tu nuevo correo para KITS",
         html: `<p>Hola, has solicitado cambiar tu correo electrónico</p>
             <p>Para confirmar este cambio, haz clic en el siguiente enlace:</p>
-            <a href="${process.env.URL_BACKEND}/administrador/confirm-new-email/${token}">Confirmar cambio de correo</a>
+            <a href="${process.env.URL_FRONTEND}confirm-email/${token}">Confirmar cambio de correo</a>
             <p>Si no solicitaste este cambio, por favor ignora este mensaje.</p>`
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);

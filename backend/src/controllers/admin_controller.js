@@ -4,6 +4,7 @@ import admin from "../models/admin.js"
 import mongoose from "mongoose"
 import docente from "../models/docente.js"
 import { v2 as cloudinary } from 'cloudinary'
+import Tratamiento from "../models/tratamiento.js"
 
 
 const registro = async (req, res) => {

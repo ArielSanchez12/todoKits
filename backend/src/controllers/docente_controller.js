@@ -1,5 +1,5 @@
 import docente from "../models/docente.js"
-import { sendMailToChangeEmailDocente, sendMailToRecoveryPasswordDocente } from "../config/nodemailer.js"
+import { sendMailToChangeEmailDocente, sendMailToRecoveryPasswordDocente, sendMailToDocente } from "../config/nodemailer.js"
 import { v2 as cloudinary } from 'cloudinary'
 import fs from "fs-extra"
 import mongoose from "mongoose"
@@ -330,6 +330,26 @@ const crearNuevoPasswordDocente = async (req, res) => {
   }
 };
 
+const confirmarMailDocente = async (req, res) => {
+    try {
+        const { token } = req.params;
+        
+        const docenteBDD = await docente.findOne({ tokenDocente: token });
+        if (!docenteBDD) {
+            return res.status(404).json({ msg: "Token no válido" });
+        }
+        
+        docenteBDD.confirmEmailDocente = true;
+        docenteBDD.tokenDocente = null;
+        await docenteBDD.save();
+        
+        res.status(200).json({ msg: "Email confirmado correctamente, ya puedes iniciar sesión" });
+    } catch (error) {
+        console.error("confirmarMailDocente error:", error);
+        res.status(500).json({ msg: "Error en el servidor" });
+    }
+};
+
 export {
   loginDocente,
   perfilDocente,
@@ -341,5 +361,6 @@ export {
   confirmarNuevoEmailDocente,
   recuperarPasswordDocente,
   comprobarTokenPasswordDocente,
-  crearNuevoPasswordDocente
+  crearNuevoPasswordDocente,
+  confirmarMailDocente
 }

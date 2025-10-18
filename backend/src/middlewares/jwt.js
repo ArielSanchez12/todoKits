@@ -2,33 +2,49 @@ import jwt from 'jsonwebtoken';
 import admin from '../models/admin.js';
 import docente from '../models/docente.js';
 
-const crearTokenJWT = (id, rol) => {
-    return jwt.sign({ id, rol }, process.env.JWT_SECRET, { expiresIn: "1d" })
-}
-
 const verificarTokenJWT = async (req, res, next) => {
-    const { authorization } = req.headers
-    if (!authorization) return res.status(401).json({ msg: "Token no proporcionado o no válido" })
+    let token;
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+    ) {
+        try {
+            token = req.headers.authorization.split(" ")[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    try {
-        const token = authorization.split(' ')[1]
-        const { id, rol } = jwt.verify(token, process.env.JWT_SECRET)
-        if (rol == "Administrador") {
-            req.adminEmailBDD = await admin.findById(id).lean().select("-password")
-            console.log(admin)
-            next()
-        } else {
-            req.docenteBDD = await docente.findById(id).lean().select("-passwordDocente")
-            next()
+            if (decoded.rol === "Admin") {
+                // Usuario es administrador
+                req.adminEmailBDD = await admin.findById(decoded.id).select(
+                    "-password -token -confirmEmail -createdAt -updatedAt -__v"
+                );
+                return next();
+            } else if (decoded.rol === "Docente") {
+                // Usuario es docente
+                req.docenteBDD = await docente.findById(decoded.id).select(
+                    "-passwordDocente -tokenDocente -confirmEmailDocente -createdAt -updatedAt -__v"
+                );
+                return next();
+            }
+
+            return res.status(404).json({ msg: "No autorizado, rol desconocido" });
+        } catch (error) {
+            console.log(error);
+            return res.status(401).json({ msg: "Token no válido" });
         }
-    } catch (error) {
-        res.status(401).json({ msg: "Token invalido o experiado" })
     }
-}
 
+    if (!token) {
+        const error = new Error("Token inexistente");
+        return res.status(401).json({ msg: error.message });
+    }
 
+    next();
+};
 
-export {
-    crearTokenJWT,
-    verificarTokenJWT
-}
+const crearTokenJWT = (id, rol) => {
+    return jwt.sign({ id, rol }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+    });
+};
+
+export { verificarTokenJWT, crearTokenJWT };

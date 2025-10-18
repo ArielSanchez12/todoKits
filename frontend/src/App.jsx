@@ -23,6 +23,7 @@ import ProtectedRoute from './routes/ProtectedRoute'
 import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
 import LoginSuccess from "./pages/LoginSuccess";
 import ConfirmEmailChange from "./pages/ConfirmEmailChange"
+import ConfirmDocente from './pages/ConfirmDocente'
 
 
 
@@ -49,6 +50,7 @@ function App() {
             <Route path='register' element={<Register />} />
             <Route path='forgot/:id' element={<Forgot />} />
             <Route path='confirm/:token' element={<Confirm />} />
+            <Route path="/confirm-docente/:token" element={<ConfirmDocente />} />
             <Route path='reset/:token' element={<Reset />} />
             <Route path='*' element={<NotFound />} />
             <Route path="/login-success" element={<LoginSuccess />} />

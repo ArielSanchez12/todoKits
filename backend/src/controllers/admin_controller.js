@@ -258,7 +258,7 @@ const actualizarPassword = async (req, res) => {
 const registrarDocente = async (req, res) => {
     try {
         // Datos ya validados por Zod
-        const datos  = req.validated || req.body;
+        const datos = req.validated || req.body;
         const { emailDocente } = datos;
 
         const verificarEmailBDD = await docente.findOne({ emailDocente });
@@ -271,6 +271,9 @@ const registrarDocente = async (req, res) => {
             passwordDocente: await docente.prototype.encryptPassword("KITS" + password),
             admin: req.adminEmailBDD._id
         });
+
+        // Generar token para confirmación de email
+        const token = nuevoDocente.createToken();
 
         // Procesamiento de imagen si existe
         if (req.files?.imagen) {
@@ -288,7 +291,7 @@ const registrarDocente = async (req, res) => {
         }
 
         await nuevoDocente.save();
-        await sendMailToDocente(emailDocente, "KITS" + password);
+        await sendMailToDocente(emailDocente, "KITS" + password, token);
         res.status(201).json({ msg: "Registro exitoso del docente" });
     } catch (error) {
         console.error("Error al registrar docente:", error);

@@ -52,26 +52,26 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 }
 
-const sendMailToDocente = async (userMail, password) => {
+export const sendMailToDocente = async (userMail, password, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
     let info = await transporter.sendMail({
         priority: 'high',
         from: 'admin@kits.com',
         to: userMail,
-        subject: "Correo de bienvenida - Docente de la ESFOT",
+        subject: "KITS - Bienvenido al sistema",
+        text: "Has sido registrado en el sistema KITS",
         html: `
-    <h1>KITSLABORATORIO-🐒🏇🏿</h1>
-    <hr>
-    <p>Contraseña de acceso: ${password}</p>
-    <a href=${process.env.URL_FRONTEND}login>Clic para iniciar sesión</a>
-    <hr>
-    <footer>El equipo de la ESFOT te da la más cordial bienvenida.</footer>
-    `
+            <p>Hola, has sido registrado en el sistema KITS.</p>
+            <p>Tu contraseña temporal es: <strong>${password}</strong></p>
+            <p>Para confirmar tu cuenta, haz clic en el siguiente enlace:</p>
+            <a href="${process.env.URL_FRONTEND}confirm-docente/${token}">Confirmar cuenta</a>
+            <p>Si no solicitaste esta cuenta, puedes ignorar este mensaje.</p>
+        `
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
-}
+};
 
 export const sendMailToChangeEmail = async (userMail, token) => {
     console.log("Enviando email a:", userMail);

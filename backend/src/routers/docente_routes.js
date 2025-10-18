@@ -10,7 +10,8 @@ import {
   recuperarPasswordDocente, 
   crearNuevoPasswordDocente, 
   confirmarNuevoEmailDocente, 
-  comprobarTokenPasswordDocente 
+  comprobarTokenPasswordDocente,
+  confirmarMailDocente
 } from '../controllers/docente_controller.js'
 import { verificarTokenJWT } from '../middlewares/jwt.js'
 import { validate } from "../middlewares/zodValidations.js"
@@ -20,6 +21,7 @@ import { recuperarPasswordSchema, crearNuevoPasswordSchema } from "../schemas/pa
 const router = Router()
 
 // Rutas existentes con validación ZOD
+router.get('/docente/confirm/:token', confirmarMailDocente)
 router.post('/docente/login', loginDocente)
 router.get('/docente/profile', verificarTokenJWT, perfilDocente)
 router.get("/docente/list", verificarTokenJWT, listarDocentes)

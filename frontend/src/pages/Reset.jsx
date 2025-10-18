@@ -68,13 +68,11 @@ const Reset = () => {
     return (
         <div className="h-screen md:flex">
             <ToastContainer />
-            <div className="relative overflow-hidden md:flex w-1/2 bg-gradient-to-tr from-blue-800 to-purple-700 justify-around items-center hidden">
-                <div>
-                    <h1 className="text-white font-bold text-4xl font-sans">KITS</h1>
-                    <p className="text-white mt-1">Laboratorio de Investigación</p>
-                </div>
-                <div className="absolute -bottom-32 -left-40 w-80 h-80 border-4 border-opacity-5 border-white rounded-full"></div>
-                <div className="absolute -bottom-40 -right-40 w-80 h-80 border-4 border-opacity-5 border-white rounded-full"></div>
+            <div
+                className="relative overflow-hidden md:flex w-1/2 bg-cover bg-center justify-around items-center hidden"
+                style={{ backgroundImage: `url(${logoEPN})` }}
+            >
+                <div className="absolute inset-0 bg-black bg-opacity-40"></div>
             </div>
             <div className="flex w-full md:w-1/2 justify-center items-center bg-white">
                 <div className="w-full max-w-md">

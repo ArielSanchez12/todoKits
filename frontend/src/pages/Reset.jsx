@@ -66,89 +66,70 @@ const Reset = () => {
     }
 
     return (
-        <div className="h-screen md:flex">
+        <div className="flex flex-col items-center justify-center h-screen">
             <ToastContainer />
-            <div
-                className="relative overflow-hidden md:flex w-1/2 bg-cover bg-center justify-around items-center hidden"
-                style={{ backgroundImage: `url(${logoEPN})` }}
-            >
-                <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-            </div>
-            <div className="flex w-full md:w-1/2 justify-center items-center bg-white">
-                <div className="w-full max-w-md">
-                    <h1 className="text-3xl font-bold text-gray-700 mb-4">Nueva Contraseña</h1>
-                    <form onSubmit={handleSubmit(crearNuevaContraseña)}>
-                        <div className="mb-4 relative">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
-                                Contraseña
-                            </label>
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Ingresa tu nueva contraseña"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 pr-10"
-                                {...register("password")}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
-                            >
-                                {showPassword ? (
-                                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A9.956 9.956 0 0112 19c-4.418 0-8.165-2.928-9.53-7a10.005 10.005 0 0119.06 0 9.956 9.956 0 01-1.845 3.35M9.9 14.32a3 3 0 114.2-4.2m.5 3.5l3.8 3.8m-3.8-3.8L5.5 5.5" />
-                                    </svg>
-                                ) : (
-                                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9.95 0a9.96 9.96 0 0119.9 0m-19.9 0a9.96 9.96 0 0119.9 0M3 3l18 18" />
-                                    </svg>
-                                )}
-                            </button>
-                            {errors.password && (
-                                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-                            )}
-                        </div>
+            <h1 className="text-3xl font-semibold mb-3 text-center text-black">
+                BIENVENIDOS NUEVAMENTE
+            </h1>
+            <small className="text-black block my-5 text-base">
+                Por favor, actualiza tu contraseña
+            </small>
+            <img
+                className="mb-10 object-cover h-90 w-90 rounded-full border-4 border-solid border-slate-600"
+                src={logoEPN}
+                alt="image description"
+            />
+            {tokenValid && (
+                <form className="w-90" onSubmit={handleSubmit(crearNuevaContraseña)}>
+                    <div className="mb-1">
+                        <label className="mb-1 block text-base font-semibold">
+                            Nueva contraseña
+                        </label>
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Ingresa tu nueva contraseña"
+                            className="mb-2 block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
+                            {...register("password")}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="text-gray-500 hover:text-gray-700 text-sm mb-2"
+                        >
+                            {showPassword ? "Ocultar" : "Mostrar"}
+                        </button>
+                        {errors.password && <p className="text-red-800 text-base mb-4">{errors.password.message}</p>}
 
-                        <div className="mb-6 relative">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
-                                Confirmar Contraseña
-                            </label>
-                            <input
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder="Confirma tu contraseña"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 pr-10"
-                                {...register("confirmPassword")}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
-                            >
-                                {showConfirmPassword ? (
-                                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A9.956 9.956 0 0112 19c-4.418 0-8.165-2.928-9.53-7a10.005 10.005 0 0119.06 0 9.956 9.956 0 01-1.845 3.35M9.9 14.32a3 3 0 114.2-4.2m.5 3.5l3.8 3.8m-3.8-3.8L5.5 5.5" />
-                                    </svg>
-                                ) : (
-                                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm-9.95 0a9.96 9.96 0 0119.9 0m-19.9 0a9.96 9.96 0 0119.9 0M3 3l18 18" />
-                                    </svg>
-                                )}
-                            </button>
-                            {errors.confirmPassword && (
-                                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
-                            )}
-                        </div>
+                        <label className="mb-1 block text-base font-semibold">
+                            Confirmar contraseña
+                        </label>
+                        <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Repite tu contraseña"
+                            className="mb-2 block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
+                            {...register("confirmPassword")}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="text-gray-500 hover:text-gray-700 text-sm mb-2"
+                        >
+                            {showConfirmPassword ? "Ocultar" : "Mostrar"}
+                        </button>
+                        {errors.confirmPassword && <p className="text-red-800 text-base mt-1">{errors.confirmPassword.message}</p>}
+                    </div>
 
+                    <div className="mb-3">
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ${loading ? 'opacity-70 cursor-not-allowed' : ''
-                                }`}
+                            className={`mb-5 bg-black text-white border py-2 w-full rounded-xl mt-3 hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
-                            {loading ? 'Actualizando...' : 'Crear Nueva Contraseña'}
+                            {loading ? 'Actualizando...' : 'Enviar'}
                         </button>
-                    </form>
-                </div>
-            </div>
+                    </div>
+                </form>
+            )}
         </div>
     );
 };

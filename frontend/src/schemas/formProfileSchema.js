@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-const celularEcuador = /^09\d{8}$/; // Específico para Ecuador
+const celularRegex = /^09\d{8}$/; // Ecuador: empieza con 09 y 10 dígitos
 const emailGmail = /^[a-z0-9._%+-]+@gmail\.com$/;
 
-// Helper para evitar caracteres repetidos
+// Helper para evitar caracteres repetidos - igual al backend
 const noSoloRepetidos = (value) => {
   if (!value) return false;
   const t = value.replace(/\s+/g, "").toLowerCase();
@@ -17,7 +17,6 @@ const noSoloRepetidos = (value) => {
   return true;
 };
 
-// Function para capitalizar primera letra
 function capitalizeFirstLetter(string) {
   if (!string) return "";
   return string
@@ -33,7 +32,7 @@ export const formProfileSchema = z.object({
     .min(2, "El nombre es obligatorio")
     .max(50, "El nombre es demasiado largo")
     .regex(soloLetras, "El nombre solo debe contener letras y espacios")
-    .refine(noSoloRepetidos, "El nombre no puede ser solo letras repetidas")
+    .refine(noSoloRepetidos, "El nombre no puede ser solo letras repetidas ni caracteres repetidos")
     .transform(capitalizeFirstLetter),
   apellido: z
     .string()
@@ -41,17 +40,22 @@ export const formProfileSchema = z.object({
     .min(2, "El apellido es obligatorio")
     .max(50, "El apellido es demasiado largo")
     .regex(soloLetras, "El apellido solo debe contener letras y espacios")
-    .refine(noSoloRepetidos, "El apellido no puede ser solo letras repetidas")
+    .refine(noSoloRepetidos, "El apellido no puede ser solo letras repetidas ni caracteres repetidos")
     .transform(capitalizeFirstLetter),
-  // direccion eliminada
   celular: z
     .string()
     .trim()
-    .regex(celularEcuador, "El celular debe ser un número válido de Ecuador que empiece con 09 y tenga 10 dígitos"),
+    .regex(celularRegex, "El celular debe ser un número válido de Ecuador que empiece con 09 y tenga 10 dígitos"),
   email: z
     .string()
     .trim()
     .email("El correo electrónico no es válido")
     .regex(emailGmail, "El correo debe ser de Gmail y en minúsculas (ej: usuario@gmail.com)")
+    .refine((val) => val === val.toLowerCase(), "El correo debe estar en minúsculas")
     .transform(val => val.toLowerCase())
-});
+})
+  .refine(
+    // Validación para que se envíe al menos un campo
+    data => Object.values(data).some(val => val !== undefined && val !== ""),
+    { message: "Debe actualizar al menos un campo" }
+  );

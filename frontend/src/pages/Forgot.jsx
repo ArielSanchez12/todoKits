@@ -1,21 +1,39 @@
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
+import axios from "axios";
 import useFetch from '../hooks/useFetch'
 import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ToastContainer } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify'
 import { forgotSchema } from '../schemas/forgotSchema';
+import "react-toastify/dist/ReactToastify.css";
+import { useState } from 'react';
 
 
 export const Forgot = () => {
-
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const navigate = useNavigate();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({
         resolver: zodResolver(forgotSchema)
     });
     const { fetchDataBackend } = useFetch()
+    const [loading, setLoading] = useState(false);
 
-    const sendMail = (data) => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/passwordrecovery`
-        fetchDataBackend(url, data, 'POST')
+    const sendMail = async (data) => {
+        setLoading(true);
+        try {
+            const response = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URL}/passwordrecovery`,
+                data
+            );
+            toast.success(response.data.msg);
+            reset();
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+        } catch (error) {
+            toast.error(error.response?.data?.msg || "Error al recuperar contraseña");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -41,7 +59,13 @@ export const Forgot = () => {
                         </div>
 
                         <div className="mb-3">
-                            <button className="bg-black text-white border py-2 w-full rounded-xl mt-5 hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white">Enviar correo
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className={`w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                                    }`}
+                            >
+                                {loading ? 'Enviando...' : 'Recuperar Contraseña'}
                             </button>
                         </div>
 

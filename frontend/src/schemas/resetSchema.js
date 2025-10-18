@@ -15,9 +15,10 @@ export const resetSchema = z.object({
   confirmPassword: z
     .string()
     .trim()
-    .min(8, "La confirmación de contraseña debe tener al menos 8 caracteres")
-    .max(12, "La confirmación de contraseña debe tener máximo 12 caracteres")
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Las contraseñas no coinciden",
-  path: ["confirmPassword"], // muestra el error en el campo de confirmación
-});
+    .min(8, "La confirmación es requerida")
+    .max(12, "La confirmación no puede exceder los 12 caracteres")
+})
+  .refine(
+    data => data.password === data.confirmPassword,
+    { message: "Las contraseñas no coinciden", path: ["confirmPassword"] }
+  );

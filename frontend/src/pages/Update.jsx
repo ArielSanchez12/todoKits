@@ -11,7 +11,7 @@ const Update = () => {
 
     useEffect(() => {
         const searchDocente = async () => {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/detailsDocente/${id}`
+            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/updateDocente/${id}`
             const storedUser = JSON.parse(localStorage.getItem("auth-token"))
             const headers = {
                 "Content-Type": "application/json",
@@ -25,7 +25,7 @@ const Update = () => {
 
     return (
         <div>
-            <h1 className='font-black text-4xl text-gray-500'>Actualizar</h1>
+            <h1 className='font-black text-4xl text-black'>Actualizar</h1>
             <hr className='my-4 border-t-2 border-gray-300' />
             <p className='mb-8'>Este módulo te permite actualizar un registro</p>
             {

@@ -17,7 +17,7 @@ const Details = () => {
     const { modal, toggleModal } = storeTreatments()
 
     const listDocente = async () => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/docente/${id}`
+        const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/detailsDocente/${id}`
         const storedUser = JSON.parse(localStorage.getItem("auth-token"))
         const headers = {
             "Content-Type": "application/json",
@@ -28,9 +28,6 @@ const Details = () => {
         setTreatments(response.tratamientos)
     }
 
-    //const formatDate = (date) => {
-    //return new Date(date).toLocaleDateString('es-EC', { dateStyle: 'long', timeZone: 'UTC' })
-    //}
 
     useEffect(() => {
         if (modal === false) {
@@ -45,7 +42,7 @@ const Details = () => {
             <div>
                 <h1 className='font-black text-4xl text-black'>Visualizar</h1>
                 <hr className='my-2 border-t-2 border-gray-300' />
-                <p className='mb-8'>Este módulo te permite visualizar todos los datos</p>
+                <p className='mb-8'>Este módulo te permite visualizar todos los datos de cada docente</p>
             </div>
             <div>
 
@@ -53,7 +50,7 @@ const Details = () => {
                     <div>
                         <ul className="list-disc pl-5">
                             {/* Datos del docente */}
-                            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del estudiante</li>
+                            <li className="text-md text-gray-00 mt-4 font-bold text-xl">Datos del docente</li>
                             <ul className="pl-5">
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Nombre: </span>
@@ -62,10 +59,6 @@ const Details = () => {
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Apellido: </span>
                                     {docente?.apellidoDocente}
-                                </li>
-                                <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">Dirección: </span>
-                                    {docente?.direccionDocente}
                                 </li>
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Celular: </span>
@@ -78,7 +71,7 @@ const Details = () => {
                                 <li className="text-md text-gray-00 mt-2">
                                     <span className="text-gray-600 font-bold">Estado: </span>
                                     <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                        {docente?.statusDocente ? "Matriculado" : "Inactivo"}
+                                        {docente?.statusDocente ? "Activo" : "Inactivo"}
                                     </span>
                                 </li>
                             </ul>
@@ -88,9 +81,7 @@ const Details = () => {
                         <img
                             src={
                                 docente?.avatarDocente ||
-                                docente?.avatarDocenteIA ||
                                 docente?.avatar ||
-                                docente?.avatarIA ||
                                 "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
                             }
                             alt="avatar"
@@ -103,14 +94,14 @@ const Details = () => {
 
                 <div className='flex justify-between items-center'>
 
-                    <p>Este módulo te permite gestionar las materias</p>
+                    <p>Este módulo te permite gestionar prestamos de recursos</p>
                     {
                         rol === "Administrador" &&
                         (
                             <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-black hover:scale-105 duration-300"
                                 onClick={() => { toggleModal("treatments") }}
                             >
-                                Registrar materia
+                                Prestar recurso(s)
                             </button>
                         )
                     }

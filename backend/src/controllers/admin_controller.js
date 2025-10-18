@@ -40,22 +40,25 @@ const confirmarMail = async (req, res) => {
 
 //Etapa 1
 const recuperarPassword = async (req, res) => {
+    try {
+        // Datos ya validados por Zod (req.validated)
+        const { email } = req.validated || req.body;
 
-    const { email } = req.body//1. Obtener el email
-    if (Object.values(req.body).includes("")) return res.status(404).json({ msg: "Lo sentimos, debes llenar todos los campos" }) //2. Validar que no se deje vacio el campo correo
+        const adminEmailBDD = await admin.findOne({ email });
+        if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" });
 
-    const adminEmailBDD = await admin.findOne({ email })
-    if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" }) //3. Validar que el correo exista
+        const token = adminEmailBDD.createToken();
+        adminEmailBDD.token = token;
+        await adminEmailBDD.save();
 
+        // Enviar el correo con el token
+        await sendMailToRecoveryPassword(email, token);
 
-    const token = adminEmailBDD.createToken()//4. Crear token para la verificacion de correo
-    adminEmailBDD.token = token
-    await adminEmailBDD.save() //Cambie en el mismo orden del registro porque aca tampoco se cambia a null el token
-    // Enviar el correo con el token
-    await sendMailToRecoveryPassword(email, token)
-
-    //5. Confirmacion
-    res.status(200).json({ msg: "Revisa tu correo para restablecer tu contraseña" })
+        res.status(200).json({ msg: "Revisa tu correo para restablecer tu contraseña" });
+    } catch (error) {
+        console.error("recuperarPassword error:", error);
+        res.status(500).json({ msg: "Error en el servidor" });
+    }
 }
 
 //Etapa 2
@@ -71,16 +74,26 @@ const comprobarTokenPassword = async (req, res) => {
 
 //Etapa 3
 const crearNuevoPassword = async (req, res) => {
-    const { password, confirmpassword } = req.body
-    if (Object.values(req.body).includes("")) return res.status(404).json({ msg: "Lo sentimos, debes llenar todos los campos" })
-    if (password !== confirmpassword) return res.status(404).json({ msg: "Lo sentimos, los passwords no coinciden" })
-    const adminEmailBDD = await admin.findOne({ token: req.params.token })
-    if (adminEmailBDD.token !== req.params.token) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" })
-    adminEmailBDD.token = null
-    adminEmailBDD.password = await adminEmailBDD.encryptPassword(password)
-    await adminEmailBDD.save()
+    try {
+        // Datos ya validados por Zod (incluye validación de coincidencia)
+        const { password, confirmpassword } = req.validated || req.body;
+        const { token } = req.params;
 
-    res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" })
+        if (!token) return res.status(400).json({ msg: "Token inválido" });
+
+        const adminEmailBDD = await admin.findOne({ token });
+        if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" });
+        if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, token inválido o expirado" });
+
+        adminEmailBDD.token = null;
+        adminEmailBDD.password = await adminEmailBDD.encryptPassword(password);
+        await adminEmailBDD.save();
+
+        res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" });
+    } catch (error) {
+        console.error("crearNuevoPassword error:", error);
+        res.status(500).json({ msg: "Error en el servidor" });
+    }
 }
 
 const login = async (req, res) => {

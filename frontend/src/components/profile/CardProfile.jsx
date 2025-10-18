@@ -9,6 +9,9 @@ export const CardProfile = () => {
     const fileInputRef = useRef(null)
     const [loading, setLoading] = useState(false)
 
+    // Si el user contiene _doc, usa los datos de _doc, de lo contrario usa el user directamente
+    const userData = user?._doc || user || {}
+
     // Reset preview cuando cambia user (después de actualizar)
     useEffect(() => {
         setPreview(null)
@@ -32,7 +35,7 @@ export const CardProfile = () => {
                 setPreview(URL.createObjectURL(file))
                 //recarga la página para ver la nueva imagen
                 //si sirvió, ya se recarga sola y se muestra la nueva imagen, ademas direccion ya se borro de perfil
-                window.location.reload() 
+                window.location.reload()
             } catch (error) {
                 console.error("Error al actualizar la imagen:", error)
             } finally {
@@ -43,10 +46,10 @@ export const CardProfile = () => {
 
     // Prioriza avatarDocente, luego preview, luego imagen por defecto
     const avatarUrl =
-        (user?.avatarDocente && typeof user.avatarDocente === 'string' && user.avatarDocente.startsWith('http'))
-            ? user.avatarDocente
+        (userData?.avatarDocente && typeof userData.avatarDocente === 'string' && userData.avatarDocente.startsWith('http'))
+            ? userData.avatarDocente
             : (preview ||
-                user?.avatar ||
+                userData?.avatar ||
                 "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
 
     return (
@@ -71,16 +74,16 @@ export const CardProfile = () => {
                 </label>
             </div>
             <div className="self-start">
-                <b>Nombre:</b><p className="inline-block ml-3">{user?.nombre}</p>
+                <b>Nombre:</b><p className="inline-block ml-3">{userData?.nombre || userData?.nombreDocente || 'Sin nombre'}</p>
             </div>
             <div className="self-start">
-                <b>Apellido:</b><p className="inline-block ml-3">{user?.apellido}</p>
+                <b>Apellido:</b><p className="inline-block ml-3">{userData?.apellido || userData?.apellidoDocente || 'Sin apellido'}</p>
             </div >
             <div className="self-start">
-                <b>Teléfono:</b><p className="inline-block ml-3">{user?.celular}</p>
+                <b>Teléfono:</b><p className="inline-block ml-3">{userData?.celular || userData?.celularDocente || 'Sin teléfono'}</p>
             </div>
             <div className="self-start">
-                <b>Correo:</b><p className="inline-block ml-3">{user?.email}</p>
+                <b>Correo:</b><p className="inline-block ml-3">{userData?.email || userData?.emailDocente || 'Sin correo'}</p>
             </div>
         </div>
     )

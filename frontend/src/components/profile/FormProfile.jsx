@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 const FormularioPerfil = () => {
     const { user, updateProfile } = storeProfile()
     const [loading, setLoading] = useState(false);
+    const [showEmailWarning, setShowEmailWarning] = useState(false);
     const { register, handleSubmit, reset, formState: { errors }, watch } = useForm({
         resolver: zodResolver(formProfileSchema)
     });
@@ -18,25 +19,13 @@ const FormularioPerfil = () => {
     const updateUser = async (data) => {
         setLoading(true);
         try {
-            // Detectar si hay cambio de email
-            const isEmailChange = data.email && data.email !== user.email;
-
             const response = await updateProfile(data, user._id);
 
             if (response?.msg) {
-                // Si es cambio de email, mostrar toast específico
-                if (isEmailChange) {
-                    toast.info("Se envió un correo de confirmación al nuevo email. Revisa tu bandeja de entrada para confirmar el cambio.", {
-                        position: "top-center",
-                        autoClose: 8000,
-                    });
-                } else {
-                    // Para otros cambios
-                    toast.success("Perfil actualizado correctamente", {
-                        position: "top-center",
-                        autoClose: 3000,
-                    });
-                }
+                toast.success("Perfil actualizado correctamente", {
+                    position: "top-center",
+                    autoClose: 3000,
+                });
             }
         } catch (error) {
             const errorMsg = error?.response?.data?.msg || "Error al actualizar perfil";
@@ -99,7 +88,27 @@ const FormularioPerfil = () => {
 
                 </div>
                 <div>
-                    <label className="mb-2 block text-base font-semibold">Correo electrónico</label>
+                    <label className="mb-2 block text-base font-semibold flex items-center gap-2">
+                        Correo electrónico
+                        <div className="relative group">
+                            <button
+                                type="button"
+                                onMouseEnter={() => setShowEmailWarning(true)}
+                                onMouseLeave={() => setShowEmailWarning(false)}
+                                onClick={() => setShowEmailWarning(!showEmailWarning)}
+                                className="text-yellow-500 hover:text-yellow-700 focus:outline-none"
+                            >
+                                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                                </svg>
+                            </button>
+                            {showEmailWarning && (
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-yellow-100 border border-yellow-400 rounded-md text-sm text-yellow-800 whitespace-nowrap z-10">
+                                    Deberás confirmar el nuevo email para completar el cambio
+                                </div>
+                            )}
+                        </div>
+                    </label>
                     <input
                         type="email"
                         placeholder="Ingresa tu correo"

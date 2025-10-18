@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "../../schemas/formSchema";
 import { toast, ToastContainer } from "react-toastify";
+import axios from "axios";
 
 export const Form = ({ docente }) => {
 
@@ -25,7 +26,7 @@ export const Form = ({ docente }) => {
 
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
-        
+
         // Validaciones
         if (!file) {
             setArchivoSeleccionado(null);
@@ -66,38 +67,74 @@ export const Form = ({ docente }) => {
     };
 
     const registerDocente = async (data) => {
-        const formData = new FormData();
-        
-        // Agregar campos de texto
-        formData.append("nombreDocente", data.nombreDocente);
-        formData.append("apellidoDocente", data.apellidoDocente);
-        formData.append("celularDocente", data.celularDocente);
-        formData.append("emailDocente", data.emailDocente);
+        try {
+            const formData = new FormData();
 
-        // Agregar imagen si existe
-        if (data.imagen?.[0]) {
-            formData.append("imagen", data.imagen[0]);
-        }
+            // Agregar campos de texto
+            formData.append("nombreDocente", data.nombreDocente);
+            formData.append("apellidoDocente", data.apellidoDocente);
+            formData.append("celularDocente", data.celularDocente);
+            formData.append("emailDocente", data.emailDocente);
 
-        let url = `${import.meta.env.VITE_BACKEND_URL}/administrador/registerDocente`;
-        const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
-        const headers = {
-            Authorization: `Bearer ${storedAuth.state.token}`
-        };
+            // Agregar imagen si existe
+            if (data.imagen?.[0]) {
+                formData.append("imagen", data.imagen[0]);
+            }
 
-        let response;
-        if (docente?._id) {
-            url = `${import.meta.env.VITE_BACKEND_URL}/docente/update/${docente._id}`;
-            response = await fetchDataBackend(url, formData, "PUT", true, headers);
-        } else {
-            response = await fetchDataBackend(url, formData, "POST", true, headers);
-        }
+            // Obtener token de autenticación
+            const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
 
-        if (response) {
-            toast.success(docente ? "Docente actualizado correctamente" : "Docente registrado correctamente");
-            setTimeout(() => {
-                navigate("/dashboard/listar");
-            }, 2000);
+            // Verificar que existe el token
+            if (!storedAuth?.state?.token) {
+                toast.error("No se encontró token de autenticación");
+                return;
+            }
+
+            const token = storedAuth.state.token;
+
+            // URL para la petición
+            let url = `${import.meta.env.VITE_BACKEND_URL}/administrador/registerDocente`;
+
+            let response;
+            if (docente?._id) {
+                url = `${import.meta.env.VITE_BACKEND_URL}/docente/update/${docente._id}`;
+
+                // Usar directamente axios para mayor control
+                const axiosConfig = {
+                    method: 'PUT',
+                    url: url,
+                    data: formData,
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`
+                    }
+                };
+
+                response = await axios(axiosConfig);
+            } else {
+                // Usar directamente axios para mayor control
+                const axiosConfig = {
+                    method: 'POST',
+                    url: url,
+                    data: formData,
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`
+                    }
+                };
+
+                response = await axios(axiosConfig);
+            }
+
+            if (response) {
+                toast.success(docente ? "Docente actualizado correctamente" : "Docente registrado correctamente");
+                setTimeout(() => {
+                    navigate("/dashboard/listar");
+                }, 2000);
+            }
+        } catch (error) {
+            console.error("Error al registrar docente:", error);
+            toast.error(error.response?.data?.msg || "Error al procesar la solicitud");
         }
     };
 

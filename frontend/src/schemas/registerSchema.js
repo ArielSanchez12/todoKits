@@ -4,6 +4,14 @@ const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 const celularRegex = /^09\d{8}$/; // Ecuador: empieza con 09 y 10 dígitos
 const passwordFuerte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
 
+function capitalizeFirstLetter(string) {
+  if (!string) return "";
+  return string
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 // evita valores compuestos por un solo carácter repetido
 const noSoloRepetidos = (value) => {
   if (!value) return false;
@@ -25,15 +33,16 @@ export const registerSchema = z.object({
     .min(2, "El nombre es obligatorio")
     .max(50, "El nombre es demasiado largo")
     .regex(soloLetras, "El nombre solo debe contener letras y espacios")
-    .refine(noSoloRepetidos, "El nombre no puede ser solo letras repetidas ni caracteres repetidos"),
+    .refine(noSoloRepetidos, "El nombre no puede ser solo letras repetidas ni caracteres repetidos")
+    .transform(capitalizeFirstLetter),
   apellido: z
     .string()
     .trim()
     .min(2, "El apellido es obligatorio")
     .max(50, "El apellido es demasiado largo")
     .regex(soloLetras, "El apellido solo debe contener letras y espacios")
-    .refine(noSoloRepetidos, "El apellido no puede ser solo letras repetidas ni caracteres repetidos"),
-  // direccion eliminada
+    .refine(noSoloRepetidos, "El apellido no puede ser solo letras repetidas ni caracteres repetidos")
+    .transform(capitalizeFirstLetter),
   celular: z
     .string()
     .trim()

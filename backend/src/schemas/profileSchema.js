@@ -4,6 +4,14 @@ const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 const celularRegex = /^09\d{8}$/;
 const passwordFuerte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
 
+function capitalizeFirstLetter(string) {
+  if (!string) return "";
+  return string
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 // Helper para evitar letras repetidas
 const noSoloRepetidos = (value) => {
   if (!value) return false;
@@ -27,6 +35,7 @@ export const updateProfileSchema = z
       .max(50, "El nombre es demasiado largo")
       .regex(soloLetras, "El nombre solo debe contener letras y espacios")
       .refine(noSoloRepetidos, "El nombre no puede ser solo letras repetidas")
+      .transform(capitalizeFirstLetter)
       .optional(),
     apellido: z
       .string()
@@ -35,6 +44,7 @@ export const updateProfileSchema = z
       .max(50, "El apellido es demasiado largo")
       .regex(soloLetras, "El apellido solo debe contener letras y espacios")
       .refine(noSoloRepetidos, "El apellido no puede ser solo letras repetidas")
+      .transform(capitalizeFirstLetter)
       .optional(),
     celular: z
       .string()

@@ -3,75 +3,43 @@ import bcrypt, { genSaltSync } from 'bcryptjs'
 
 //Y aqui es donde se definen las cosas que van en la tabla
 const docenteSchema = new Schema({
-
     nombreDocente: {
         type: String,
         required: true,
         trim: true
     },
-
     apellidoDocente: {
         type: String,
         required: true,
         trim: true
     },
-
-    direccionDocente: {
-        type: String,
-        trim: true,
-        default: null
-    },
-
     celularDocente: {
         type: String,
         trim: true,
         default: null
     },
-
     avatarDocente: {
-        type: String
-    },
-
-    avatarDocenteID: {
         type: String,
-        trim: true
+        default: null
     },
-    avatarDocenteIA: { //Si el usuario no sube una imagen, se le asigna una con inteligencia artificial
-        type: String
-    },
-
     emailDocente: {
         type: String,
         require: true,
         trim: true,
         unique: true
     },
-    loginGoogle: {
-        type: Boolean,
-        default: false
-    },
-    googleId: {
-        type: String,
-        unique: true,
-        sparse: true
-    },
     passwordDocente: {
         type: String,
-        required: function () {
-            return !this.loginGoogle; // Solo requerido si NO es login por Google
-        }
+        required: true
     },
-
     statusDocente: {
         type: Boolean,
         default: true
     },
-
     tokenDocente: {
         type: String,
         default: null
     },
-
     confirmEmailDocente: {
         type: Boolean,
         default: false
@@ -80,15 +48,18 @@ const docenteSchema = new Schema({
         type: String,
         default: "Docente"
     },
+    pendingEmailDocente: { // Nuevo campo para el cambio de email
+        type: String,
+        default: null
+    },
     admin: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'admin' //Hacemos referencia a nuestro otro modelo(el nombre debe respetar mayusculas y minusculas)
+        ref: 'admin'
     },
     tratamientos: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Tratamiento'
     }]
-
 }, {
     timestamps: true
 })
@@ -104,5 +75,18 @@ docenteSchema.methods.matchPassword = async function (password) {
     return bcrypt.compare(password, this.passwordDocente)
 }
 
+// Método para generar token (igual que en admin)
+docenteSchema.methods.createToken = function () {
+    const tokenGenerado = this.tokenDocente = Math.random().toString(32).slice(2)
+    return tokenGenerado
+}
 
-export default model('docente', docenteSchema) 
+// Método para actualizar información (similar a admin)
+docenteSchema.methods.updateInfoFromProfile = function (data) {
+    if (data.nombreDocente) this.nombreDocente = data.nombreDocente;
+    if (data.apellidoDocente) this.apellidoDocente = data.apellidoDocente;
+    if (data.celularDocente) this.celularDocente = data.celularDocente;
+    if (data.emailDocente) this.emailDocente = data.emailDocente;
+};
+
+export default model('docente', docenteSchema)

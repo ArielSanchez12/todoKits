@@ -1,7 +1,8 @@
-import { sendMailToRegister, sendMailToRecoveryPassword, sendMailToChangeEmail } from "../config/nodemailer.js"
+import { sendMailToRegister, sendMailToRecoveryPassword, sendMailToChangeEmail, sendMailToDocente } from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
 import mongoose from "mongoose"
+import docente from "../models/docente.js"
 import { v2 as cloudinary } from 'cloudinary'
 
 
@@ -84,7 +85,7 @@ const crearNuevoPassword = async (req, res) => {
         const adminEmailBDD = await admin.findOne({ token });
         if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" });
         if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, token inválido o expirado" });
-        
+
         adminEmailBDD.token = null;
         adminEmailBDD.password = await adminEmailBDD.encryptPassword(password);
         await adminEmailBDD.save();
@@ -254,6 +255,47 @@ const actualizarPassword = async (req, res) => {
     }
 };
 
+const registrarDocente = async (req, res) => {
+    try {
+        // Datos ya validados por Zod
+        const datos  = req.validated || req.body;
+        const { emailDocente } = datos;
+
+        const verificarEmailBDD = await docente.findOne({ emailDocente });
+        if (verificarEmailBDD) return res.status(400).json({ msg: "Lo sentimos, el email ya se encuentra registrado" });
+
+        const password = Math.random().toString(36).toUpperCase().slice(2, 5);
+
+        const nuevoDocente = new docente({
+            ...datos, // Usar los datos validados con las transformaciones
+            passwordDocente: await docente.prototype.encryptPassword("KITS" + password),
+            admin: req.adminEmailBDD._id
+        });
+
+        // Procesamiento de imagen si existe
+        if (req.files?.imagen) {
+            await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: 'Docentes' },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        nuevoDocente.avatarDocente = result.secure_url;
+                        resolve();
+                    }
+                );
+                uploadStream.end(req.files.imagen.data);
+            });
+        }
+
+        await nuevoDocente.save();
+        await sendMailToDocente(emailDocente, "KITS" + password);
+        res.status(201).json({ msg: "Registro exitoso del docente" });
+    } catch (error) {
+        console.error("Error al registrar docente:", error);
+        res.status(500).json({ msg: "Error en el servidor" });
+    }
+};
+
 export {
     registro,
     confirmarMail,
@@ -264,5 +306,6 @@ export {
     perfil,
     actualizarPerfil,
     actualizarPassword,
-    confirmarNuevoEmail
+    confirmarNuevoEmail,
+    registrarDocente
 }

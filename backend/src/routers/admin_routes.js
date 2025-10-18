@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, recuperarPassword, registro, perfil, actualizarPerfil, actualizarPassword, confirmarNuevoEmail } from "../controllers/admin_controller.js";
+import { comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, recuperarPassword, registro, perfil, actualizarPerfil, actualizarPassword, confirmarNuevoEmail, registrarDocente } from "../controllers/admin_controller.js";
 import { verificarTokenJWT } from "../middlewares/jwt.js";
 import { validate } from "../middlewares/zodValidations.js"
 import { registerSchema } from "../schemas/registerSchema.js"
 import { updateProfileSchema, updatePasswordSchema } from "../schemas/profileSchema.js";
 import { recuperarPasswordSchema, crearNuevoPasswordSchema } from "../schemas/passwordSchema.js";
+import { registerDocenteSchema } from "../schemas/docenteSchema.js";
 
 const router = Router()
 
@@ -22,4 +23,6 @@ router.put('/administrador/:id', verificarTokenJWT, validate(updateProfileSchema
 router.put('/administrador/actualizarpassword/:id', verificarTokenJWT, validate(updatePasswordSchema), actualizarPassword)
 router.get('/administrador/confirm-new-email/:token', confirmarNuevoEmail); // Ruta para confirmar email nuevo después de cambiarlo
 
+// Nueva ruta para que los administradores creen docentes
+router.post('/administrador/registerDocente', verificarTokenJWT, validate(registerDocenteSchema), registrarDocente)
 export default router

@@ -16,8 +16,6 @@ const adminSchema = new Schema({
         trim: true
     },
 
-    // direccion removida intencionalmente
-
     celular: {
         type: String,
         trim: true,
@@ -90,7 +88,6 @@ adminSchema.methods.createToken = function () {
 adminSchema.methods.updateInfoFromProfile = function (data) {
     if (data.nombre) this.nombre = data.nombre;
     if (data.apellido) this.apellido = data.apellido;
-    // direccion removida; ya no se actualiza ni se espera
     if (data.celular) this.celular = data.celular;
     if (data.email) this.email = data.email;
 };

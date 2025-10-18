@@ -12,7 +12,7 @@ const verificarTokenJWT = async (req, res, next) => {
             token = req.headers.authorization.split(" ")[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            if (decoded.rol === "Admin") {
+            if (decoded.rol === "Administrador") {
                 // Usuario es administrador
                 req.adminEmailBDD = await admin.findById(decoded.id).select(
                     "-password -token -confirmEmail -createdAt -updatedAt -__v"

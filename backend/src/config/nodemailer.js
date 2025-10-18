@@ -130,5 +130,4 @@ export const sendMailToRecoveryPasswordDocente = async (userMail, token) => {
 export {
     sendMailToRegister,
     sendMailToRecoveryPassword,
-    sendMailToDocente
 }

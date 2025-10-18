@@ -1,5 +1,5 @@
 import docente from "../models/docente.js"
-import { sendMailToChangeEmailDocente, sendMailToRecoveryPasswordDocente, sendMailToDocente } from "../config/nodemailer.js"
+import { sendMailToChangeEmailDocente, sendMailToRecoveryPasswordDocente } from "../config/nodemailer.js"
 import { v2 as cloudinary } from 'cloudinary'
 import fs from "fs-extra"
 import mongoose from "mongoose"

@@ -79,7 +79,7 @@ export const Form = ({ docente }) => {
             formData.append("imagen", data.imagen[0]);
         }
 
-        let url = `${import.meta.env.VITE_BACKEND_URL}/administrador/docente/register`;
+        let url = `${import.meta.env.VITE_BACKEND_URL}/administrador/registerDocente`;
         const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
         const headers = {
             Authorization: `Bearer ${storedAuth.state.token}`

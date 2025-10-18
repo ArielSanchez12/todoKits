@@ -4,77 +4,97 @@ import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "../../schemas/formSchema";
-import { generateAvatar, convertBlobToBase64 } from "../../helpers/consultarIA";
 import { toast, ToastContainer } from "react-toastify";
 
 export const Form = ({ docente }) => {
 
-    const [avatar, setAvatar] = useState({
-        image: "https://cdn-icons-png.flaticon.com/512/4715/4715329.png",
-        prompt: "",
-        loading: false
-    });
-
     const navigate = useNavigate();
-    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm({
+    const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             nombreDocente: docente?.nombreDocente || "",
             apellidoDocente: docente?.apellidoDocente || "",
-            direccionDocente: docente?.direccionDocente || "",
             celularDocente: docente?.celularDocente || "",
             emailDocente: docente?.emailDocente || "",
-            imageOption: "",
-            avatarDocenteIA: "",
             imagen: null,
         }
     });
+
     const { fetchDataBackend } = useFetch();
-
     const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
-    const selectedOption = watch("imageOption");
 
-    const handleGenerateImage = async () => {
-        setAvatar(prev => ({ ...prev, loading: true }));
-        const blob = await generateAvatar(avatar.prompt);
-        if (blob.type === "image/jpeg") {
-            const imageUrl = URL.createObjectURL(blob);
-            const base64Image = await convertBlobToBase64(blob);
-            setAvatar(prev => ({ ...prev, image: imageUrl, loading: false }));
-            setValue("avatarDocenteIA", base64Image);
-        } else {
-            toast.error("Error al generar la imagen, vuelve a intentarlo dentro de 1 minuto");
-            setAvatar(prev => ({ ...prev, image: "https://cdn-icons-png.flaticon.com/512/4715/4715329.png", loading: false }));
-            setValue("avatarDocenteIA", null);
+    const handleFileChange = (e) => {
+        const file = e.target.files?.[0];
+        
+        // Validaciones
+        if (!file) {
+            setArchivoSeleccionado(null);
+            return;
         }
+
+        // Validar que sea una imagen
+        if (!file.type.startsWith('image/')) {
+            toast.error("Por favor selecciona un archivo de imagen válido");
+            setArchivoSeleccionado(null);
+            e.target.value = "";
+            return;
+        }
+
+        // Validar tamaño (máximo 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            toast.error("La imagen no debe superar 5MB");
+            setArchivoSeleccionado(null);
+            e.target.value = "";
+            return;
+        }
+
+        // Si pasa todas las validaciones, guardar el archivo
+        setArchivoSeleccionado({
+            name: file.name,
+            size: (file.size / 1024).toFixed(2) // Tamaño en KB
+        });
+    };
+
+    const handleRemoveFile = () => {
+        setArchivoSeleccionado(null);
+        // Limpiar el input
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = "";
+        // Limpiar el valor del formulario
+        setValue("imagen", null);
     };
 
     const registerDocente = async (data) => {
         const formData = new FormData();
-        Object.keys(data).forEach((key) => {
-            // No enviar campos vacíos ni nulos
-            if (key === "imagen" && data.imagen?.[0]) {
-                formData.append("imagen", data.imagen[0]);
-            } else if (key === "avatarDocenteIA" && data.avatarDocenteIA) {
-                formData.append("avatarDocenteIA", data.avatarDocenteIA);
-            } else if (data[key] !== undefined && data[key] !== null && data[key] !== "") {
-                formData.append(key, data[key]);
-            }
-        });
-        let url = `${import.meta.env.VITE_BACKEND_URL}/docente/register`;
-        const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+        
+        // Agregar campos de texto
+        formData.append("nombreDocente", data.nombreDocente);
+        formData.append("apellidoDocente", data.apellidoDocente);
+        formData.append("celularDocente", data.celularDocente);
+        formData.append("emailDocente", data.emailDocente);
+
+        // Agregar imagen si existe
+        if (data.imagen?.[0]) {
+            formData.append("imagen", data.imagen[0]);
+        }
+
+        let url = `${import.meta.env.VITE_BACKEND_URL}/administrador/docente/register`;
+        const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
         const headers = {
-            Authorization: `Bearer ${storedUser.state.token}`
+            Authorization: `Bearer ${storedAuth.state.token}`
         };
 
         let response;
         if (docente?._id) {
             url = `${import.meta.env.VITE_BACKEND_URL}/docente/update/${docente._id}`;
-            response = await fetchDataBackend(url, formData, "PUT", headers);
+            response = await fetchDataBackend(url, formData, "PUT", true, headers);
         } else {
-            response = await fetchDataBackend(url, formData, "POST", headers);
+            response = await fetchDataBackend(url, formData, "POST", true, headers);
         }
+
         if (response) {
+            toast.success(docente ? "Docente actualizado correctamente" : "Docente registrado correctamente");
             setTimeout(() => {
                 navigate("/dashboard/listar");
             }, 2000);
@@ -86,20 +106,13 @@ export const Form = ({ docente }) => {
             reset({
                 nombreDocente: docente?.nombreDocente || "",
                 apellidoDocente: docente?.apellidoDocente || "",
-                direccionDocente: docente?.direccionDocente || "",
                 celularDocente: docente?.celularDocente || "",
                 emailDocente: docente?.emailDocente || "",
-                imageOption: "", // O puedes poner el valor anterior si lo tienes
-                avatarDocenteIA: docente?.avatarDocenteIA || "",
-                imagen: null, // Si tienes la URL de la imagen subida, puedes ponerla aquí
+                imagen: null,
             });
-            // Si tienes la imagen previa, también puedes mostrarla en el avatar
-            if (docente?.avatarDocenteIA) {
-                setAvatar(prev => ({ ...prev, image: docente.avatarDocenteIA }));
-            }
+            setArchivoSeleccionado(null);
         }
     }, [docente, reset]);
-
 
     return (
         <form onSubmit={handleSubmit(registerDocente)}>
@@ -134,17 +147,6 @@ export const Form = ({ docente }) => {
                 </div>
 
                 <div>
-                    <label className="mb-2 block text-base font-semibold">Dirección</label>
-                    <input
-                        type="text"
-                        placeholder="Ingresa la dirección"
-                        className="mb-2 block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"
-                        {...register("direccionDocente", { required: "Este campo es obligatorio!" })}
-                    />
-                    {errors.direccionDocente && <p className="text-red-800 text-base mb-3">{errors.direccionDocente.message}</p>}
-                </div>
-
-                <div>
                     <label className="mb-2 block text-base font-semibold">Celular</label>
                     <input
                         type="text"
@@ -168,79 +170,70 @@ export const Form = ({ docente }) => {
             </fieldset>
 
             {/* Imagen del docente */}
-            <label className="mb-2 block text-base font-semibold mt-10">Imagen del docente</label>
-            <div className="flex gap-4 mb-2">
-                <label className="flex items-center gap-2">
-                    <input
-                        type="radio"
-                        value="ia"
-                        {...register("imageOption", { required: "Seleccione una opción" })}
-                    />
-                    Generar con IA
-                </label>
-                <label className="flex items-center gap-2">
-                    <input
-                        type="radio"
-                        value="upload"
-                        {...register("imageOption", { required: "Seleccione una opción" })}
-                    />
-                    Subir Imagen
-                </label>
-            </div>
-            {errors.imageOption && <p className="text-red-800 text-base mb-3">{errors.imageOption.message}</p>}
+            <div className="mt-10">
+                <label className="mb-2 block text-base font-semibold">Imagen del docente (opcional)</label>
+                <p className="text-gray-600 text-sm mb-3">Si no subes una imagen, se utilizará la imagen por defecto.</p>
 
-            {selectedOption === "ia" && (
-                <div className="mt-5">
-                    <label className="mb-2 block text-base font-semibold">Imagen con IA</label>
-                    <div className="flex items-center gap-10 mb-5">
-                        <input
-                            type="text"
-                            placeholder="¿Qué deseas generar con IA?"
-                            className="mb-2 block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500"
-                            value={avatar.prompt}
-                            onChange={(e) => setAvatar(prev => ({ ...prev, prompt: e.target.value }))}
-                        />
-                        <button
-                            type="button"
-                            className="py-2 px-8 bg-black hover:bg-red-700 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-gray-900 hover:text-white sm:w-80"
-                            onClick={handleGenerateImage}
-                            disabled={avatar.loading}
-                        >
-                            {avatar.loading ? "Generando..." : "Generar con IA"}
-                        </button>
-                    </div>
-                    {avatar.image && (
-                        <img src={avatar.image} alt="Avatar IA" width={100} height={100} />
-                    )}
-                </div>
-            )}
-
-            {selectedOption === "upload" && (
-                <div className="mt-5">
-                    <label className="mb-2 block text-base font-semibold">Subir Imagen</label>
+                <div className="relative">
                     <input
                         type="file"
                         accept="image/*"
-                        className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-5"
+                        className="block w-full rounded-md border border-gray-300 py-2 px-3 text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                         {...register("imagen")}
-                        onChange={e => setArchivoSeleccionado(e.target.files[0]?.name || null)}
+                        onChange={handleFileChange}
                     />
-                    {errors.imagen && (
-                        <span className="text-red-500">{errors.imagen.message}</span>
-                    )}
-                    {archivoSeleccionado && (
-                        <p className="text-green-600 text-base mt-2">Archivo seleccionado: {archivoSeleccionado}</p>
-                    )}
                 </div>
-            )}
 
-            {!selectedOption && docente?.avatarDocenteIA && (
-                <div className="mt-5">
-                    <label className="mb-2 block text-base font-semibold">Avatar actual</label>
-                    <img src={docente.avatarDocenteIA} alt="Avatar actual" width={100} height={100} />
-                    <p className="mt-2 text-gray-600 text-sm">(Si no seleccionas una nueva imagen, se mantendrá la actual.)</p>
-                </div>
-            )}
+                {/* Mensajes de validación */}
+                {errors.imagen && (
+                    <p className="text-red-500 text-sm mt-2">{errors.imagen.message}</p>
+                )}
+
+                {/* Archivo seleccionado */}
+                {archivoSeleccionado ? (
+                    <div className="mt-3 flex items-center justify-between bg-green-50 border border-green-300 rounded-md p-3">
+                        <div className="flex items-center gap-2">
+                            <svg
+                                className="w-5 h-5 text-green-600"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M4 4a2 2 0 00-2 2v4a1 1 0 001 1h12a1 1 0 00-1-1V6a2 2 0 00-2-2H4zm12 4h.01M4 10a1 1 0 000 2h12a1 1 0 100-2H4z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                            <div>
+                                <p className="text-green-800 font-semibold text-sm">{archivoSeleccionado.name}</p>
+                                <p className="text-green-700 text-xs">{archivoSeleccionado.size} KB</p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleRemoveFile}
+                            className="text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full p-1 transition-colors"
+                            title="Eliminar archivo"
+                        >
+                            <svg
+                                className="w-5 h-5"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                ) : (
+                    <p className="text-gray-500 text-sm mt-3">Ningún archivo seleccionado</p>
+                )}
+            </div>
 
             <input
                 type="submit"

@@ -85,6 +85,12 @@ const crearNuevoPassword = async (req, res) => {
         if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" });
         if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, token inválido o expirado" });
 
+        // Validar que la nueva contraseña sea diferente a la anterior
+        const esIgualALaAnterior = await adminEmailBDD.matchPassword(password);
+        if (esIgualALaAnterior) {
+            return res.status(400).json({ msg: "La nueva contraseña debe ser diferente a la anterior" });
+        }
+        
         adminEmailBDD.token = null;
         adminEmailBDD.password = await adminEmailBDD.encryptPassword(password);
         await adminEmailBDD.save();

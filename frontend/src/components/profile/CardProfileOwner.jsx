@@ -29,12 +29,12 @@ export const CardProfileOwner = () => {
                 <p className="inline-block ml-3">{user.nombreDocente} {user.apellidoDocente}</p>
             </div>
             <div className="self-start">
-                <b>Email:</b>
-                <p className="inline-block ml-3">{user.emailDocente}</p>
-            </div>
-            <div className="self-start">
                 <b>Celular:</b>
                 <p className="inline-block ml-3">{user.celularDocente}</p>
+            </div>
+            <div className="self-start">
+                <b>Correo:</b>
+                <p className="inline-block ml-3">{user.emailDocente}</p>
             </div>
         </div>
     )

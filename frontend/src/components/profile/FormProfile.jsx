@@ -7,25 +7,28 @@ import { formProfileSchema } from "../../schemas/formProfileSchema";
 const FormularioPerfil = () => {
     const { user, updateProfile } = storeProfile()
     const [showEmailWarning, setShowEmailWarning] = useState(false);
+
+    // Extraer los datos del usuario, manejando el caso donde vienen dentro de _doc
+    const userData = user?._doc || user || {};
+
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: zodResolver(formProfileSchema)
     });
 
     const updateUser = async (data) => {
-        updateProfile(data, user._id)
+        updateProfile(data, userData._id)
     }
 
     useEffect(() => {
-        if (user) {
+        if (userData) {
             reset({
-                nombre: user?.nombre,
-                apellido: user?.apellido,
-                celular: user?.celular,
-                email: user?.email,
+                nombre: userData.nombre || "",
+                apellido: userData.apellido || "",
+                celular: userData.celular || "",
+                email: userData.email || "",
             })
         }
-    }, [user])
-
+    }, [userData, reset])
 
     return (
         <form onSubmit={handleSubmit(updateUser)}>

@@ -97,7 +97,7 @@ export const Form = ({ docente }) => {
 
             let response;
             if (docente?._id) {
-                url = `${import.meta.env.VITE_BACKEND_URL}/docente/update/${docente._id}`;
+                url = `${import.meta.env.VITE_BACKEND_URL}/administrador/updateDocente/${docente._id}`;
 
                 // Usar directamente axios para mayor control
                 const axiosConfig = {

@@ -64,7 +64,7 @@ const Table = () => {
             <ToastContainer />
             <thead className="bg-black text-white">
                 <tr>
-                    {["N°", "Nombre", "Apellido", "Dirección", "Celular", "Email", "Estado", "Acciones"].map((header) => (
+                    {["N°", "Nombre", "Apellido", "Celular", "Email", "Estado", "Acciones"].map((header) => (
                         <th key={header} className="p-2">{header}</th>
                     ))}
                 </tr>

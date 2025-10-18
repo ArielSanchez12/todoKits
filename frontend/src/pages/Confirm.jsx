@@ -29,7 +29,7 @@ export const Confirm = () => {
             <img
                 className="object-cover w-115 h-115 rounded-full border-4 border-solid border-slate-600 shadow-md"
                 src={logobuhoPuente}
-                alt="Descripción de la imagen"
+                alt="Logo de Búho Puente"
             />
 
             {/* Mensajes y botón */}

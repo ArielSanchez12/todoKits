@@ -43,7 +43,7 @@ const ConfirmDocente = () => {
             <img
                 src={logoEPN}
                 alt="Logo EPN"
-                className="w-40 h-40 object-cover rounded-full border-4 border-white shadow-lg mb-8"
+                className="object-cover w-115 h-115 rounded-full border-4 border-solid border-slate-600 shadow-md"
             />
             
             <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md w-full">

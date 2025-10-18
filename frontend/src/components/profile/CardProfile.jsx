@@ -22,8 +22,6 @@ export const CardProfile = () => {
             setLoading(true)
             const formData = new FormData()
             formData.append('avatar', file)
-            // Agrega los demás campos del usuario para no perderlos
-            // ELIMINADA la línea de 'direccion'
             formData.append('nombre', user.nombre || '')
             formData.append('apellido', user.apellido || '')
             formData.append('celular', user.celular || '')
@@ -49,8 +47,6 @@ export const CardProfile = () => {
             ? user.avatarDocente
             : (preview ||
                 user?.avatar ||
-                user?.avatarDocenteIA ||
-                user?.avatarIA ||
                 "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
 
     return (
@@ -80,7 +76,6 @@ export const CardProfile = () => {
             <div className="self-start">
                 <b>Apellido:</b><p className="inline-block ml-3">{user?.apellido}</p>
             </div >
-            {/* ELIMINADO el div de dirección */}
             <div className="self-start">
                 <b>Teléfono:</b><p className="inline-block ml-3">{user?.celular}</p>
             </div>

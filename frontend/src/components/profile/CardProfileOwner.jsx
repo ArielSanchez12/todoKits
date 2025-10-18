@@ -4,12 +4,10 @@ export const CardProfileOwner = () => {
 
     const { user } = storeProfile()
 
-    // Unifica la lógica de Dashboard: avatarDocente, avatarDocenteIA, avatar, avatarIA, imagen por defecto
+    // Unifica la lógica de Dashboard: avatarDocente, avatar, imagen por defecto
     const avatarUrl =
         user.avatarDocente ||
-        user.avatarDocenteIA ||
         user.avatar ||
-        user.avatarIA ||
         "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
     // Si es base64 (data:image), no agregar timestamp
@@ -28,7 +26,7 @@ export const CardProfileOwner = () => {
             </div>
             <div className="self-start">
                 <b>Docente:</b>
-                <p className="inline-block ml-3">{user.nombreDocente}</p>
+                <p className="inline-block ml-3">{user.nombreDocente && ' ' && user.apellidoDocente}</p>
             </div>
             <div className="self-start">
                 <b>Email:</b>

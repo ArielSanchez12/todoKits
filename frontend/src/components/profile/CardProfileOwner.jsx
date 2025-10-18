@@ -38,10 +38,6 @@ export const CardProfileOwner = () => {
                 <b>Celular:</b>
                 <p className="inline-block ml-3">{user.celularDocente}</p>
             </div>
-            <div className="self-start">
-                <b>Dirección:</b>
-                <p className="inline-block ml-3">{user.direccionDocente}</p>
-            </div>
         </div>
     )
 }

@@ -19,7 +19,7 @@ const FormularioPerfil = () => {
             reset({
                 nombre: user?.nombre,
                 apellido: user?.apellido,
-                direccion: user?.direccion,
+                // direccion eliminada
                 celular: user?.celular,
                 email: user?.email,
             })
@@ -50,17 +50,7 @@ const FormularioPerfil = () => {
                 {errors.apellido && <p className="text-red-800 text-base mb-4">{errors.apellido.message}</p>}
 
             </div>
-            <div>
-                <label className="mb-2 block text-base font-semibold">Dirección</label>
-                <input
-                    type="text"
-                    placeholder="Ingresa tu dirección"
-                    className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-2"
-                    {...register("direccion", { required: "Este campo es obligatorio!" })}
-                />
-                {errors.direccion && <p className="text-red-800 text-base mb-4">{errors.direccion.message}</p>}
-
-            </div>
+            {/* Bloque de dirección eliminado */}
             <div>
                 <label className="mb-2 block text-base font-semibold">Teléfono</label>
                 <input

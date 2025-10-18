@@ -23,14 +23,22 @@ export const CardProfile = () => {
             const formData = new FormData()
             formData.append('avatar', file)
             // Agrega los demás campos del usuario para no perderlos
+            // ELIMINADA la línea de 'direccion'
             formData.append('nombre', user.nombre || '')
             formData.append('apellido', user.apellido || '')
-            formData.append('direccion', user.direccion || '')
             formData.append('celular', user.celular || '')
             formData.append('email', user.email || '')
-            await updateProfile(formData, user._id)
-            setPreview(URL.createObjectURL(file))
-            setLoading(false)
+
+            try {
+                await updateProfile(formData, user._id)
+                setPreview(URL.createObjectURL(file))
+                //recarga la página para ver la nueva imagen
+                window.location.reload() 
+            } catch (error) {
+                console.error("Error al actualizar la imagen:", error)
+            } finally {
+                setLoading(false)
+            }
         }
     }
 
@@ -71,9 +79,7 @@ export const CardProfile = () => {
             <div className="self-start">
                 <b>Apellido:</b><p className="inline-block ml-3">{user?.apellido}</p>
             </div >
-            <div className="self-start">
-                <b>Dirección:</b><p className="inline-block ml-3">{user?.direccion}</p>
-            </div>
+            {/* ELIMINADO el div de dirección */}
             <div className="self-start">
                 <b>Teléfono:</b><p className="inline-block ml-3">{user?.celular}</p>
             </div>

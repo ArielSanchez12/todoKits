@@ -1,5 +1,18 @@
 import { Router } from "express";
-import { comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, recuperarPassword, registro, perfil, actualizarPerfil, actualizarPassword, confirmarNuevoEmail, registrarDocente } from "../controllers/admin_controller.js";
+import { 
+  comprobarTokenPassword, 
+  confirmarMail, 
+  crearNuevoPassword, 
+  login, 
+  recuperarPassword, 
+  registro, 
+  perfil, 
+  actualizarPerfil, 
+  actualizarPassword, 
+  confirmarNuevoEmail, 
+  registrarDocente, 
+  listarDocentes
+} from "../controllers/admin_controller.js";
 import { verificarTokenJWT } from "../middlewares/jwt.js";
 import { validate } from "../middlewares/zodValidations.js"
 import { registerSchema } from "../schemas/registerSchema.js"
@@ -25,4 +38,7 @@ router.get('/administrador/confirm-new-email/:token', confirmarNuevoEmail); // R
 
 // Nueva ruta para que los administradores creen docentes
 router.post('/administrador/registerDocente', verificarTokenJWT, validate(registerDocenteSchema), registrarDocente)
+// Ruta para listar docentes (protegida)
+router.get("/administrador/list", verificarTokenJWT, listarDocentes)
+
 export default router

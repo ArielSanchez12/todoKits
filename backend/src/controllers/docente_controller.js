@@ -57,20 +57,7 @@ const perfilDocente = (req, res) => {
   }
 };
 
-const listarDocentes = async (req, res) => {
-  try {
-    if (req.docenteBDD?.rolDocente === "Docente") {
-      const docentes = await docente.find(req.docenteBDD._id).select("-passwordDocente -createdAt -updatedAt -__v").populate('admin', '_id nombre apellido');
-      res.status(200).json(docentes);
-    } else {
-      const docentes = await docente.find({ statusDocente: true }).where('admin').equals(req.adminEmailBDD).select("-passwordDocente -createdAt -updatedAt -__v").populate('admin', '_id nombre apellido');
-      res.status(200).json(docentes);
-    }
-  } catch (error) {
-    console.error("Error al listar docentes:", error);
-    res.status(500).json({ msg: "Error en el servidor" });
-  }
-};
+
 
 const detalleDocente = async (req, res) => {
   try {
@@ -353,7 +340,6 @@ const confirmarMailDocente = async (req, res) => {
 export {
   loginDocente,
   perfilDocente,
-  listarDocentes,
   detalleDocente,
   eliminarDocente,
   actualizarDocente,

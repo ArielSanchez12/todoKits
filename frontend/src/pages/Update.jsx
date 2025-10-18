@@ -11,7 +11,7 @@ const Update = () => {
 
     useEffect(() => {
         const searchDocente = async () => {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/detailsDocente${id}`
+            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/detailsDocente/${id}`
             const storedUser = JSON.parse(localStorage.getItem("auth-token"))
             const headers = {
                 "Content-Type": "application/json",

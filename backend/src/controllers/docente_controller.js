@@ -1,5 +1,5 @@
 import docente from "../models/docente.js"
-import { sendMailToChangeEmailDocente, sendMailToRecoveryPasswordDocente } from "../config/nodemailer.js"
+import { sendMailToRecoveryPasswordDocente } from "../config/nodemailer.js"
 import { v2 as cloudinary } from 'cloudinary'
 import fs from "fs-extra"
 import mongoose from "mongoose"
@@ -98,36 +98,30 @@ const actualizarPasswordDocente = async (req, res) => {
 const confirmarNuevoEmailDocente = async (req, res) => {
   try {
     const { token } = req.params;
+    if (!token) return res.status(400).json({ msg: "Token inválido" });
 
-    // Buscar docente por token
-    const docenteBDD = await docente.findOne({ tokenDocente: token });
-    if (!docenteBDD) {
-      return res.status(404).json({ msg: "Token inválido o expirado" });
-    }
+    const docenteBDD = await docente.findOne({ token, pendingEmail: { $exists: true } });
+    if (!docenteBDD) return res.status(404).json({ msg: "Token inválido o expirado" });
 
-    // Verificar que hay un email pendiente
-    if (!docenteBDD.pendingEmailDocente) {
-      return res.status(400).json({ msg: "No hay cambio de email pendiente" });
-    }
-
-    // Actualizar email y limpiar campos
-    docenteBDD.emailDocente = docenteBDD.pendingEmailDocente;
-    docenteBDD.pendingEmailDocente = null;
-    docenteBDD.tokenDocente = null;
-
+    // aplicar cambio de email
+    docenteBDD.email = docenteBDD.pendingEmail;
+    docenteBDD.pendingEmail = null;
+    docenteBDD.token = null;
+    // opcional: marcar confirmEmail true si deseas
+    docenteBDD.confirmEmail = true;
     await docenteBDD.save();
 
-    res.status(200).json({ msg: "Email actualizado correctamente" });
+    return res.status(200).json({ msg: "Email confirmado y actualizado correctamente" });
   } catch (error) {
-    console.error("Error al confirmar email:", error);
-    res.status(500).json({ msg: "Error en el servidor" });
+    console.error("confirmarNuevoEmail error:", error);
+    return res.status(500).json({ msg: "Error en el servidor" });
   }
 };
 
 const recuperarPasswordDocente = async (req, res) => {
   try {
     // Datos ya validados por Zod
-    const { email: emailDocente } = req.validated || req.body;
+    const { emailDocente } = req.validated || req.body;
 
     const docenteBDD = await docente.findOne({ emailDocente });
     if (!docenteBDD) {
@@ -136,6 +130,7 @@ const recuperarPasswordDocente = async (req, res) => {
 
     // Generar token
     const token = docenteBDD.createToken();
+    docenteBDD.token = token;
     await docenteBDD.save();
 
     // Enviar email con el token
@@ -151,14 +146,12 @@ const recuperarPasswordDocente = async (req, res) => {
 const comprobarTokenPasswordDocente = async (req, res) => {
   try {
     const { token } = req.params;
+    const docenteBDD = await docente.findOne({ token });
+    if (docenteBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" })
 
-    // Verificar que el token exista y sea válido
-    const docenteBDD = await docente.findOne({ tokenDocente: token });
-    if (!docenteBDD) {
-      return res.status(404).json({ msg: "Token inválido o expirado" });
-    }
+    await docenteBDD.save();
 
-    res.status(200).json({ msg: "Token válido" });
+    res.status(200).json({ msg: "Token confirmado, ya puedes crear tu nuevo password" });
   } catch (error) {
     console.error("Error al comprobar token:", error);
     res.status(500).json({ msg: "Error en el servidor" });
@@ -167,55 +160,45 @@ const comprobarTokenPasswordDocente = async (req, res) => {
 
 const crearNuevoPasswordDocente = async (req, res) => {
   try {
-    // Datos validados por Zod (incluye validación de coincidencia)
-    const { password } = req.validated || req.body;
+    // Datos ya validados por Zod (incluye validación de coincidencia)
+    const { password, confirmpassword } = req.validated || req.body;
     const { token } = req.params;
 
-    if (!token) {
-      return res.status(400).json({ msg: "Token inválido" });
-    }
+    if (!token) return res.status(400).json({ msg: "Token inválido" });
 
-    const docenteBDD = await docente.findOne({ tokenDocente: token });
-    if (!docenteBDD) {
-      return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" });
-    }
+    const docenteBDD = await docente.findOne({ token });
+    if (!docenteBDD) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" });
+    if (docenteBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, token inválido o expirado" });
 
-    // Verificar que la nueva contraseña sea diferente a la anterior
-    const esIgualALaAnterior = await docenteBDD.matchPassword(password);
-    if (esIgualALaAnterior) {
-      return res.status(400).json({ msg: "La nueva contraseña debe ser diferente a la anterior" });
-    }
-
-    // Actualizar contraseña y limpiar token
-    docenteBDD.tokenDocente = null;
-    docenteBDD.passwordDocente = await docenteBDD.encryptPassword(password);
+    docenteBDD.token = null;
+    docenteBDD.password = await docenteBDD.encryptPassword(password);
     await docenteBDD.save();
 
-    res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nueva contraseña" });
+    res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" });
   } catch (error) {
-    console.error("Error al crear nueva contraseña:", error);
+    console.error("crearNuevoPassword error:", error);
     res.status(500).json({ msg: "Error en el servidor" });
   }
 };
 
 const confirmarMailDocente = async (req, res) => {
-    try {
-        const { token } = req.params;
-        
-        const docenteBDD = await docente.findOne({ tokenDocente: token });
-        if (!docenteBDD) {
-            return res.status(404).json({ msg: "Token no válido" });
-        }
-        
-        docenteBDD.confirmEmailDocente = true;
-        docenteBDD.tokenDocente = null;
-        await docenteBDD.save();
-        
-        res.status(200).json({ msg: "Email confirmado correctamente, ya puedes iniciar sesión" });
-    } catch (error) {
-        console.error("confirmarMailDocente error:", error);
-        res.status(500).json({ msg: "Error en el servidor" });
+  try {
+    const { token } = req.params;
+
+    const docenteBDD = await docente.findOne({ tokenDocente: token });
+    if (!docenteBDD) {
+      return res.status(404).json({ msg: "Token no válido" });
     }
+
+    docenteBDD.confirmEmailDocente = true;
+    docenteBDD.tokenDocente = null;
+    await docenteBDD.save();
+
+    res.status(200).json({ msg: "Email confirmado correctamente, ya puedes iniciar sesión" });
+  } catch (error) {
+    console.error("confirmarMailDocente error:", error);
+    res.status(500).json({ msg: "Error en el servidor" });
+  }
 };
 
 export {

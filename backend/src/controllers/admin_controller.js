@@ -303,10 +303,25 @@ const registrarDocente = async (req, res) => {
 const listarDocentes = async (req, res) => {
     try {
         if (req.docenteBDD?.rolDocente === "Docente") {
-            const docentes = await docente.find(req.docenteBDD._id).select("-passwordDocente -createdAt -updatedAt -__v").populate('admin', '_id nombre apellido');
+            // Si es un docente consultando su propio perfil
+            const docentes = await docente
+                .find({ 
+                    _id: req.docenteBDD._id,
+                    confirmEmailDocente: true  // Los docentes podran consultar su perfil solo si confirmaron su email
+                })
+                .select("-passwordDocente -createdAt -updatedAt -__v -statusDocente -tokenDocente -confirmEmailDocente")
+                .populate('admin', '_id nombre apellido');
             res.status(200).json(docentes);
         } else {
-            const docentes = await docente.find({ statusDocente: true }).where('admin').equals(req.adminEmailBDD).select("-passwordDocente -createdAt -updatedAt -__v").populate('admin', '_id nombre apellido');
+            // Si es un admin listando todos sus docentes
+            const docentes = await docente
+                .find({ 
+                    statusDocente: true,
+                    confirmEmailDocente: true,  // Los docentes podran ser listados en la pantalla del admin solo si confirmaron su email
+                    admin: req.adminEmailBDD._id
+                })
+                .select("-passwordDocente -createdAt -updatedAt -__v -statusDocente -tokenDocente -confirmEmailDocente")
+                .populate('admin', '_id nombre apellido');
             res.status(200).json(docentes);
         }
     } catch (error) {

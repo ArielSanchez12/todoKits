@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, model } from 'mongoose';
 
-const recursoSchema = new mongoose.Schema(
+const recursoSchema = new Schema(
   {
     tipo: {
       type: String,
@@ -124,4 +124,4 @@ recursoSchema.pre('save', function(next) {
   next();
 });
 
-export default mongoose.model("Recurso", recursoSchema);
+export default model('recurso', recursoSchema);

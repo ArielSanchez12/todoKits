@@ -1,7 +1,6 @@
 import recurso from "../models/recurso.js";
-import docente from "../models/docente.js";
 import mongoose from "mongoose";
-import admin from "../models/admin.js";
+
 
 // Obtener siguiente número para nombre autogenerado
 const obtenerSiguienteNumero = async (tipo, adminId) => {

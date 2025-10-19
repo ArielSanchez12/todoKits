@@ -7,7 +7,7 @@ import {
 } from "../controllers/auth_controller.js";
 import { validate } from "../middlewares/zodValidations.js";
 import { recuperarPasswordSchema, crearNuevoPasswordSchema } from "../schemas/passwordSchema.js";
-import docente from "../models/docente.js";
+
 
 const router = Router();
 

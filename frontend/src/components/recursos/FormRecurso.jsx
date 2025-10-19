@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { recursoFormSchema } from "../../schemas/recursoSchema";
 import storeRecursos from "../../context/storeRecursos";
 import { toast, ToastContainer } from "react-toastify";
-import ModalContenido from "./ModalRecurso";
+import ModalContenido from "./ModalContenido";
 
 const LABS_KIT = [
   { laboratorio: "LAB 23A", aula: "E030" },

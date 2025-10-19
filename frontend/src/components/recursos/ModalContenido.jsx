@@ -1,4 +1,4 @@
-const ModalRecurso = ({
+const ModalContenido = ({
   contenido,
   onAdd,
   onChange,
@@ -75,4 +75,4 @@ const ModalRecurso = ({
   );
 };
 
-export default ModalRecurso;
+export default ModalContenido;

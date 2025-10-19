@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import storeRecursos from "../context/storeRecursos";
 import Selector from "../components/recursos/Selector";
 import FormRecurso from "../components/recursos/FormRecurso";
-import TablaRecursos from "../components/recursos/TablaRecursos";
+import TablaRecurso from "../components/recursos/TablaRecursos";
 
 const Recursos = () => {
   const { recursos, fetchRecursos } = storeRecursos();
@@ -48,7 +48,7 @@ const Recursos = () => {
             </div>
 
             {/* Tabla */}
-            <TablaRecursos
+            <TablaRecurso
               recursos={recursos}
               filtro={filtro}
               onRefresh={fetchRecursos}

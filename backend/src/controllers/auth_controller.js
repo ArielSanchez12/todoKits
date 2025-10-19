@@ -7,16 +7,26 @@ const recuperarPasswordUniversal = async (req, res) => {
     try {
         const { email } = req.validated || req.body;
 
-        // Buscar primero en administradores
-        let usuario = await admin.findOne({ email });
+        console.log("Buscando email:", email);
+
+        // Declarar variables FUERA del if
+        let usuario;
         let tipoUsuario = "admin";
+        let emailDestino = email;
+
+        // Buscar primero en administradores
+        usuario = await admin.findOne({ email });
+        console.log("Admin encontrado:", !!usuario);
 
         // Si no existe en admin, buscar en docentes
         if (!usuario) {
             usuario = await docente.findOne({ emailDocente: email });
             tipoUsuario = "docente";
-            emailDestino = usuario?.emailDocente;
-
+            
+            if (usuario) {
+                emailDestino = usuario.emailDocente;
+            }
+            
             console.log("Docente encontrado:", !!usuario);
         }
 
@@ -36,19 +46,15 @@ const recuperarPasswordUniversal = async (req, res) => {
         }
 
         await usuario.save();
+        
         console.log(`Enviando email a ${emailDestino} (${tipoUsuario})`);
 
-        // Enviar correo (usa el email correcto según el tipo)
         // Enviar correo con la función adecuada según el tipo
-        if (tipoUsuario === "admin") {
-            await sendMailToRecoveryPassword(emailDestino, token);
-        } else {
-            await sendMailToRecoveryPasswordDocente(emailDestino, token);
-        }
+        await sendMailToRecoveryPassword(emailDestino, token);
 
         res.status(200).json({ msg: "Revisa tu correo para restablecer tu contraseña" });
     } catch (error) {
-        console.error("recuperarPasswordUniversal error:", error);
+        console.error("RecuperarPasswordUniversal error:", error);
         res.status(500).json({ msg: "Error en el servidor" });
     }
 };
@@ -62,7 +68,6 @@ const comprobarTokenPasswordUniversal = async (req, res) => {
 
         // Buscar en administradores
         let usuario = await admin.findOne({ token });
-
         console.log("Admin con token encontrado:", !!usuario);
 
         // Si no existe en admin, buscar en docentes
@@ -77,7 +82,7 @@ const comprobarTokenPasswordUniversal = async (req, res) => {
 
         res.status(200).json({ msg: "Token confirmado, ya puedes crear tu nuevo password" });
     } catch (error) {
-        console.error("comprobarTokenPasswordUniversal error:", error);
+        console.error("ComprobarTokenPasswordUniversal error:", error);
         res.status(500).json({ msg: "Error en el servidor" });
     }
 };

@@ -195,25 +195,27 @@ export const Form = ({ docente }) => {
                 </div>
 
                 <div>
-                    <label className="mb-2 block text-base font-semibold">Correo electrónico</label>
-                    <div className="relative">
-                        <button
-                            type="button"
-                            onMouseEnter={() => setShowEmailWarning(true)}
-                            onMouseLeave={() => setShowEmailWarning(false)}
-                            onClick={() => setShowEmailWarning(!showEmailWarning)}
-                            className="text-yellow-500 hover:text-yellow-700 focus:outline-none ml-2"
-                            title="Información importante"
-                        >
-                            <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-                            </svg>
-                        </button>
-                        {showEmailWarning && (
-                            <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-yellow-100 border border-yellow-400 rounded-md text-xs sm:text-sm text-yellow-800 whitespace-normal sm:whitespace-nowrap z-20 max-w-xs sm:max-w-none">
-                                Se enviara un correo de verificación al docente para confirmar su cuenta
-                            </div>
-                        )}
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="block text-base font-semibold">Correo electrónico</label>
+                        <div className="relative">
+                            <button
+                                type="button"
+                                onMouseEnter={() => setShowEmailWarning(true)}
+                                onMouseLeave={() => setShowEmailWarning(false)}
+                                onClick={() => setShowEmailWarning(!showEmailWarning)}
+                                className="text-yellow-500 hover:text-yellow-700 focus:outline-none ml-2"
+                                title="Información importante"
+                            >
+                                <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                                </svg>
+                            </button>
+                            {showEmailWarning && (
+                                <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-yellow-100 border border-yellow-400 rounded-md text-xs sm:text-sm text-yellow-800 whitespace-normal sm:whitespace-nowrap z-20 max-w-xs sm:max-w-none">
+                                    Deberás confirmar el nuevo email para completar el cambio
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <input
                         type="email"

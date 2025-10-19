@@ -50,13 +50,29 @@ const crearRecurso = async (req, res) => {
       }
     }
 
-    const nuevoRecurso = new recurso({
-      ...datosRecurso,
+    // Construir objeto según tipo de recurso
+    let datosParaGuardar = {
+      tipo,
       nombre,
       admin: req.adminEmailBDD._id,
       estado: "pendiente",
-    });
+    };
 
+    // Agregar campos según tipo
+    if (tipo === "kit") {
+      datosParaGuardar.laboratorio = datosRecurso.laboratorio;
+      datosParaGuardar.aula = datosRecurso.aula;
+      datosParaGuardar.contenido = datosRecurso.contenido.filter(c => c.trim());
+    } else if (tipo === "llave") {
+      datosParaGuardar.laboratorio = datosRecurso.laboratorio;
+      datosParaGuardar.aula = datosRecurso.aula;
+      // Las llaves NO tienen contenido
+    } else if (tipo === "proyector") {
+      datosParaGuardar.contenido = datosRecurso.contenido.filter(c => c.trim());
+      // Los proyectores NO tienen laboratorio ni aula
+    }
+
+    const nuevoRecurso = new recurso(datosParaGuardar);
     await nuevoRecurso.save();
 
     res.status(201).json({
@@ -65,6 +81,13 @@ const crearRecurso = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al crear recurso:", error);
+    
+    // Manejar errores de validación del modelo
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ msg: messages.join(', ') });
+    }
+    
     res.status(500).json({ msg: "Error en el servidor" });
   }
 };
@@ -77,7 +100,35 @@ const listarRecursos = async (req, res) => {
       .populate("asignadoA", "nombreDocente apellidoDocente emailDocente")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(recursos);
+    // Formatear respuesta según tipo de recurso
+    const recursosFormateados = recursos.map(r => {
+      const recursoObj = {
+        _id: r._id,
+        tipo: r.tipo,
+        nombre: r.nombre,
+        estado: r.estado,
+        asignadoA: r.asignadoA,
+        admin: r.admin,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+      };
+
+      // Agregar campos específicos según tipo
+      if (r.tipo === "kit") {
+        recursoObj.laboratorio = r.laboratorio;
+        recursoObj.aula = r.aula;
+        recursoObj.contenido = r.contenido;
+      } else if (r.tipo === "llave") {
+        recursoObj.laboratorio = r.laboratorio;
+        recursoObj.aula = r.aula;
+      } else if (r.tipo === "proyector") {
+        recursoObj.contenido = r.contenido;
+      }
+
+      return recursoObj;
+    });
+
+    res.status(200).json(recursosFormateados);
   } catch (error) {
     console.error("Error al listar recursos:", error);
     res.status(500).json({ msg: "Error en el servidor" });
@@ -98,7 +149,34 @@ const listarRecursosPorTipo = async (req, res) => {
       .populate("asignadoA", "nombreDocente apellidoDocente emailDocente")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(recursos);
+    // Formatear respuesta según tipo
+    const recursosFormateados = recursos.map(r => {
+      const recursoObj = {
+        _id: r._id,
+        tipo: r.tipo,
+        nombre: r.nombre,
+        estado: r.estado,
+        asignadoA: r.asignadoA,
+        admin: r.admin,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+      };
+
+      if (tipo === "kit") {
+        recursoObj.laboratorio = r.laboratorio;
+        recursoObj.aula = r.aula;
+        recursoObj.contenido = r.contenido;
+      } else if (tipo === "llave") {
+        recursoObj.laboratorio = r.laboratorio;
+        recursoObj.aula = r.aula;
+      } else if (tipo === "proyector") {
+        recursoObj.contenido = r.contenido;
+      }
+
+      return recursoObj;
+    });
+
+    res.status(200).json(recursosFormateados);
   } catch (error) {
     console.error("Error al listar recursos por tipo:", error);
     res.status(500).json({ msg: "Error en el servidor" });
@@ -122,7 +200,30 @@ const obtenerRecurso = async (req, res) => {
       return res.status(404).json({ msg: "Recurso no encontrado" });
     }
 
-    res.status(200).json(recursoEncontrado);
+    // Formatear respuesta según tipo
+    const recursoObj = {
+      _id: recursoEncontrado._id,
+      tipo: recursoEncontrado.tipo,
+      nombre: recursoEncontrado.nombre,
+      estado: recursoEncontrado.estado,
+      asignadoA: recursoEncontrado.asignadoA,
+      admin: recursoEncontrado.admin,
+      createdAt: recursoEncontrado.createdAt,
+      updatedAt: recursoEncontrado.updatedAt,
+    };
+
+    if (recursoEncontrado.tipo === "kit") {
+      recursoObj.laboratorio = recursoEncontrado.laboratorio;
+      recursoObj.aula = recursoEncontrado.aula;
+      recursoObj.contenido = recursoEncontrado.contenido;
+    } else if (recursoEncontrado.tipo === "llave") {
+      recursoObj.laboratorio = recursoEncontrado.laboratorio;
+      recursoObj.aula = recursoEncontrado.aula;
+    } else if (recursoEncontrado.tipo === "proyector") {
+      recursoObj.contenido = recursoEncontrado.contenido;
+    }
+
+    res.status(200).json(recursoObj);
   } catch (error) {
     console.error("Error al obtener recurso:", error);
     res.status(500).json({ msg: "Error en el servidor" });
@@ -139,9 +240,14 @@ const actualizarRecurso = async (req, res) => {
       return res.status(404).json({ msg: "ID de recurso inválido" });
     }
 
+    // Solo permitir actualizar estado y asignadoA
+    const camposPermitidos = {};
+    if (datosActualizacion.estado) camposPermitidos.estado = datosActualizacion.estado;
+    if (datosActualizacion.asignadoA !== undefined) camposPermitidos.asignadoA = datosActualizacion.asignadoA;
+
     const recursoActualizado = await recurso.findByIdAndUpdate(
       id,
-      datosActualizacion,
+      camposPermitidos,
       { new: true }
     ).populate("asignadoA", "nombreDocente apellidoDocente emailDocente");
 

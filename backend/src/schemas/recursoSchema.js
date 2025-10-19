@@ -1,40 +1,32 @@
 import { z } from "zod";
 
-export const createRecursoSchema = z.object({
-  tipo: z.enum(["kit", "llave", "proyector"], {
-    errorMap: () => ({ message: "Tipo de recurso inválido" }),
-  }),
-  laboratorio: z.string().optional(),
-  aula: z.string().optional(),
-  contenido: z.array(z.string().min(1)).optional(),
-}).refine(
-  (data) => {
-    // Si es kit o llave, laboratorio y aula son requeridos
-    if ((data.tipo === "kit" || data.tipo === "llave") && !data.laboratorio) {
-      return false;
-    }
-    return true;
-  },
-  {
-    message: "Laboratorio es requerido para kits y llaves",
-    path: ["laboratorio"],
-  }
-).refine(
-  (data) => {
-    // Si es proyector, contenido puede ser vacío, pero si es kit o llave lo validamos
-    if ((data.tipo === "kit" || data.tipo === "proyector")) {
-      const contenidoFiltrado = data.contenido?.filter((c) => c.trim()) || [];
-      if (contenidoFiltrado.length === 0) {
-        return false;
-      }
-    }
-    return true;
-  },
-  {
-    message: "Debe agregar al menos un elemento al contenido",
-    path: ["contenido"],
-  }
-);
+// Schema para crear KIT
+const kitSchema = z.object({
+  tipo: z.literal("kit"),
+  laboratorio: z.string().min(1, "Laboratorio es requerido"),
+  aula: z.string().min(1, "Aula es requerida"),
+  contenido: z.array(z.string().min(1)).min(1, "Debe agregar al menos un elemento al contenido"),
+});
+
+// Schema para crear LLAVE
+const llaveSchema = z.object({
+  tipo: z.literal("llave"),
+  laboratorio: z.string().min(1, "Laboratorio es requerido"),
+  aula: z.string().min(1, "Aula es requerida"),
+});
+
+// Schema para crear PROYECTOR
+const proyectorSchema = z.object({
+  tipo: z.literal("proyector"),
+  contenido: z.array(z.string().min(1)).min(1, "Debe agregar al menos un elemento al contenido"),
+});
+
+// Schema unificado que discrimina por tipo
+export const createRecursoSchema = z.discriminatedUnion("tipo", [
+  kitSchema,
+  llaveSchema,
+  proyectorSchema,
+]);
 
 export const updateRecursoSchema = z.object({
   estado: z.enum(["pendiente", "activo", "prestado"]).optional(),

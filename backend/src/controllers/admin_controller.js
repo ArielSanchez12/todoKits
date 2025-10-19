@@ -367,6 +367,7 @@ const actualizarDocente = async (req, res) => {
 
             // Guardar el email pendiente de confirmación
             docenteActual.pendingEmailDocente = nuevoCorreo;
+            docenteActual.token = token;
             await docenteActual.save();
 
             // Enviar email de confirmación
@@ -374,6 +375,11 @@ const actualizarDocente = async (req, res) => {
 
             // Quitar el email de los datos a actualizar para evitar que se cambie directamente
             delete datosDocente.emailDocente;
+
+            // Actualizar otros campos
+            if (datosDocente.nombreDocente) docenteActual.nombreDocente = datosDocente.nombreDocente;
+            if (datosDocente.apellidoDocente) docenteActual.apellidoDocente = datosDocente.apellidoDocente;
+            if (datosDocente.celularDocente) docenteActual.celularDocente = datosDocente.celularDocente;
         }
 
         // Procesa imagen si es necesario

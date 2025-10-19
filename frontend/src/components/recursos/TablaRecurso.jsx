@@ -2,8 +2,9 @@ import { MdDeleteForever, MdPublishedWithChanges } from "react-icons/md";
 import storeRecursos from "../../context/storeRecursos";
 import { useState } from "react";
 
-const TablaRecursos = ({ recursos, filtro, onRefresh }) => {
+const TablaRecurso = ({ recursos, filtro, onRefresh }) => {
   const { deleteRecurso } = storeRecursos();
+  const [hoveredContenido, setHoveredContenido] = useState(null);
 
   const recursosFiltrados =
     filtro === "todos"
@@ -24,6 +25,48 @@ const TablaRecursos = ({ recursos, filtro, onRefresh }) => {
       prestado: "bg-blue-100 text-blue-800",
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
+  };
+
+  // Renderizar contenido con tooltip
+  const renderContenido = (recurso) => {
+    if (!recurso.contenido || recurso.contenido.length === 0) {
+      return <span className="text-gray-400">No aplica</span>;
+    }
+
+    const primerosItems = recurso.contenido.slice(0, 2);
+    const hayMas = recurso.contenido.length > 2;
+
+    return (
+      <div 
+        className="relative"
+        onMouseEnter={() => setHoveredContenido(recurso._id)}
+        onMouseLeave={() => setHoveredContenido(null)}
+      >
+        <ul className="list-disc pl-4 text-sm">
+          {primerosItems.map((c, i) => (
+            <li key={i}>{c}</li>
+          ))}
+          {hayMas && (
+            <li className="text-blue-600 cursor-pointer">
+              +{recurso.contenido.length - 2} más...
+            </li>
+          )}
+        </ul>
+
+        {/* Tooltip con todos los items */}
+        {hoveredContenido === recurso._id && hayMas && (
+          <div className="absolute z-10 bg-gray-800 text-white p-3 rounded-lg shadow-lg -top-2 left-full ml-2 w-64">
+            <p className="font-semibold mb-2">Contenido completo:</p>
+            <ul className="list-disc pl-4 text-sm space-y-1">
+              {recurso.contenido.map((c, i) => (
+                <li key={i}>{c}</li>
+              ))}
+            </ul>
+            <div className="absolute top-3 -left-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-gray-800"></div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -50,8 +93,13 @@ const TablaRecursos = ({ recursos, filtro, onRefresh }) => {
                   {recurso.tipo.toUpperCase()}
                 </td>
                 <td className="p-2">{recurso.nombre}</td>
-                <td className="p-2">{recurso.laboratorio || "-"}</td>
-                <td className="p-2">{recurso.aula || "-"}</td>
+                {/* Mostrar "No aplica" en lugar de "-" */}
+                <td className="p-2">
+                  {recurso.laboratorio || <span className="text-gray-400">No aplica</span>}
+                </td>
+                <td className="p-2">
+                  {recurso.aula || <span className="text-gray-400">No aplica</span>}
+                </td>
                 <td className="p-2">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${getBadgeEstado(
@@ -62,19 +110,9 @@ const TablaRecursos = ({ recursos, filtro, onRefresh }) => {
                       recurso.estado.slice(1)}
                   </span>
                 </td>
+                {/* Contenido con tooltip */}
                 <td className="p-2 text-left">
-                  {recurso.contenido && recurso.contenido.length > 0 ? (
-                    <ul className="list-disc pl-4 text-sm">
-                      {recurso.contenido.slice(0, 2).map((c, i) => (
-                        <li key={i}>{c}</li>
-                      ))}
-                      {recurso.contenido.length > 2 && (
-                        <li>+{recurso.contenido.length - 2} más</li>
-                      )}
-                    </ul>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
+                  {renderContenido(recurso)}
                 </td>
                 <td className="p-2 flex justify-center gap-2">
                   <MdPublishedWithChanges
@@ -102,4 +140,4 @@ const TablaRecursos = ({ recursos, filtro, onRefresh }) => {
   );
 };
 
-export default TablaRecursos;
+export default TablaRecurso;

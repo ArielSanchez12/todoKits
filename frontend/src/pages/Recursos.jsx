@@ -4,13 +4,27 @@ import FormRecurso from "../components/recursos/FormRecurso";
 import TablaRecurso from "../components/recursos/TablaRecurso";
 
 const Recursos = () => {
-  const { recursos, fetchRecursos } = storeRecursos();
+  const { recursos, fetchRecursos, clearRecursos } = storeRecursos();
   const [vista, setVista] = useState("tabla"); // 'tabla' o 'crear'
   const [filtro, setFiltro] = useState("todos");
 
   useEffect(() => {
-    fetchRecursos();
-  }, [fetchRecursos]);
+    // Fetch solo cuando se monta el componente
+    const cargarRecursos = async () => {
+      try {
+        await fetchRecursos();
+      } catch (error) {
+        console.error("Error al cargar recursos:", error);
+      }
+    };
+
+    cargarRecursos();
+
+    // Limpiar cuando se desmonta el componente
+    return () => {
+      clearRecursos();
+    };
+  }, []); // Dependencias vacías para ejecutar solo al montar
 
   return (
     <div>

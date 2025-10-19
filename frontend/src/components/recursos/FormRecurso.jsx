@@ -10,15 +10,17 @@ const LABS_KIT = [
   { laboratorio: "LAB 23A", aula: "E030" },
   { laboratorio: "LAB 23B", aula: "E031" },
   { laboratorio: "LAB 22B", aula: "E034" },
-  { laboratorio: "LAB 20", aula: "E037" },
-  { laboratorio: "LAB 16", aula: "E042" },
   { laboratorio: "LAB 14", aula: "E045" },
+  { laboratorio: "LAB 16", aula: "E042" },
+  { laboratorio: "LAB 20", aula: "E037" },
+
 ];
 
 const LABS_LLAVE = [
   { laboratorio: "LAB 22A", aula: "E035" },
-  { laboratorio: "LAB 17", aula: "E040" },
   { laboratorio: "LAB 15", aula: "E043" },
+  { laboratorio: "LAB 17", aula: "E040" },
+
 ];
 
 const FormRecurso = ({ onBack }) => {

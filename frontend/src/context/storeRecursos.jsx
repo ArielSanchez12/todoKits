@@ -20,9 +20,14 @@ const storeRecursos = create((set) => ({
         { headers }
       );
       set({ recursos: response.data });
+      return response.data; // Retornar datos
     } catch (error) {
       console.error("Error al obtener recursos:", error);
-      toast.error("Error al cargar recursos");
+      // Solo mostrar toast si no es error de cancelación
+      if (!axios.isCancel(error)) {
+        toast.error("Error al cargar recursos");
+      }
+      throw error; // Propagar el error para manejarlo en el componente
     } finally {
       set({ loading: false });
     }
@@ -104,6 +109,11 @@ const storeRecursos = create((set) => ({
   // Toggle modal
   toggleModal: (modalName = null) => {
     set({ modal: modalName });
+  },
+  
+  // Limpiar recursos al desmontar
+  clearRecursos: () => {
+    set({ recursos: [] });
   },
 }));
 

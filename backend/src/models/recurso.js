@@ -91,6 +91,23 @@ const recursoSchema = new mongoose.Schema(
   }
 );
 
+
+// Middleware para limpiar campos no permitidos ANTES de validar
+recursoSchema.pre('validate', function(next) {
+  // Si es proyector, eliminar laboratorio y aula
+  if (this.tipo === 'proyector') {
+    this.laboratorio = undefined;
+    this.aula = undefined;
+  }
+  
+  // Si es llave, eliminar contenido
+  if (this.tipo === 'llave') {
+    this.contenido = undefined;
+  }
+  
+  next();
+});
+
 // Middleware para limpiar campos no permitidos antes de guardar
 recursoSchema.pre('save', function(next) {
   // Si es proyector, eliminar laboratorio y aula
@@ -101,7 +118,7 @@ recursoSchema.pre('save', function(next) {
   
   // Si es llave, eliminar contenido
   if (this.tipo === 'llave') {
-    this.contenido = [];
+    this.contenido = undefined;
   }
   
   next();

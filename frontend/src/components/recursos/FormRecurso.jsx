@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { recursoFormSchema } from "../../schemas/recursoSchema";
 import storeRecursos from "../../context/storeRecursos";
 import { toast, ToastContainer } from "react-toastify";
-import ModalContenido from "./ModalContenido";
+import ModalContenido from "./ModalRecurso";
 
 const LABS_KIT = [
   { laboratorio: "LAB 23A", aula: "E030" },
@@ -21,7 +21,7 @@ const LABS_LLAVE = [
   { laboratorio: "LAB 15", aula: "E043" },
 ];
 
-const formRecursos = ({ onBack }) => {
+const FormRecurso = ({ onBack }) => {
   const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
     resolver: zodResolver(recursoFormSchema),
     defaultValues: {
@@ -232,4 +232,4 @@ const formRecursos = ({ onBack }) => {
   );
 };
 
-export default formRecursos;
+export default FormRecurso;

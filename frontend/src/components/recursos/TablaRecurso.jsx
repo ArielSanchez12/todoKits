@@ -2,7 +2,7 @@ import { MdDeleteForever, MdPublishedWithChanges } from "react-icons/md";
 import storeRecursos from "../../context/storeRecursos";
 import { useState } from "react";
 
-const tableRecursos = ({ recursos, filtro, onRefresh }) => {
+const TablaRecursos = ({ recursos, filtro, onRefresh }) => {
   const { deleteRecurso } = storeRecursos();
 
   const recursosFiltrados =
@@ -102,4 +102,4 @@ const tableRecursos = ({ recursos, filtro, onRefresh }) => {
   );
 };
 
-export default tableRecursos;
+export default TablaRecursos;

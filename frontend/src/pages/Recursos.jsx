@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import storeRecursos from "../context/storeRecursos";
 import Selector from "../components/recursos/Selector";
-import FormRecursos from "../components/recursos/FormRecursos";
+import FormRecurso from "../components/recursos/FormRecurso";
 import TablaRecursos from "../components/recursos/TablaRecursos";
 
 const Recursos = () => {
@@ -55,7 +55,7 @@ const Recursos = () => {
             />
           </>
         ) : (
-          <FormRecursos onBack={() => setVista("tabla")} />
+          <FormRecurso onBack={() => setVista("tabla")} />
         )}
       </div>
     </div>

@@ -35,17 +35,6 @@ app.set('port', process.env.PORT || 3000) //Aqui lo que hacemos es traer la vari
 app.use(cors()) //Para usar el framework cors, cada que veas 'estancia'.use('algo') es un MIDDLEWARE, es decir, un intermediario
 
 
-// ESTO ESTABA ANTES
-
-/*
-// Middlewares
-// Middleware para sesiones y passport
-app.use(passport.initialize());
-app.use(express.json()) //Esto lo que hace es que todos los datos de los formularios de express, se compacten en json para que el backend los pueda procesar
-*/
-
-
-// ESTO SE CAMBIO DESPUES PARA AUMENTAR EL TAMAÑO DE LOS DATOS QUE SE PUEDEN ENVIAR
 
 // Middlewares
 // Middleware para sesiones y passport
@@ -57,15 +46,14 @@ app.get('/', (req, res) => {   //Raiz -> '/', luego una funcion callback, y si r
     res.send("Server on")
 })
 
-//Rutas veterinario
+// Rutas unificadas de autenticación (para ambos usuarios)
+app.use('/api', routerAuth)
 //Hasta aqui llega este paso http://localhost:3000/api
 app.use('/api', routerAdmin)//Aca copia y pega
 //Rutas docente
 app.use('/api', routerDocente)
 //Rutas tratamiento
 app.use('/api', routerTratamiento)
-//Ruta de autenticación que funcionan para ambos tipos de usuarios
-app.use('/api', routerAuth)
 //Ruta de chat
 app.use('/api', routerChat);
 

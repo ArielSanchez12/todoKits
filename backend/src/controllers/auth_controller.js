@@ -15,6 +15,9 @@ const recuperarPasswordUniversal = async (req, res) => {
         if (!usuario) {
             usuario = await docente.findOne({ emailDocente: email });
             tipoUsuario = "docente";
+            emailDestino = usuario?.emailDocente;
+
+            console.log("Docente encontrado:", !!usuario);
         }
 
         // Si no existe en ninguna colección
@@ -24,19 +27,24 @@ const recuperarPasswordUniversal = async (req, res) => {
 
         // Crear token
         const token = usuario.createToken();
-        
+
         // Guardar token según el tipo de usuario
         if (tipoUsuario === "admin") {
             usuario.token = token;
         } else {
             usuario.tokenDocente = token;
         }
-        
+
         await usuario.save();
+        console.log(`Enviando email a ${emailDestino} (${tipoUsuario})`);
 
         // Enviar correo (usa el email correcto según el tipo)
-        const emailDestino = tipoUsuario === "admin" ? email : usuario.emailDocente;
-        await sendMailToRecoveryPassword(emailDestino, token);
+        // Enviar correo con la función adecuada según el tipo
+        if (tipoUsuario === "admin") {
+            await sendMailToRecoveryPassword(emailDestino, token);
+        } else {
+            await sendMailToRecoveryPasswordDocente(emailDestino, token);
+        }
 
         res.status(200).json({ msg: "Revisa tu correo para restablecer tu contraseña" });
     } catch (error) {
@@ -50,14 +58,17 @@ const comprobarTokenPasswordUniversal = async (req, res) => {
     try {
         const { token } = req.params;
 
+        console.log("Verificando token:", token);
+
         // Buscar en administradores
         let usuario = await admin.findOne({ token });
-        let tipoUsuario = "admin";
+
+        console.log("Admin con token encontrado:", !!usuario);
 
         // Si no existe en admin, buscar en docentes
         if (!usuario) {
             usuario = await docente.findOne({ tokenDocente: token });
-            tipoUsuario = "docente";
+            console.log("Docente con token encontrado:", !!usuario);
         }
 
         if (!usuario) {
@@ -77,16 +88,21 @@ const crearNuevoPasswordUniversal = async (req, res) => {
         const { password } = req.validated || req.body;
         const { token } = req.params;
 
+        console.log("Creando nueva contraseña con token:", token);
+
         if (!token) return res.status(400).json({ msg: "Token inválido" });
 
         // Buscar en administradores
         let usuario = await admin.findOne({ token });
         let tipoUsuario = "admin";
 
+        console.log("Admin encontrado:", !!usuario);
+
         // Si no existe en admin, buscar en docentes
         if (!usuario) {
             usuario = await docente.findOne({ tokenDocente: token });
             tipoUsuario = "docente";
+            console.log("Docente encontrado:", !!usuario);
         }
 
         if (!usuario) {
@@ -103,6 +119,8 @@ const crearNuevoPasswordUniversal = async (req, res) => {
         }
 
         await usuario.save();
+
+        console.log(`Contraseña actualizada para ${tipoUsuario}`);
 
         res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" });
     } catch (error) {

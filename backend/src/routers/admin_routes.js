@@ -1,10 +1,7 @@
 import { Router } from "express";
 import { 
-  comprobarTokenPassword, 
   confirmarMail, 
-  crearNuevoPassword, 
   login, 
-  recuperarPassword, 
   registro, 
   perfil, 
   actualizarPerfil, 
@@ -20,7 +17,6 @@ import { verificarTokenJWT } from "../middlewares/jwt.js";
 import { validate } from "../middlewares/zodValidations.js"
 import { registerSchema } from "../schemas/registerSchema.js"
 import { updateProfileSchema, updatePasswordSchema } from "../schemas/profileSchema.js";
-import { recuperarPasswordSchema, crearNuevoPasswordSchema } from "../schemas/passwordSchema.js";
 import { registerDocenteSchema } from "../schemas/docenteSchema.js";
 import { updateDocenteSchema } from "../schemas/docenteSchema.js";
 
@@ -31,9 +27,6 @@ router.post('/register', validate(registerSchema), registro)
 //Verbo  Ruta     Controlador
 
 router.get('/confirm/:token', confirmarMail)
-router.post('/passwordrecovery', validate(recuperarPasswordSchema), recuperarPassword)
-router.get('/passwordrecovery/:token', comprobarTokenPassword)
-router.post('/newpassword/:token', validate(crearNuevoPasswordSchema), crearNuevoPassword)
 router.post('/login', login)
 router.get('/perfil', verificarTokenJWT, perfil) //verificarTokenJWT es un MIDDLEWARE que se ejecuta antes de llegar al controlador perfil (así protegemos la ruta de acceso al perfil del administrador)
 router.put('/administrador/:id', verificarTokenJWT, validate(updateProfileSchema), actualizarPerfil)

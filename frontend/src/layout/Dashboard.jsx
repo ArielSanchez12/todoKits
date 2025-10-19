@@ -72,6 +72,18 @@ const Dashboard = () => {
                         <Link to='/dashboard/crear' className={`${urlActual === '/dashboard/crear' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Crear</Link>
                     </li>
 
+                    {/* Solo mostrar Recursos para administradores */}
+                    {(userData?.rol === "Administrador") && (
+                        <li className="text-center">
+                            <Link 
+                                to='/dashboard/recursos' 
+                                className={`${urlActual === '/dashboard/recursos' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}
+                            >
+                                Recursos
+                            </Link>
+                        </li>
+                    )}
+
                     <li className="text-center">
                         <Link to='/dashboard/chat' className={`${urlActual === '/dashboard/chat' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Chat</Link>
                     </li>

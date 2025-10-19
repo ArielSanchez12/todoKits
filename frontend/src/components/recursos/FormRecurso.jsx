@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { recursoFormSchema } from "../../schemas/recursoSchema";
 import storeRecursos from "../../context/storeRecursos";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import ModalContenido from "./ModalContenido";
 
 const LABS_KIT = [
@@ -13,19 +13,18 @@ const LABS_KIT = [
   { laboratorio: "LAB 14", aula: "E045" },
   { laboratorio: "LAB 16", aula: "E042" },
   { laboratorio: "LAB 20", aula: "E037" },
-
 ];
 
 const LABS_LLAVE = [
   { laboratorio: "LAB 22A", aula: "E035" },
   { laboratorio: "LAB 15", aula: "E043" },
   { laboratorio: "LAB 17", aula: "E040" },
-
 ];
 
 const FormRecurso = ({ onBack }) => {
-  const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, watch, setValue, reset, trigger } = useForm({
     resolver: zodResolver(recursoFormSchema),
+    mode: "onChange", // ✅ Validar en cada cambio
     defaultValues: {
       tipo: "kit",
       laboratorio: "",
@@ -34,39 +33,31 @@ const FormRecurso = ({ onBack }) => {
     },
   });
 
-  // Agregar fetchRecursos a las propiedades extraídas del store
-  const { createRecurso, recursos, modal, toggleModal, fetchRecursos } = storeRecursos();
+  const { createRecurso, recursos, fetchRecursos } = storeRecursos();
   const [showModal, setShowModal] = useState(false);
   const [labsDisponibles, setLabsDisponibles] = useState([]);
   const tipoActual = watch("tipo");
   const laboratorioActual = watch("laboratorio");
-  const contenidoActual = watch("contenido");
+  const contenidoActual = watch("contenido") || [""];
 
-  // Actualizar laboratorios disponibles según tipo
+  // ✅ Actualizar laboratorios disponibles según tipo y recursos actuales
   useEffect(() => {
-    const cargarRecursos = async () => {
-      try {
-        // Recargar los recursos cada vez que cambia el tipo
-        await fetchRecursos();
-        const labsArray = tipoActual === "kit" ? LABS_KIT : LABS_LLAVE;
-        const labsUsados = recursos
-          ?.filter((r) => r.tipo === tipoActual)
-          .map((r) => r.laboratorio);
+    const labsArray = tipoActual === "kit" ? LABS_KIT : LABS_LLAVE;
+    const labsUsados = recursos
+      ?.filter((r) => r.tipo === tipoActual)
+      .map((r) => r.laboratorio)
+      .filter(Boolean);
 
-        setLabsDisponibles(
-          labsArray.filter((lab) => !labsUsados?.includes(lab.laboratorio))
-        );
-      } catch (error) {
-        console.error("Error al actualizar laboratorios:", error);
-      }
-    };
+    const disponibles = labsArray.filter(
+      (lab) => !labsUsados?.includes(lab.laboratorio)
+    );
 
-    cargarRecursos();
-  }, [tipoActual, fetchRecursos]); // No incluir recursos como dependencia
+    setLabsDisponibles(disponibles);
+  }, [tipoActual, recursos]); // ✅ Dependencia correcta
 
   // Auto-completar aula cuando se selecciona laboratorio
   useEffect(() => {
-    if (laboratorioActual) {
+    if (laboratorioActual && tipoActual !== "proyector") {
       const labsArray = tipoActual === "kit" ? LABS_KIT : LABS_LLAVE;
       const found = labsArray.find((l) => l.laboratorio === laboratorioActual);
       if (found) {
@@ -75,46 +66,58 @@ const FormRecurso = ({ onBack }) => {
     }
   }, [laboratorioActual, tipoActual, setValue]);
 
+  // ✅ Resetear campos cuando cambia el tipo
+  useEffect(() => {
+    reset({
+      tipo: tipoActual,
+      laboratorio: "",
+      aula: "",
+      contenido: tipoActual === "llave" ? [] : [""],
+    });
+  }, [tipoActual, reset]);
+
   const handleContenidoChange = (index, value) => {
     const newContenido = [...contenidoActual];
     newContenido[index] = value;
     setValue("contenido", newContenido);
+    trigger("contenido"); // ✅ Validar después de cambiar
   };
 
   const addContenidoField = () => {
-    setValue("contenido", [...contenidoActual, ""]);
+    const newContenido = [...contenidoActual, ""];
+    setValue("contenido", newContenido);
+    trigger("contenido");
   };
 
   const removeContenidoField = (index) => {
     const newContenido = contenidoActual.filter((_, i) => i !== index);
-    setValue("contenido", newContenido);
+    setValue("contenido", newContenido.length > 0 ? newContenido : [""]);
+    trigger("contenido");
   };
 
   const onSubmit = async (data) => {
     try {
-      // En lugar de usar spread operator, construir el objeto específicamente
       let datosEnvio = { tipo: data.tipo };
 
-      // Añadir solo los campos que correspondan según el tipo
       if (data.tipo === "kit") {
         datosEnvio.laboratorio = data.laboratorio;
         datosEnvio.aula = data.aula;
-        datosEnvio.contenido = data.contenido.filter(c => c.trim());
+        datosEnvio.contenido = data.contenido.filter(c => c?.trim());
       }
       else if (data.tipo === "llave") {
         datosEnvio.laboratorio = data.laboratorio;
         datosEnvio.aula = data.aula;
-        // No incluir contenido para llaves
       }
       else if (data.tipo === "proyector") {
-        datosEnvio.contenido = data.contenido.filter(c => c.trim());
+        datosEnvio.contenido = data.contenido.filter(c => c?.trim());
       }
 
-      console.log("Enviando datos:", datosEnvio); // Para depuración
       await createRecurso(datosEnvio);
-
-      // Refrescar la lista después de crear
-      await fetchRecursos();
+      
+      // ✅ Refrescar después de crear (sin await para evitar error 500 inmediato)
+      setTimeout(() => {
+        fetchRecursos().catch(err => console.error("Error al refrescar:", err));
+      }, 500);
 
       reset({
         tipo: tipoActual,
@@ -129,8 +132,6 @@ const FormRecurso = ({ onBack }) => {
 
   return (
     <div className="p-8">
-      <ToastContainer />
-
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-2xl font-bold mb-6">Crear Recurso</h2>
 
@@ -160,21 +161,24 @@ const FormRecurso = ({ onBack }) => {
                   className="w-full p-2 border rounded-lg bg-gray-100"
                 />
               ) : (
-                <select
-                  {...register("laboratorio")}
-                  className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.laboratorio ? "border-red-500" : ""
+                <>
+                  <select
+                    {...register("laboratorio")}
+                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                      errors.laboratorio ? "border-red-500" : ""
                     }`}
-                >
-                  <option value="">Seleccionar laboratorio</option>
-                  {labsDisponibles.map((lab) => (
-                    <option key={lab.laboratorio} value={lab.laboratorio}>
-                      {lab.laboratorio}
-                    </option>
-                  ))}
-                </select>
-              )}
-              {errors.laboratorio && (
-                <p className="text-red-500 text-sm mt-1">{errors.laboratorio.message}</p>
+                  >
+                    <option value="">Seleccionar laboratorio</option>
+                    {labsDisponibles.map((lab) => (
+                      <option key={lab.laboratorio} value={lab.laboratorio}>
+                        {lab.laboratorio}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.laboratorio && (
+                    <p className="text-red-500 text-sm mt-1">{errors.laboratorio.message}</p>
+                  )}
+                </>
               )}
             </div>
 
@@ -210,16 +214,18 @@ const FormRecurso = ({ onBack }) => {
                   className="w-full p-2 border rounded-lg bg-gray-100"
                 />
               ) : (
-                <button
-                  type="button"
-                  onClick={() => setShowModal(true)}
-                  className="w-full p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Editar Contenido
-                </button>
-              )}
-              {errors.contenido && (
-                <p className="text-red-500 text-sm mt-1">{errors.contenido.message}</p>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(true)}
+                    className="w-full p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Editar Contenido ({contenidoActual?.filter(c => c?.trim()).length || 0} items)
+                  </button>
+                  {errors.contenido && (
+                    <p className="text-red-500 text-sm mt-1">{errors.contenido.message}</p>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -228,7 +234,8 @@ const FormRecurso = ({ onBack }) => {
           <div className="flex gap-4">
             <button
               type="submit"
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+              disabled={Object.keys(errors).length > 0}
             >
               Crear Recurso
             </button>
@@ -244,7 +251,7 @@ const FormRecurso = ({ onBack }) => {
       </div>
 
       {/* Modal de Contenido */}
-      {showModal && (
+      {showModal && (tipoActual === "kit" || tipoActual === "proyector") && (
         <ModalContenido
           contenido={contenidoActual}
           onAdd={addContenidoField}

@@ -11,7 +11,6 @@ const storeRecursos = create((set) => ({
   fetchRecursos: async () => {
     set({ loading: true });
     try {
-      // Corregir obtención del token
       const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
       const token = storedAuth?.state?.token;
       
@@ -28,11 +27,10 @@ const storeRecursos = create((set) => ({
         { headers }
       );
       
-      set({ recursos: response.data });
-      return response.data;
+      set({ recursos: response.data || [] });
+      return response.data || [];
     } catch (error) {
       console.error("Error al obtener recursos:", error);
-      // No mostrar toast, solo loguear
       set({ recursos: [] });
       throw error;
     } finally {
@@ -60,14 +58,19 @@ const storeRecursos = create((set) => ({
         { headers }
       );
       
-      toast.success(response.data.msg);
+      // ✅ Solo mostrar un toast
+      toast.success(response.data.msg || "Recurso creado exitosamente");
+      
+      // ✅ Actualizar el estado directamente sin llamar a fetchRecursos aquí
       set((state) => ({
         recursos: [response.data.recurso, ...state.recursos],
       }));
+      
       return response.data;
     } catch (error) {
       console.error("Error al crear recurso:", error);
-      toast.error(error.response?.data?.msg || "Error al crear recurso");
+      const errorMsg = error.response?.data?.msg || "Error al crear recurso";
+      toast.error(errorMsg);
       throw error;
     }
   },
@@ -92,7 +95,7 @@ const storeRecursos = create((set) => ({
         { headers }
       );
       
-      toast.success(response.data.msg);
+      toast.success(response.data.msg || "Recurso actualizado exitosamente");
       set((state) => ({
         recursos: state.recursos.map((r) =>
           r._id === id ? response.data.recurso : r
@@ -125,7 +128,7 @@ const storeRecursos = create((set) => ({
         { headers }
       );
       
-      toast.success(response.data.msg);
+      toast.success(response.data.msg || "Recurso eliminado exitosamente");
       set((state) => ({
         recursos: state.recursos.filter((r) => r._id !== id),
       }));
@@ -137,12 +140,10 @@ const storeRecursos = create((set) => ({
     }
   },
 
-  // Toggle modal
   toggleModal: (modalName = null) => {
     set({ modal: modalName });
   },
   
-  // Limpiar recursos al desmontar
   clearRecursos: () => {
     set({ recursos: [] });
   },

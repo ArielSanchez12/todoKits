@@ -15,6 +15,12 @@ import routerAuth from './routers/auth_routes.js' // Nueva ruta para login con G
 import routerChat from './routers/mensaje_routes.js';
 import routerRecurso from './routers/recurso_routes.js';
 
+import admin from "./models/admin.js";
+import docente from "./models/docente.js";
+import tratamiento from "./models/tratamiento.js";
+import recurso from "./models/recurso.js";
+import mensaje from "./models/mensaje.js";
+
 // Inicializaciones
 const app = express() //Crear instancia como en POO
 dotenv.config()

@@ -87,7 +87,7 @@ const FormRecurso = ({ onBack }) => {
       };
       
       if (data.tipo === "llave") {
-        datosEnvio.contenido = [];
+        datosEnvio.contenido = undefined;
       }
 
       await createRecurso(datosEnvio);

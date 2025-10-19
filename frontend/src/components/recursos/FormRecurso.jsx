@@ -34,7 +34,8 @@ const FormRecurso = ({ onBack }) => {
     },
   });
 
-  const { createRecurso, recursos, modal, toggleModal } = storeRecursos();
+  // Agregar fetchRecursos a las propiedades extraídas del store
+  const { createRecurso, recursos, modal, toggleModal, fetchRecursos } = storeRecursos();
   const [showModal, setShowModal] = useState(false);
   const [labsDisponibles, setLabsDisponibles] = useState([]);
   const tipoActual = watch("tipo");
@@ -43,15 +44,25 @@ const FormRecurso = ({ onBack }) => {
 
   // Actualizar laboratorios disponibles según tipo
   useEffect(() => {
-    const labsArray = tipoActual === "kit" ? LABS_KIT : LABS_LLAVE;
-    const labsUsados = recursos
-      ?.filter((r) => r.tipo === tipoActual)
-      .map((r) => r.laboratorio);
+    const cargarRecursos = async () => {
+      try {
+        // Recargar los recursos cada vez que cambia el tipo
+        await fetchRecursos();
+        const labsArray = tipoActual === "kit" ? LABS_KIT : LABS_LLAVE;
+        const labsUsados = recursos
+          ?.filter((r) => r.tipo === tipoActual)
+          .map((r) => r.laboratorio);
 
-    setLabsDisponibles(
-      labsArray.filter((lab) => !labsUsados?.includes(lab.laboratorio))
-    );
-  }, [tipoActual, recursos]);
+        setLabsDisponibles(
+          labsArray.filter((lab) => !labsUsados?.includes(lab.laboratorio))
+        );
+      } catch (error) {
+        console.error("Error al actualizar laboratorios:", error);
+      }
+    };
+
+    cargarRecursos();
+  }, [tipoActual, fetchRecursos]); // No incluir recursos como dependencia
 
   // Auto-completar aula cuando se selecciona laboratorio
   useEffect(() => {
@@ -81,16 +92,30 @@ const FormRecurso = ({ onBack }) => {
 
   const onSubmit = async (data) => {
     try {
-      const datosEnvio = {
-        ...data,
-        contenido: data.contenido?.filter((c) => c.trim()) || [],
-      };
-      
-      if (data.tipo === "llave") {
-        datosEnvio.contenido = undefined;
+      // En lugar de usar spread operator, construir el objeto específicamente
+      let datosEnvio = { tipo: data.tipo };
+
+      // Añadir solo los campos que correspondan según el tipo
+      if (data.tipo === "kit") {
+        datosEnvio.laboratorio = data.laboratorio;
+        datosEnvio.aula = data.aula;
+        datosEnvio.contenido = data.contenido.filter(c => c.trim());
+      }
+      else if (data.tipo === "llave") {
+        datosEnvio.laboratorio = data.laboratorio;
+        datosEnvio.aula = data.aula;
+        // No incluir contenido para llaves
+      }
+      else if (data.tipo === "proyector") {
+        datosEnvio.contenido = data.contenido.filter(c => c.trim());
       }
 
+      console.log("Enviando datos:", datosEnvio); // Para depuración
       await createRecurso(datosEnvio);
+
+      // Refrescar la lista después de crear
+      await fetchRecursos();
+
       reset({
         tipo: tipoActual,
         laboratorio: "",
@@ -137,9 +162,8 @@ const FormRecurso = ({ onBack }) => {
               ) : (
                 <select
                   {...register("laboratorio")}
-                  className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                    errors.laboratorio ? "border-red-500" : ""
-                  }`}
+                  className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.laboratorio ? "border-red-500" : ""
+                    }`}
                 >
                   <option value="">Seleccionar laboratorio</option>
                   {labsDisponibles.map((lab) => (

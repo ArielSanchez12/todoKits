@@ -2,22 +2,23 @@ import { useState, useEffect } from "react";
 import storeRecursos from "../context/storeRecursos";
 import FormRecurso from "../components/recursos/FormRecurso";
 import TablaRecurso from "../components/recursos/TablaRecurso";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 const Recursos = () => {
   const { recursos, fetchRecursos, clearRecursos, loading } = storeRecursos();
   const [vista, setVista] = useState("tabla");
   const [filtro, setFiltro] = useState("todos");
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const cargarRecursos = async () => {
       try {
-        setError(null);
         await fetchRecursos();
       } catch (error) {
         console.error("Error al cargar recursos:", error);
-        setError("No se pudieron cargar los recursos. Intenta nuevamente.");
+        // Solo mostrar toast si estamos en la página de recursos
+        if (document.location.pathname.includes('/recursos')) {
+          toast.error("No se pudieron cargar los recursos");
+        }
       }
     };
 
@@ -30,10 +31,10 @@ const Recursos = () => {
 
   const handleRefresh = async () => {
     try {
-      setError(null);
       await fetchRecursos();
+      toast.success("Recursos actualizados");
     } catch (error) {
-      setError("Error al actualizar recursos");
+      toast.error("Error al actualizar recursos");
     }
   };
 
@@ -43,18 +44,6 @@ const Recursos = () => {
       <h1 className='font-black text-4xl text-black'>Recursos</h1>
       <hr className='my-2 border-t-2 border-gray-300' />
       <p className='mb-8'>Este módulo te permite gestionar los recursos del laboratorio</p>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p>{error}</p>
-          <button 
-            onClick={handleRefresh}
-            className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          >
-            Reintentar
-          </button>
-        </div>
-      )}
 
       {vista === "tabla" ? (
         <>

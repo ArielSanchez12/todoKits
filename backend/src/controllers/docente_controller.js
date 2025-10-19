@@ -98,23 +98,32 @@ const actualizarPasswordDocente = async (req, res) => {
 const confirmarNuevoEmailDocente = async (req, res) => {
   try {
     const { token } = req.params;
-    if (!token) return res.status(400).json({ msg: "Token inválido" });
 
-    const docenteBDD = await docente.findOne({ token, pendingEmail: { $exists: true } });
-    if (!docenteBDD) return res.status(404).json({ msg: "Token inválido o expirado" });
+    if (!token) {
+      return res.status(400).json({ msg: "Token inválido" });
+    }
 
-    // aplicar cambio de email
-    docenteBDD.email = docenteBDD.pendingEmail;
-    docenteBDD.pendingEmail = null;
-    docenteBDD.token = null;
-    // opcional: marcar confirmEmail true si deseas
-    docenteBDD.confirmEmail = true;
+    const docenteBDD = await docente.findOne({
+      tokenDocente: token,
+      pendingEmailDocente: { $exists: true, $ne: null }
+    });
+
+    if (!docenteBDD) {
+      return res.status(404).json({ msg: "Token inválido o expirado" });
+    }
+
+    // Aplicar cambio de email
+    docenteBDD.emailDocente = docenteBDD.pendingEmailDocente;
+    docenteBDD.pendingEmailDocente = null;
+    docenteBDD.tokenDocente = null;
+    docenteBDD.confirmEmailDocente = true;
+
     await docenteBDD.save();
 
-    return res.status(200).json({ msg: "Email confirmado y actualizado correctamente" });
+    res.status(200).json({ msg: "Email confirmado y actualizado correctamente" });
   } catch (error) {
-    console.error("confirmarNuevoEmail error:", error);
-    return res.status(500).json({ msg: "Error en el servidor" });
+    console.error("confirmarNuevoEmailDocente error:", error);
+    res.status(500).json({ msg: "Error en el servidor" });
   }
 };
 
@@ -185,9 +194,14 @@ const confirmarMailDocente = async (req, res) => {
   try {
     const { token } = req.params;
 
+    if (!token) {
+      return res.status(400).json({ msg: "Token inválido" });
+    }
+
     const docenteBDD = await docente.findOne({ tokenDocente: token });
+
     if (!docenteBDD) {
-      return res.status(404).json({ msg: "Token no válido" });
+      return res.status(404).json({ msg: "Token inválido o expirado" });
     }
 
     docenteBDD.confirmEmailDocente = true;

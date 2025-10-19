@@ -64,8 +64,8 @@ app.use('/api', routerAdmin)//Aca copia y pega
 app.use('/api', routerDocente)
 //Rutas tratamiento
 app.use('/api', routerTratamiento)
-//Ruta de autenticación con Google
-app.use('/api/auth', routerAuth)
+//Ruta de autenticación que funcionan para ambos tipos de usuarios
+app.use('/api', routerAuth)
 //Ruta de chat
 app.use('/api', routerChat);
 

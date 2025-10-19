@@ -73,8 +73,8 @@ function App() {
                     </PrivateRouteWithRole>
                   } />
 
-                  <Route path="/dashboard/recursos" element=
-                    {<PrivateRouteWithRole>
+                  <Route path="recursos" element={
+                    <PrivateRouteWithRole>
                       <Recursos />
                     </PrivateRouteWithRole>
                     } />

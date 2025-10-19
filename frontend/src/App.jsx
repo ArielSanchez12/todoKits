@@ -24,6 +24,7 @@ import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
 import LoginSuccess from "./pages/LoginSuccess";
 import ConfirmEmailChange from "./pages/ConfirmEmailChange"
 import ConfirmDocente from './pages/ConfirmDocente'
+import Recursos from './pages/Recursos'
 
 
 
@@ -71,6 +72,13 @@ function App() {
                       <Create />
                     </PrivateRouteWithRole>
                   } />
+
+                  <Route path="/dashboard/recursos" element=
+                    {<PrivateRouteWithRole>
+                      <Recursos />
+                    </PrivateRouteWithRole>
+                    } />
+
                   <Route path='actualizar/:id' element={
                     <PrivateRouteWithRole>
                       <Update />

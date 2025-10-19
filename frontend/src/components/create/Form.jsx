@@ -212,7 +212,7 @@ export const Form = ({ docente }) => {
                             </button>
                             {showEmailWarning && (
                                 <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-yellow-100 border border-yellow-400 rounded-md text-xs sm:text-sm text-yellow-800 whitespace-normal sm:whitespace-nowrap z-20 max-w-xs sm:max-w-none">
-                                    Deberás confirmar el nuevo email para completar el cambio
+                                    Se enviara un correo de verificación al docente para confirmar su cuenta
                                 </div>
                             )}
                         </div>

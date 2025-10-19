@@ -102,7 +102,7 @@ export const sendMailToChangeEmailDocente = async (userMail, token) => {
         text: "Confirma tu nuevo correo para KITS",
         html: `<p>Hola, has solicitado cambiar tu correo electrónico</p>
             <p>Para confirmar este cambio, haz clic en el siguiente enlace:</p>
-            <a href="${process.env.URL_FRONTEND}confirm-email-docente/${token}">Confirmar cambio de correo</a>
+            <a href="${process.env.URL_FRONTEND}confirm-email/${token}">Confirmar cambio de correo</a>
             <p>Si no solicitaste este cambio, por favor ignora este mensaje.</p>`
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
@@ -120,7 +120,7 @@ export const sendMailToRecoveryPasswordDocente = async (userMail, token) => {
         text: "Recupera tu contraseña para KITS",
         html: `<p>Has solicitado recuperar tu contraseña</p>
             <p>Para crear una nueva contraseña, haz clic en el siguiente enlace:</p>
-            <a href="${process.env.URL_FRONTEND}reset-docente/${token}">Recuperar contraseña</a>
+            <a href="${process.env.URL_FRONTEND}reset/${token}">Recuperar contraseña</a>
             <p>Si no solicitaste recuperar tu contraseña, por favor ignora este mensaje.</p>`
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);

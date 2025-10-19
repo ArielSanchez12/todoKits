@@ -13,7 +13,6 @@ const ConfirmEmailChange = () => {
     useEffect(() => {
         const verifyToken = async () => {
             try {
-                // ✅ Usar la ruta universal de auth_routes
                 const url = `${import.meta.env.VITE_BACKEND_URL}/confirm-email-change/${token}`;
                 const response = await axios.get(url);
                 toast.success(response?.data?.msg);
@@ -47,7 +46,7 @@ const ConfirmEmailChange = () => {
 
             {/* Imagen circular centrada */}
             <img
-                className="object-cover w-115 h-115 rounded-full border-4 border-solid border-slate-600 shadow-md"
+                className="w-80 h-80 object-cover rounded-full border-4 border-white shadow-lg mb-8"
                 src={logobuhoPuente}
                 alt={isConfirmed ? "Cambio de email exitoso" : "Error en cambio de email"}
             />

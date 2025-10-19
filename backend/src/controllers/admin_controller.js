@@ -309,7 +309,7 @@ const listarDocentes = async (req, res) => {
                     _id: req.docenteBDD._id,
                     confirmEmailDocente: true  // Los docentes podran consultar su perfil solo si confirmaron su email
                 })
-                .select("-passwordDocente -createdAt -updatedAt -__v -statusDocente -tokenDocente -confirmEmailDocente")
+                .select("-passwordDocente -createdAt -updatedAt -__v")
                 .populate('admin', '_id nombre apellido');
             res.status(200).json(docentes);
         } else {
@@ -320,7 +320,7 @@ const listarDocentes = async (req, res) => {
                     confirmEmailDocente: true,  // Los docentes podran ser listados en la pantalla del admin solo si confirmaron su email
                     admin: req.adminEmailBDD._id
                 })
-                .select("-passwordDocente -createdAt -updatedAt -__v -statusDocente -tokenDocente -confirmEmailDocente")
+                .select("-passwordDocente -createdAt -updatedAt -__v")
                 .populate('admin', '_id nombre apellido');
             res.status(200).json(docentes);
         }

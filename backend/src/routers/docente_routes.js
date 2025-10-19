@@ -18,6 +18,9 @@ const router = Router()
 
 // Rutas existentes con validación ZOD
 router.get('/docente/confirm/:token', confirmarMailDocente)
+router.post('/passwordrecovery', validate(recuperarPasswordSchema), recuperarPasswordDocente)
+router.get('/passwordrecovery/:token', comprobarTokenPasswordDocente)
+router.post('/newpassword/:token', validate(crearNuevoPasswordSchema), crearNuevoPasswordDocente)
 router.post('/docente/login', loginDocente)
 router.get('/docente/profile', verificarTokenJWT, perfilDocente)
 

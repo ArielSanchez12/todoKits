@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { recursoFormSchema } from "../../schemas/recursoSchema";
 import storeRecursos from "../../context/storeRecursos";
-import { toast } from "react-toastify";
 import ModalContenido from "./ModalContenido";
 
 const LABS_KIT = [
@@ -22,9 +21,8 @@ const LABS_LLAVE = [
 ];
 
 const FormRecurso = ({ onBack }) => {
-  const { register, handleSubmit, formState: { errors }, watch, setValue, reset, trigger } = useForm({
+  const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
     resolver: zodResolver(recursoFormSchema),
-    mode: "onChange", // ✅ Validar en cada cambio
     defaultValues: {
       tipo: "kit",
       laboratorio: "",
@@ -53,9 +51,9 @@ const FormRecurso = ({ onBack }) => {
     );
 
     setLabsDisponibles(disponibles);
-  }, [tipoActual, recursos]); // ✅ Dependencia correcta
+  }, [tipoActual, recursos]);
 
-  // Auto-completar aula cuando se selecciona laboratorio
+  // ✅ Auto-completar aula cuando se selecciona laboratorio
   useEffect(() => {
     if (laboratorioActual && tipoActual !== "proyector") {
       const labsArray = tipoActual === "kit" ? LABS_KIT : LABS_LLAVE;
@@ -68,62 +66,76 @@ const FormRecurso = ({ onBack }) => {
 
   // ✅ Resetear campos cuando cambia el tipo
   useEffect(() => {
-    reset({
-      tipo: tipoActual,
-      laboratorio: "",
-      aula: "",
-      contenido: tipoActual === "llave" ? [] : [""],
-    });
-  }, [tipoActual, reset]);
+    // Limpiar campos según el tipo
+    if (tipoActual === "proyector") {
+      setValue("laboratorio", "");
+      setValue("aula", "");
+      setValue("contenido", [""]); // Proyector SÍ lleva contenido
+    } else if (tipoActual === "llave") {
+      setValue("laboratorio", "");
+      setValue("aula", "");
+      setValue("contenido", []); // Llave NO lleva contenido
+    } else if (tipoActual === "kit") {
+      setValue("laboratorio", "");
+      setValue("aula", "");
+      setValue("contenido", [""]); // Kit SÍ lleva contenido
+    }
+  }, [tipoActual, setValue]);
 
   const handleContenidoChange = (index, value) => {
     const newContenido = [...contenidoActual];
     newContenido[index] = value;
     setValue("contenido", newContenido);
-    trigger("contenido"); // ✅ Validar después de cambiar
   };
 
   const addContenidoField = () => {
-    const newContenido = [...contenidoActual, ""];
-    setValue("contenido", newContenido);
-    trigger("contenido");
+    setValue("contenido", [...contenidoActual, ""]);
   };
 
   const removeContenidoField = (index) => {
     const newContenido = contenidoActual.filter((_, i) => i !== index);
     setValue("contenido", newContenido.length > 0 ? newContenido : [""]);
-    trigger("contenido");
   };
 
   const onSubmit = async (data) => {
     try {
+      // ✅ Construir objeto de envío según tipo de recurso
       let datosEnvio = { tipo: data.tipo };
 
       if (data.tipo === "kit") {
         datosEnvio.laboratorio = data.laboratorio;
         datosEnvio.aula = data.aula;
-        datosEnvio.contenido = data.contenido.filter(c => c?.trim());
-      }
+        datosEnvio.contenido = data.contenido?.filter(c => c?.trim()) || [];
+      } 
       else if (data.tipo === "llave") {
         datosEnvio.laboratorio = data.laboratorio;
         datosEnvio.aula = data.aula;
-      }
+        // Llave NO lleva contenido
+      } 
       else if (data.tipo === "proyector") {
-        datosEnvio.contenido = data.contenido.filter(c => c?.trim());
+        datosEnvio.contenido = data.contenido?.filter(c => c?.trim()) || [];
+        // Proyector NO lleva laboratorio ni aula
       }
+
+      console.log("Enviando datos:", datosEnvio);
 
       await createRecurso(datosEnvio);
       
-      // ✅ Refrescar después de crear (sin await para evitar error 500 inmediato)
-      setTimeout(() => {
-        fetchRecursos().catch(err => console.error("Error al refrescar:", err));
+      // ✅ Refrescar recursos después de crear (con retraso para evitar error 500)
+      setTimeout(async () => {
+        try {
+          await fetchRecursos();
+        } catch (error) {
+          console.error("Error al refrescar recursos:", error);
+        }
       }, 500);
 
+      // Resetear formulario manteniendo el tipo actual
       reset({
         tipo: tipoActual,
         laboratorio: "",
         aula: "",
-        contenido: [""],
+        contenido: tipoActual === "llave" ? [] : [""],
       });
     } catch (error) {
       console.error("Error en submit:", error);
@@ -193,13 +205,18 @@ const FormRecurso = ({ onBack }) => {
                   className="w-full p-2 border rounded-lg bg-gray-100"
                 />
               ) : (
-                <input
-                  type="text"
-                  {...register("aula")}
-                  readOnly
-                  placeholder="Aula (auto-completada)"
-                  className="w-full p-2 border rounded-lg bg-gray-100"
-                />
+                <>
+                  <input
+                    type="text"
+                    {...register("aula")}
+                    readOnly
+                    placeholder="Aula (auto-completada)"
+                    className="w-full p-2 border rounded-lg bg-gray-100"
+                  />
+                  {errors.aula && (
+                    <p className="text-red-500 text-sm mt-1">{errors.aula.message}</p>
+                  )}
+                </>
               )}
             </div>
 
@@ -234,8 +251,7 @@ const FormRecurso = ({ onBack }) => {
           <div className="flex gap-4">
             <button
               type="submit"
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
-              disabled={Object.keys(errors).length > 0}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
             >
               Crear Recurso
             </button>

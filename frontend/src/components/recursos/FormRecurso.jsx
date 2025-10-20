@@ -205,18 +205,13 @@ const FormRecurso = ({ onBack }) => {
                   className="w-full p-2 border rounded-lg bg-gray-100"
                 />
               ) : (
-                <>
-                  <input
-                    type="text"
-                    {...register("aula")}
-                    readOnly
-                    placeholder="Aula (auto-completada)"
-                    className="w-full p-2 border rounded-lg bg-gray-100"
-                  />
-                  {errors.aula && (
-                    <p className="text-red-500 text-sm mt-1">{errors.aula.message}</p>
-                  )}
-                </>
+                <input
+                  type="text"
+                  {...register("aula")}
+                  readOnly
+                  placeholder="Aula (auto-completada)"
+                  className="w-full p-2 border rounded-lg bg-gray-100"
+                />
               )}
             </div>
 

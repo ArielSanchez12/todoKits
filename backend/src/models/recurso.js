@@ -77,12 +77,12 @@ const recursoSchema = new Schema(
     },
     asignadoA: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Docente",
+      ref: "docente",
       default: null,
     },
     admin: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "admin",
       required: true,
     },
   },

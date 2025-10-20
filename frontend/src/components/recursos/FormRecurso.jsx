@@ -21,8 +21,9 @@ const LABS_LLAVE = [
 ];
 
 const FormRecurso = ({ onBack }) => {
-  const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, watch, setValue, reset, trigger } = useForm({
     resolver: zodResolver(recursoFormSchema),
+    mode: "onChange", // ✅ Validar en cada cambio
     defaultValues: {
       tipo: "kit",
       laboratorio: "",
@@ -38,7 +39,7 @@ const FormRecurso = ({ onBack }) => {
   const laboratorioActual = watch("laboratorio");
   const contenidoActual = watch("contenido") || [""];
 
-  // ✅ Actualizar laboratorios disponibles según tipo y recursos actuales
+  // Actualizar laboratorios disponibles según tipo y recursos actuales
   useEffect(() => {
     const labsArray = tipoActual === "kit" ? LABS_KIT : LABS_LLAVE;
     const labsUsados = recursos
@@ -53,7 +54,7 @@ const FormRecurso = ({ onBack }) => {
     setLabsDisponibles(disponibles);
   }, [tipoActual, recursos]);
 
-  // ✅ Auto-completar aula cuando se selecciona laboratorio
+  // Auto-completar aula cuando se selecciona laboratorio
   useEffect(() => {
     if (laboratorioActual && tipoActual !== "proyector") {
       const labsArray = tipoActual === "kit" ? LABS_KIT : LABS_LLAVE;
@@ -64,64 +65,65 @@ const FormRecurso = ({ onBack }) => {
     }
   }, [laboratorioActual, tipoActual, setValue]);
 
-  // ✅ Resetear campos cuando cambia el tipo
+  // Resetear campos cuando cambia el tipo
   useEffect(() => {
-    // Limpiar campos según el tipo
     if (tipoActual === "proyector") {
       setValue("laboratorio", "");
       setValue("aula", "");
-      setValue("contenido", [""]); // Proyector SÍ lleva contenido
+      setValue("contenido", [""]);
     } else if (tipoActual === "llave") {
       setValue("laboratorio", "");
       setValue("aula", "");
-      setValue("contenido", []); // Llave NO lleva contenido
+      setValue("contenido", []);
     } else if (tipoActual === "kit") {
       setValue("laboratorio", "");
       setValue("aula", "");
-      setValue("contenido", [""]); // Kit SÍ lleva contenido
+      setValue("contenido", [""]);
     }
-  }, [tipoActual, setValue]);
+    // ✅ Validar después de resetear
+    setTimeout(() => trigger(), 100);
+  }, [tipoActual, setValue, trigger]);
 
   const handleContenidoChange = (index, value) => {
     const newContenido = [...contenidoActual];
     newContenido[index] = value;
     setValue("contenido", newContenido);
+    // ✅ Validar después de cambiar
+    trigger("contenido");
   };
 
   const addContenidoField = () => {
     setValue("contenido", [...contenidoActual, ""]);
+    trigger("contenido");
   };
 
   const removeContenidoField = (index) => {
     const newContenido = contenidoActual.filter((_, i) => i !== index);
     setValue("contenido", newContenido.length > 0 ? newContenido : [""]);
+    trigger("contenido");
   };
 
   const onSubmit = async (data) => {
     try {
-      // ✅ Construir objeto de envío según tipo de recurso
       let datosEnvio = { tipo: data.tipo };
 
       if (data.tipo === "kit") {
         datosEnvio.laboratorio = data.laboratorio;
         datosEnvio.aula = data.aula;
         datosEnvio.contenido = data.contenido?.filter(c => c?.trim()) || [];
-      } 
+      }
       else if (data.tipo === "llave") {
         datosEnvio.laboratorio = data.laboratorio;
         datosEnvio.aula = data.aula;
-        // Llave NO lleva contenido
-      } 
+      }
       else if (data.tipo === "proyector") {
         datosEnvio.contenido = data.contenido?.filter(c => c?.trim()) || [];
-        // Proyector NO lleva laboratorio ni aula
       }
 
       console.log("Enviando datos:", datosEnvio);
 
       await createRecurso(datosEnvio);
-      
-      // ✅ Refrescar recursos después de crear (con retraso para evitar error 500)
+
       setTimeout(async () => {
         try {
           await fetchRecursos();
@@ -130,7 +132,6 @@ const FormRecurso = ({ onBack }) => {
         }
       }, 500);
 
-      // Resetear formulario manteniendo el tipo actual
       reset({
         tipo: tipoActual,
         laboratorio: "",
@@ -176,9 +177,8 @@ const FormRecurso = ({ onBack }) => {
                 <>
                   <select
                     {...register("laboratorio")}
-                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
-                      errors.laboratorio ? "border-red-500" : ""
-                    }`}
+                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${errors.laboratorio ? "border-red-500" : ""
+                      }`}
                   >
                     <option value="">Seleccionar laboratorio</option>
                     {labsDisponibles.map((lab) => (
@@ -235,12 +235,16 @@ const FormRecurso = ({ onBack }) => {
                   <button
                     type="button"
                     onClick={() => setShowModal(true)}
-                    className="w-full p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className={`w-full p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 ${errors.contenido ? "ring-2 ring-red-500" : ""
+                      }`}
                   >
                     Editar Contenido ({contenidoActual?.filter(c => c?.trim()).length || 0} items)
                   </button>
+                  {/* ✅ Mostrar error de contenido */}
                   {errors.contenido && (
-                    <p className="text-red-500 text-sm mt-1">{errors.contenido.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.contenido.message || "Debe agregar al menos un elemento"}
+                    </p>
                   )}
                 </>
               )}
@@ -273,7 +277,10 @@ const FormRecurso = ({ onBack }) => {
           onAdd={addContenidoField}
           onChange={handleContenidoChange}
           onRemove={removeContenidoField}
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            setShowModal(false);
+            trigger("contenido"); // ✅ Validar al cerrar modal
+          }}
           tipoRecurso={tipoActual}
         />
       )}

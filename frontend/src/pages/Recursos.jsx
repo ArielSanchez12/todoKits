@@ -5,9 +5,10 @@ import TablaRecurso from "../components/recursos/TablaRecurso";
 import { ToastContainer, toast } from "react-toastify";
 
 const Recursos = () => {
-  const { recursos, fetchRecursos, clearRecursos, loading } = storeRecursos();
+  const { recursos, fetchRecursos, clearRecursos, loading, setRecursoEditando } = storeRecursos();
   const [vista, setVista] = useState("tabla");
   const [filtro, setFiltro] = useState("todos");
+  const [modoEdicion, setModoEdicion] = useState(false); // Nuevo estado
 
   useEffect(() => {
     const cargarRecursos = async () => {
@@ -15,7 +16,6 @@ const Recursos = () => {
         await fetchRecursos();
       } catch (error) {
         console.error("Error al cargar recursos:", error);
-        // Solo mostrar toast si estamos en la página de recursos
         if (document.location.pathname.includes('/recursos')) {
           toast.error("No se pudieron cargar los recursos");
         }
@@ -38,6 +38,21 @@ const Recursos = () => {
     }
   };
 
+  // Función para manejar edición
+  const handleEdit = (recurso) => {
+    setRecursoEditando(recurso);
+    setModoEdicion(true);
+    setVista("formulario");
+  };
+
+  // Función para volver a la tabla
+  const handleBack = () => {
+    setVista("tabla");
+    setModoEdicion(false);
+    setRecursoEditando(null);
+    handleRefresh();
+  };
+
   return (
     <div>
       <ToastContainer />
@@ -49,7 +64,11 @@ const Recursos = () => {
         <>
           <div className="flex justify-between items-center mb-6">
             <button
-              onClick={() => setVista("crear")}
+              onClick={() => {
+                setModoEdicion(false);
+                setRecursoEditando(null);
+                setVista("formulario");
+              }}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               Crear Recurso
@@ -83,15 +102,14 @@ const Recursos = () => {
               recursos={recursos}
               filtro={filtro}
               onRefresh={handleRefresh}
+              onEdit={handleEdit} // Pasar función de edición
             />
           )}
         </>
       ) : (
         <FormRecurso 
-          onBack={() => {
-            setVista("tabla");
-            handleRefresh();
-          }} 
+          onBack={handleBack}
+          modoEdicion={modoEdicion} // Pasar modo edición
         />
       )}
     </div>

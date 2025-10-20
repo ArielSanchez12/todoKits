@@ -32,3 +32,16 @@ export const updateRecursoSchema = z.object({
   estado: z.enum(["pendiente", "activo", "prestado"]).optional(),
   asignadoA: z.string().optional(),
 });
+
+// NUEVO: Schema para actualización completa (edición)
+export const updateRecursoCompletoSchema = z.object({
+  // Para KIT
+  laboratorio: z.string().optional(),
+  aula: z.string().optional(),
+  contenido: z.array(z.string().min(1)).optional(),
+}).refine((data) => {
+  // Al menos un campo debe estar presente
+  return data.laboratorio || data.aula || data.contenido;
+}, {
+  message: "Debe proporcionar al menos un campo para actualizar"
+});

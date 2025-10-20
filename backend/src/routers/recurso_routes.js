@@ -5,11 +5,12 @@ import {
   listarRecursosPorTipo,
   obtenerRecurso,
   actualizarRecurso,
+  actualizarRecursoCompleto,
   eliminarRecurso,
 } from "../controllers/recurso_controller.js";
 import { verificarTokenJWT } from "../middlewares/jwt.js";
 import { validate } from "../middlewares/zodValidations.js";
-import { createRecursoSchema, updateRecursoSchema } from "../schemas/recursoSchema.js";
+import { createRecursoSchema, updateRecursoSchema, updateRecursoCompletoSchema } from "../schemas/recursoSchema.js";
 
 const router = Router();
 
@@ -24,6 +25,10 @@ router.get("/administrador/recursos/:tipo", verificarTokenJWT, listarRecursosPor
 
 // Obtener recurso por ID (protegido)
 router.get("/administrador/recurso/:id", verificarTokenJWT, obtenerRecurso);
+
+//Actualizar recurso completo (edición de campos)
+router.patch("/administrador/recurso/editar/:id", verificarTokenJWT, validate(updateRecursoCompletoSchema), actualizarRecursoCompleto);
+
 
 // Actualizar recurso (protegido)
 router.put("/administrador/recurso/:id", verificarTokenJWT, validate(updateRecursoSchema), actualizarRecurso);

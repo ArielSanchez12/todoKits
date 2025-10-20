@@ -233,7 +233,7 @@ const obtenerRecurso = async (req, res) => {
   }
 };
 
-// Actualizar estado del recurso
+// Actualizar estado del recurso (cambio de estado cuando se asigna al docente)
 const actualizarRecurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -268,6 +268,109 @@ const actualizarRecurso = async (req, res) => {
   }
 };
 
+const actualizarRecursoCompleto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const datosActualizacion = req.validated || req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ msg: "ID de recurso inválido" });
+    }
+
+    // Buscar el recurso existente
+    const recursoExistente = await recurso.findById(id);
+    if (!recursoExistente) {
+      return res.status(404).json({ msg: "Recurso no encontrado" });
+    }
+
+    const tipo = recursoExistente.tipo;
+
+    // Construir objeto de actualización según tipo
+    let datosParaActualizar = {};
+
+    if (tipo === "kit") {
+      // Kit puede actualizar: laboratorio, aula, contenido
+      if (datosActualizacion.laboratorio) {
+        // Validar que el laboratorio no esté en uso por otro kit
+        const labEnUso = await recurso.findOne({
+          tipo: "kit",
+          laboratorio: datosActualizacion.laboratorio,
+          _id: { $ne: id },
+          admin: recursoExistente.admin,
+        });
+
+        if (labEnUso) {
+          return res.status(400).json({
+            msg: `El laboratorio ${datosActualizacion.laboratorio} ya está en uso por otro kit`,
+          });
+        }
+
+        datosParaActualizar.laboratorio = datosActualizacion.laboratorio;
+      }
+
+      if (datosActualizacion.aula) {
+        datosParaActualizar.aula = datosActualizacion.aula;
+      }
+
+      if (datosActualizacion.contenido && Array.isArray(datosActualizacion.contenido)) {
+        datosParaActualizar.contenido = datosActualizacion.contenido.filter(c => c.trim());
+      }
+    } 
+    else if (tipo === "llave") {
+      // Llave puede actualizar: laboratorio, aula
+      if (datosActualizacion.laboratorio) {
+        // Validar que el laboratorio no esté en uso por otra llave
+        const labEnUso = await recurso.findOne({
+          tipo: "llave",
+          laboratorio: datosActualizacion.laboratorio,
+          _id: { $ne: id },
+          admin: recursoExistente.admin,
+        });
+
+        if (labEnUso) {
+          return res.status(400).json({
+            msg: `El laboratorio ${datosActualizacion.laboratorio} ya está en uso por otra llave`,
+          });
+        }
+
+        datosParaActualizar.laboratorio = datosActualizacion.laboratorio;
+      }
+
+      if (datosActualizacion.aula) {
+        datosParaActualizar.aula = datosActualizacion.aula;
+      }
+    } 
+    else if (tipo === "proyector") {
+      // Proyector solo puede actualizar: contenido
+      if (datosActualizacion.contenido && Array.isArray(datosActualizacion.contenido)) {
+        datosParaActualizar.contenido = datosActualizacion.contenido.filter(c => c.trim());
+      }
+    }
+
+    // Actualizar el recurso
+    const recursoActualizado = await recurso.findByIdAndUpdate(
+      id,
+      datosParaActualizar,
+      { new: true, runValidators: true }
+    ).populate("asignadoA", "nombreDocente apellidoDocente emailDocente");
+
+    res.status(200).json({
+      msg: "Recurso actualizado exitosamente",
+      recurso: recursoActualizado,
+    });
+  } catch (error) {
+    console.error("Error al actualizar recurso:", error);
+    
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ msg: messages.join(', ') });
+    }
+    
+    res.status(500).json({ msg: "Error en el servidor" });
+  }
+};
+
+
 // Eliminar recurso
 const eliminarRecurso = async (req, res) => {
   try {
@@ -296,5 +399,6 @@ export {
   listarRecursosPorTipo,
   obtenerRecurso,
   actualizarRecurso,
+  actualizarRecursoCompleto,
   eliminarRecurso,
 };

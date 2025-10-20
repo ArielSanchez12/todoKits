@@ -6,6 +6,7 @@ const storeRecursos = create((set) => ({
   recursos: [],
   loading: false,
   modal: null,
+  recursoEditando: null,
 
   // Obtener todos los recursos
   fetchRecursos: async () => {
@@ -13,7 +14,7 @@ const storeRecursos = create((set) => ({
     try {
       const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
       const token = storedAuth?.state?.token;
-      
+
       if (!token) {
         throw new Error("No hay token de autenticación");
       }
@@ -21,12 +22,12 @@ const storeRecursos = create((set) => ({
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      
+
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/administrador/recursos`,
         { headers }
       );
-      
+
       set({ recursos: response.data || [] });
       return response.data || [];
     } catch (error) {
@@ -38,12 +39,12 @@ const storeRecursos = create((set) => ({
     }
   },
 
-  // Crear recurso
-  createRecurso: async (datosRecurso) => {
+  // Obtener recurso por ID
+  fetchRecursoById: async (id) => {
     try {
       const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
       const token = storedAuth?.state?.token;
-      
+
       if (!token) {
         throw new Error("No hay token de autenticación");
       }
@@ -51,21 +52,49 @@ const storeRecursos = create((set) => ({
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/recurso/${id}`,
+        { headers }
+      );
+
+      set({ recursoEditando: response.data });
+      return response.data;
+    } catch (error) {
+      console.error("Error al obtener recurso:", error);
+      toast.error("Error al cargar el recurso");
+      throw error;
+    }
+  },
+
+  // Crear recurso
+  createRecurso: async (datosRecurso) => {
+    try {
+      const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
+      const token = storedAuth?.state?.token;
+
+      if (!token) {
+        throw new Error("No hay token de autenticación");
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/administrador/recurso/crear`,
         datosRecurso,
         { headers }
       );
-      
-      // ✅ Solo mostrar un toast
+
+      // Solo mostrar un toast
       toast.success(response.data.msg || "Recurso creado exitosamente");
-      
-      // ✅ Actualizar el estado directamente sin llamar a fetchRecursos aquí
+
+      // Actualizar el estado directamente sin llamar a fetchRecursos aquí
       set((state) => ({
         recursos: [response.data.recurso, ...state.recursos],
       }));
-      
+
       return response.data;
     } catch (error) {
       console.error("Error al crear recurso:", error);
@@ -75,12 +104,12 @@ const storeRecursos = create((set) => ({
     }
   },
 
-  // Actualizar recurso
+  // Actualizar recurso (estado)
   updateRecurso: async (id, datosActualizacion) => {
     try {
       const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
       const token = storedAuth?.state?.token;
-      
+
       if (!token) {
         throw new Error("No hay token de autenticación");
       }
@@ -88,13 +117,13 @@ const storeRecursos = create((set) => ({
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      
+
       const response = await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/administrador/recurso/${id}`,
         datosActualizacion,
         { headers }
       );
-      
+
       toast.success(response.data.msg || "Recurso actualizado exitosamente");
       set((state) => ({
         recursos: state.recursos.map((r) =>
@@ -109,12 +138,12 @@ const storeRecursos = create((set) => ({
     }
   },
 
-  // Eliminar recurso
-  deleteRecurso: async (id) => {
+  // NUEVO: Actualizar recurso completo (edición)
+  updateRecursoCompleto: async (id, datosActualizacion) => {
     try {
       const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
       const token = storedAuth?.state?.token;
-      
+
       if (!token) {
         throw new Error("No hay token de autenticación");
       }
@@ -122,12 +151,50 @@ const storeRecursos = create((set) => ({
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      
+
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/recurso/editar/${id}`,
+        datosActualizacion,
+        { headers }
+      );
+
+      toast.success(response.data.msg || "Recurso actualizado exitosamente");
+
+      set((state) => ({
+        recursos: state.recursos.map((r) =>
+          r._id === id ? response.data.recurso : r
+        ),
+        recursoEditando: null,
+      }));
+
+      return response.data;
+    } catch (error) {
+      console.error("Error al actualizar recurso:", error);
+      const errorMsg = error.response?.data?.msg || "Error al actualizar recurso";
+      toast.error(errorMsg);
+      throw error;
+    }
+  },
+
+  // Eliminar recurso
+  deleteRecurso: async (id) => {
+    try {
+      const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
+      const token = storedAuth?.state?.token;
+
+      if (!token) {
+        throw new Error("No hay token de autenticación");
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       const response = await axios.delete(
         `${import.meta.env.VITE_BACKEND_URL}/administrador/recurso/${id}`,
         { headers }
       );
-      
+
       toast.success(response.data.msg || "Recurso eliminado exitosamente");
       set((state) => ({
         recursos: state.recursos.filter((r) => r._id !== id),
@@ -140,10 +207,15 @@ const storeRecursos = create((set) => ({
     }
   },
 
+  // Establecer recurso para editar
+  setRecursoEditando: (recurso) => {
+    set({ recursoEditando: recurso });
+  },
+
   toggleModal: (modalName = null) => {
     set({ modal: modalName });
   },
-  
+
   clearRecursos: () => {
     set({ recursos: [] });
   },

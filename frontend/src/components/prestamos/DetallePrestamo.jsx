@@ -186,16 +186,22 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                 <p className="text-sm font-semibold text-gray-700 mb-3">
                   📦 Recursos Adicionales Detectados
                 </p>
-                <div className="space-y-3">
-                  {prestamo.recursosAdicionales.map((rec) => (
+                <div className="space-y-4">
+                  {prestamo.recursosAdicionales.map((rec, index) => (
                     <div
                       key={rec._id}
-                      className="bg-white p-3 rounded-lg border border-yellow-200"
+                      className="bg-white p-4 rounded-lg border border-yellow-200"
                     >
-                      <div className="grid grid-cols-2 gap-2">
+                      {/* Título del recurso adicional */}
+                      <p className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">
+                        Recurso Adicional #{index + 1}
+                      </p>
+
+                      {/* Grid de información */}
+                      <div className="grid grid-cols-2 gap-3">
                         <div>
                           <span className="text-xs text-gray-600">Nombre:</span>
-                          <p className="font-semibold">{rec.nombre}</p>
+                          <p className="font-semibold">{rec.nombre || "N/A"}</p>
                         </div>
                         <div>
                           <span className="text-xs text-gray-600">Tipo:</span>
@@ -203,6 +209,8 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                             {rec.tipo?.toUpperCase() || "N/A"}
                           </p>
                         </div>
+
+                        {/* Laboratorio y Aula (si existen) */}
                         {rec.laboratorio && (
                           <>
                             <div>
@@ -213,10 +221,12 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                             </div>
                             <div>
                               <span className="text-xs text-gray-600">Aula:</span>
-                              <p className="font-semibold">{rec.aula}</p>
+                              <p className="font-semibold">{rec.aula || "N/A"}</p>
                             </div>
                           </>
                         )}
+
+                        {/* Contenido (si existe) */}
                         {rec.contenido && rec.contenido.length > 0 && (
                           <div className="col-span-2">
                             <span className="text-xs text-gray-600">
@@ -224,7 +234,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                             </span>
                             <ul className="list-disc pl-5 mt-1">
                               {rec.contenido.map((item, i) => (
-                                <li key={i} className="text-xs">
+                                <li key={i} className="text-sm">
                                   {item}
                                 </li>
                               ))}

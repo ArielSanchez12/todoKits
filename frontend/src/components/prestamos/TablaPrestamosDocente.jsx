@@ -287,7 +287,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
             </div>
 
             <p className="text-sm text-gray-600 mb-4">
-              Se registrará la hora actual de devolución y el recurso quedará
+              ⏰ Se registrará la hora actual de devolución y el recurso quedará
               disponible nuevamente.
             </p>
 

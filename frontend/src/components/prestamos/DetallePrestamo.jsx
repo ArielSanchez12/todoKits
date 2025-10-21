@@ -179,72 +179,32 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
             </div>
           </div>
 
-          {/* Recursos Adicionales con detalles completos */}
+          {/* Recursos Adicionales */}
           {prestamo.recursosAdicionales &&
             prestamo.recursosAdicionales.length > 0 && (
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <p className="text-sm font-semibold text-gray-700 mb-3">
                   📦 Recursos Adicionales Detectados
                 </p>
-                <div className="space-y-4">
-                  {prestamo.recursosAdicionales.map((rec, index) => (
-                    <div
+                <ul className="space-y-2">
+                  {prestamo.recursosAdicionales.map((rec) => (
+                    <li
                       key={rec._id}
-                      className="bg-white p-4 rounded-lg border border-yellow-200"
+                      className="flex items-center gap-2 text-sm"
                     >
-                      {/* Título del recurso adicional */}
-                      <p className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">
-                        Recurso Adicional #{index + 1}
-                      </p>
-
-                      {/* Grid de información */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <span className="text-xs text-gray-600">Nombre:</span>
-                          <p className="font-semibold">{rec.nombre || "N/A"}</p>
-                        </div>
-                        <div>
-                          <span className="text-xs text-gray-600">Tipo:</span>
-                          <p className="font-semibold">
-                            {rec.tipo?.toUpperCase() || "N/A"}
-                          </p>
-                        </div>
-
-                        {/* Laboratorio y Aula (si existen) */}
-                        {rec.laboratorio && (
-                          <>
-                            <div>
-                              <span className="text-xs text-gray-600">
-                                Laboratorio:
-                              </span>
-                              <p className="font-semibold">{rec.laboratorio}</p>
-                            </div>
-                            <div>
-                              <span className="text-xs text-gray-600">Aula:</span>
-                              <p className="font-semibold">{rec.aula || "N/A"}</p>
-                            </div>
-                          </>
-                        )}
-
-                        {/* Contenido (si existe) */}
-                        {rec.contenido && rec.contenido.length > 0 && (
-                          <div className="col-span-2">
-                            <span className="text-xs text-gray-600">
-                              Contenido:
-                            </span>
-                            <ul className="list-disc pl-5 mt-1">
-                              {rec.contenido.map((item, i) => (
-                                <li key={i} className="text-sm">
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                      <span className="w-2 h-2 bg-yellow-600 rounded-full"></span>
+                      <span className="font-semibold">{rec.nombre}</span>
+                      <span className="text-gray-600">
+                        ({rec.tipo?.toUpperCase()})
+                      </span>
+                      {rec.laboratorio && (
+                        <span className="text-xs text-gray-500">
+                          - {rec.laboratorio}
+                        </span>
+                      )}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
 

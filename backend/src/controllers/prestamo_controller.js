@@ -368,19 +368,36 @@ const finalizarPrestamoAdmin = async (req, res) => {
       });
     }
 
-    // Actualizar estado del préstamo
+    // Actualizar estado del préstamo y guardar observaciones correctamente
     prestamoEncontrado.estado = "finalizado";
     prestamoEncontrado.horaDevolucion = new Date();
-    prestamoEncontrado.observacionesDevolucion = 
-      observacionesDevolucion || "Finalizado por el administrador";
+    
+    // Agregar observaciones al campo existente en lugar de crear un campo nuevo
+    if (observacionesDevolucion) {
+      prestamoEncontrado.observaciones += `\n[DEVOLUCIÓN - ADMIN] ${observacionesDevolucion}`;
+    } else {
+      prestamoEncontrado.observaciones += `\n[DEVOLUCIÓN - ADMIN] Finalizado por el administrador`;
+    }
+    
     await prestamoEncontrado.save();
 
-    // Liberar el recurso
+    // Liberar el recurso principal
     const recursoEncontrado = await recurso.findById(prestamoEncontrado.recurso);
     if (recursoEncontrado) {
       recursoEncontrado.estado = "pendiente";
       recursoEncontrado.asignadoA = null;
       await recursoEncontrado.save();
+    }
+
+    //Liberar recursos adicionales (CRÍTICO)
+    if (prestamoEncontrado.recursosAdicionales && prestamoEncontrado.recursosAdicionales.length > 0) {
+      await recurso.updateMany(
+        { _id: { $in: prestamoEncontrado.recursosAdicionales } },
+        { 
+          estado: "pendiente", 
+          asignadoA: null 
+        }
+      );
     }
 
     res.status(200).json({

@@ -143,11 +143,11 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
       {/* Filtros */}
       <div className="flex flex-wrap gap-2 mb-4">
         {[
+          { key: "todos", label: "Todos" },
           { key: "activo", label: "Activos" },
           { key: "pendiente", label: "Pendientes" },
           { key: "finalizado", label: "Finalizados" },
           { key: "rechazado", label: "Rechazados" },
-          { key: "todos", label: "Todos" },
         ].map((tipo) => (
           <button
             key={tipo.key}

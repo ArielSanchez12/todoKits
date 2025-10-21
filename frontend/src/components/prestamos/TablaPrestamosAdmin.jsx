@@ -96,7 +96,7 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh }) => {
                   <td className="p-2">{formatFecha(prestamo.fechaPrestamo)}</td>
                   <td className="p-2">
                     {prestamo.estado === "rechazado" ? (
-                      <span className="text-gray-400 italic">No Aplica</span>
+                      <span className="text-gray-400">No Aplica</span>
                     ) : prestamo.horaConfirmacion ? (
                       <>
                         {formatFecha(prestamo.horaConfirmacion)}
@@ -111,7 +111,7 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh }) => {
                   </td>
                   <td className="p-2">
                     {prestamo.estado === "rechazado" ? (
-                      <span className="text-gray-400 italic">No Aplica</span>
+                      <span className="text-gray-400">No Aplica</span>
                     ) : prestamo.horaDevolucion ? (
                       <>
                         {formatFecha(prestamo.horaDevolucion)}

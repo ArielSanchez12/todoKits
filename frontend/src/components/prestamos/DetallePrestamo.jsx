@@ -179,32 +179,62 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
             </div>
           </div>
 
-          {/* Recursos Adicionales */}
+          {/* Recursos Adicionales con detalles completos */}
           {prestamo.recursosAdicionales &&
             prestamo.recursosAdicionales.length > 0 && (
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <p className="text-sm font-semibold text-gray-700 mb-3">
                   📦 Recursos Adicionales Detectados
                 </p>
-                <ul className="space-y-2">
+                <div className="space-y-3">
                   {prestamo.recursosAdicionales.map((rec) => (
-                    <li
+                    <div
                       key={rec._id}
-                      className="flex items-center gap-2 text-sm"
+                      className="bg-white p-3 rounded-lg border border-yellow-200"
                     >
-                      <span className="w-2 h-2 bg-yellow-600 rounded-full"></span>
-                      <span className="font-semibold">{rec.nombre}</span>
-                      <span className="text-gray-600">
-                        ({rec.tipo?.toUpperCase()})
-                      </span>
-                      {rec.laboratorio && (
-                        <span className="text-xs text-gray-500">
-                          - {rec.laboratorio}
-                        </span>
-                      )}
-                    </li>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-xs text-gray-600">Nombre:</span>
+                          <p className="font-semibold">{rec.nombre}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs text-gray-600">Tipo:</span>
+                          <p className="font-semibold">
+                            {rec.tipo?.toUpperCase() || "N/A"}
+                          </p>
+                        </div>
+                        {rec.laboratorio && (
+                          <>
+                            <div>
+                              <span className="text-xs text-gray-600">
+                                Laboratorio:
+                              </span>
+                              <p className="font-semibold">{rec.laboratorio}</p>
+                            </div>
+                            <div>
+                              <span className="text-xs text-gray-600">Aula:</span>
+                              <p className="font-semibold">{rec.aula}</p>
+                            </div>
+                          </>
+                        )}
+                        {rec.contenido && rec.contenido.length > 0 && (
+                          <div className="col-span-2">
+                            <span className="text-xs text-gray-600">
+                              Contenido:
+                            </span>
+                            <ul className="list-disc pl-5 mt-1">
+                              {rec.contenido.map((item, i) => (
+                                <li key={i} className="text-xs">
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
 

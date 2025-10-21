@@ -1,6 +1,6 @@
 import { MdDeleteForever, MdPublishedWithChanges } from "react-icons/md";
 import storeRecursos from "../../context/storeRecursos";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
   const { deleteRecurso } = storeRecursos();
@@ -14,27 +14,36 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
       ? recursos
       : recursos?.filter((r) => r.tipo === filtro);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, recurso) => {
+    // Validar si está en préstamo
+    if (recurso.estado === "activo" || recurso.estado === "prestado") {
+      alert("No se puede eliminar un recurso que está en préstamo activo");
+      return;
+    }
+
     if (window.confirm("¿Estás seguro de que deseas eliminar este recurso?")) {
-      await deleteRecurso(id);
-      onRefresh();
+      try {
+        await deleteRecurso(id);
+        onRefresh();
+      } catch (error) {
+        console.error("Error al eliminar recurso:", error);
+      }
     }
   };
 
   const getBadgeEstado = (estado) => {
     const colors = {
       pendiente: "bg-yellow-100 text-yellow-800",
-      activo: "bg-green-100 text-green-800",
+      activo: "bg-orange-100 text-orange-800", // Cambiar color para activo
       prestado: "bg-blue-100 text-blue-800",
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
   };
 
   // Calcular posición del tooltip de forma responsive
-  const handleMouseEnter = (recursoId, event) => {
+  const handleMouseEnter = (recursoId) => {
     setHoveredContenido(recursoId);
 
-    // Esperar a que el tooltip se renderice
     setTimeout(() => {
       if (tooltipRef.current && cellRef.current) {
         const cellRect = cellRef.current.getBoundingClientRect();
@@ -46,24 +55,20 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         let top = cellRect.top;
         let left = cellRect.right + 10;
 
-        // Si no hay espacio a la derecha, mostrar a la izquierda
         if (left + tooltipRect.width > windowWidth - 20) {
           direction = 'left';
           left = cellRect.left - tooltipRect.width - 10;
         }
 
-        // Si no hay espacio arriba, ajustar verticalmente
         if (top + tooltipRect.height > windowHeight - 20) {
           top = windowHeight - tooltipRect.height - 20;
         }
 
-        // Si tampoco hay espacio a la izquierda, mostrar arriba o abajo
         if (left < 20) {
           direction = 'bottom';
           left = cellRect.left;
           top = cellRect.bottom + 10;
 
-          // Si no hay espacio abajo, mostrar arriba
           if (top + tooltipRect.height > windowHeight - 20) {
             direction = 'top';
             top = cellRect.top - tooltipRect.height - 10;
@@ -75,7 +80,6 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
     }, 10);
   };
 
-  // Renderizar contenido con tooltip responsive
   const renderContenido = (recurso) => {
     if (!recurso.contenido || recurso.contenido.length === 0) {
       return <span className="text-gray-400">No aplica</span>;
@@ -88,7 +92,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
       <div
         ref={recurso._id === hoveredContenido ? cellRef : null}
         className="relative"
-        onMouseEnter={(e) => handleMouseEnter(recurso._id, e)}
+        onMouseEnter={() => handleMouseEnter(recurso._id)}
         onMouseLeave={() => setHoveredContenido(null)}
       >
         <ul className="list-disc pl-4 text-sm">
@@ -102,7 +106,6 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
           )}
         </ul>
 
-        {/* Tooltip responsive con portal */}
         {hoveredContenido === recurso._id && hayMas && (
           <div
             ref={tooltipRef}
@@ -121,7 +124,6 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
               ))}
             </ul>
 
-            {/* Flecha del tooltip según dirección */}
             {tooltipPosition.direction === 'right' && (
               <div className="absolute top-3 -left-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-gray-800"></div>
             )}
@@ -157,47 +159,79 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         </thead>
         <tbody>
           {recursosFiltrados && recursosFiltrados.length > 0 ? (
-            recursosFiltrados.map((recurso, index) => (
-              <tr key={recurso._id} className="hover:bg-gray-300 text-center">
-                <td className="p-2">{index + 1}</td>
-                <td className="p-2 font-semibold">
-                  {recurso.tipo.toUpperCase()}
-                </td>
-                <td className="p-2">{recurso.nombre}</td>
-                <td className="p-2">
-                  {recurso.laboratorio || <span className="text-gray-400">No aplica</span>}
-                </td>
-                <td className="p-2">
-                  {recurso.aula || <span className="text-gray-400">No aplica</span>}
-                </td>
-                <td className="p-2">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getBadgeEstado(
-                      recurso.estado
-                    )}`}
-                  >
-                    {recurso.estado.charAt(0).toUpperCase() +
-                      recurso.estado.slice(1)}
-                  </span>
-                </td>
-                <td className="p-2 text-left">
-                  {renderContenido(recurso)}
-                </td>
-                <td className="p-2 flex justify-center gap-2">
-                  {/* Botón de editar con funcionalidad */}
-                  <MdPublishedWithChanges
-                    className="h-6 w-6 text-blue-600 cursor-pointer hover:text-blue-800"
-                    title="Editar"
-                    onClick={() => onEdit(recurso)}
-                  />
-                  <MdDeleteForever
-                    className="h-6 w-6 text-red-600 cursor-pointer hover:text-red-800"
-                    title="Eliminar"
-                    onClick={() => handleDelete(recurso._id)}
-                  />
-                </td>
-              </tr>
-            ))
+            recursosFiltrados.map((recurso, index) => {
+              // Determinar si está bloqueado
+              const estaBloqueado = recurso.estado === "activo" || recurso.estado === "prestado";
+              
+              return (
+                <tr 
+                  key={recurso._id} 
+                  className={`text-center ${
+                    estaBloqueado 
+                      ? "bg-gray-100" // Fondo gris claro para bloqueados
+                      : "hover:bg-gray-300"
+                  }`}
+                >
+                  <td className="p-2">{index + 1}</td>
+                  <td className="p-2 font-semibold">
+                    {recurso.tipo.toUpperCase()}
+                    {/* Badge de bloqueado */}
+                    {estaBloqueado && (
+                      <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded-full">
+                        EN PRÉSTAMO
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-2">{recurso.nombre}</td>
+                  <td className="p-2">
+                    {recurso.laboratorio || <span className="text-gray-400">No aplica</span>}
+                  </td>
+                  <td className="p-2">
+                    {recurso.aula || <span className="text-gray-400">No aplica</span>}
+                  </td>
+                  <td className="p-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getBadgeEstado(
+                        recurso.estado
+                      )}`}
+                    >
+                      {recurso.estado.charAt(0).toUpperCase() +
+                        recurso.estado.slice(1)}
+                    </span>
+                  </td>
+                  <td className="p-2 text-left">
+                    {renderContenido(recurso)}
+                  </td>
+                  <td className="p-2 flex justify-center gap-2">
+                    {/* Deshabilitar botones si está bloqueado */}
+                    <MdPublishedWithChanges
+                      className={`h-6 w-6 ${
+                        estaBloqueado
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-blue-600 cursor-pointer hover:text-blue-800"
+                      }`}
+                      title={estaBloqueado ? "No se puede editar (en préstamo)" : "Editar"}
+                      onClick={() => {
+                        if (estaBloqueado) {
+                          alert("No se puede editar un recurso que está en préstamo activo");
+                        } else {
+                          onEdit(recurso);
+                        }
+                      }}
+                    />
+                    <MdDeleteForever
+                      className={`h-6 w-6 ${
+                        estaBloqueado
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-red-600 cursor-pointer hover:text-red-800"
+                      }`}
+                      title={estaBloqueado ? "No se puede eliminar (en préstamo)" : "Eliminar"}
+                      onClick={() => handleDelete(recurso._id, recurso)}
+                    />
+                  </td>
+                </tr>
+              );
+            })
           ) : (
             <tr>
               <td colSpan={8} className="p-4 text-center text-gray-500">

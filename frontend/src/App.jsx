@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
-// import { Home } from './pages/Home'
 import Login from './pages/Login'
 import { Register } from './pages/Register'
 import { Forgot } from './pages/Forgot'
@@ -13,6 +12,9 @@ import Create from './pages/Create'
 import Update from './pages/Update'
 import Chat from './pages/Chat'
 import Reset from './pages/Reset'
+import Recursos from './pages/Recursos'
+import Prestamos from './pages/Prestamos' 
+import PrestamosDocente from './pages/PrestamosDocente' 
 
 import { useEffect } from 'react'
 import storeProfile from './context/storeProfile'
@@ -21,15 +23,11 @@ import storeAuth from './context/storeAuth'
 import PublicRoute from './routes/PublicRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
-import LoginSuccess from "./pages/LoginSuccess";
+import LoginSuccess from "./pages/LoginSuccess"
 import ConfirmEmailChange from "./pages/ConfirmEmailChange"
 import ConfirmDocente from './pages/ConfirmDocente'
-import Recursos from './pages/Recursos'
-
-
 
 function App() {
-
   const { profile } = storeProfile()
   const { token } = storeAuth()
 
@@ -38,7 +36,6 @@ function App() {
       profile()
     }
   }, [token])
-
 
   return (
     <>
@@ -58,7 +55,6 @@ function App() {
             <Route path="/confirm-email/:token" element={<ConfirmEmailChange />} />
           </Route>
 
-
           <Route path='dashboard/*' element={
             <ProtectedRoute>
               <Routes>
@@ -77,7 +73,17 @@ function App() {
                     <PrivateRouteWithRole>
                       <Recursos />
                     </PrivateRouteWithRole>
-                    } />
+                  } />
+
+                  {/* Préstamos para Admin */}
+                  <Route path="prestamos" element={
+                    <PrivateRouteWithRole>
+                      <Prestamos />
+                    </PrivateRouteWithRole>
+                  } />
+
+                  {/* Préstamos para Docente (sin PrivateRouteWithRole) */}
+                  <Route path="prestamos-docente" element={<PrestamosDocente />} />
 
                   <Route path='actualizar/:id' element={
                     <PrivateRouteWithRole>

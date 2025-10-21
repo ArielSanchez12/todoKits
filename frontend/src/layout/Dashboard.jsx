@@ -23,6 +23,10 @@ const Dashboard = () => {
         );
     }
 
+    // ✅ Determinar si es Administrador o Docente
+    const esAdministrador = userData?.rol === "Administrador";
+    const esDocente = userData?.rol === "docente" || userData?.rolDocente === "Docente";
+
     return (
         <div className='md:flex md:min-h-screen'>
 
@@ -48,13 +52,15 @@ const Dashboard = () => {
                 <ul className="mt-6">
 
                     <li className="text-center">
-                        <Link to='/dashboard' className={`${urlActual === '/dashboard' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Perfil</Link>
+                        <Link to='/dashboard' className={`${urlActual === '/dashboard' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>
+                            Perfil
+                        </Link>
                     </li>
 
                     <li className="text-center">
                         <Link
                             to={
-                                userData?.rol === "docente" || userData?.rolDocente === "Docente"
+                                esDocente
                                     ? `/dashboard/visualizar/${userData?._id}`
                                     : "/dashboard/listar"
                             }
@@ -68,12 +74,17 @@ const Dashboard = () => {
                         </Link>
                     </li>
 
-                    <li className="text-center">
-                        <Link to='/dashboard/crear' className={`${urlActual === '/dashboard/crear' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Crear</Link>
-                    </li>
+                    {/* Solo mostrar "Crear" para administradores */}
+                    {esAdministrador && (
+                        <li className="text-center">
+                            <Link to='/dashboard/crear' className={`${urlActual === '/dashboard/crear' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>
+                                Crear
+                            </Link>
+                        </li>
+                    )}
 
-                    {/* Solo mostrar Recursos para administradores */}
-                    {(userData?.rol === "Administrador") && (
+                    {/* Solo mostrar "Recursos" para administradores */}
+                    {esAdministrador && (
                         <li className="text-center">
                             <Link 
                                 to='/dashboard/recursos' 
@@ -84,8 +95,34 @@ const Dashboard = () => {
                         </li>
                     )}
 
+                    {/*  Mis Préstamos para Admin */}
+                    {esAdministrador && (
+                        <li className="text-center">
+                            <Link 
+                                to='/dashboard/prestamos' 
+                                className={`${urlActual === '/dashboard/prestamos' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}
+                            >
+                                Préstamos
+                            </Link>
+                        </li>
+                    )}
+
+                    {/*  Mis Préstamos para Docente */}
+                    {esDocente && (
+                        <li className="text-center">
+                            <Link 
+                                to='/dashboard/prestamos-docente' 
+                                className={`${urlActual === '/dashboard/prestamos-docente' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}
+                            >
+                                Mis Préstamos
+                            </Link>
+                        </li>
+                    )}
+
                     <li className="text-center">
-                        <Link to='/dashboard/chat' className={`${urlActual === '/dashboard/chat' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>Chat</Link>
+                        <Link to='/dashboard/chat' className={`${urlActual === '/dashboard/chat' ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center' : 'text-slate-400'} text-xl block mt-2 hover:text-white`}>
+                            Chat
+                        </Link>
                     </li>
                 </ul>
 

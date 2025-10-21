@@ -23,7 +23,7 @@ const Dashboard = () => {
         );
     }
 
-    // ✅ Determinar si es Administrador o Docente
+    // Determinar si es Administrador o Docente
     const esAdministrador = userData?.rol === "Administrador";
     const esDocente = userData?.rol === "docente" || userData?.rolDocente === "Docente";
 

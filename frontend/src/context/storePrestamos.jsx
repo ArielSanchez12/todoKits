@@ -104,6 +104,68 @@ const storePrestamos = create((set) => ({
       throw error;
     }
   },
+  
+  // Cancelar préstamo pendiente 
+  cancelarPrestamoAdmin: async (id, motivoCancelacion = "") => {
+    try {
+      const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
+      const token = storedAuth?.state?.token;
+      
+      if (!token) {
+        throw new Error("No hay token de autenticación");
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamo/${id}/cancelar`,
+        { motivoCancelacion },
+        { headers }
+      );
+      
+      toast.success(response.data.msg || "Préstamo cancelado exitosamente");
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error al cancelar préstamo:", error);
+      const errorMsg = error.response?.data?.msg || "Error al cancelar préstamo";
+      toast.error(errorMsg);
+      throw error;
+    }
+  },
+
+  // Finalizar préstamo 
+  finalizarPrestamoAdmin: async (id, observacionesDevolucion = "") => {
+    try {
+      const storedAuth = JSON.parse(localStorage.getItem("auth-token"));
+      const token = storedAuth?.state?.token;
+      
+      if (!token) {
+        throw new Error("No hay token de autenticación");
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamo/${id}/finalizar`,
+        { observacionesDevolucion },
+        { headers }
+      );
+      
+      toast.success(response.data.msg || "Préstamo finalizado exitosamente");
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error al finalizar préstamo:", error);
+      const errorMsg = error.response?.data?.msg || "Error al finalizar préstamo";
+      toast.error(errorMsg);
+      throw error;
+    }
+  },
 
   //FUNCIONES DEL DOCENTE 
 

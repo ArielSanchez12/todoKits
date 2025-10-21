@@ -307,6 +307,92 @@ const obtenerPrestamo = async (req, res) => {
   }
 };
 
+// Cancelar préstamo pendiente (Admin)
+const cancelarPrestamo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { motivoCancelacion } = req.body;
+
+    const prestamoEncontrado = await prestamo.findById(id);
+
+    if (!prestamoEncontrado) {
+      return res.status(404).json({ msg: "Préstamo no encontrado" });
+    }
+
+    // Solo se puede cancelar si está pendiente
+    if (prestamoEncontrado.estado !== "pendiente") {
+      return res.status(400).json({ 
+        msg: "Solo se pueden cancelar préstamos pendientes" 
+      });
+    }
+
+    // Actualizar estado del préstamo
+    prestamoEncontrado.estado = "rechazado";
+    prestamoEncontrado.motivoRechazo = motivoCancelacion || "Cancelado por el administrador";
+    await prestamoEncontrado.save();
+
+    // Liberar el recurso
+    const recursoEncontrado = await recurso.findById(prestamoEncontrado.recurso);
+    if (recursoEncontrado) {
+      recursoEncontrado.estado = "pendiente";
+      recursoEncontrado.asignadoA = null;
+      await recursoEncontrado.save();
+    }
+
+    res.status(200).json({
+      msg: "Préstamo cancelado exitosamente",
+      prestamo: prestamoEncontrado,
+    });
+  } catch (error) {
+    console.error("Error al cancelar préstamo:", error);
+    res.status(500).json({ msg: "Error en el servidor" });
+  }
+};
+
+// Finalizar préstamo (Admin)
+const finalizarPrestamoAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { observacionesDevolucion } = req.body;
+
+    const prestamoEncontrado = await prestamo.findById(id);
+
+    if (!prestamoEncontrado) {
+      return res.status(404).json({ msg: "Préstamo no encontrado" });
+    }
+
+    // Solo se puede finalizar si está activo
+    if (prestamoEncontrado.estado !== "activo") {
+      return res.status(400).json({ 
+        msg: "Solo se pueden finalizar préstamos activos" 
+      });
+    }
+
+    // Actualizar estado del préstamo
+    prestamoEncontrado.estado = "finalizado";
+    prestamoEncontrado.horaDevolucion = new Date();
+    prestamoEncontrado.observacionesDevolucion = 
+      observacionesDevolucion || "Finalizado por el administrador";
+    await prestamoEncontrado.save();
+
+    // Liberar el recurso
+    const recursoEncontrado = await recurso.findById(prestamoEncontrado.recurso);
+    if (recursoEncontrado) {
+      recursoEncontrado.estado = "pendiente";
+      recursoEncontrado.asignadoA = null;
+      await recursoEncontrado.save();
+    }
+
+    res.status(200).json({
+      msg: "Préstamo finalizado exitosamente por el administrador",
+      prestamo: prestamoEncontrado,
+    });
+  } catch (error) {
+    console.error("Error al finalizar préstamo:", error);
+    res.status(500).json({ msg: "Error en el servidor" });
+  }
+};
+
 export {
   crearPrestamo,
   listarPrestamosAdmin,
@@ -315,4 +401,6 @@ export {
   confirmarPrestamo,
   finalizarPrestamo,
   obtenerPrestamo,
+  cancelarPrestamo, 
+  finalizarPrestamoAdmin, 
 };

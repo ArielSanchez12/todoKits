@@ -7,7 +7,7 @@ import storeRecursos from "../context/storeRecursos"; // Agregar
 import { ToastContainer, toast } from "react-toastify";
 import { MdDeleteForever, MdNoteAdd, MdAssignment } from "react-icons/md";
 import ModalPrestarRecurso from "../components/prestamos/ModalPrestarRecurso"; // Nuevo modal
-import TablaPrestamosAdmin from "../components/prestamos/TablaPrestamosAdmin"; // Nueva tabla
+import TablaHistorialDocente from "../components/prestamos/TablaHistorialDocente";
 
 const Details = () => {
     const { id } = useParams();
@@ -16,7 +16,7 @@ const Details = () => {
     const [prestamos, setPrestamos] = useState([]); // Cambiar de treatments a prestamos
     const { fetchDataBackend } = useFetch();
     const { rol } = storeAuth();
-    const [showModalPrestamo, setShowModalPrestamo] = useState(false); // ✅ Estado para modal
+    const [showModalPrestamo, setShowModalPrestamo] = useState(false); // Estado para modal
     const { fetchRecursos } = storeRecursos(); // Para recargar recursos
 
     const listDocente = async () => {
@@ -148,34 +148,18 @@ const Details = () => {
 
                 <hr className="my-4 border-t-2 border-gray-300" />
 
-                {/* Botones de acción */}
-                <div className="flex flex-wrap gap-4 mb-6">
-                    <button
-                        onClick={() => navigate(`/dashboard/actualizar/${id}`)}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
-                    >
-                        <MdNoteAdd size={20} />
-                        Editar Docente
-                    </button>
-
-                    {rol === "Administrador" && (
+                {/* Solo mostrar botón de Prestar Recursos (centrado y destacado) */}
+                {rol === "Administrador" && (
+                    <div className="flex flex-wrap gap-4 mb-6">
                         <button
                             onClick={() => setShowModalPrestamo(true)}
-                            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+                            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors shadow-lg font-semibold"
                         >
                             <MdAssignment size={20} />
                             Prestar Recurso(s)
                         </button>
-                    )}
-
-                    <button
-                        onClick={handleDelete}
-                        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center gap-2 transition-colors"
-                    >
-                        <MdDeleteForever size={20} />
-                        Eliminar Docente
-                    </button>
-                </div>
+                    </div>
+                )}
 
                 <hr className="my-4 border-t-2 border-gray-300" />
 
@@ -199,7 +183,7 @@ const Details = () => {
                         </span>
                     </div>
                 ) : (
-                    <TablaPrestamosAdmin
+                    <TablaHistorialDocente
                         prestamos={prestamos}
                         onRefresh={loadPrestamosDocente}
                     />

@@ -7,6 +7,8 @@ import {
   confirmarPrestamo,
   finalizarPrestamo,
   obtenerPrestamo,
+  cancelarPrestamo,
+  finalizarPrestamoAdmin,
 } from "../controllers/prestamo_controller.js";
 import { verificarTokenJWT } from "../middlewares/jwt.js";
 import { validate } from "../middlewares/zodValidations.js";
@@ -28,6 +30,11 @@ router.get("/administrador/prestamos", verificarTokenJWT, listarPrestamosAdmin);
 
 // Obtener detalle de un préstamo específico
 router.get("/administrador/prestamo/:id", verificarTokenJWT, obtenerPrestamo);
+// Cancelar un préstamo
+router.patch("/administrador/prestamo/:id/cancelar",verificarTokenJWT,cancelarPrestamo);
+
+// Finalizar préstamo - Devolver recurso (Admin)
+router.patch("/administrador/prestamo/:id/finalizar",verificarTokenJWT,validate(finalizarPrestamoSchema),finalizarPrestamoAdmin);
 
 
 // RUTAS DEL DOCENTE PARA LOS PRESTAMOS

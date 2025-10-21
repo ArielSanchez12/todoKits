@@ -14,6 +14,7 @@ import './config/google.js' // Importa configuración de Google OAuth
 import routerAuth from './routers/auth_routes.js' // Nueva ruta para login con Google
 import routerChat from './routers/mensaje_routes.js';
 import routerRecurso from './routers/recurso_routes.js';
+import routerPrestamo from './routers/prestamo_routes.js';
 
 
 // Inicializaciones
@@ -60,6 +61,8 @@ app.use('/api', routerTratamiento)
 app.use('/api', routerRecurso)
 //Ruta de chat
 app.use('/api', routerChat);
+//Rutas prestamos
+app.use("/api", routerPrestamo);
 
 
 //Manejo de rutas inexistentes

@@ -268,6 +268,7 @@ const actualizarRecurso = async (req, res) => {
   }
 };
 
+// Actualizar recurso completo (edición) - AGREGAR VALIDACIÓN
 const actualizarRecursoCompleto = async (req, res) => {
   try {
     const { id } = req.params;
@@ -283,15 +284,20 @@ const actualizarRecursoCompleto = async (req, res) => {
       return res.status(404).json({ msg: "Recurso no encontrado" });
     }
 
+    // VALIDAR QUE NO ESTÉ EN PRÉSTAMO ACTIVO
+    if (recursoExistente.estado === "activo" || recursoExistente.estado === "prestado") {
+      return res.status(400).json({ 
+        msg: "No se puede editar un recurso que está en préstamo activo" 
+      });
+    }
+
     const tipo = recursoExistente.tipo;
 
     // Construir objeto de actualización según tipo
     let datosParaActualizar = {};
 
     if (tipo === "kit") {
-      // Kit puede actualizar: laboratorio, aula, contenido
       if (datosActualizacion.laboratorio) {
-        // Validar que el laboratorio no esté en uso por otro kit
         const labEnUso = await recurso.findOne({
           tipo: "kit",
           laboratorio: datosActualizacion.laboratorio,
@@ -317,9 +323,7 @@ const actualizarRecursoCompleto = async (req, res) => {
       }
     } 
     else if (tipo === "llave") {
-      // Llave puede actualizar: laboratorio, aula
       if (datosActualizacion.laboratorio) {
-        // Validar que el laboratorio no esté en uso por otra llave
         const labEnUso = await recurso.findOne({
           tipo: "llave",
           laboratorio: datosActualizacion.laboratorio,
@@ -341,7 +345,6 @@ const actualizarRecursoCompleto = async (req, res) => {
       }
     } 
     else if (tipo === "proyector") {
-      // Proyector solo puede actualizar: contenido
       if (datosActualizacion.contenido && Array.isArray(datosActualizacion.contenido)) {
         datosParaActualizar.contenido = datosActualizacion.contenido.filter(c => c.trim());
       }
@@ -370,8 +373,7 @@ const actualizarRecursoCompleto = async (req, res) => {
   }
 };
 
-
-// Eliminar recurso
+// Eliminar recurso - AGREGAR VALIDACIÓN
 const eliminarRecurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -380,11 +382,19 @@ const eliminarRecurso = async (req, res) => {
       return res.status(404).json({ msg: "ID de recurso inválido" });
     }
 
-    const recursoEliminado = await recurso.findByIdAndDelete(id);
-
-    if (!recursoEliminado) {
+    const recursoExistente = await recurso.findById(id);
+    if (!recursoExistente) {
       return res.status(404).json({ msg: "Recurso no encontrado" });
     }
+
+    // VALIDAR QUE NO ESTÉ EN PRÉSTAMO ACTIVO
+    if (recursoExistente.estado === "activo" || recursoExistente.estado === "prestado") {
+      return res.status(400).json({ 
+        msg: "No se puede eliminar un recurso que está en préstamo activo" 
+      });
+    }
+
+    await recurso.findByIdAndDelete(id);
 
     res.status(200).json({ msg: "Recurso eliminado exitosamente" });
   } catch (error) {

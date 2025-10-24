@@ -328,15 +328,26 @@ const cancelarPrestamo = async (req, res) => {
 
     // Actualizar estado del préstamo
     prestamoEncontrado.estado = "rechazado";
-    prestamoEncontrado.motivoRechazo = motivoCancelacion || "Cancelado por el administrador";
+    prestamoEncontrado.observaciones += `\n[CANCELADO - ADMIN] ${motivoCancelacion || "Cancelado por el administrador"}`;
     await prestamoEncontrado.save();
 
-    // Liberar el recurso
+    // Liberar el recurso principal
     const recursoEncontrado = await recurso.findById(prestamoEncontrado.recurso);
     if (recursoEncontrado) {
       recursoEncontrado.estado = "pendiente";
       recursoEncontrado.asignadoA = null;
       await recursoEncontrado.save();
+    }
+
+    // Liberar recursos adicionales también
+    if (prestamoEncontrado.recursosAdicionales && prestamoEncontrado.recursosAdicionales.length > 0) {
+      await recurso.updateMany(
+        { _id: { $in: prestamoEncontrado.recursosAdicionales } },
+        { 
+          estado: "pendiente", 
+          asignadoA: null 
+        }
+      );
     }
 
     res.status(200).json({

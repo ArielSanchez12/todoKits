@@ -335,7 +335,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
 
       {/* Modal de cancelación */}
       {modalCancelar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
             <h3 className="text-xl font-bold mb-4 text-red-600">Cancelar Solicitud</h3>
             <div className="mb-4 bg-gray-50 p-4 rounded-lg">
@@ -380,7 +380,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
 
       {/* Modal de finalización */}
       {modalFinalizar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
             <h3 className="text-xl font-bold mb-4 text-green-600">Finalizar Préstamo</h3>
             <div className="mb-4 bg-gray-50 p-4 rounded-lg">

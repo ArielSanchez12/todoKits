@@ -3,7 +3,7 @@ import recurso from "../models/recurso.js";
 import docente from "../models/docente.js";
 import mongoose from "mongoose";
 
-// ✅ Crear solicitud de préstamo (Admin)
+// Crear solicitud de préstamo (Admin)
 const crearPrestamo = async (req, res) => {
   try {
     const datosPrestamo = req.validated || req.body;
@@ -91,14 +91,14 @@ const crearPrestamo = async (req, res) => {
   }
 };
 
-// ✅ Listar préstamos del admin
+// Listar préstamos del admin
 const listarPrestamosAdmin = async (req, res) => {
   try {
     const prestamos = await prestamo
       .find({ admin: req.adminEmailBDD._id })
-      .populate("recurso", "nombre tipo laboratorio aula")
+      .populate("recurso", "nombre tipo laboratorio aula contenido")
       .populate("docente", "nombreDocente apellidoDocente emailDocente")
-      .populate("recursosAdicionales", "nombre tipo")
+      .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido")
       .sort({ createdAt: -1 });
 
     res.status(200).json(prestamos);
@@ -108,7 +108,7 @@ const listarPrestamosAdmin = async (req, res) => {
   }
 };
 
-// ✅ Listar préstamos del docente (pendientes y activos)
+// Listar préstamos del docente (pendientes y activos)
 const listarPrestamosDocente = async (req, res) => {
   try {
     const docenteId = req.docenteBDD._id;
@@ -120,7 +120,7 @@ const listarPrestamosDocente = async (req, res) => {
       })
       .populate("recurso", "nombre tipo laboratorio aula contenido")
       .populate("admin", "nombre apellido")
-      .populate("recursosAdicionales", "nombre tipo laboratorio aula")
+      .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido")
       .sort({ createdAt: -1 });
 
     res.status(200).json(prestamos);
@@ -130,7 +130,7 @@ const listarPrestamosDocente = async (req, res) => {
   }
 };
 
-// ✅ Historial de préstamos del docente (finalizados)
+// Historial de préstamos del docente (finalizados)
 const historialPrestamosDocente = async (req, res) => {
   try {
     const docenteId = req.docenteBDD._id;
@@ -140,9 +140,9 @@ const historialPrestamosDocente = async (req, res) => {
         docente: docenteId,
         estado: "finalizado"
       })
-      .populate("recurso", "nombre tipo laboratorio aula")
+      .populate("recurso", "nombre tipo laboratorio aula contenido")
       .populate("admin", "nombre apellido")
-      .populate("recursosAdicionales", "nombre tipo")
+      .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido")
       .sort({ horaDevolucion: -1 });
 
     res.status(200).json(prestamos);
@@ -152,7 +152,7 @@ const historialPrestamosDocente = async (req, res) => {
   }
 };
 
-// ✅ Confirmar préstamo (Docente)
+// Confirmar préstamo (Docente)
 const confirmarPrestamo = async (req, res) => {
   try {
     const { id } = req.params;
@@ -226,7 +226,7 @@ const confirmarPrestamo = async (req, res) => {
   }
 };
 
-// ✅ Finalizar préstamo - Devolución (Docente)
+// Finalizar préstamo - Devolución (Docente)
 const finalizarPrestamo = async (req, res) => {
   try {
     const { id } = req.params;
@@ -280,7 +280,7 @@ const finalizarPrestamo = async (req, res) => {
   }
 };
 
-// ✅ Obtener detalle de préstamo
+// Obtener detalle de préstamo
 const obtenerPrestamo = async (req, res) => {
   try {
     const { id } = req.params;
@@ -294,7 +294,7 @@ const obtenerPrestamo = async (req, res) => {
       .populate("recurso", "nombre tipo laboratorio aula contenido")
       .populate("docente", "nombreDocente apellidoDocente emailDocente celularDocente")
       .populate("admin", "nombre apellido email")
-      .populate("recursosAdicionales", "nombre tipo laboratorio aula");
+      .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido");
 
     if (!prestamoExistente) {
       return res.status(404).json({ msg: "Préstamo no encontrado" });

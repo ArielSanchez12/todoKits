@@ -72,7 +72,7 @@ const storeProfile = create((set) => ({
     // Obtener lista de docentes
     fetchDocentes: async () => {
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/docentes`;
+            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/listDocentes`;
             const respuesta = await axios.get(url, getAuthHeaders());
             
             // Validar que la respuesta sea un array

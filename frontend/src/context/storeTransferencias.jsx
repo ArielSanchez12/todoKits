@@ -1,0 +1,124 @@
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+const storeTransferencias = create(
+  persist(
+    (set, get) => ({
+      transferencias: [],
+      transferenciaActual: null,
+
+      // Obtener todas las transferencias (Admin)
+      fetchTransferencias: async () => {
+        try {
+          const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+          const response = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/administrador/transferencias`,
+            {
+              headers: {
+                Authorization: `Bearer ${storedUser.state.token}`,
+              },
+            }
+          );
+          const data = await response.json();
+          set({ transferencias: data });
+          return data;
+        } catch (error) {
+          console.error("Error al obtener transferencias:", error);
+          return [];
+        }
+      },
+
+      // Crear transferencia (Admin)
+      crearTransferencia: async (datos) => {
+        try {
+          const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+          const response = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/administrador/transferencia/crear`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${storedUser.state.token}`,
+              },
+              body: JSON.stringify(datos),
+            }
+          );
+          const data = await response.json();
+          await get().fetchTransferencias();
+          return data;
+        } catch (error) {
+          console.error("Error al crear transferencia:", error);
+          throw error;
+        }
+      },
+
+      // Obtener transferencia por QR
+      obtenerTransferenciaPorQR: async (codigoQR) => {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/transferencia/${codigoQR}`
+          );
+          const data = await response.json();
+          set({ transferenciaActual: data });
+          return data;
+        } catch (error) {
+          console.error("Error al obtener transferencia:", error);
+          throw error;
+        }
+      },
+
+      // Confirmar transferencia desde origen (Docente A)
+      confirmarTransferenciaOrigen: async (codigoQR, datos) => {
+        try {
+          const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+          const response = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/docente/transferencia/${codigoQR}/confirmar`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${storedUser.state.token}`,
+              },
+              body: JSON.stringify(datos),
+            }
+          );
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error al confirmar transferencia:", error);
+          throw error;
+        }
+      },
+
+      // Responder transferencia (Docente B)
+      responderTransferenciaDestino: async (id, datos) => {
+        try {
+          const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+          const response = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/docente/transferencia/${id}/responder`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${storedUser.state.token}`,
+              },
+              body: JSON.stringify(datos),
+            }
+          );
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error al responder transferencia:", error);
+          throw error;
+        }
+      },
+
+      limpiarTransferenciaActual: () => set({ transferenciaActual: null }),
+    }),
+    {
+      name: "transferencias-storage",
+    }
+  )
+);
+
+export default storeTransferencias;

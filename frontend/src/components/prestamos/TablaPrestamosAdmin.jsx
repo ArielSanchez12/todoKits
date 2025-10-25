@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { MdVisibility } from "react-icons/md";
+import { MdVisibility, MdTransferWithinAStation } from "react-icons/md";
 import DetallePrestamo from "./DetallePrestamo";
+import ModalTransferirRecurso from "./ModalTransferirRecurso";
+import ModalQRTransferencia from "./ModalQRTransferencia";
 
-const TablaPrestamosAdmin = ({ prestamos, onRefresh }) => {
+const TablaPrestamosAdmin = ({ prestamos, onRefresh, docentes }) => {
+  const [modalTransferir, setModalTransferir] = useState(false);
+  const [modalQR, setModalQR] = useState(false);
   const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
+  const [qrData, setQRData] = useState(null);
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -36,6 +41,23 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh }) => {
   const handleVerDetalle = (prestamo) => {
     setPrestamoSeleccionado(prestamo);
     setMostrarDetalle(true);
+  };
+
+  const handleAbrirTransferencia = (prestamo) => {
+    setPrestamoSeleccionado(prestamo);
+    setModalTransferir(true);
+  };
+
+  const handleSuccessTransferencia = (resultado) => {
+    setQRData(resultado);
+    setModalTransferir(false);
+    setModalQR(true);
+  };
+
+  const handleEnviarPorChat = () => {
+    // Navegar a la página de chat con el docente
+    // y enviar el QR automáticamente
+    toast.info("Funcionalidad de envío por chat próximamente");
   };
 
   return (
@@ -130,6 +152,15 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh }) => {
                       title="Ver detalles"
                       onClick={() => handleVerDetalle(prestamo)}
                     />
+                    {prestamo.estado === "activo" && (
+                      <button
+                        onClick={() => handleAbrirTransferencia(prestamo)}
+                        className="text-purple-600 hover:text-purple-800 transition-colors"
+                        title="Solicitar transferencia"
+                      >
+                        <MdTransferWithinAStation size={20} />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
@@ -152,6 +183,32 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh }) => {
             setMostrarDetalle(false);
             setPrestamoSeleccionado(null);
           }}
+        />
+      )}
+
+      {/* Modal de transferencia */}
+      {modalTransferir && (
+        <ModalTransferirRecurso
+          prestamo={prestamoSeleccionado}
+          docentes={docentes}
+          onClose={() => {
+            setModalTransferir(false);
+            setPrestamoSeleccionado(null);
+          }}
+          onSuccess={handleSuccessTransferencia}
+        />
+      )}
+
+      {/* Modal de QR */}
+      {modalQR && qrData && (
+        <ModalQRTransferencia
+          transferencia={qrData.transferencia}
+          qrImage={qrData.qrImage}
+          onClose={() => {
+            setModalQR(false);
+            setQRData(null);
+          }}
+          onEnviarPorChat={handleEnviarPorChat}
         />
       )}
     </>

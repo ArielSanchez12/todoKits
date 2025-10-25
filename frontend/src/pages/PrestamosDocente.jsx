@@ -4,6 +4,8 @@ import TablaPrestamosDocente from "../components/prestamos/TablaPrestamosDocente
 import { ToastContainer, toast } from "react-toastify";
 import { MdHistory, MdAssignment } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
+import EscanerQR from "../components/prestamos/EscanerQR";
+import ModalConfirmarTransferencia from "../components/prestamos/ModalConfirmarTransferencia";
 
 const PrestamosDocente = () => {
   const {
@@ -16,6 +18,9 @@ const PrestamosDocente = () => {
   } = storePrestamos();
   
   const [vista, setVista] = useState("activos"); // "activos" o "historial"
+  const [mostrarEscaner, setMostrarEscaner] = useState(false);
+  const [transferenciaEscaneada, setTransferenciaEscaneada] = useState(null);
+  const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -47,6 +52,23 @@ const PrestamosDocente = () => {
       toast.success("Datos actualizados");
     } catch (error) {
       toast.error("Error al actualizar");
+    }
+  };
+
+  const handleScanSuccess = async (url) => {
+    try {
+      // Extraer código QR de la URL
+      const codigoQR = url.split("/").pop();
+      
+      // Obtener datos de la transferencia
+      const transferencia = await storeTransferencias.getState().obtenerTransferenciaPorQR(codigoQR);
+      
+      setTransferenciaEscaneada(transferencia);
+      setMostrarEscaner(false);
+      setMostrarModalConfirmacion(true);
+    } catch (error) {
+      toast.error("QR inválido o transferencia no encontrada");
+      setMostrarEscaner(false);
     }
   };
 
@@ -209,6 +231,39 @@ const PrestamosDocente = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Botón para abrir escáner */}
+      <div className="flex justify-center mb-4">
+        <button
+          onClick={() => setMostrarEscaner(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+        >
+          <MdQrCodeScanner size={20} />
+          Escanear QR de Transferencia
+        </button>
+      </div>
+
+      {/* Modales */}
+      {mostrarEscaner && (
+        <EscanerQR
+          onScanSuccess={handleScanSuccess}
+          onClose={() => setMostrarEscaner(false)}
+        />
+      )}
+
+      {mostrarModalConfirmacion && transferenciaEscaneada && (
+        <ModalConfirmarTransferencia
+          transferencia={transferenciaEscaneada}
+          onClose={() => {
+            setMostrarModalConfirmacion(false);
+            setTransferenciaEscaneada(null);
+          }}
+          onSuccess={() => {
+            // Recargar préstamos
+            fetchPrestamos();
+          }}
+        />
       )}
     </div>
   );

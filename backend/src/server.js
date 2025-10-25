@@ -15,6 +15,7 @@ import routerAuth from './routers/auth_routes.js' // Nueva ruta para login con G
 import routerChat from './routers/mensaje_routes.js';
 import routerRecurso from './routers/recurso_routes.js';
 import routerPrestamo from './routers/prestamo_routes.js';
+import routerTransferencia from "./routers/transferencia_routes.js";
 
 
 // Inicializaciones
@@ -63,6 +64,8 @@ app.use('/api', routerRecurso)
 app.use('/api', routerChat);
 //Rutas prestamos
 app.use("/api", routerPrestamo);
+//Rutas transferencias
+app.use("/api", routerTransferencia);
 
 
 //Manejo de rutas inexistentes

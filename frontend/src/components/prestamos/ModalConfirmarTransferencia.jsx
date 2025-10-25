@@ -2,27 +2,28 @@ import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 import storeTransferencias from "../../context/storeTransferencias";
+import storeProfile from "../../context/storeProfile"; // ✅ AGREGAR
 
 const ModalConfirmarTransferencia = ({ transferencia, onClose, onSuccess }) => {
   const [observaciones, setObservaciones] = useState("");
-  const [firma, setFirma] = useState("");
   const [loading, setLoading] = useState(false);
   const { confirmarTransferenciaOrigen } = storeTransferencias();
+  const { user } = storeProfile(); // ✅ AGREGAR
+
+  // ✅ AGREGAR: Firma automática
+  const firmaDigital = user?._doc?._id || user?._id;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!firma.trim()) {
-      toast.error("Debes ingresar tu firma digital");
-      return;
-    }
+    // ✅ ELIMINAR validación de firma manual
 
     setLoading(true);
 
     try {
       await confirmarTransferenciaOrigen(transferencia.codigoQR, {
         observaciones,
-        firma,
+        firma: firmaDigital, // ✅ CAMBIAR: Enviar firma automática
       });
 
       toast.success("Transferencia confirmada exitosamente");
@@ -116,19 +117,14 @@ const ModalConfirmarTransferencia = ({ transferencia, onClose, onSuccess }) => {
             />
           </div>
 
-          {/* Firma Digital */}
-          <div>
+          {/* ✅ CAMBIAR: Firma Digital (SOLO LECTURA) */}
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Firma Digital *
+              ✍️ Firma Digital (Tu ID)
             </label>
-            <input
-              type="text"
-              value={firma}
-              onChange={(e) => setFirma(e.target.value)}
-              placeholder="Escribe tu nombre completo como firma"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+            <div className="font-mono text-sm bg-white p-2 rounded border border-gray-300 break-all">
+              {firmaDigital}
+            </div>
           </div>
 
           {/* Advertencia */}

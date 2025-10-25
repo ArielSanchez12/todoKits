@@ -3,26 +3,26 @@ import { IoClose } from "react-icons/io5";
 import { MdCheckCircle, MdCancel } from "react-icons/md";
 import { toast } from "react-toastify";
 import storeTransferencias from "../../context/storeTransferencias";
+import storeProfile from "../../context/storeProfile"; // ✅ AGREGAR
 
 const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
   const [observaciones, setObservaciones] = useState("");
-  const [firma, setFirma] = useState("");
   const [loading, setLoading] = useState(false);
   const { responderTransferenciaDestino } = storeTransferencias();
+  const { user } = storeProfile(); // ✅ AGREGAR
+
+  // ✅ AGREGAR: Firma automática
+  const firmaDigital = user?._doc?._id || user?._id;
 
   const handleResponder = async (aceptar) => {
-    if (aceptar && !firma.trim()) {
-      toast.error("Debes ingresar tu firma digital para aceptar");
-      return;
-    }
-
+    // ✅ ELIMINAR validación de firma manual
     setLoading(true);
 
     try {
       await responderTransferenciaDestino(transferencia._id, {
         aceptar,
         observaciones,
-        firma: aceptar ? firma : "",
+        firma: firmaDigital, // ✅ CAMBIAR: Enviar firma automática
       });
 
       toast.success(
@@ -200,18 +200,14 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
             />
           </div>
 
-          {/* Firma Digital (solo si acepta) */}
-          <div>
+          {/* ✅ CAMBIAR: Firma Digital (SOLO LECTURA) */}
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Firma Digital (Requerida para aceptar)
+              ✍️ Firma Digital (Tu ID)
             </label>
-            <input
-              type="text"
-              value={firma}
-              onChange={(e) => setFirma(e.target.value)}
-              placeholder="Escribe tu nombre completo como firma"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="font-mono text-sm bg-white p-2 rounded border border-gray-300 break-all">
+              {firmaDigital}
+            </div>
           </div>
 
           {/* Advertencia */}

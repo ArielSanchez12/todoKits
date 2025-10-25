@@ -121,8 +121,8 @@ const confirmarTransferenciaOrigen = async (req, res) => {
     const { observaciones, firma } = req.body;
 
     if (!req.docenteBDD || !req.docenteBDD._id) {
-      return res.status(401).json({ 
-        msg: "Error de autenticación" 
+      return res.status(401).json({
+        msg: "Error de autenticación"
       });
     }
 
@@ -142,7 +142,7 @@ const confirmarTransferenciaOrigen = async (req, res) => {
 
     // Validar que sea el docente origen
     if (transferencia.docenteOrigen._id.toString() !== docenteId.toString()) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         msg: "No tienes permisos para confirmar esta transferencia",
         detalle: "Solo el docente origen puede confirmar"
       });
@@ -150,7 +150,7 @@ const confirmarTransferenciaOrigen = async (req, res) => {
 
     // Validar estado
     if (transferencia.estado !== "pendiente_origen") {
-      return res.status(400).json({ 
+      return res.status(400).json({
         msg: "Esta transferencia ya fue procesada",
         estadoActual: transferencia.estado
       });
@@ -165,15 +165,15 @@ const confirmarTransferenciaOrigen = async (req, res) => {
 
     console.log("✅ Transferencia confirmada por origen");
 
-    // ✅ Armar observaciones con info de transferencia (incluir código QR)
+    // ✅ CORRECCIÓN: Incluir TODA la información en observaciones
     const nombreOrigenCompleto = `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
-    
-    const observacionesPrestamo = `📤 Transferido por: ${nombreOrigenCompleto}
+
+    let observacionesPrestamo = `📤 Transferido por: ${nombreOrigenCompleto}
 Estado reportado: ${observaciones || "Sin observaciones"}
 Fecha de transferencia: ${new Date().toLocaleString('es-ES')}
 Código de transferencia: ${codigoQR}`;
 
-    // ✅ Contar recursos transferidos vs totales
+    // Contar recursos transferidos vs totales
     const totalRecursosOriginales = (transferencia.prestamoOriginal?.recursosAdicionales?.length || 0) + 1;
     const recursosTransferidos = transferencia.recursos.length + transferencia.recursosAdicionales.length;
     const recursosNoTransferidos = totalRecursosOriginales - recursosTransferidos;
@@ -189,16 +189,17 @@ Código de transferencia: ${codigoQR}`;
       admin: transferencia.admin,
       motivo: {
         tipo: "Transferencia",
-        descripcion: `Transferencia desde ${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`,
+        descripcion: `Transferencia desde ${nombreOrigenCompleto}`,
       },
       estado: "pendiente",
       fechaPrestamo: new Date(),
       recursosAdicionales: transferencia.recursosAdicionales.map(r => r._id),
-      observaciones: `${observaciones || ""}`,
+      observaciones: observacionesPrestamo, // ✅ AQUÍ VA TODA LA INFO
       firmaDocente: "",
     });
 
     console.log("📋 Préstamo pendiente creado para docente destino:", nuevoPrestamoPendiente._id);
+    console.log("📝 Observaciones guardadas:", observacionesPrestamo);
 
     // Notificar al docente destino por Pusher
     pusher.trigger("chat", "transferencia-confirmada-origen", {
@@ -214,9 +215,9 @@ Código de transferencia: ${codigoQR}`;
     });
   } catch (error) {
     console.error("❌ Error al confirmar transferencia origen:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       msg: "Error en el servidor",
-      error: error.message 
+      error: error.message
     });
   }
 };

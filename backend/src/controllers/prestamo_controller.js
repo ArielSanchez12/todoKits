@@ -191,73 +191,82 @@ const confirmarPrestamo = async (req, res) => {
       if (esTransferencia) {
         console.log("🔄 Detectada transferencia en préstamo:", id);
 
+        // ✅ CORRECCIÓN: Declarar una sola vez
+        let codigoQR = null;
+        let transferencia = null;
+
         // Buscar la transferencia asociada por el código en observaciones
-        const codigoMatch = prestamoExistente.observaciones?.match(/Código de transferencia: ([a-f0-9-]+)/);
-        const codigoQR = codiMatch ? codiMatch[1] : null;
+        if (prestamoExistente.observaciones) {
+          const codigoMatch = prestamoExistente.observaciones.match(/Código de transferencia: ([a-f0-9\-]+)/);
+          if (codigoMatch && codigoMatch[1]) {
+            codigoQR = codigoMatch[1]; // ✅ Asignar sin redeclarar
+            console.log("🔍 Código QR extraído:", codigoQR);
 
-        if (codigoQR) {
-          const transferencia = await Transferencia.findOne({ codigoQR })
-            .populate("prestamoOriginal")
-            .populate("recursos")
-            .populate("recursosAdicionales");
+            transferencia = await Transferencia.findOne({ codigoQR })
+              .populate("prestamoOriginal")
+              .populate("recursos")
+              .populate("recursosAdicionales");
 
-          if (transferencia && transferencia.prestamoOriginal) {
-            console.log("📤 Finalizando préstamo original del docente origen");
+            console.log("✅ Transferencia encontrada:", transferencia?._id);
+          }
+        }
 
-            // Obtener el préstamo original
-            const prestamoOriginal = await prestamo.findById(transferencia.prestamoOriginal._id);
+        if (transferencia && transferencia.prestamoOriginal) {
+          console.log("📤 Finalizando préstamo original del docente origen");
 
-            if (prestamoOriginal && prestamoOriginal.estado === "activo") {
-              // ✅ NUEVO: Calcular recursos que NO fueron seleccionados
-              const recursosTransferidos = transferencia.recursos.map(r => r._id.toString());
-              const recursosAdicionalesTransferidos = transferencia.recursosAdicionales.map(r => r._id.toString());
-              const todosRecursosTransferidos = [...recursosTransferidos, ...recursosAdicionalesTransferidos];
+          // Obtener el préstamo original
+          const prestamoOriginal = await prestamo.findById(transferencia.prestamoOriginal._id);
 
-              // Recursos que NO se transfieren (se devuelven)
-              const recursosNoTransferidos = [];
+          if (prestamoOriginal && prestamoOriginal.estado === "activo") {
+            // ✅ NUEVO: Calcular recursos que NO fueron seleccionados
+            const recursosTransferidos = transferencia.recursos.map(r => r._id.toString());
+            const recursosAdicionalesTransferidos = transferencia.recursosAdicionales.map(r => r._id.toString());
+            const todosRecursosTransferidos = [...recursosTransferidos, ...recursosAdicionalesTransferidos];
 
-              // Verificar recursos adicionales del préstamo original
-              if (prestamoOriginal.recursosAdicionales && prestamoOriginal.recursosAdicionales.length > 0) {
-                prestamoOriginal.recursosAdicionales.forEach(recursoId => {
-                  if (!todosRecursosTransferidos.includes(recursoId.toString())) {
-                    recursosNoTransferidos.push(recursoId);
-                  }
-                });
-              }
+            // Recursos que NO se transfieren (se devuelven)
+            const recursosNoTransferidos = [];
 
-              console.log("📦 Recursos transferidos:", todosRecursosTransferidos);
-              console.log("📦 Recursos NO transferidos (a devolver):", recursosNoTransferidos);
-
-              // Liberar recursos que NO se transfieren
-              if (recursosNoTransferidos.length > 0) {
-                await recurso.updateMany(
-                  { _id: { $in: recursosNoTransferidos } },
-                  {
-                    estado: "pendiente",
-                    asignadoA: null
-                  }
-                );
-                console.log("✅ Recursos liberados:", recursosNoTransferidos.length);
-              }
-
-              // Finalizar préstamo original
-              prestamoOriginal.estado = "finalizado";
-              prestamoOriginal.horaDevolucion = new Date();
-              prestamoOriginal.observaciones += `\n📤 [TRANSFERENCIA COMPLETADA] Transferido a ${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente} el ${new Date().toLocaleString('es-ES')}`;
-
-              if (recursosNoTransferidos.length > 0) {
-                prestamoOriginal.observaciones += `\n📦 Recursos devueltos (no transferidos): ${recursosNoTransferidos.length} adicional(es)`;
-              }
-
-              await prestamoOriginal.save();
-
-              console.log("✅ Préstamo original finalizado correctamente");
-
-              // Actualizar transferencia
-              transferencia.estado = "finalizado";
-              transferencia.fechaConfirmacionDestino = new Date();
-              await transferencia.save();
+            // Verificar recursos adicionales del préstamo original
+            if (prestamoOriginal.recursosAdicionales && prestamoOriginal.recursosAdicionales.length > 0) {
+              prestamoOriginal.recursosAdicionales.forEach(recursoId => {
+                if (!todosRecursosTransferidos.includes(recursoId.toString())) {
+                  recursosNoTransferidos.push(recursoId);
+                }
+              });
             }
+
+            console.log("📦 Recursos transferidos:", todosRecursosTransferidos);
+            console.log("📦 Recursos NO transferidos (a devolver):", recursosNoTransferidos);
+
+            // Liberar recursos que NO se transfieren
+            if (recursosNoTransferidos.length > 0) {
+              await recurso.updateMany(
+                { _id: { $in: recursosNoTransferidos } },
+                {
+                  estado: "pendiente",
+                  asignadoA: null
+                }
+              );
+              console.log("✅ Recursos liberados:", recursosNoTransferidos.length);
+            }
+
+            // Finalizar préstamo original
+            prestamoOriginal.estado = "finalizado";
+            prestamoOriginal.horaDevolucion = new Date();
+            prestamoOriginal.observaciones += `\n📤 [TRANSFERENCIA COMPLETADA] Transferido a ${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente} el ${new Date().toLocaleString('es-ES')}`;
+
+            if (recursosNoTransferidos.length > 0) {
+              prestamoOriginal.observaciones += `\n📦 Recursos devueltos (no transferidos): ${recursosNoTransferidos.length} adicional(es)`;
+            }
+
+            await prestamoOriginal.save();
+
+            console.log("✅ Préstamo original finalizado correctamente");
+
+            // Actualizar transferencia
+            transferencia.estado = "finalizado";
+            transferencia.fechaConfirmacionDestino = new Date();
+            await transferencia.save();
           }
         }
       }

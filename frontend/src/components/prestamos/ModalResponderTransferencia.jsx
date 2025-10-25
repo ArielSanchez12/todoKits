@@ -3,33 +3,70 @@ import { IoClose } from "react-icons/io5";
 import { MdCheckCircle, MdCancel } from "react-icons/md";
 import { toast } from "react-toastify";
 import storeTransferencias from "../../context/storeTransferencias";
-import storeProfile from "../../context/storeProfile"; // ✅ AGREGAR
+import storePrestamos from "../../context/storePrestamos"; // ✅ AGREGAR
+import storeProfile from "../../context/storeProfile";
 
 const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
   const [observaciones, setObservaciones] = useState("");
   const [loading, setLoading] = useState(false);
   const { responderTransferenciaDestino } = storeTransferencias();
-  const { user } = storeProfile(); // ✅ AGREGAR
+  const { confirmarPrestamo } = storePrestamos(); // ✅ AGREGAR
+  const { user } = storeProfile();
 
-  // ✅ AGREGAR: Firma automática
   const firmaDigital = user?._doc?._id || user?._id;
 
+  // ✅ DETECTAR si es un préstamo o una transferencia completa
+  const esPrestamoTransferencia = !transferencia.docenteOrigen;
+  const prestamoId = transferencia._id;
+
+  // ✅ Extraer datos según el tipo
+  const recursos = esPrestamoTransferencia 
+    ? [transferencia.recurso] 
+    : transferencia.recursos;
+    
+  const recursosAdicionales = esPrestamoTransferencia
+    ? (transferencia.recursosAdicionales || [])
+    : (transferencia.recursosAdicionales || []);
+
+  const observacionesOrigen = esPrestamoTransferencia
+    ? transferencia.observaciones
+    : transferencia.observacionesOrigen;
+
+  // ✅ Extraer nombre del docente origen desde observaciones si es préstamo
+  const nombreDocenteOrigen = esPrestamoTransferencia
+    ? transferencia.observaciones?.match(/Transferido por: (.+?)(?:\n|$)/)?.[1] || "Docente desconocido"
+    : `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
+
+  const emailDocenteOrigen = esPrestamoTransferencia
+    ? "-"
+    : transferencia.docenteOrigen.emailDocente;
+
   const handleResponder = async (aceptar) => {
-    // ✅ ELIMINAR validación de firma manual
     setLoading(true);
 
     try {
-      await responderTransferenciaDestino(transferencia._id, {
-        aceptar,
-        observaciones,
-        firma: firmaDigital, // ✅ CAMBIAR: Enviar firma automática
-      });
+      if (esPrestamoTransferencia) {
+        // ✅ Si es préstamo-transferencia, usar confirmarPrestamo
+        await confirmarPrestamo(prestamoId, aceptar, aceptar ? "" : "Rechazado por el docente");
+        toast.success(
+          aceptar
+            ? "Transferencia aceptada exitosamente"
+            : "Transferencia rechazada"
+        );
+      } else {
+        // ✅ Si es transferencia completa, usar responderTransferenciaDestino
+        await responderTransferenciaDestino(transferencia._id, {
+          aceptar,
+          observaciones,
+          firma: firmaDigital,
+        });
+        toast.success(
+          aceptar
+            ? "Transferencia aceptada exitosamente"
+            : "Transferencia rechazada"
+        );
+      }
 
-      toast.success(
-        aceptar
-          ? "Transferencia aceptada exitosamente"
-          : "Transferencia rechazada"
-      );
       onSuccess();
       onClose();
     } catch (error) {
@@ -66,13 +103,14 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
             <div className="space-y-2 text-sm">
               <p>
                 <span className="font-semibold">Nombre:</span>{" "}
-                {transferencia.docenteOrigen.nombreDocente}{" "}
-                {transferencia.docenteOrigen.apellidoDocente}
+                {nombreDocenteOrigen}
               </p>
-              <p>
-                <span className="font-semibold">Email:</span>{" "}
-                {transferencia.docenteOrigen.emailDocente}
-              </p>
+              {emailDocenteOrigen !== "-" && (
+                <p>
+                  <span className="font-semibold">Email:</span>{" "}
+                  {emailDocenteOrigen}
+                </p>
+              )}
             </div>
           </div>
 
@@ -83,7 +121,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
             </p>
             <div className="space-y-3">
               {/* Recurso Principal */}
-              {transferencia.recursos.map((recurso) => (
+              {recursos.map((recurso) => (
                 <div
                   key={recurso._id}
                   className="p-3 bg-white rounded-lg border border-green-200"
@@ -125,12 +163,12 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
               ))}
 
               {/* Recursos Adicionales */}
-              {transferencia.recursosAdicionales.length > 0 && (
+              {recursosAdicionales.length > 0 && (
                 <>
                   <p className="text-xs font-semibold text-gray-700 mt-2">
                     Recursos Adicionales:
                   </p>
-                  {transferencia.recursosAdicionales.map((recurso) => (
+                  {recursosAdicionales.map((recurso) => (
                     <div
                       key={recurso._id}
                       className="p-3 bg-white rounded-lg border border-yellow-200"
@@ -176,13 +214,13 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
           </div>
 
           {/* Observaciones del origen */}
-          {transferencia.observacionesOrigen && (
+          {observacionesOrigen && (
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-gray-700 mb-2">
-                💬 Observaciones del Docente Origen
+                💬 Información de la Transferencia
               </p>
               <p className="text-sm text-gray-700 whitespace-pre-line">
-                {transferencia.observacionesOrigen}
+                {observacionesOrigen}
               </p>
             </div>
           )}
@@ -200,7 +238,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
             />
           </div>
 
-          {/* ✅ CAMBIAR: Firma Digital (SOLO LECTURA) */}
+          {/* Firma Digital */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               ✍️ Firma Digital (Tu ID)

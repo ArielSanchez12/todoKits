@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MdCheckCircle, MdAssignmentTurnedIn } from "react-icons/md"; // ✅ REMOVER MdCancel
 import storePrestamos from "../../context/storePrestamos";
+import storeProfile from "../../context/storeProfile";
 import { toast } from "react-toastify";
 import ModalResponderTransferencia from "./ModalResponderTransferencia";
 
@@ -12,6 +13,9 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const [modalTransferencia, setModalTransferencia] = useState(null);
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [observacionesDevolucion, setObservacionesDevolucion] = useState("");
+
+    // ✅ AGREGAR: Firma automática
+  const firmaDigital = user?._doc?._id || user?._id;
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -89,7 +93,10 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const handleDevolver = async (id) => {
     setLoading(true);
     try {
-      await finalizarPrestamo(id, observacionesDevolucion);
+      await finalizarPrestamo(id, {
+        observaciones: observacionesDevolucion,
+        firmaDestino: firmaDigital,
+      });
       onRefresh();
       setModalDevolver(null);
       setObservacionesDevolucion("");

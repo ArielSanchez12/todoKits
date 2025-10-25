@@ -34,11 +34,12 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
 
   // ✅ Extraer nombre del docente origen desde observaciones si es préstamo
   const nombreDocenteOrigen = esPrestamoTransferencia
-    ? transferencia.observaciones?.match(/Transferido por: (.+?)(?:\n|$)/)?.[1] || "Docente desconocido"
+    ? transferencia.observaciones?.match(/Transferido por: (.+?)(?:\n|Email:|$)/)?.[1]?.trim() || "Docente desconocido"
     : `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
 
+  // ✅ AGREGAR extracción del email desde observaciones
   const emailDocenteOrigen = esPrestamoTransferencia
-    ? "-"
+    ? transferencia.observaciones?.match(/Email: (.+?)(?:\n|$)/)?.[1]?.trim() || null
     : transferencia.docenteOrigen.emailDocente;
 
   const handleResponder = async (aceptar) => {
@@ -105,7 +106,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
                 <span className="font-semibold">Nombre:</span>{" "}
                 {nombreDocenteOrigen}
               </p>
-              {emailDocenteOrigen !== "-" && (
+              {emailDocenteOrigen && (
                 <p>
                   <span className="font-semibold">Email:</span>{" "}
                   {emailDocenteOrigen}

@@ -9,12 +9,9 @@ import storePrestamos from "../context/storePrestamos";
 import storeProfile from "../context/storeProfile";
 
 const Prestamos = () => {
-  // ✅ ESTADO EXISTENTE (NO SE TOCA)
   const { prestamos, fetchPrestamosAdmin, clearPrestamos, loading } = storePrestamos();
   const [filtro, setFiltro] = useState("todos");
-
-  // ✅ NUEVO ESTADO PARA TRANSFERENCIAS
-  const [vistaActual, setVistaActual] = useState("prestamos"); // "prestamos" o "transferencias"
+  const [vistaActual, setVistaActual] = useState("prestamos");
   const [modalTransferir, setModalTransferir] = useState(false);
   const [modalQR, setModalQR] = useState(false);
   const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
@@ -24,7 +21,6 @@ const Prestamos = () => {
 
   const { fetchDocentes } = storeProfile();
 
-  // ✅ EFECTO EXISTENTE (NO SE TOCA)
   useEffect(() => {
     const cargarPrestamos = async () => {
       try {
@@ -38,20 +34,27 @@ const Prestamos = () => {
     };
 
     cargarPrestamos();
-    cargarDocentes(); // ✅ AGREGADO: Cargar docentes al inicio
+    cargarDocentes();
 
     return () => {
       clearPrestamos();
     };
   }, []);
 
-  // ✅ NUEVA FUNCIÓN: Cargar docentes
   const cargarDocentes = async () => {
     setLoadingDocentes(true);
     try {
       const data = await fetchDocentes();
       console.log("✅ Docentes cargados:", data);
-      setDocentes(Array.isArray(data) ? data : []);
+
+      // ✅ VALIDACIÓN CRÍTICA: Asegurar que sea un array
+      if (Array.isArray(data)) {
+        setDocentes(data);
+        console.log("✅ Estado docentes actualizado:", data);
+      } else {
+        console.error("❌ fetchDocentes no retornó un array:", data);
+        setDocentes([]);
+      }
     } catch (error) {
       console.error("❌ Error al cargar docentes:", error);
       setDocentes([]);
@@ -60,7 +63,6 @@ const Prestamos = () => {
     }
   };
 
-  // ✅ FUNCIÓN EXISTENTE (NO SE TOCA)
   const handleRefresh = async () => {
     try {
       await fetchPrestamosAdmin();
@@ -70,37 +72,63 @@ const Prestamos = () => {
     }
   };
 
-  // ✅ NUEVA FUNCIÓN: Abrir modal de transferencia
-  const handleAbrirTransferencia = (prestamo) => {
-    console.log("🔍 Abriendo transferencia");
+  const handleAbrirTransferencia = async (prestamo) => {
+    console.log("🔍 Intentando abrir transferencia");
     console.log("📦 Préstamo:", prestamo);
-    console.log("👥 Docentes disponibles:", docentes);
-    
+    console.log("👥 Estado docentes ANTES de abrir modal:", docentes);
+    console.log("📊 Es array?:", Array.isArray(docentes));
+    console.log("📊 Cantidad:", docentes.length);
+
+    // ✅ VALIDACIÓN MEJORADA: Si no hay docentes, recargar
     if (!Array.isArray(docentes) || docentes.length === 0) {
-      toast.error("No hay docentes disponibles. Recargando...");
-      cargarDocentes();
-      return;
+      toast.info("Cargando docentes disponibles...");
+      setLoadingDocentes(true);
+
+      try {
+        const data = await fetchDocentes();
+        console.log("✅ Docentes recargados:", data);
+
+        if (!Array.isArray(data) || data.length === 0) {
+          toast.error("No hay docentes disponibles en el sistema");
+          setLoadingDocentes(false);
+          return;
+        }
+
+        setDocentes(data);
+        setLoadingDocentes(false);
+
+        // ✅ Abrir modal después de cargar docentes
+        setTimeout(() => {
+          console.log("👥 Docentes al abrir modal:", data);
+          setPrestamoSeleccionado(prestamo);
+          setModalTransferir(true);
+        }, 100);
+
+      } catch (error) {
+        console.error("❌ Error al recargar docentes:", error);
+        toast.error("Error al cargar docentes");
+        setLoadingDocentes(false);
+        return;
+      }
+    } else {
+      // ✅ Si ya hay docentes, abrir directamente
+      setPrestamoSeleccionado(prestamo);
+      setModalTransferir(true);
     }
-    
-    setPrestamoSeleccionado(prestamo);
-    setModalTransferir(true);
   };
 
-  // ✅ NUEVA FUNCIÓN: Manejar éxito de transferencia
   const handleSuccessTransferencia = (resultado) => {
     setQRData(resultado);
     setModalTransferir(false);
     setModalQR(true);
   };
 
-  // ✅ NUEVA FUNCIÓN: Enviar QR por chat
   const handleEnviarPorChat = () => {
     toast.info("Funcionalidad de envío por chat próximamente");
     setModalQR(false);
     setQRData(null);
   };
 
-  // ✅ LÓGICA EXISTENTE (NO SE TOCA)
   const prestamosFiltrados =
     filtro === "todos"
       ? prestamos
@@ -117,15 +145,13 @@ const Prestamos = () => {
   return (
     <div>
       <ToastContainer />
-      
-      {/* ✅ HEADER EXISTENTE (NO SE TOCA) */}
+
       <h1 className="font-black text-4xl text-black">Préstamos de Recursos</h1>
       <hr className="my-2 border-t-2 border-gray-300" />
       <p className="mb-8">
         Gestiona todos los préstamos de recursos realizados a los docentes
       </p>
 
-      {/* ✅ BOTÓN EXISTENTE (NO SE TOCA) */}
       <div className="flex justify-between items-center mb-6">
         <button
           onClick={handleRefresh}
@@ -133,75 +159,91 @@ const Prestamos = () => {
         >
           Actualizar Préstamos
         </button>
+
+        {/* ✅ NUEVO: Debug info */}
+        <div className="text-xs text-gray-500">
+          Docentes cargados: {docentes.length}
+        </div>
       </div>
 
-      {/* ✅ NUEVO: Navegación entre Préstamos y Transferencias */}
       <div className="flex bg-white rounded-lg shadow-sm p-1 mb-6 w-fit border">
         <button
           onClick={() => setVistaActual("prestamos")}
-          className={`px-6 py-2 rounded-md font-semibold transition-all ${
-            vistaActual === "prestamos"
+          className={`px-6 py-2 rounded-md font-semibold transition-all ${vistaActual === "prestamos"
               ? "bg-blue-600 text-white"
               : "text-gray-600 hover:bg-gray-100"
-          }`}
+            }`}
         >
           Préstamos
         </button>
         <button
           onClick={() => setVistaActual("transferencias")}
-          className={`px-6 py-2 rounded-md font-semibold transition-all ${
-            vistaActual === "transferencias"
+          className={`px-6 py-2 rounded-md font-semibold transition-all ${vistaActual === "transferencias"
               ? "bg-blue-600 text-white"
               : "text-gray-600 hover:bg-gray-100"
-          }`}
+            }`}
         >
           Transferencias
         </button>
       </div>
 
-      {/* ✅ NUEVO: Advertencia si no hay docentes cargados */}
+      {loadingDocentes && (
+        <div className="bg-blue-50 p-3 rounded-lg mb-4 text-sm text-blue-700 border border-blue-200">
+          ⏳ Cargando docentes disponibles...
+        </div>
+      )}
+
       {!loadingDocentes && docentes.length === 0 && vistaActual === "prestamos" && (
         <div className="bg-yellow-50 p-3 rounded-lg mb-4 text-sm text-yellow-700 border border-yellow-200">
           ⚠️ No se pudieron cargar los docentes. La función de transferencia no estará disponible.
         </div>
       )}
 
-      {/* ✅ MOSTRAR CONTENIDO SEGÚN LA VISTA SELECCIONADA */}
       {vistaActual === "prestamos" ? (
         <>
-          {/* ✅ FILTROS EXISTENTES (NO SE TOCAN) */}
           <div className="flex flex-wrap gap-2 mb-6">
-            {[
-              { key: "todos", label: "Todos" },
-              { key: "pendiente", label: "Pendientes" },
-              { key: "activo", label: "Activos" },
-              { key: "finalizado", label: "Finalizados" },
-              { key: "rechazado", label: "Rechazados" },
-            ].map((tipo) => (
-              <button
-                key={tipo.key}
-                onClick={() => setFiltro(tipo.key)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filtro === tipo.key
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border hover:bg-gray-50"
+            {{
+              key: "todos",
+              label: "Todos"
+            },
+            {
+              key: "pendiente",
+              label: "Pendientes"
+            },
+            {
+              key: "activo",
+              label: "Activos"
+            },
+            {
+              key: "finalizado",
+              label: "Finalizados"
+            },
+            {
+              key: "rechazado",
+              label: "Rechazados"
+            },
+            }.map((tipo) => (
+            <button
+              key={tipo.key}
+              onClick={() => setFiltro(tipo.key)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filtro === tipo.key
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-700 border hover:bg-gray-50"
                 }`}
-              >
-                {tipo.label}
-                <span
-                  className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                    filtro === tipo.key
-                      ? "bg-white text-blue-600"
-                      : "bg-gray-200 text-gray-700"
+            >
+              {tipo.label}
+              <span
+                className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filtro === tipo.key
+                    ? "bg-white text-blue-600"
+                    : "bg-gray-200 text-gray-700"
                   }`}
-                >
-                  {contadores[tipo.key]}
-                </span>
-              </button>
+              >
+                {contadores[tipo.key]}
+              </span>
+            </button>
             ))}
           </div>
 
-          {/* ✅ ESTADÍSTICAS EXISTENTES (NO SE TOCAN) */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
               <p className="text-sm text-yellow-800 font-semibold">Pendientes</p>
@@ -229,7 +271,6 @@ const Prestamos = () => {
             </div>
           </div>
 
-          {/* ✅ TABLA EXISTENTE CON NUEVA PROP */}
           {loading ? (
             <div className="text-center py-8">
               <p className="text-gray-600">Cargando préstamos...</p>
@@ -238,17 +279,16 @@ const Prestamos = () => {
             <TablaPrestamosAdmin
               prestamos={prestamosFiltrados}
               onRefresh={handleRefresh}
-              onSolicitarTransferencia={handleAbrirTransferencia} // ✅ NUEVA PROP
+              onSolicitarTransferencia={handleAbrirTransferencia}
             />
           )}
         </>
       ) : (
-        /* ✅ NUEVA VISTA: Transferencias */
         <TablaTransferencias />
       )}
 
-      {/* ✅ NUEVO: Modal de Transferir Recurso */}
-      {modalTransferir && prestamoSeleccionado && (
+      {/* ✅ VALIDACIÓN ADICIONAL: Solo renderizar si docentes existe */}
+      {modalTransferir && prestamoSeleccionado && Array.isArray(docentes) && (
         <ModalTransferirRecurso
           prestamo={prestamoSeleccionado}
           docentes={docentes}
@@ -260,7 +300,6 @@ const Prestamos = () => {
         />
       )}
 
-      {/* ✅ NUEVO: Modal de QR de Transferencia */}
       {modalQR && qrData && (
         <ModalQRTransferencia
           transferencia={qrData.transferencia}

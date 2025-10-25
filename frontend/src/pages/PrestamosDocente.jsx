@@ -6,6 +6,7 @@ import { MdHistory, MdAssignment } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
 import EscanerQR from "../components/prestamos/EscanerQR";
 import ModalConfirmarTransferencia from "../components/prestamos/ModalConfirmarTransferencia";
+import { MdQrCodeScanner } from "react-icons/md";
 
 const PrestamosDocente = () => {
   const {

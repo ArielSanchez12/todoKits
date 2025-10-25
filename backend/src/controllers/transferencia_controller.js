@@ -165,7 +165,24 @@ const confirmarTransferenciaOrigen = async (req, res) => {
 
     console.log("✅ Transferencia confirmada por origen");
 
-    // ✅ Crear préstamo pendiente para docente destino
+    // ✅ Armar observaciones con info de transferencia (incluir código QR)
+    const nombreOrigenCompleto = `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
+    
+    const observacionesPrestamo = `📤 Transferido por: ${nombreOrigenCompleto}
+Estado reportado: ${observaciones || "Sin observaciones"}
+Fecha de transferencia: ${new Date().toLocaleString('es-ES')}
+Código de transferencia: ${codigoQR}`;
+
+    // ✅ Contar recursos transferidos vs totales
+    const totalRecursosOriginales = (transferencia.prestamoOriginal?.recursosAdicionales?.length || 0) + 1;
+    const recursosTransferidos = transferencia.recursos.length + transferencia.recursosAdicionales.length;
+    const recursosNoTransferidos = totalRecursosOriginales - recursosTransferidos;
+
+    if (recursosNoTransferidos > 0) {
+      observacionesPrestamo += `\n📦 Recursos: ${recursosTransferidos} de ${totalRecursosOriginales} (${recursosNoTransferidos} adicional/es no incluido/s)`;
+    }
+
+    // Crear préstamo pendiente para docente destino
     const nuevoPrestamoPendiente = await Prestamo.create({
       recurso: transferencia.recursos[0]?._id,
       docente: transferencia.docenteDestino._id,
@@ -177,7 +194,7 @@ const confirmarTransferenciaOrigen = async (req, res) => {
       estado: "pendiente",
       fechaPrestamo: new Date(),
       recursosAdicionales: transferencia.recursosAdicionales.map(r => r._id),
-      observaciones: `Transferencia pendiente de confirmación. ${observaciones || ""}`,
+      observaciones: `${observaciones || ""}`,
       firmaDocente: "",
     });
 

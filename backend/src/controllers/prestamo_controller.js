@@ -17,8 +17,8 @@ const crearPrestamo = async (req, res) => {
     }
 
     if (recursoExistente.estado !== "pendiente") {
-      return res.status(400).json({ 
-        msg: `El recurso ${recursoExistente.nombre} no está disponible para préstamo` 
+      return res.status(400).json({
+        msg: `El recurso ${recursoExistente.nombre} no está disponible para préstamo`
       });
     }
 
@@ -33,10 +33,10 @@ const crearPrestamo = async (req, res) => {
     if (datosPrestamo.observaciones) {
       const patron = /(KIT|LLAVE|PROYECTOR)\s*#(\d+)/gi;
       const matches = [...datosPrestamo.observaciones.matchAll(patron)];
-      
+
       if (matches.length > 0) {
         const nombresRecursos = matches.map(m => `${m[1].toUpperCase()} #${m[2]}`);
-        const recursosAdicionales = await recurso.find({ 
+        const recursosAdicionales = await recurso.find({
           nombre: { $in: nombresRecursos },
           _id: { $ne: datosPrestamo.recurso }
         });
@@ -44,8 +44,8 @@ const crearPrestamo = async (req, res) => {
         // Validar que todos estén disponibles
         const noDisponibles = recursosAdicionales.filter(r => r.estado !== "pendiente");
         if (noDisponibles.length > 0) {
-          return res.status(400).json({ 
-            msg: `Algunos recursos mencionados no están disponibles: ${noDisponibles.map(r => r.nombre).join(', ')}` 
+          return res.status(400).json({
+            msg: `Algunos recursos mencionados no están disponibles: ${noDisponibles.map(r => r.nombre).join(', ')}`
           });
         }
 
@@ -75,16 +75,16 @@ const crearPrestamo = async (req, res) => {
     if (recursosAdicionalesIds.length > 0) {
       await recurso.updateMany(
         { _id: { $in: recursosAdicionalesIds } },
-        { 
-          estado: "activo", 
-          asignadoA: datosPrestamo.docente 
+        {
+          estado: "activo",
+          asignadoA: datosPrestamo.docente
         }
       );
     }
 
-    res.status(201).json({ 
+    res.status(201).json({
       msg: "Solicitud de préstamo creada exitosamente. El docente debe confirmarla.",
-      prestamo: nuevoPrestamo 
+      prestamo: nuevoPrestamo
     });
   } catch (error) {
     console.error("Error al crear préstamo:", error);
@@ -115,7 +115,7 @@ const listarPrestamosDocente = async (req, res) => {
     const docenteId = req.docenteBDD._id;
 
     const prestamos = await prestamo
-      .find({ 
+      .find({
         docente: docenteId,
         estado: { $in: ["pendiente", "activo"] }
       })
@@ -137,7 +137,7 @@ const historialPrestamosDocente = async (req, res) => {
     const docenteId = req.docenteBDD._id;
 
     const prestamos = await prestamo
-      .find({ 
+      .find({
         docente: docenteId,
         estado: "finalizado"
       })
@@ -184,45 +184,87 @@ const confirmarPrestamo = async (req, res) => {
       prestamoExistente.horaConfirmacion = new Date();
       prestamoExistente.firmaDocente = docenteId.toString();
 
-      // ✅ NUEVO: Detectar si este es un préstamo de transferencia
+      // ✅ DETECTAR SI ES TRANSFERENCIA
       const esTransferencia = prestamoExistente.motivo?.tipo === "Transferencia" ||
-                              prestamoExistente.observaciones?.includes("Transferido por");
+        prestamoExistente.observaciones?.includes("Transferido por");
 
       if (esTransferencia) {
         console.log("🔄 Detectada transferencia en préstamo:", id);
 
-        // Buscar la transferencia asociada
-        const transferencia = await Transferencia.findOne({
-          "observacionesOrigen": { $exists: true },
-          "docenteDestino": docenteId
-        }).sort({ createdAt: -1 });
+        // Buscar la transferencia asociada por el código en observaciones
+        const codigoMatch = prestamoExistente.observaciones?.match(/Código de transferencia: ([a-f0-9-]+)/);
+        const codigoQR = codiMatch ? codiMatch[1] : null;
 
-        if (transferencia && transferencia.prestamoOriginal) {
-          console.log("📤 Finalizando préstamo original del docente origen");
+        if (codigoQR) {
+          const transferencia = await Transferencia.findOne({ codigoQR })
+            .populate("prestamoOriginal")
+            .populate("recursos")
+            .populate("recursosAdicionales");
 
-          // Finalizar el préstamo original
-          const prestamoOriginal = await prestamo.findById(transferencia.prestamoOriginal);
-          
-          if (prestamoOriginal && prestamoOriginal.estado === "activo") {
-            prestamoOriginal.estado = "finalizado";
-            prestamoOriginal.horaDevolucion = new Date();
-            prestamoOriginal.observaciones += `\n📤 [TRANSFERENCIA COMPLETADA] Transferido a ${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente} el ${new Date().toLocaleString('es-ES')}`;
-            await prestamoOriginal.save();
+          if (transferencia && transferencia.prestamoOriginal) {
+            console.log("📤 Finalizando préstamo original del docente origen");
 
-            console.log("✅ Préstamo original finalizado correctamente");
+            // Obtener el préstamo original
+            const prestamoOriginal = await prestamo.findById(transferencia.prestamoOriginal._id);
 
-            // Actualizar transferencia
-            transferencia.estado = "finalizado";
-            transferencia.fechaConfirmacionDestino = new Date();
-            await transferencia.save();
+            if (prestamoOriginal && prestamoOriginal.estado === "activo") {
+              // ✅ NUEVO: Calcular recursos que NO fueron seleccionados
+              const recursosTransferidos = transferencia.recursos.map(r => r._id.toString());
+              const recursosAdicionalesTransferidos = transferencia.recursosAdicionales.map(r => r._id.toString());
+              const todosRecursosTransferidos = [...recursosTransferidos, ...recursosAdicionalesTransferidos];
+
+              // Recursos que NO se transfieren (se devuelven)
+              const recursosNoTransferidos = [];
+
+              // Verificar recursos adicionales del préstamo original
+              if (prestamoOriginal.recursosAdicionales && prestamoOriginal.recursosAdicionales.length > 0) {
+                prestamoOriginal.recursosAdicionales.forEach(recursoId => {
+                  if (!todosRecursosTransferidos.includes(recursoId.toString())) {
+                    recursosNoTransferidos.push(recursoId);
+                  }
+                });
+              }
+
+              console.log("📦 Recursos transferidos:", todosRecursosTransferidos);
+              console.log("📦 Recursos NO transferidos (a devolver):", recursosNoTransferidos);
+
+              // Liberar recursos que NO se transfieren
+              if (recursosNoTransferidos.length > 0) {
+                await recurso.updateMany(
+                  { _id: { $in: recursosNoTransferidos } },
+                  {
+                    estado: "pendiente",
+                    asignadoA: null
+                  }
+                );
+                console.log("✅ Recursos liberados:", recursosNoTransferidos.length);
+              }
+
+              // Finalizar préstamo original
+              prestamoOriginal.estado = "finalizado";
+              prestamoOriginal.horaDevolucion = new Date();
+              prestamoOriginal.observaciones += `\n📤 [TRANSFERENCIA COMPLETADA] Transferido a ${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente} el ${new Date().toLocaleString('es-ES')}`;
+
+              if (recursosNoTransferidos.length > 0) {
+                prestamoOriginal.observaciones += `\n📦 Recursos devueltos (no transferidos): ${recursosNoTransferidos.length} adicional(es)`;
+              }
+
+              await prestamoOriginal.save();
+
+              console.log("✅ Préstamo original finalizado correctamente");
+
+              // Actualizar transferencia
+              transferencia.estado = "finalizado";
+              transferencia.fechaConfirmacionDestino = new Date();
+              await transferencia.save();
+            }
           }
         }
       }
 
-
-      // Cambiar recurso a "prestado"
-      await recurso.findByIdAndUpdate(prestamoExistente.recurso, { 
-        estado: "prestado" 
+      // Cambiar recursos a "prestado"
+      await recurso.findByIdAndUpdate(prestamoExistente.recurso, {
+        estado: "prestado"
       });
 
       // Cambiar recursos adicionales a "prestado"
@@ -234,14 +276,17 @@ const confirmarPrestamo = async (req, res) => {
       }
 
       await prestamoExistente.save();
-      res.status(200).json({ msg: "Préstamo confirmado exitosamente", prestamo: prestamoExistente });
+      res.status(200).json({
+        msg: "Préstamo confirmado exitosamente",
+        prestamo: prestamoExistente
+      });
     } else {
-      // Rechazar préstamo
+      // RECHAZAR PRÉSTAMO
       prestamoExistente.estado = "rechazado";
       prestamoExistente.observaciones += `\n[RECHAZADO] ${motivoRechazo || "Sin motivo especificado"}`;
 
       // Liberar recurso
-      await recurso.findByIdAndUpdate(prestamoExistente.recurso, { 
+      await recurso.findByIdAndUpdate(prestamoExistente.recurso, {
         estado: "pendiente",
         asignadoA: null
       });
@@ -296,7 +341,7 @@ const finalizarPrestamo = async (req, res) => {
     }
 
     // Liberar recurso principal
-    await recurso.findByIdAndUpdate(prestamoExistente.recurso, { 
+    await recurso.findByIdAndUpdate(prestamoExistente.recurso, {
       estado: "pendiente",
       asignadoA: null
     });
@@ -358,8 +403,8 @@ const cancelarPrestamo = async (req, res) => {
 
     // Solo se puede cancelar si está pendiente
     if (prestamoEncontrado.estado !== "pendiente") {
-      return res.status(400).json({ 
-        msg: "Solo se pueden cancelar préstamos pendientes" 
+      return res.status(400).json({
+        msg: "Solo se pueden cancelar préstamos pendientes"
       });
     }
 
@@ -380,9 +425,9 @@ const cancelarPrestamo = async (req, res) => {
     if (prestamoEncontrado.recursosAdicionales && prestamoEncontrado.recursosAdicionales.length > 0) {
       await recurso.updateMany(
         { _id: { $in: prestamoEncontrado.recursosAdicionales } },
-        { 
-          estado: "pendiente", 
-          asignadoA: null 
+        {
+          estado: "pendiente",
+          asignadoA: null
         }
       );
     }
@@ -411,22 +456,22 @@ const finalizarPrestamoAdmin = async (req, res) => {
 
     // Solo se puede finalizar si está activo
     if (prestamoEncontrado.estado !== "activo") {
-      return res.status(400).json({ 
-        msg: "Solo se pueden finalizar préstamos activos" 
+      return res.status(400).json({
+        msg: "Solo se pueden finalizar préstamos activos"
       });
     }
 
     // Actualizar estado del préstamo y guardar observaciones correctamente
     prestamoEncontrado.estado = "finalizado";
     prestamoEncontrado.horaDevolucion = new Date();
-    
+
     // Agregar observaciones al campo existente en lugar de crear un campo nuevo
     if (observacionesDevolucion) {
       prestamoEncontrado.observaciones += `\n[DEVOLUCIÓN - ADMIN] ${observacionesDevolucion}`;
     } else {
       prestamoEncontrado.observaciones += `\n[DEVOLUCIÓN - ADMIN] Finalizado por el administrador`;
     }
-    
+
     await prestamoEncontrado.save();
 
     // Liberar el recurso principal
@@ -441,9 +486,9 @@ const finalizarPrestamoAdmin = async (req, res) => {
     if (prestamoEncontrado.recursosAdicionales && prestamoEncontrado.recursosAdicionales.length > 0) {
       await recurso.updateMany(
         { _id: { $in: prestamoEncontrado.recursosAdicionales } },
-        { 
-          estado: "pendiente", 
-          asignadoA: null 
+        {
+          estado: "pendiente",
+          asignadoA: null
         }
       );
     }
@@ -466,6 +511,6 @@ export {
   confirmarPrestamo,
   finalizarPrestamo,
   obtenerPrestamo,
-  cancelarPrestamo, 
-  finalizarPrestamoAdmin, 
+  cancelarPrestamo,
+  finalizarPrestamoAdmin,
 };

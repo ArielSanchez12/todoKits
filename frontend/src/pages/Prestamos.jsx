@@ -200,45 +200,33 @@ const Prestamos = () => {
         <>
           <div className="flex flex-wrap gap-2 mb-6">
             {/* ✅ CORREGIDO: Cambiado de {{...}} a [{...}] */}
-            {{
-              key: "todos",
-              label: "Todos"
-            },
-            {
-              key: "pendiente",
-              label: "Pendientes"
-            },
-            {
-              key: "activo",
-              label: "Activos"
-            },
-            {
-              key: "finalizado",
-              label: "Finalizados"
-            },
-            {
-              key: "rechazado",
-              label: "Rechazados"
-            },
-            }.map((tipo) => (
-            <button
-              key={tipo.key}
-              onClick={() => setFiltro(tipo.key)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${filtro === tipo.key
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 border hover:bg-gray-50"
+            {[
+              { key: "todos", label: "Todos" },
+              { key: "pendiente", label: "Pendientes" },
+              { key: "activo", label: "Activos" },
+              { key: "finalizado", label: "Finalizados" },
+              { key: "rechazado", label: "Rechazados" },
+            ].map((tipo) => (
+              <button
+                key={tipo.key}
+                onClick={() => setFiltro(tipo.key)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  filtro === tipo.key
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700 border hover:bg-gray-50"
                 }`}
-            >
-              {tipo.label}
-              <span
-                className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filtro === tipo.key
-                    ? "bg-white text-blue-600"
-                    : "bg-gray-200 text-gray-700"
-                  }`}
               >
-                {contadores[tipo.key]}
-              </span>
-            </button>
+                {tipo.label}
+                <span
+                  className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                    filtro === tipo.key
+                      ? "bg-white text-blue-600"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {contadores[tipo.key]}
+                </span>
+              </button>
             ))}
           </div>
 

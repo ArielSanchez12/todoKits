@@ -91,7 +91,7 @@ function App() {
                       <Update />
                     </PrivateRouteWithRole>
                   } />
-                  <Route path="/transferencia/:id" element={<ConfirmarTransferencia />} />
+                  <Route path="/transferencia/:codigoQR" element={<ConfirmarTransferencia />} />
                   <Route path='chat' element={<Chat />} />
                 </Route>
               </Routes>

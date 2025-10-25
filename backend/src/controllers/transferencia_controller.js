@@ -57,7 +57,7 @@ const crearTransferencia = async (req, res) => {
     });
 
     // Generar URL para el QR
-    const urlQR = `${process.env.URL_FRONTEND}transferencia/${codigoQR}`;
+    const urlQR = `${process.env.URL_FRONTEND}dashboard/transferencia/${codigoQR}`;
 
     // Generar imagen QR
     const qrImage = await QRCode.toDataURL(urlQR);

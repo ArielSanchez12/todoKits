@@ -6,7 +6,10 @@ import { MdHistory, MdAssignment } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
 import EscanerQR from "../components/prestamos/EscanerQR";
 import ModalConfirmarTransferencia from "../components/prestamos/ModalConfirmarTransferencia";
+import NotificacionesTransferencias from "../components/prestamos/NotificacionesTransferencias";
 import { MdQrCodeScanner } from "react-icons/md";
+import storeProfile from "../context/storeProfile";
+import storeTransferencias from "../context/storeTransferencias"; // ✅ AGREGAR IMPORT
 
 const PrestamosDocente = () => {
   const {
@@ -22,6 +25,9 @@ const PrestamosDocente = () => {
   const [mostrarEscaner, setMostrarEscaner] = useState(false);
   const [transferenciaEscaneada, setTransferenciaEscaneada] = useState(null);
   const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
+  const { user } = storeProfile();
+  
+  const docenteId = user?._doc?._id || user?._id;
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -56,18 +62,28 @@ const PrestamosDocente = () => {
     }
   };
 
+  // ✅ CORRECCIÓN: Usar storeTransferencias correctamente
   const handleScanSuccess = async (url) => {
     try {
+      console.log("🔍 URL escaneada:", url);
+      
       // Extraer código QR de la URL
+      // URL esperada: https://kitsfrontend-zeta.vercel.app/dashboard/transferencia/{codigoQR}
       const codigoQR = url.split("/").pop();
       
-      // Obtener datos de la transferencia
-      const transferencia = await storeTransferencias.getState().obtenerTransferenciaPorQR(codigoQR);
+      console.log("✅ Código QR extraído:", codigoQR);
+      
+      // ✅ CORRECCIÓN: Obtener datos de la transferencia
+      const { obtenerTransferenciaPorQR } = storeTransferencias.getState();
+      const transferencia = await obtenerTransferenciaPorQR(codigoQR);
+      
+      console.log("📦 Transferencia obtenida:", transferencia);
       
       setTransferenciaEscaneada(transferencia);
       setMostrarEscaner(false);
       setMostrarModalConfirmacion(true);
     } catch (error) {
+      console.error("❌ Error:", error);
       toast.error("QR inválido o transferencia no encontrada");
       setMostrarEscaner(false);
     }
@@ -83,6 +99,9 @@ const PrestamosDocente = () => {
       <p className="mb-8">
         Gestiona tus préstamos activos y consulta tu historial
       </p>
+
+      {/* Notificaciones de transferencias */}
+      {docenteId && <NotificacionesTransferencias docenteId={docenteId} />}
 
       {/* Navegación entre vistas */}
       <div className="flex gap-4 mb-6">
@@ -262,7 +281,7 @@ const PrestamosDocente = () => {
           }}
           onSuccess={() => {
             // Recargar préstamos
-            fetchPrestamos();
+            fetchPrestamosDocente();
           }}
         />
       )}

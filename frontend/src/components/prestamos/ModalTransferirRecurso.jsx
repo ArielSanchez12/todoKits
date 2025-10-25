@@ -13,10 +13,10 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const { crearTransferencia } = storeTransferencias();
 
-  // Filtrar docentes (no incluir al que ya tiene el préstamo)
-  const docentesDisponibles = docentes.filter(
-    (d) => d._id !== prestamo.docente._id
-  );
+  // ✅ VALIDACIÓN CRÍTICA: Verificar que docentes exista y sea un array
+  const docentesDisponibles = Array.isArray(docentes) 
+    ? docentes.filter((d) => d._id !== prestamo.docente._id)
+    : [];
 
   const handleToggleRecursoAdicional = (recursoId) => {
     setRecursosSeleccionados((prev) => ({
@@ -65,6 +65,56 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
       setLoading(false);
     }
   };
+
+  // ✅ MOSTRAR MENSAJE SI NO HAY DOCENTES
+  if (!Array.isArray(docentes) || docentes.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Error</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+              <IoClose size={24} />
+            </button>
+          </div>
+          <p className="text-gray-700 mb-4">
+            No se pudieron cargar los docentes disponibles. Intenta recargar la página.
+          </p>
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ MOSTRAR MENSAJE SI NO HAY DOCENTES DISPONIBLES (todos están ocupados)
+  if (docentesDisponibles.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800">Sin Docentes Disponibles</h2>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+              <IoClose size={24} />
+            </button>
+          </div>
+          <p className="text-gray-700 mb-4">
+            No hay otros docentes disponibles para transferir este préstamo.
+          </p>
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">

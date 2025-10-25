@@ -16,9 +16,9 @@ const storeProfile = create((set) => ({
 
     user: null,
     clearUser: () => set({ user: null }),
+    
     profile: async () => {
         try {
-
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
             const endpoint = storedUser.state.rol === "Administrador"
                 ? "perfil"
@@ -31,12 +31,13 @@ const storeProfile = create((set) => ({
             console.error(error)
         }
     },
+    
     updateProfile: async (data, id) => {
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/${id}`;
             let payload = data;
             let headers = getAuthHeaders();
-            // Si data es FormData, cambiar headers
+            
             if (data instanceof FormData) {
                 headers = {
                     headers: {
@@ -46,8 +47,8 @@ const storeProfile = create((set) => ({
                 };
                 payload = data;
             }
+            
             await axios.put(url, payload, headers);
-            // Refresca el perfil después de actualizar
             await storeProfile.getState().profile();
             toast.success("Perfil actualizado correctamente");
         } catch (error) {
@@ -55,6 +56,7 @@ const storeProfile = create((set) => ({
             toast.error(error.response?.data?.msg);
         }
     },
+    
     updatePasswordProfile: async (data, id) => {
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/actualizarpassword/${id}`
@@ -65,8 +67,22 @@ const storeProfile = create((set) => ({
             console.log(error)
             toast.error(error.response?.data?.msg)
         }
+    },
+
+    // Obtener lista de docentes
+    fetchDocentes: async () => {
+        try {
+            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/docentes`;
+            const respuesta = await axios.get(url, getAuthHeaders());
+            
+            // Validar que la respuesta sea un array
+            return Array.isArray(respuesta.data) ? respuesta.data : [];
+        } catch (error) {
+            console.error("Error al obtener docentes:", error);
+            toast.error("Error al cargar docentes");
+            return [];
+        }
     }
-})
-)
+}))
 
 export default storeProfile;

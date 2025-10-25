@@ -1,22 +1,15 @@
 import { useState } from "react";
 import { MdCheckCircle, MdCancel, MdAssignmentTurnedIn } from "react-icons/md";
 import storePrestamos from "../../context/storePrestamos";
-import storeProfile from "../../context/storeProfile";
 import { toast } from "react-toastify";
-import ModalResponderTransferencia from "./ModalResponderTransferencia";
 
 const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const { confirmarPrestamo, finalizarPrestamo } = storePrestamos();
-  const { user } = storeProfile();
   const [loading, setLoading] = useState(false);
   const [modalConfirmar, setModalConfirmar] = useState(null);
   const [modalDevolver, setModalDevolver] = useState(null);
-  const [modalTransferencia, setModalTransferencia] = useState(null); // ✅ NUEVO
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [observacionesDevolucion, setObservacionesDevolucion] = useState("");
-
-  // ✅ Firma automática
-  const firmaDigital = user?._doc?._id || user?._id;
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -43,32 +36,10 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
     });
   };
 
-  // ✅ NUEVO: Detectar si es transferencia
-  const esTransferencia = (prestamo) => {
-    return (
-      prestamo.motivo?.tipo === "Transferencia" ||
-      prestamo.observaciones?.includes("Transferido por")
-    );
-  };
-
-  // ✅ NUEVO: Abrir modal según tipo
-  const handleAbrirModalConfirmar = (prestamo) => {
-    if (esTransferencia(prestamo)) {
-      console.log("📤 Abriendo modal de transferencia");
-      setModalTransferencia(prestamo);
-    } else {
-      console.log("📋 Abriendo modal normal");
-      setModalConfirmar(prestamo);
-    }
-  };
-
   const handleConfirmar = async (id) => {
     setLoading(true);
     try {
-      await confirmarPrestamo(id, {
-        confirmar: true,
-        firma: firmaDigital, // ✅ Enviar firma
-      });
+      await confirmarPrestamo(id, true);
       onRefresh();
       setModalConfirmar(null);
     } catch (error) {
@@ -86,11 +57,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
     setLoading(true);
     try {
-      await confirmarPrestamo(id, {
-        confirmar: false,
-        motivoRechazo,
-        firma: firmaDigital, // ✅ Enviar firma
-      });
+      await confirmarPrestamo(id, false, motivoRechazo);
       onRefresh();
       setModalConfirmar(null);
       setMotivoRechazo("");
@@ -146,12 +113,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                         {prestamo.recurso.laboratorio} - {prestamo.recurso.aula}
                       </span>
                     )}
-                    {/* ✅ Badge si es transferencia */}
-                    {esTransferencia(prestamo) && (
-                      <span className="inline-block mt-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
-                        📤 Transferencia
-                      </span>
-                    )}
                   </td>
                   <td className="p-2">
                     <span className="font-medium">{prestamo.motivo?.tipo}</span>
@@ -182,9 +143,9 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                   <td className="p-2 text-left text-sm">
                     {prestamo.observaciones ? (
                       <div className="max-w-xs">
-                        <p className="text-xs text-gray-700 whitespace-pre-wrap">
-                          {prestamo.observaciones.substring(0, 100)}
-                          {prestamo.observaciones.length > 100 && "..."}
+                        <p className="text-xs text-gray-700">
+                          {prestamo.observaciones.substring(0, 50)}
+                          {prestamo.observaciones.length > 50 && "..."}
                         </p>
                       </div>
                     ) : (
@@ -208,7 +169,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                     {prestamo.estado === "pendiente" && (
                       <div className="flex justify-center gap-2">
                         <button
-                          onClick={() => handleAbrirModalConfirmar(prestamo)} // ✅ CAMBIO
+                          onClick={() => setModalConfirmar(prestamo)}
                           className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center gap-1"
                         >
                           <MdCheckCircle /> Confirmar
@@ -237,19 +198,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
         </table>
       </div>
 
-      {/* ✅ Modal de TRANSFERENCIA */}
-      {modalTransferencia && (
-        <ModalResponderTransferencia
-          transferencia={modalTransferencia}
-          onClose={() => setModalTransferencia(null)}
-          onSuccess={() => {
-            setModalTransferencia(null);
-            onRefresh();
-          }}
-        />
-      )}
-
-      {/* Modal de confirmación/rechazo NORMAL */}
+      {/* Modal de confirmación/rechazo */}
       {modalConfirmar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
@@ -261,16 +210,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                 {modalConfirmar.recurso?.laboratorio &&
                   `${modalConfirmar.recurso.laboratorio} - ${modalConfirmar.recurso.aula}`}
               </p>
-            </div>
-
-            {/* ✅ Firma Digital - SOLO LECTURA */}
-            <div className="mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
-              <p className="text-sm font-semibold text-gray-700 mb-1">
-                ✍️ Firma Digital
-              </p>
-              <div className="font-mono text-xs bg-white p-2 rounded border border-gray-300 break-all">
-                {firmaDigital}
-              </div>
             </div>
 
             <p className="mb-4 text-sm text-gray-700">
@@ -297,14 +236,14 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                 disabled={loading}
                 className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
               >
-                {loading ? "Procesando..." : "✅ Confirmar"}
+                {loading ? "Procesando..." : "Confirmar"}
               </button>
               <button
                 onClick={() => handleRechazar(modalConfirmar._id)}
                 disabled={loading || !motivoRechazo.trim()}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
               >
-                ❌ Rechazar
+                Rechazar
               </button>
               <button
                 onClick={() => {

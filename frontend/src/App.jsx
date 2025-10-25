@@ -26,6 +26,7 @@ import PrivateRouteWithRole from './routes/PrivateRouteWithRole'
 import LoginSuccess from "./pages/LoginSuccess"
 import ConfirmEmailChange from "./pages/ConfirmEmailChange"
 import ConfirmDocente from './pages/ConfirmDocente'
+import ConfirmarTransferencia from "./pages/ConfirmarTransferencia";
 
 function App() {
   const { profile } = storeProfile()
@@ -90,7 +91,7 @@ function App() {
                       <Update />
                     </PrivateRouteWithRole>
                   } />
-
+                  <Route path="/transferencia/:id" element={<ConfirmarTransferencia />} />
                   <Route path='chat' element={<Chat />} />
                 </Route>
               </Routes>

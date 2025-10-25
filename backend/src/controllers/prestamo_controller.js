@@ -1,6 +1,7 @@
 import prestamo from "../models/prestamo.js";
 import recurso from "../models/recurso.js";
 import docente from "../models/docente.js";
+import Transferencia from "../models/transferencia.js";
 import mongoose from "mongoose";
 
 // Crear solicitud de préstamo (Admin)
@@ -182,6 +183,42 @@ const confirmarPrestamo = async (req, res) => {
       prestamoExistente.estado = "activo";
       prestamoExistente.horaConfirmacion = new Date();
       prestamoExistente.firmaDocente = docenteId.toString();
+
+      // ✅ NUEVO: Detectar si este es un préstamo de transferencia
+      const esTransferencia = prestamoExistente.motivo?.tipo === "Transferencia" ||
+                              prestamoExistente.observaciones?.includes("Transferido por");
+
+      if (esTransferencia) {
+        console.log("🔄 Detectada transferencia en préstamo:", id);
+
+        // Buscar la transferencia asociada
+        const transferencia = await Transferencia.findOne({
+          "observacionesOrigen": { $exists: true },
+          "docenteDestino": docenteId
+        }).sort({ createdAt: -1 });
+
+        if (transferencia && transferencia.prestamoOriginal) {
+          console.log("📤 Finalizando préstamo original del docente origen");
+
+          // Finalizar el préstamo original
+          const prestamoOriginal = await prestamo.findById(transferencia.prestamoOriginal);
+          
+          if (prestamoOriginal && prestamoOriginal.estado === "activo") {
+            prestamoOriginal.estado = "finalizado";
+            prestamoOriginal.horaDevolucion = new Date();
+            prestamoOriginal.observaciones += `\n📤 [TRANSFERENCIA COMPLETADA] Transferido a ${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente} el ${new Date().toLocaleString('es-ES')}`;
+            await prestamoOriginal.save();
+
+            console.log("✅ Préstamo original finalizado correctamente");
+
+            // Actualizar transferencia
+            transferencia.estado = "finalizado";
+            transferencia.fechaConfirmacionDestino = new Date();
+            await transferencia.save();
+          }
+        }
+      }
+
 
       // Cambiar recurso a "prestado"
       await recurso.findByIdAndUpdate(prestamoExistente.recurso, { 

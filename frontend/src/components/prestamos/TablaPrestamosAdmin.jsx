@@ -57,14 +57,9 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
       return;
     }
 
-    setModalKey(prev => prev + 1); // ✅ Forzar re-render del modal
+    // Solo abre el modal una vez
     setPrestamoSeleccionado(prestamo);
     setModalTransferir(true);
-
-    // ✅ Si existe callback, también lo llamamos
-    if (onSolicitarTransferencia) {
-      onSolicitarTransferencia(prestamo);
-    }
   };
 
   const handleSuccessTransferencia = (resultado) => {

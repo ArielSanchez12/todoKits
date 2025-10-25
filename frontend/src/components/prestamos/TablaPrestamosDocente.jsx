@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MdCheckCircle, MdAssignmentTurnedIn } from "react-icons/md"; // ✅ REMOVER MdCancel
+import { MdCheckCircle, MdAssignmentTurnedIn } from "react-icons/md";
 import storePrestamos from "../../context/storePrestamos";
 import storeProfile from "../../context/storeProfile";
 import { toast } from "react-toastify";
@@ -7,6 +7,7 @@ import ModalResponderTransferencia from "./ModalResponderTransferencia";
 
 const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const { confirmarPrestamo, finalizarPrestamo } = storePrestamos();
+  const { user } = storeProfile(); // ✅ AGREGAR ESTA LÍNEA
   const [loading, setLoading] = useState(false);
   const [modalConfirmar, setModalConfirmar] = useState(null);
   const [modalDevolver, setModalDevolver] = useState(null);
@@ -14,7 +15,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [observacionesDevolucion, setObservacionesDevolucion] = useState("");
 
-    // ✅ AGREGAR: Firma automática
+  // ✅ AGREGAR: Firma automática
   const firmaDigital = user?._doc?._id || user?._id;
 
   const getBadgeEstado = (estado) => {
@@ -95,7 +96,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
     try {
       await finalizarPrestamo(id, {
         observaciones: observacionesDevolucion,
-        firmaDestino: firmaDigital,
+        firmaDestino: firmaDigital, // ✅ Enviar firma automática
       });
       onRefresh();
       setModalDevolver(null);
@@ -318,6 +319,16 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                 className="w-full p-2 border rounded-lg text-sm"
                 rows={3}
               />
+            </div>
+
+            {/* ✅ Mostrar firma digital */}
+            <div className="mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <p className="text-sm font-semibold text-gray-700 mb-1">
+                ✍️ Tu Firma Digital
+              </p>
+              <div className="font-mono text-xs bg-white p-2 rounded border border-gray-300 break-all">
+                {firmaDigital}
+              </div>
             </div>
 
             <p className="text-sm text-gray-600 mb-4">

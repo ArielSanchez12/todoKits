@@ -120,40 +120,29 @@ const confirmarTransferenciaOrigen = async (req, res) => {
     const { codigoQR } = req.params;
     const { observaciones, firma } = req.body;
 
-    // ✅ VALIDACIÓN MEJORADA: Verificar que req.docenteBDD existe
     if (!req.docenteBDD || !req.docenteBDD._id) {
-      console.error("❌ req.docenteBDD no está definido");
-      console.log("Headers recibidos:", req.headers);
-      console.log("Token decodificado:", req.user);
-      return res.status(401).json({
-        msg: "Error de autenticación. Por favor inicia sesión nuevamente"
+      return res.status(401).json({ 
+        msg: "Error de autenticación" 
       });
     }
 
     const docenteId = req.docenteBDD._id;
     console.log("🔍 Buscando transferencia con código:", codigoQR);
-    console.log("👤 Docente autenticado:", docenteId);
 
     const transferencia = await Transferencia.findOne({ codigoQR })
       .populate("docenteOrigen", "nombreDocente apellidoDocente emailDocente")
       .populate("docenteDestino", "nombreDocente apellidoDocente emailDocente")
       .populate("recursos")
-      .populate("recursosAdicionales");
+      .populate("recursosAdicionales")
+      .populate("prestamoOriginal");
 
     if (!transferencia) {
       return res.status(404).json({ msg: "Transferencia no encontrada" });
     }
 
-    console.log("📦 Transferencia encontrada:", {
-      id: transferencia._id,
-      estado: transferencia.estado,
-      docenteOrigen: transferencia.docenteOrigen._id,
-      docenteAutenticado: docenteId
-    });
-
     // Validar que sea el docente origen
     if (transferencia.docenteOrigen._id.toString() !== docenteId.toString()) {
-      return res.status(403).json({
+      return res.status(403).json({ 
         msg: "No tienes permisos para confirmar esta transferencia",
         detalle: "Solo el docente origen puede confirmar"
       });
@@ -161,50 +150,67 @@ const confirmarTransferenciaOrigen = async (req, res) => {
 
     // Validar estado
     if (transferencia.estado !== "pendiente_origen") {
-      return res.status(400).json({
+      return res.status(400).json({ 
         msg: "Esta transferencia ya fue procesada",
         estadoActual: transferencia.estado
       });
     }
 
-    // ✅ Si no se proporciona firma, usar nombre completo del docente
-    const firmaFinal = firma || `${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente}`;
-
     // Actualizar transferencia
     transferencia.estado = "confirmado_origen";
     transferencia.observacionesOrigen = observaciones || "";
-    transferencia.firmaOrigen = firmaFinal;
+    transferencia.firmaOrigen = firma;
     transferencia.fechaConfirmacionOrigen = new Date();
     await transferencia.save();
 
     console.log("✅ Transferencia confirmada por origen");
 
-    // Notificar al docente destino
+    // ✅ Crear préstamo pendiente para docente destino
+    const nuevoPrestamoPendiente = await Prestamo.create({
+      recurso: transferencia.recursos[0]?._id,
+      docente: transferencia.docenteDestino._id,
+      admin: transferencia.admin,
+      motivo: {
+        tipo: "Transferencia",
+        descripcion: `Transferencia desde ${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`,
+      },
+      estado: "pendiente",
+      fechaPrestamo: new Date(),
+      recursosAdicionales: transferencia.recursosAdicionales.map(r => r._id),
+      observaciones: `Transferencia pendiente de confirmación. ${observaciones || ""}`,
+      firmaDocente: "",
+    });
+
+    console.log("📋 Préstamo pendiente creado para docente destino:", nuevoPrestamoPendiente._id);
+
+    // Notificar al docente destino por Pusher
     pusher.trigger("chat", "transferencia-confirmada-origen", {
       transferencia,
+      nuevoPrestamoPendiente,
       para: transferencia.docenteDestino._id.toString(),
     });
 
     res.json({
-      msg: "Transferencia confirmada. Esperando aceptación del docente destino",
+      msg: "Transferencia confirmada. El docente destino recibirá la solicitud en sus préstamos",
       transferencia: await transferencia.populate("prestamoOriginal"),
+      nuevoPrestamoPendiente,
     });
   } catch (error) {
     console.error("❌ Error al confirmar transferencia origen:", error);
-    res.status(500).json({
+    res.status(500).json({ 
       msg: "Error en el servidor",
-      error: error.message
+      error: error.message 
     });
   }
 };
 
-// Aceptar/Rechazar transferencia (Docente B)
+// ✅ ELIMINAMOS O DEJAMOS COMO BACKUP - Ya no se usa directamente
+// El docente destino confirma como un préstamo normal desde su tabla
 const responderTransferenciaDestino = async (req, res) => {
   try {
     const { codigoQR } = req.params;
-    const { aceptar, observaciones, firma } = req.body;
+    const { aceptar, observaciones, firma, nuevoMotivo } = req.body;
 
-    // ✅ VALIDACIÓN: Verificar autenticación
     if (!req.docenteBDD || !req.docenteBDD._id) {
       return res.status(401).json({
         msg: "Error de autenticación"
@@ -241,7 +247,6 @@ const responderTransferenciaDestino = async (req, res) => {
       });
     }
 
-    // ✅ Firma por defecto
     const firmaFinal = firma || `${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente}`;
 
     if (aceptar) {
@@ -254,15 +259,25 @@ const responderTransferenciaDestino = async (req, res) => {
       prestamoOriginal.observaciones += `\n[TRANSFERIDO] Recursos transferidos a ${transferencia.docenteDestino.nombreDocente} ${transferencia.docenteDestino.apellidoDocente}`;
       await prestamoOriginal.save();
 
-      // 2. Crear nuevo préstamo para docente destino
+      // ✅ 2. Usar el nuevo motivo si se proporciona
+      let motivoFinal = {
+        tipo: "Transferencia",
+        descripcion: `Transferido desde ${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`,
+      };
+
+      if (nuevoMotivo && nuevoMotivo.tipo) {
+        motivoFinal = {
+          tipo: nuevoMotivo.tipo,
+          descripcion: nuevoMotivo.descripcion || motivoFinal.descripcion,
+        };
+      }
+
+      // 3. Crear nuevo préstamo para docente destino
       const nuevoPrestamo = await Prestamo.create({
-        recurso: transferencia.recursos[0], // Recurso principal
+        recurso: transferencia.recursos[0],
         docente: transferencia.docenteDestino._id,
         admin: transferencia.admin,
-        motivo: {
-          tipo: "Transferencia",
-          descripcion: `Transferido desde ${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`,
-        },
+        motivo: motivoFinal,
         estado: "activo",
         fechaPrestamo: new Date(),
         horaConfirmacion: new Date(),
@@ -271,7 +286,7 @@ const responderTransferenciaDestino = async (req, res) => {
         firmaDocente: firmaFinal,
       });
 
-      // 3. Actualizar asignación de recursos
+      // 4. Actualizar asignación de recursos
       const todosLosRecursos = [
         ...transferencia.recursos.map(r => r._id),
         ...transferencia.recursosAdicionales.map(r => r._id)
@@ -282,7 +297,7 @@ const responderTransferenciaDestino = async (req, res) => {
         { asignadoA: transferencia.docenteDestino._id }
       );
 
-      // 4. Actualizar transferencia
+      // 5. Actualizar transferencia
       transferencia.estado = "finalizado";
       transferencia.observacionesDestino = observaciones || "";
       transferencia.firmaDestino = firmaFinal;
@@ -291,7 +306,7 @@ const responderTransferenciaDestino = async (req, res) => {
 
       console.log("✅ Transferencia completada exitosamente");
 
-      // Notificar a todos
+      // Notificar
       pusher.trigger("prestamos", "transferencia-completada", {
         transferencia,
         nuevoPrestamo,
@@ -316,7 +331,6 @@ const responderTransferenciaDestino = async (req, res) => {
 
       console.log("⚠️ Transferencia rechazada");
 
-      // Notificar rechazo
       pusher.trigger("chat", "transferencia-rechazada", {
         transferencia,
         para: transferencia.docenteOrigen._id.toString(),

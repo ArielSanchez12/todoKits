@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { MdVisibility, MdTransferWithinAStation } from "react-icons/md";
+import { toast } from "react-toastify"; // ✅ AGREGADO: Import toast
 import DetallePrestamo from "./DetallePrestamo";
 import ModalTransferirRecurso from "./ModalTransferirRecurso";
 import ModalQRTransferencia from "./ModalQRTransferencia";
 
-const TablaPrestamosAdmin = ({ prestamos, onRefresh, docentes }) => {
+// ✅ ACTUALIZADO: Agregar docentes a los parámetros
+const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, docentes }) => {
   const [modalTransferir, setModalTransferir] = useState(false);
   const [modalQR, setModalQR] = useState(false);
   const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [qrData, setQRData] = useState(null);
+  const [modalKey, setModalKey] = useState(0); // ✅ AGREGADO: Key para re-render
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -44,8 +47,24 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, docentes }) => {
   };
 
   const handleAbrirTransferencia = (prestamo) => {
+    console.log("📋 TablaPrestamosAdmin - Abriendo transferencia");
+    console.log("👥 Docentes en tabla:", docentes);
+    console.log("📦 Préstamo:", prestamo);
+
+    // ✅ VALIDACIÓN: Verificar que hay docentes disponibles
+    if (!Array.isArray(docentes) || docentes.length === 0) {
+      toast.error("No hay docentes disponibles. Por favor recarga la página.");
+      return;
+    }
+
+    setModalKey(prev => prev + 1); // ✅ Forzar re-render del modal
     setPrestamoSeleccionado(prestamo);
     setModalTransferir(true);
+
+    // ✅ Si existe callback, también lo llamamos
+    if (onSolicitarTransferencia) {
+      onSolicitarTransferencia(prestamo);
+    }
   };
 
   const handleSuccessTransferencia = (resultado) => {
@@ -55,8 +74,6 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, docentes }) => {
   };
 
   const handleEnviarPorChat = () => {
-    // Navegar a la página de chat con el docente
-    // y enviar el QR automáticamente
     toast.info("Funcionalidad de envío por chat próximamente");
   };
 
@@ -186,9 +203,10 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, docentes }) => {
         />
       )}
 
-      {/* Modal de transferencia */}
-      {modalTransferir && (
+      {/* ✅ ACTUALIZADO: Modal de transferencia con key y docentes */}
+      {modalTransferir && prestamoSeleccionado && Array.isArray(docentes) && docentes.length > 0 && (
         <ModalTransferirRecurso
+          key={modalKey}
           prestamo={prestamoSeleccionado}
           docentes={docentes}
           onClose={() => {

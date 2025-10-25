@@ -266,6 +266,7 @@ const Prestamos = () => {
               prestamos={prestamosFiltrados}
               onRefresh={handleRefresh}
               onSolicitarTransferencia={handleAbrirTransferencia}
+              docentes={docentes} // ✅ AGREGADO: Pasar docentes aquí
             />
           )}
         </>

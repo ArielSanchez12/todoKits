@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { MdCheckCircle, MdCancel, MdAssignmentTurnedIn } from "react-icons/md";
+import { MdCheckCircle, MdAssignmentTurnedIn } from "react-icons/md"; // ✅ REMOVER MdCancel
 import storePrestamos from "../../context/storePrestamos";
 import { toast } from "react-toastify";
-import ModalResponderTransferencia from "./ModalResponderTransferencia"; // ✅ AGREGAR
+import ModalResponderTransferencia from "./ModalResponderTransferencia";
 
 const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const { confirmarPrestamo, finalizarPrestamo } = storePrestamos();
   const [loading, setLoading] = useState(false);
   const [modalConfirmar, setModalConfirmar] = useState(null);
   const [modalDevolver, setModalDevolver] = useState(null);
-  const [modalTransferencia, setModalTransferencia] = useState(null); // ✅ AGREGAR
+  const [modalTransferencia, setModalTransferencia] = useState(null);
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [observacionesDevolucion, setObservacionesDevolucion] = useState("");
 
@@ -38,7 +38,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
     });
   };
 
-  // ✅ AGREGAR: Detectar si es transferencia
   const esTransferencia = (prestamo) => {
     return (
       prestamo.motivo?.tipo === "Transferencia" ||
@@ -47,7 +46,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
     );
   };
 
-  // ✅ AGREGAR: Manejar clic en confirmar según tipo
   const handleClickConfirmar = (prestamo) => {
     if (esTransferencia(prestamo)) {
       setModalTransferencia(prestamo);
@@ -189,7 +187,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                     {prestamo.estado === "pendiente" && (
                       <div className="flex justify-center gap-2">
                         <button
-                          onClick={() => handleClickConfirmar(prestamo)} {/* ✅ CAMBIAR */}
+                          onClick={() => handleClickConfirmar(prestamo)}
                           className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center gap-1"
                         >
                           <MdCheckCircle /> Confirmar
@@ -218,7 +216,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
         </table>
       </div>
 
-      {/* ✅ AGREGAR: Modal de transferencia */}
       {modalTransferencia && (
         <ModalResponderTransferencia
           transferencia={modalTransferencia}
@@ -230,7 +227,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
         />
       )}
 
-      {/* Modal de confirmación/rechazo NORMAL */}
       {modalConfirmar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
@@ -291,7 +287,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
         </div>
       )}
 
-      {/* Modal de devolución */}
       {modalDevolver && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">

@@ -1,248 +1,208 @@
 import { useState } from "react";
-import { IoClose } from "react-icons/io5";
-import { MdCheckCircle, MdCancel } from "react-icons/md";
 import { toast } from "react-toastify";
-import storeTransferencias from "../../context/storeTransferencias";
+import storePrestamos from "../../context/storePrestamos";
+import storeProfile from "../../context/storeProfile";
 
 const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
+  const [procesando, setProcesando] = useState(false);
   const [observaciones, setObservaciones] = useState("");
-  const [firma, setFirma] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { responderTransferenciaDestino } = storeTransferencias();
+  const { confirmarPrestamo } = storePrestamos();
+  const { user } = storeProfile();
 
-  const handleResponder = async (aceptar) => {
-    if (aceptar && !firma.trim()) {
-      toast.error("Debes ingresar tu firma digital para aceptar");
-      return;
-    }
+  const prestamoId = transferencia._id;
 
-    setLoading(true);
+  const handleAceptar = async () => {
+    setProcesando(true);
 
     try {
-      await responderTransferenciaDestino(transferencia._id, {
-        aceptar,
-        observaciones,
-        firma: aceptar ? firma : "",
+      console.log(
+        "✅ Aceptando transferencia - Confirmando préstamo:",
+        prestamoId
+      );
+
+      // Confirmar el préstamo (que ya está pendiente en la tabla)
+      await confirmarPrestamo(prestamoId, {
+        confirmar: true,
       });
 
-      toast.success(
-        aceptar
-          ? "Transferencia aceptada exitosamente"
-          : "Transferencia rechazada"
-      );
+      toast.success("✅ Transferencia aceptada exitosamente");
+
+      // Cerrar modal y remover notificación
       onSuccess();
       onClose();
     } catch (error) {
-      console.error("Error al responder transferencia:", error);
-      toast.error("Error al procesar la respuesta");
+      console.error("❌ Error al aceptar:", error);
+      toast.error(error.message || "Error al aceptar la transferencia");
     } finally {
-      setLoading(false);
+      setProcesando(false);
+    }
+  };
+
+  const handleRechazar = async () => {
+    if (
+      !window.confirm(
+        "¿Estás seguro de que deseas rechazar esta transferencia?"
+      )
+    ) {
+      return;
+    }
+
+    setProcesando(true);
+
+    try {
+      console.log("❌ Rechazando transferencia - Préstamo:", prestamoId);
+
+      // Rechazar el préstamo
+      await confirmarPrestamo(prestamoId, {
+        confirmar: false,
+        motivoRechazo: "Rechazada por el docente",
+      });
+
+      toast.warning("⚠️ Transferencia rechazada");
+
+      // Cerrar modal y remover notificación
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("❌ Error al rechazar:", error);
+      toast.error(error.message || "Error al rechazar la transferencia");
+    } finally {
+      setProcesando(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 space-y-4">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
+        <div className="flex justify-between items-center border-b pb-4">
           <h2 className="text-2xl font-bold text-gray-800">
-            Solicitud de Transferencia
+            📤 Solicitud de Transferencia
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            disabled={procesando}
+            className="text-gray-400 hover:text-gray-600 text-2xl"
           >
-            <IoClose size={28} />
+            ✕
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-6 space-y-6">
-          {/* Información del origen */}
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-sm font-semibold text-gray-700 mb-3">
-              👤 Docente que Transfiere
+        {/* Información del Docente Origen */}
+        <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+          <p className="text-sm font-semibold text-yellow-800 mb-2">
+            📤 De (Docente Origen)
+          </p>
+          <div>
+            <p className="font-bold text-lg">
+              {transferencia.docenteOrigen?.nombreDocente}{" "}
+              {transferencia.docenteOrigen?.apellidoDocente}
             </p>
-            <div className="space-y-2 text-sm">
-              <p>
-                <span className="font-semibold">Nombre:</span>{" "}
-                {transferencia.docenteOrigen.nombreDocente}{" "}
-                {transferencia.docenteOrigen.apellidoDocente}
-              </p>
-              <p>
-                <span className="font-semibold">Email:</span>{" "}
-                {transferencia.docenteOrigen.emailDocente}
-              </p>
-            </div>
+            <p className="text-sm text-gray-600">
+              {transferencia.docenteOrigen?.emailDocente}
+            </p>
           </div>
+        </div>
 
-          {/* Recursos a recibir */}
-          <div className="bg-green-50 p-4 rounded-lg">
-            <p className="text-sm font-semibold text-gray-700 mb-3">
-              📦 Recursos que Recibirás
-            </p>
-            <div className="space-y-3">
-              {/* Recurso Principal */}
-              {transferencia.recursos.map((recurso) => (
-                <div
-                  key={recurso._id}
-                  className="p-3 bg-white rounded-lg border border-green-200"
-                >
-                  <p className="font-semibold text-sm mb-1">
-                    {recurso.nombre}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                    <p>
-                      <span className="font-semibold">Tipo:</span>{" "}
+        {/* Información de Recursos */}
+        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+          <p className="text-sm font-semibold text-purple-800 mb-3">
+            📦 Recursos a Transferir
+          </p>
+          <div className="space-y-2">
+            {transferencia.recursos?.map((recurso) => (
+              <div
+                key={recurso._id}
+                className="bg-white p-3 rounded border border-purple-100"
+              >
+                <p className="font-bold text-lg">{recurso.nombre}</p>
+                <p className="text-sm text-gray-600">
+                  Tipo: {recurso.tipo?.toUpperCase()}
+                </p>
+              </div>
+            ))}
+
+            {transferencia.recursosAdicionales?.length > 0 && (
+              <>
+                <p className="text-sm font-semibold text-purple-800 mt-3">
+                  Recursos Adicionales:
+                </p>
+                {transferencia.recursosAdicionales.map((recurso) => (
+                  <div
+                    key={recurso._id}
+                    className="bg-white p-3 rounded border border-purple-100"
+                  >
+                    <p className="font-bold">{recurso.nombre}</p>
+                    <p className="text-sm text-gray-600">
                       {recurso.tipo?.toUpperCase()}
                     </p>
-                    {recurso.laboratorio && (
-                      <>
-                        <p>
-                          <span className="font-semibold">Lab:</span>{" "}
-                          {recurso.laboratorio}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Aula:</span>{" "}
-                          {recurso.aula}
-                        </p>
-                      </>
-                    )}
                   </div>
-                  {recurso.contenido && recurso.contenido.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-xs font-semibold text-gray-700">
-                        Contenido:
-                      </p>
-                      <ul className="list-disc pl-5 text-xs text-gray-600">
-                        {recurso.contenido.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Recursos Adicionales */}
-              {transferencia.recursosAdicionales.length > 0 && (
-                <>
-                  <p className="text-xs font-semibold text-gray-700 mt-2">
-                    Recursos Adicionales:
-                  </p>
-                  {transferencia.recursosAdicionales.map((recurso) => (
-                    <div
-                      key={recurso._id}
-                      className="p-3 bg-white rounded-lg border border-yellow-200"
-                    >
-                      <p className="font-semibold text-sm mb-1">
-                        {recurso.nombre}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                        <p>
-                          <span className="font-semibold">Tipo:</span>{" "}
-                          {recurso.tipo?.toUpperCase()}
-                        </p>
-                        {recurso.laboratorio && (
-                          <>
-                            <p>
-                              <span className="font-semibold">Lab:</span>{" "}
-                              {recurso.laboratorio}
-                            </p>
-                            <p>
-                              <span className="font-semibold">Aula:</span>{" "}
-                              {recurso.aula}
-                            </p>
-                          </>
-                        )}
-                      </div>
-                      {recurso.contenido && recurso.contenido.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-xs font-semibold text-gray-700">
-                            Contenido:
-                          </p>
-                          <ul className="list-disc pl-5 text-xs text-gray-600">
-                            {recurso.contenido.map((item, i) => (
-                              <li key={i}>{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
+                ))}
+              </>
+            )}
           </div>
+        </div>
 
-          {/* Observaciones del origen */}
-          {transferencia.observacionesOrigen && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm font-semibold text-gray-700 mb-2">
-                💬 Observaciones del Docente Origen
-              </p>
-              <p className="text-sm text-gray-700 whitespace-pre-line">
-                {transferencia.observacionesOrigen}
-              </p>
-            </div>
-          )}
-
-          {/* Observaciones propias */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Tus Observaciones (Opcional)
-            </label>
-            <textarea
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
-              placeholder="Agrega alguna observación si lo deseas..."
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
-            />
-          </div>
-
-          {/* Firma Digital (solo si acepta) */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Firma Digital (Requerida para aceptar)
-            </label>
-            <input
-              type="text"
-              value={firma}
-              onChange={(e) => setFirma(e.target.value)}
-              placeholder="Escribe tu nombre completo como firma"
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Advertencia */}
-          <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-            <p className="text-sm text-yellow-800">
-              ⚠️ Al aceptar, te harás responsable de estos recursos. Verifica
-              el estado antes de confirmar.
+        {/* Observaciones de la Transferencia */}
+        {transferencia.observacionesOrigen && (
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm font-semibold text-blue-800 mb-2">
+              📝 Observaciones del Origen
+            </p>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
+              {transferencia.observacionesOrigen}
             </p>
           </div>
+        )}
 
-          {/* Botones */}
-          <div className="flex gap-3 pt-4 border-t">
-            <button
-              type="button"
-              onClick={() => handleResponder(false)}
-              disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
-            >
-              <MdCancel size={20} />
-              {loading ? "Procesando..." : "Rechazar"}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleResponder(true)}
-              disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:opacity-50"
-            >
-              <MdCheckCircle size={20} />
-              {loading ? "Procesando..." : "Aceptar Transferencia"}
-            </button>
+        {/* Observaciones Adicionales */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Observaciones Adicionales (Opcional)
+          </label>
+          <textarea
+            value={observaciones}
+            onChange={(e) => setObservaciones(e.target.value)}
+            placeholder="Agregar observaciones si lo deseas..."
+            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
+            disabled={procesando}
+          />
+        </div>
+
+        {/* Información de Firma */}
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <p className="text-sm font-semibold text-gray-700 mb-2">
+            ✍️ Firma Digital (Tu ID)
+          </p>
+          <div className="font-mono text-sm bg-white p-2 rounded border border-gray-300 break-all">
+            {user?._doc?._id || user?._id}
           </div>
+        </div>
+
+        {/* Botones */}
+        <div className="flex gap-3 pt-4 border-t">
+          <button
+            onClick={handleRechazar}
+            disabled={procesando}
+            className="flex-1 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {procesando ? "Procesando..." : "❌ Rechazar"}
+          </button>
+          <button
+            onClick={handleAceptar}
+            disabled={procesando}
+            className="flex-1 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {procesando ? "Procesando..." : "✅ Aceptar"}
+          </button>
+        </div>
+
+        {/* Info */}
+        <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+          <p className="text-xs text-amber-800">
+            <span className="font-semibold">ℹ️ Nota:</span> Al aceptar, esta
+            transferencia aparecerá en tu tabla de préstamos activos.
+          </p>
         </div>
       </div>
     </div>

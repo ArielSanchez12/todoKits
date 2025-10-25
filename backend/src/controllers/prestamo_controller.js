@@ -182,6 +182,7 @@ const confirmarPrestamo = async (req, res) => {
       // Confirmar préstamo
       prestamoExistente.estado = "activo";
       prestamoExistente.horaConfirmacion = new Date();
+      // ✅ CAMBIO: Firma = _id del docente (no string)
       prestamoExistente.firmaDocente = docenteId.toString();
 
       // ✅ DETECTAR SI ES TRANSFERENCIA

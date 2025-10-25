@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { MdCheckCircle, MdCancel } from "react-icons/md";
 import { toast } from "react-toastify";
@@ -13,10 +13,15 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const { crearTransferencia } = storeTransferencias();
 
-  // ✅ VALIDACIÓN CRÍTICA: Verificar que docentes exista y sea un array
-  const docentesDisponibles = Array.isArray(docentes) 
+  // ✅ VALIDACIÓN MEJORADA: Filtrar docentes disponibles
+  const docentesDisponibles = Array.isArray(docentes)
     ? docentes.filter((d) => d._id !== prestamo.docente._id)
     : [];
+
+  console.log("🔍 Debug Modal:");
+  console.log("- Docentes recibidos:", docentes);
+  console.log("- Docentes disponibles:", docentesDisponibles);
+  console.log("- Préstamo actual:", prestamo);
 
   const handleToggleRecursoAdicional = (recursoId) => {
     setRecursosSeleccionados((prev) => ({
@@ -50,13 +55,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
       });
 
       toast.success("Solicitud de transferencia creada exitosamente");
-      
-      // Mostrar QR generado
-      if (resultado.qrImage) {
-        // Aquí puedes abrir un modal para mostrar el QR y enviarlo por chat
-        onSuccess(resultado);
-      }
-
+      onSuccess(resultado);
       onClose();
     } catch (error) {
       console.error("Error al crear transferencia:", error);
@@ -66,44 +65,53 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
     }
   };
 
-  // ✅ MOSTRAR MENSAJE SI NO HAY DOCENTES
-  if (!Array.isArray(docentes) || docentes.length === 0) {
+  // ✅ VALIDACIÓN CORREGIDA: Solo mostrar error si docentes es null/undefined
+  // NO validar por length porque puede ser un array vacío temporalmente
+  if (!docentes) {
     return (
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800">Error</h2>
+            <h2 className="text-xl font-bold text-gray-800">⏳ Cargando...</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
               <IoClose size={24} />
             </button>
           </div>
-          <p className="text-gray-700 mb-4">
-            No se pudieron cargar los docentes disponibles. Intenta recargar la página.
-          </p>
+          <div className="flex flex-col items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+            <p className="text-gray-700">Cargando docentes disponibles...</p>
+          </div>
           <button
             onClick={onClose}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="w-full px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 mt-4"
           >
-            Cerrar
+            Cancelar
           </button>
         </div>
       </div>
     );
   }
 
-  // ✅ MOSTRAR MENSAJE SI NO HAY DOCENTES DISPONIBLES (todos están ocupados)
+  // ✅ VALIDACIÓN: Si no hay docentes disponibles después de filtrar
   if (docentesDisponibles.length === 0) {
     return (
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800">Sin Docentes Disponibles</h2>
+            <h2 className="text-xl font-bold text-gray-800">⚠️ Sin Docentes Disponibles</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
               <IoClose size={24} />
             </button>
           </div>
+          <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+            <p className="text-sm text-yellow-800">
+              {docentes.length === 0
+                ? "No hay docentes registrados en el sistema."
+                : "El único docente disponible ya tiene este préstamo asignado."}
+            </p>
+          </div>
           <p className="text-gray-700 mb-4">
-            No hay otros docentes disponibles para transferir este préstamo.
+            No es posible realizar una transferencia en este momento.
           </p>
           <button
             onClick={onClose}
@@ -168,6 +176,9 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
                 </option>
               ))}
             </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Mostrando {docentesDisponibles.length} de {docentes.length} docentes disponibles
+            </p>
           </div>
 
           {/* Recurso principal (siempre seleccionado) */}
@@ -200,11 +211,10 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
                   {prestamo.recursosAdicionales.map((recurso) => (
                     <div
                       key={recurso._id}
-                      className={`flex items-center gap-3 p-3 rounded border cursor-pointer transition-colors ${
-                        recursosSeleccionados.adicionales.includes(recurso._id)
+                      className={`flex items-center gap-3 p-3 rounded border cursor-pointer transition-colors ${recursosSeleccionados.adicionales.includes(recurso._id)
                           ? "bg-white border-yellow-400"
                           : "bg-white border-gray-200 opacity-60"
-                      }`}
+                        }`}
                       onClick={() => handleToggleRecursoAdicional(recurso._id)}
                     >
                       {recursosSeleccionados.adicionales.includes(

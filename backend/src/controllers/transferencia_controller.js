@@ -23,8 +23,8 @@ const crearTransferencia = async (req, res) => {
     }
 
     if (prestamo.estado !== "activo") {
-      return res.status(400).json({ 
-        msg: "Solo se pueden transferir préstamos activos" 
+      return res.status(400).json({
+        msg: "Solo se pueden transferir préstamos activos"
       });
     }
 
@@ -36,8 +36,8 @@ const crearTransferencia = async (req, res) => {
 
     // Validar que no sea el mismo docente
     if (prestamo.docente._id.toString() === docenteDestinoId) {
-      return res.status(400).json({ 
-        msg: "No se puede transferir al mismo docente" 
+      return res.status(400).json({
+        msg: "No se puede transferir al mismo docente"
       });
     }
 
@@ -58,7 +58,7 @@ const crearTransferencia = async (req, res) => {
 
     // Generar URL para el QR
     const urlQR = `${process.env.URL_FRONTEND}/transferencia/${codigoQR}`;
-    
+
     // Generar imagen QR
     const qrImage = await QRCode.toDataURL(urlQR);
 
@@ -119,65 +119,105 @@ const confirmarTransferenciaOrigen = async (req, res) => {
   try {
     const { codigoQR } = req.params;
     const { observaciones, firma } = req.body;
-    const docenteId = req.docenteBDD._id;
 
-    const transferencia = await Transferencia.findOne({ codigoQR });
+    // ✅ VALIDACIÓN MEJORADA: Verificar que req.docenteBDD existe
+    if (!req.docenteBDD || !req.docenteBDD._id) {
+      console.error("❌ req.docenteBDD no está definido");
+      console.log("Headers recibidos:", req.headers);
+      console.log("Token decodificado:", req.user);
+      return res.status(401).json({
+        msg: "Error de autenticación. Por favor inicia sesión nuevamente"
+      });
+    }
+
+    const docenteId = req.docenteBDD._id;
+    console.log("🔍 Buscando transferencia con código:", codigoQR);
+    console.log("👤 Docente autenticado:", docenteId);
+
+    const transferencia = await Transferencia.findOne({ codigoQR })
+      .populate("docenteOrigen", "nombreDocente apellidoDocente emailDocente")
+      .populate("docenteDestino", "nombreDocente apellidoDocente emailDocente")
+      .populate("recursos")
+      .populate("recursosAdicionales");
 
     if (!transferencia) {
       return res.status(404).json({ msg: "Transferencia no encontrada" });
     }
 
+    console.log("📦 Transferencia encontrada:", {
+      id: transferencia._id,
+      estado: transferencia.estado,
+      docenteOrigen: transferencia.docenteOrigen._id,
+      docenteAutenticado: docenteId
+    });
+
     // Validar que sea el docente origen
-    if (transferencia.docenteOrigen.toString() !== docenteId.toString()) {
-      return res.status(403).json({ 
-        msg: "No tienes permisos para confirmar esta transferencia" 
+    if (transferencia.docenteOrigen._id.toString() !== docenteId.toString()) {
+      return res.status(403).json({
+        msg: "No tienes permisos para confirmar esta transferencia",
+        detalle: "Solo el docente origen puede confirmar"
       });
     }
 
     // Validar estado
     if (transferencia.estado !== "pendiente_origen") {
-      return res.status(400).json({ 
-        msg: "Esta transferencia ya fue procesada" 
+      return res.status(400).json({
+        msg: "Esta transferencia ya fue procesada",
+        estadoActual: transferencia.estado
       });
     }
+
+    // ✅ Si no se proporciona firma, usar nombre completo del docente
+    const firmaFinal = firma || `${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente}`;
 
     // Actualizar transferencia
     transferencia.estado = "confirmado_origen";
     transferencia.observacionesOrigen = observaciones || "";
-    transferencia.firmaOrigen = firma || "";
+    transferencia.firmaOrigen = firmaFinal;
     transferencia.fechaConfirmacionOrigen = new Date();
     await transferencia.save();
 
+    console.log("✅ Transferencia confirmada por origen");
+
     // Notificar al docente destino
     pusher.trigger("chat", "transferencia-confirmada-origen", {
-      transferencia: await transferencia.populate([
-        "docenteOrigen",
-        "docenteDestino",
-        "recursos",
-        "recursosAdicionales",
-      ]),
-      para: transferencia.docenteDestino.toString(),
+      transferencia,
+      para: transferencia.docenteDestino._id.toString(),
     });
 
     res.json({
       msg: "Transferencia confirmada. Esperando aceptación del docente destino",
-      transferencia,
+      transferencia: await transferencia.populate("prestamoOriginal"),
     });
   } catch (error) {
-    console.error("Error al confirmar transferencia origen:", error);
-    res.status(500).json({ msg: "Error en el servidor" });
+    console.error("❌ Error al confirmar transferencia origen:", error);
+    res.status(500).json({
+      msg: "Error en el servidor",
+      error: error.message
+    });
   }
 };
 
 // Aceptar/Rechazar transferencia (Docente B)
 const responderTransferenciaDestino = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { codigoQR } = req.params;
     const { aceptar, observaciones, firma } = req.body;
-    const docenteId = req.docenteBDD._id;
 
-    const transferencia = await Transferencia.findById(id)
+    // ✅ VALIDACIÓN: Verificar autenticación
+    if (!req.docenteBDD || !req.docenteBDD._id) {
+      return res.status(401).json({
+        msg: "Error de autenticación"
+      });
+    }
+
+    const docenteId = req.docenteBDD._id;
+    console.log("🔍 Docente destino respondiendo:", docenteId);
+
+    const transferencia = await Transferencia.findOne({ codigoQR })
       .populate("prestamoOriginal")
+      .populate("docenteOrigen")
+      .populate("docenteDestino")
       .populate("recursos")
       .populate("recursosAdicionales");
 
@@ -186,58 +226,70 @@ const responderTransferenciaDestino = async (req, res) => {
     }
 
     // Validar que sea el docente destino
-    if (transferencia.docenteDestino.toString() !== docenteId.toString()) {
-      return res.status(403).json({ 
-        msg: "No tienes permisos para responder esta transferencia" 
+    if (transferencia.docenteDestino._id.toString() !== docenteId.toString()) {
+      return res.status(403).json({
+        msg: "No tienes permisos para responder esta transferencia",
+        detalle: "Solo el docente destino puede responder"
       });
     }
 
     // Validar estado
     if (transferencia.estado !== "confirmado_origen") {
-      return res.status(400).json({ 
-        msg: "El docente origen aún no ha confirmado la transferencia" 
+      return res.status(400).json({
+        msg: "El docente origen aún no ha confirmado la transferencia",
+        estadoActual: transferencia.estado
       });
     }
+
+    // ✅ Firma por defecto
+    const firmaFinal = firma || `${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente}`;
 
     if (aceptar) {
       // ACEPTAR TRANSFERENCIA
 
       // 1. Finalizar préstamo original
-      const prestamoOriginal = await Prestamo.findById(transferencia.prestamoOriginal);
+      const prestamoOriginal = await Prestamo.findById(transferencia.prestamoOriginal._id);
       prestamoOriginal.estado = "finalizado";
       prestamoOriginal.horaDevolucion = new Date();
-      prestamoOriginal.observaciones += `\n[TRANSFERIDO] Recursos transferidos a ${transferencia.docenteDestino}`;
+      prestamoOriginal.observaciones += `\n[TRANSFERIDO] Recursos transferidos a ${transferencia.docenteDestino.nombreDocente} ${transferencia.docenteDestino.apellidoDocente}`;
       await prestamoOriginal.save();
 
       // 2. Crear nuevo préstamo para docente destino
       const nuevoPrestamo = await Prestamo.create({
         recurso: transferencia.recursos[0], // Recurso principal
-        docente: transferencia.docenteDestino,
+        docente: transferencia.docenteDestino._id,
         admin: transferencia.admin,
         motivo: {
           tipo: "Transferencia",
-          descripcion: `Transferido desde ${transferencia.docenteOrigen}`,
+          descripcion: `Transferido desde ${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`,
         },
         estado: "activo",
         fechaPrestamo: new Date(),
         horaConfirmacion: new Date(),
-        recursosAdicionales: transferencia.recursosAdicionales,
+        recursosAdicionales: transferencia.recursosAdicionales.map(r => r._id),
         observaciones: observaciones || "Recibido por transferencia",
-        firmaDocente: firma || "",
+        firmaDocente: firmaFinal,
       });
 
       // 3. Actualizar asignación de recursos
+      const todosLosRecursos = [
+        ...transferencia.recursos.map(r => r._id),
+        ...transferencia.recursosAdicionales.map(r => r._id)
+      ];
+
       await Recurso.updateMany(
-        { _id: { $in: [...transferencia.recursos, ...transferencia.recursosAdicionales] } },
-        { asignadoA: transferencia.docenteDestino }
+        { _id: { $in: todosLosRecursos } },
+        { asignadoA: transferencia.docenteDestino._id }
       );
 
       // 4. Actualizar transferencia
       transferencia.estado = "finalizado";
       transferencia.observacionesDestino = observaciones || "";
-      transferencia.firmaDestino = firma || "";
+      transferencia.firmaDestino = firmaFinal;
       transferencia.fechaConfirmacionDestino = new Date();
       await transferencia.save();
+
+      console.log("✅ Transferencia completada exitosamente");
 
       // Notificar a todos
       pusher.trigger("prestamos", "transferencia-completada", {
@@ -247,19 +299,27 @@ const responderTransferenciaDestino = async (req, res) => {
 
       res.json({
         msg: "Transferencia aceptada exitosamente",
-        nuevoPrestamo,
+        nuevoPrestamo: await nuevoPrestamo.populate([
+          "recurso",
+          "recursosAdicionales",
+          "docente"
+        ]),
+        transferencia,
       });
     } else {
       // RECHAZAR TRANSFERENCIA
       transferencia.estado = "rechazado";
       transferencia.observacionesDestino = observaciones || "Transferencia rechazada";
+      transferencia.firmaDestino = firmaFinal;
       transferencia.fechaConfirmacionDestino = new Date();
       await transferencia.save();
+
+      console.log("⚠️ Transferencia rechazada");
 
       // Notificar rechazo
       pusher.trigger("chat", "transferencia-rechazada", {
         transferencia,
-        para: transferencia.docenteOrigen.toString(),
+        para: transferencia.docenteOrigen._id.toString(),
       });
 
       res.json({
@@ -268,8 +328,11 @@ const responderTransferenciaDestino = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error al responder transferencia:", error);
-    res.status(500).json({ msg: "Error en el servidor" });
+    console.error("❌ Error al responder transferencia:", error);
+    res.status(500).json({
+      msg: "Error en el servidor",
+      error: error.message
+    });
   }
 };
 

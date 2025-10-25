@@ -22,7 +22,7 @@ router.get("/transferencia/:codigoQR", obtenerTransferenciaPorQR);
 // Docente origen confirma transferencia (escanea QR)
 router.patch("/docente/transferencia/:codigoQR/confirmar", verificarTokenJWT, confirmarTransferenciaOrigen);
 
-// Docente destino acepta/rechaza transferencia
-router.patch("/docente/transferencia/:id/responder", verificarTokenJWT, responderTransferenciaDestino);
+// Docente destino responde a la transferencia
+router.patch("/docente/transferencia/:codigoQR/responder", verificarTokenJWT, responderTransferenciaDestino);
 
 export default router;

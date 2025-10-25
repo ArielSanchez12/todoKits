@@ -34,7 +34,7 @@ const prestamoSchema = new Schema(
     motivo: {
       tipo: {
         type: String,
-        enum: ["Clase", "Conferencia", "Otro"],
+        enum: ["Clase", "Conferencia", "Transferencia", "Otro"],
         required: true,
       },
       descripcion: {

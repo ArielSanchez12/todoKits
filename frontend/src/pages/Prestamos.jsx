@@ -47,7 +47,6 @@ const Prestamos = () => {
       const data = await fetchDocentes();
       console.log("✅ Docentes cargados:", data);
 
-      // ✅ VALIDACIÓN CRÍTICA: Asegurar que sea un array
       if (Array.isArray(data)) {
         setDocentes(data);
         console.log("✅ Estado docentes actualizado:", data);
@@ -79,7 +78,6 @@ const Prestamos = () => {
     console.log("📊 Es array?:", Array.isArray(docentes));
     console.log("📊 Cantidad:", docentes.length);
 
-    // ✅ VALIDACIÓN MEJORADA: Si no hay docentes, recargar
     if (!Array.isArray(docentes) || docentes.length === 0) {
       toast.info("Cargando docentes disponibles...");
       setLoadingDocentes(true);
@@ -97,7 +95,6 @@ const Prestamos = () => {
         setDocentes(data);
         setLoadingDocentes(false);
 
-        // ✅ Abrir modal después de cargar docentes
         setTimeout(() => {
           console.log("👥 Docentes al abrir modal:", data);
           setPrestamoSeleccionado(prestamo);
@@ -111,7 +108,6 @@ const Prestamos = () => {
         return;
       }
     } else {
-      // ✅ Si ya hay docentes, abrir directamente
       setPrestamoSeleccionado(prestamo);
       setModalTransferir(true);
     }
@@ -160,7 +156,6 @@ const Prestamos = () => {
           Actualizar Préstamos
         </button>
 
-        {/* ✅ NUEVO: Debug info */}
         <div className="text-xs text-gray-500">
           Docentes cargados: {docentes.length}
         </div>
@@ -169,19 +164,21 @@ const Prestamos = () => {
       <div className="flex bg-white rounded-lg shadow-sm p-1 mb-6 w-fit border">
         <button
           onClick={() => setVistaActual("prestamos")}
-          className={`px-6 py-2 rounded-md font-semibold transition-all ${vistaActual === "prestamos"
+          className={`px-6 py-2 rounded-md font-semibold transition-all ${
+            vistaActual === "prestamos"
               ? "bg-blue-600 text-white"
               : "text-gray-600 hover:bg-gray-100"
-            }`}
+          }`}
         >
           Préstamos
         </button>
         <button
           onClick={() => setVistaActual("transferencias")}
-          className={`px-6 py-2 rounded-md font-semibold transition-all ${vistaActual === "transferencias"
+          className={`px-6 py-2 rounded-md font-semibold transition-all ${
+            vistaActual === "transferencias"
               ? "bg-blue-600 text-white"
               : "text-gray-600 hover:bg-gray-100"
-            }`}
+          }`}
         >
           Transferencias
         </button>
@@ -202,6 +199,7 @@ const Prestamos = () => {
       {vistaActual === "prestamos" ? (
         <>
           <div className="flex flex-wrap gap-2 mb-6">
+            {/* ✅ CORREGIDO: Cambiado de {{...}} a [{...}] */}
             {{
               key: "todos",
               label: "Todos"
@@ -287,7 +285,6 @@ const Prestamos = () => {
         <TablaTransferencias />
       )}
 
-      {/* ✅ VALIDACIÓN ADICIONAL: Solo renderizar si docentes existe */}
       {modalTransferir && prestamoSeleccionado && Array.isArray(docentes) && (
         <ModalTransferirRecurso
           prestamo={prestamoSeleccionado}

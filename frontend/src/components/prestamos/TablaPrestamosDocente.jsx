@@ -96,7 +96,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
     try {
       await finalizarPrestamo(id, {
         observaciones: observacionesDevolucion,
-        firmaDestino: firmaDigital, // ✅ Enviar firma automática
+        firmaDestino: firmaDigital.toString(), // ✅ Enviar firma automática
       });
       onRefresh();
       setModalDevolver(null);
@@ -327,7 +327,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                 ✍️ Tu Firma Digital
               </p>
               <div className="font-mono text-xs bg-white p-2 rounded border border-gray-300 break-all">
-                {firmaDigital.toString()}
+                {firmaDigital}
               </div>
             </div>
 

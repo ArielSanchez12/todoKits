@@ -96,7 +96,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
     try {
       await finalizarPrestamo(id, {
         observaciones: observacionesDevolucion,
-        firmaDestino: firmaDigital.toString(), // ✅ Enviar firma automática
+        //firmaDestino: firmaDigital.toString(), // ✅ Enviar firma automática
       });
       onRefresh();
       setModalDevolver(null);
@@ -319,16 +319,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                 className="w-full p-2 border rounded-lg text-sm"
                 rows={3}
               />
-            </div>
-
-            {/* ✅ Mostrar firma digital */}
-            <div className="mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
-              <p className="text-sm font-semibold text-gray-700 mb-1">
-                ✍️ Tu Firma Digital
-              </p>
-              <div className="font-mono text-xs bg-white p-2 rounded border border-gray-300 break-all">
-                {firmaDigital}
-              </div>
             </div>
 
             <p className="text-sm text-gray-600 mb-4">

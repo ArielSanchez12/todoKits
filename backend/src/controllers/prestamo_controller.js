@@ -214,6 +214,13 @@ const confirmarPrestamo = async (req, res) => {
 
         if (transferencia && transferencia.prestamoOriginal) {
           console.log("📤 Finalizando préstamo original del docente origen");
+          
+          // ✅ AGREGAR: Guardar firma del docente destino
+          transferencia.firmaDestino = docenteId.toString();
+          transferencia.estado = "finalizado";
+          transferencia.fechaConfirmacionDestino = new Date();
+          await transferencia.save();
+          console.log("✅ Firma destino guardada:", docenteId.toString());
 
           // Obtener el préstamo original
           const prestamoOriginal = await prestamo.findById(transferencia.prestamoOriginal._id);

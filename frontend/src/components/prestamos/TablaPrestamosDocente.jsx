@@ -327,7 +327,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                 ✍️ Tu Firma Digital
               </p>
               <div className="font-mono text-xs bg-white p-2 rounded border border-gray-300 break-all">
-                {firmaDigital}
+                {firmaDigital.toString()}
               </div>
             </div>
 

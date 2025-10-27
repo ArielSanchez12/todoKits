@@ -167,8 +167,10 @@ const confirmarTransferenciaOrigen = async (req, res) => {
 
     // ✅ CORRECCIÓN: Incluir TODA la información en observaciones
     const nombreOrigenCompleto = `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
+    const emailOrigen = transferencia.docenteOrigen.emailDocente;
 
     let observacionesPrestamo = `📤 Transferido por: ${nombreOrigenCompleto}
+Email: ${emailOrigen}
 Estado reportado: ${observaciones || "Sin observaciones"}
 Fecha de transferencia: ${new Date().toLocaleString('es-ES')}
 Código de transferencia: ${codigoQR}`;

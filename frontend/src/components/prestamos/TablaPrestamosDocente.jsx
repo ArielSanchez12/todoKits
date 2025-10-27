@@ -94,10 +94,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const handleDevolver = async (id) => {
     setLoading(true);
     try {
-      await finalizarPrestamo(id, {
-        observaciones: observacionesDevolucion
-        //firmaDestino: firmaDigital.toString(), // ✅ Enviar firma automática
-      });
+      await finalizarPrestamo(id, observacionesDevolucion);
       onRefresh();
       setModalDevolver(null);
       setObservacionesDevolucion("");

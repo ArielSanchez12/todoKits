@@ -95,7 +95,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
     setLoading(true);
     try {
       await finalizarPrestamo(id, {
-        observaciones: observacionesDevolucion,
+        observaciones: observacionesDevolucion
         //firmaDestino: firmaDigital.toString(), // ✅ Enviar firma automática
       });
       onRefresh();

@@ -353,6 +353,9 @@ const finalizarPrestamo = async (req, res) => {
     // Finalizar préstamo
     prestamoExistente.estado = "finalizado";
     prestamoExistente.horaDevolucion = new Date();
+    if (firmaDocente) {
+      prestamoExistente.firmaDocente = firmaDocente; // ✅ Como STRING
+    }
     if (observacionesDevolucion) {
       prestamoExistente.observaciones += `\n[DEVOLUCIÓN] ${observacionesDevolucion}`;
     }

@@ -18,7 +18,7 @@ export const prestamoSchema = z.object({
     path: ["descripcion"],
   }),
   observaciones: z.string().optional(),
-  motivoRechazo: z.string()
+
 });
 
 export const confirmarPrestamoSchema = z.object({
@@ -28,4 +28,5 @@ export const confirmarPrestamoSchema = z.object({
 
 export const finalizarPrestamoSchema = z.object({
   observacionesDevolucion: z.string().optional(),
+  firmaDocente: z.string()
 });

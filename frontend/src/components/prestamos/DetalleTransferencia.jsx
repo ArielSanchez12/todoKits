@@ -3,9 +3,11 @@ import { MdDownload, MdContentCopy } from "react-icons/md";
 import { toast } from "react-toastify";
 
 const DetalleTransferencia = ({ transferencia, onClose }) => {
-  const urlQR = `${import.meta.env.VITE_FRONTEND_URL}/dashboard/transferencia/${transferencia.codigoQR}`;
+  // ✅ CORRECCIÓN 1: Usar correctamente VITE_FRONTEND_URL
+  const frontendUrl = import.meta.env.VITE_FRONTEND_URL?.replace(/\/$/, "");
+  const urlQR = `${frontendUrl}/dashboard/transferencia/${transferencia.codigoQR}`;
   
-  // ✅ URL de la imagen QR generada por el backend
+  // ✅ CORRECCIÓN 2: Usar API de QR Server para generar imagen
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
 
   const formatFecha = (fecha) => {
@@ -41,17 +43,28 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
     return textos[estado] || estado;
   };
 
+  // ✅ CORRECCIÓN 3: Función de descarga igual a ModalQRTransferencia
+  const handleDescargarQR = async () => {
+    try {
+      const response = await fetch(qrImageUrl);
+      const blob = await response.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `transferencia-${transferencia.codigoQR.substring(0, 8)}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      toast.success("QR descargado exitosamente");
+    } catch (error) {
+      console.error("Error al descargar QR:", error);
+      toast.error("Error al descargar QR");
+    }
+  };
+
   const handleCopiarURL = () => {
     navigator.clipboard.writeText(urlQR);
     toast.success("URL copiada al portapapeles");
-  };
-
-  const handleDescargarQR = () => {
-    const link = document.createElement("a");
-    link.href = qrImageUrl;
-    link.download = `transferencia-${transferencia.codigoQR.substring(0, 8)}.png`;
-    link.click();
-    toast.success("QR descargado exitosamente");
   };
 
   return (
@@ -92,7 +105,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Imagen QR */}
               <div className="flex flex-col items-center">
-                <div className="border-4 border-white rounded-lg shadow-lg bg-white">
+                <div className="border-4 border-white rounded-lg shadow-lg bg-white p-2">
                   <img
                     src={qrImageUrl}
                     alt="QR Transferencia"
@@ -156,6 +169,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     {transferencia.docenteOrigen?.apellidoDocente}
                   </p>
                 </div>
+                {/* ✅ CORRECCIÓN 4: Email ahora con acceso correcto */}
                 <div>
                   <span className="text-xs text-gray-600">Email:</span>
                   <p className="font-semibold text-sm">
@@ -174,7 +188,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                   <div>
                     <span className="text-xs text-gray-600">Firma Digital:</span>
                     <p className="font-mono text-xs bg-white px-2 py-1 rounded border">
-                      {transferencia.firmaOrigen}
+                      {transferencia.firmaOrigen.substring(0, 20)}...
                     </p>
                   </div>
                 )}
@@ -202,6 +216,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     {transferencia.docenteDestino?.apellidoDocente}
                   </p>
                 </div>
+                {/* ✅ CORRECCIÓN 4: Email ahora con acceso correcto */}
                 <div>
                   <span className="text-xs text-gray-600">Email:</span>
                   <p className="font-semibold text-sm">
@@ -220,7 +235,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                   <div>
                     <span className="text-xs text-gray-600">Firma Digital:</span>
                     <p className="font-mono text-xs bg-white px-2 py-1 rounded border">
-                      {transferencia.firmaDestino}
+                      {transferencia.firmaDestino.substring(0, 20)}...
                     </p>
                   </div>
                 )}
@@ -236,130 +251,124 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             </div>
           </div>
 
-          {/* Recursos Transferidos */}
-          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-            <p className="text-sm font-bold text-gray-700 mb-3">
-              📦 Recursos Transferidos
+          {/* ✅ CORRECCIÓN 5: Recursos con detalles completos igual a DetallePrestamo */}
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <p className="text-sm font-semibold text-gray-700 mb-3">
+              📦 Recursos Principales
             </p>
-            <div className="space-y-4">
-              {/* Recursos Principales */}
-              {transferencia.recursos && transferencia.recursos.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-600 mb-2">
-                    Recursos Principales:
-                  </p>
-                  <div className="space-y-3">
-                    {transferencia.recursos.map((rec) => (
-                      <div
-                        key={rec._id}
-                        className="bg-blue-50 p-3 rounded-lg border border-blue-200"
-                      >
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <span className="text-xs text-gray-600">Nombre:</span>
-                            <p className="font-semibold">{rec.nombre}</p>
-                          </div>
-                          <div>
-                            <span className="text-xs text-gray-600">Tipo:</span>
-                            <p className="font-semibold">
-                              {rec.tipo?.toUpperCase() || "N/A"}
-                            </p>
-                          </div>
-                          {rec.laboratorio && (
-                            <>
-                              <div>
-                                <span className="text-xs text-gray-600">
-                                  Laboratorio:
-                                </span>
-                                <p className="font-semibold">{rec.laboratorio}</p>
-                              </div>
-                              <div>
-                                <span className="text-xs text-gray-600">Aula:</span>
-                                <p className="font-semibold">{rec.aula}</p>
-                              </div>
-                            </>
-                          )}
-                          {rec.contenido && rec.contenido.length > 0 && (
-                            <div className="col-span-2">
-                              <span className="text-xs text-gray-600">
-                                Contenido:
-                              </span>
-                              <ul className="list-disc pl-5 mt-1">
-                                {rec.contenido.map((item, i) => (
-                                  <li key={i} className="text-xs">
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
+            {transferencia.recursos && transferencia.recursos.length > 0 ? (
+              <div className="space-y-3">
+                {transferencia.recursos.map((rec) => (
+                  <div
+                    key={rec._id}
+                    className="bg-white p-3 rounded-lg border border-blue-200"
+                  >
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-xs text-gray-600">Nombre:</span>
+                        <p className="font-semibold">{rec.nombre}</p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recursos Adicionales */}
-              {transferencia.recursosAdicionales &&
-                transferencia.recursosAdicionales.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-600 mb-2">
-                      Recursos Adicionales:
-                    </p>
-                    <div className="space-y-3">
-                      {transferencia.recursosAdicionales.map((rec) => (
-                        <div
-                          key={rec._id}
-                          className="bg-yellow-50 p-3 rounded-lg border border-yellow-200"
-                        >
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <span className="text-xs text-gray-600">Nombre:</span>
-                              <p className="font-semibold">{rec.nombre}</p>
-                            </div>
-                            <div>
-                              <span className="text-xs text-gray-600">Tipo:</span>
-                              <p className="font-semibold">
-                                {rec.tipo?.toUpperCase() || "N/A"}
-                              </p>
-                            </div>
-                            {rec.laboratorio && (
-                              <>
-                                <div>
-                                  <span className="text-xs text-gray-600">
-                                    Laboratorio:
-                                  </span>
-                                  <p className="font-semibold">{rec.laboratorio}</p>
-                                </div>
-                                <div>
-                                  <span className="text-xs text-gray-600">Aula:</span>
-                                  <p className="font-semibold">{rec.aula}</p>
-                                </div>
-                              </>
-                            )}
-                            {rec.contenido && rec.contenido.length > 0 && (
-                              <div className="col-span-2">
-                                <span className="text-xs text-gray-600">
-                                  Contenido:
-                                </span>
-                                <ul className="list-disc pl-5 mt-1">
-                                  {rec.contenido.map((item, i) => (
-                                    <li key={i} className="text-xs">
-                                      {item}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
+                      <div>
+                        <span className="text-xs text-gray-600">Tipo:</span>
+                        <p className="font-semibold">
+                          {rec.tipo?.toUpperCase() || "N/A"}
+                        </p>
+                      </div>
+                      {rec.laboratorio && (
+                        <>
+                          <div>
+                            <span className="text-xs text-gray-600">
+                              Laboratorio:
+                            </span>
+                            <p className="font-semibold">{rec.laboratorio}</p>
                           </div>
+                          <div>
+                            <span className="text-xs text-gray-600">Aula:</span>
+                            <p className="font-semibold">{rec.aula}</p>
+                          </div>
+                        </>
+                      )}
+                      {rec.contenido && rec.contenido.length > 0 && (
+                        <div className="col-span-2">
+                          <span className="text-xs text-gray-600">
+                            Contenido:
+                          </span>
+                          <ul className="list-disc pl-5 mt-1">
+                            {rec.contenido.map((item, i) => (
+                              <li key={i} className="text-sm">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
-                )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No hay recursos principales</p>
+            )}
           </div>
+
+          {/* ✅ CORRECCIÓN 5: Recursos Adicionales con detalles completos */}
+          {transferencia.recursosAdicionales &&
+            transferencia.recursosAdicionales.length > 0 && (
+              <div className="bg-yellow-50 p-4 rounded-lg">
+                <p className="text-sm font-semibold text-gray-700 mb-3">
+                  📦 Recursos Adicionales Detectados
+                </p>
+                <div className="space-y-3">
+                  {transferencia.recursosAdicionales.map((rec) => (
+                    <div
+                      key={rec._id}
+                      className="bg-white p-3 rounded-lg border border-yellow-200"
+                    >
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <span className="text-xs text-gray-600">Nombre:</span>
+                          <p className="font-semibold">{rec.nombre}</p>
+                        </div>
+                        <div>
+                          <span className="text-xs text-gray-600">Tipo:</span>
+                          <p className="font-semibold">
+                            {rec.tipo?.toUpperCase() || "N/A"}
+                          </p>
+                        </div>
+                        {rec.laboratorio && (
+                          <>
+                            <div>
+                              <span className="text-xs text-gray-600">
+                                Laboratorio:
+                              </span>
+                              <p className="font-semibold">{rec.laboratorio}</p>
+                            </div>
+                            <div>
+                              <span className="text-xs text-gray-600">Aula:</span>
+                              <p className="font-semibold">{rec.aula}</p>
+                            </div>
+                          </>
+                        )}
+                        {rec.contenido && rec.contenido.length > 0 && (
+                          <div className="col-span-2">
+                            <span className="text-xs text-gray-600">
+                              Contenido:
+                            </span>
+                            <ul className="list-disc pl-5 mt-1">
+                              {rec.contenido.map((item, i) => (
+                                <li key={i} className="text-xs">
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
           {/* Fechas */}
           <div className="bg-gray-50 p-4 rounded-lg">
@@ -399,16 +408,16 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
           {/* Observaciones */}
           {(transferencia.observacionesOrigen ||
             transferencia.observacionesDestino) && (
-            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <p className="text-sm font-bold text-gray-700 mb-3">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm font-semibold text-gray-700 mb-2">
                 💬 Observaciones
               </p>
               {transferencia.observacionesOrigen && (
-                <div className="mb-2">
+                <div className="mb-3">
                   <span className="text-xs font-semibold text-gray-600">
                     Origen:
                   </span>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 whitespace-pre-line">
                     {transferencia.observacionesOrigen}
                   </p>
                 </div>
@@ -418,7 +427,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                   <span className="text-xs font-semibold text-gray-600">
                     Destino:
                   </span>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 whitespace-pre-line">
                     {transferencia.observacionesDestino}
                   </p>
                 </div>

@@ -3,9 +3,8 @@ import { MdDownload, MdContentCopy } from "react-icons/md";
 import { toast } from "react-toastify";
 
 const DetalleTransferencia = ({ transferencia, onClose }) => {
-  // ✅ CORRECCIÓN 1: Usar correctamente VITE_FRONTEND_URL
-  const frontendUrl = import.meta.env.VITE_FRONTEND_URL?.replace(/\/$/, "");
-  const urlQR = `${frontendUrl}/dashboard/transferencia/${transferencia.codigoQR}`;
+  // ✅ CORRECCIÓN 1: URL quemada como solicitaste
+  const urlQR = `https://kitsfrontend-zeta.vercel.app/dashboard/transferencia/${transferencia.codigoQR}`;
   
   // ✅ CORRECCIÓN 2: Usar API de QR Server para generar imagen
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
@@ -89,7 +88,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-gray-600">Estado:</span>
             <span
-              className={`px-4 py-2 rounded-full text-sm font-bold ${getBadgeEstado(
+              className={`px-4 py-2 rounded-full text-sm font-medium ${getBadgeEstado(
                 transferencia.estado
               )}`}
             >
@@ -156,12 +155,12 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
 
           {/* Información de Docentes */}
           <div className="grid md:grid-cols-2 gap-4">
-            {/* Docente Origen */}
+            {/* ✅ CORRECCIÓN 4: Docente Origen - estructura igual a DetallePrestamo */}
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 👤 Docente Origen
               </p>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <span className="text-xs text-gray-600">Nombre:</span>
                   <p className="font-semibold">
@@ -169,19 +168,14 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     {transferencia.docenteOrigen?.apellidoDocente}
                   </p>
                 </div>
-                {/* ✅ CORRECCIÓN 4: Email ahora con acceso correcto */}
                 <div>
                   <span className="text-xs text-gray-600">Email:</span>
-                  <p className="font-semibold text-sm">
-                    {transferencia.docenteOrigen?.emailDocente || "N/A"}
-                  </p>
+                  <p className="font-semibold">{transferencia.docenteOrigen?.emailDocente}</p>
                 </div>
                 {transferencia.docenteOrigen?.celularDocente && (
                   <div>
                     <span className="text-xs text-gray-600">Celular:</span>
-                    <p className="font-semibold">
-                      {transferencia.docenteOrigen.celularDocente}
-                    </p>
+                    <p className="font-semibold">{transferencia.docenteOrigen.celularDocente}</p>
                   </div>
                 )}
                 {transferencia.firmaOrigen && (
@@ -192,23 +186,15 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     </p>
                   </div>
                 )}
-                {transferencia.fechaConfirmacionOrigen && (
-                  <div>
-                    <span className="text-xs text-gray-600">Confirmado el:</span>
-                    <p className="text-xs font-semibold">
-                      {formatFecha(transferencia.fechaConfirmacionOrigen)}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
 
-            {/* Docente Destino */}
+            {/* ✅ CORRECCIÓN 4: Docente Destino - estructura igual a DetallePrestamo */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 👤 Docente Destino
               </p>
-              <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <span className="text-xs text-gray-600">Nombre:</span>
                   <p className="font-semibold">
@@ -216,19 +202,14 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     {transferencia.docenteDestino?.apellidoDocente}
                   </p>
                 </div>
-                {/* ✅ CORRECCIÓN 4: Email ahora con acceso correcto */}
                 <div>
                   <span className="text-xs text-gray-600">Email:</span>
-                  <p className="font-semibold text-sm">
-                    {transferencia.docenteDestino?.emailDocente || "N/A"}
-                  </p>
+                  <p className="font-semibold">{transferencia.docenteDestino?.emailDocente}</p>
                 </div>
                 {transferencia.docenteDestino?.celularDocente && (
                   <div>
                     <span className="text-xs text-gray-600">Celular:</span>
-                    <p className="font-semibold">
-                      {transferencia.docenteDestino.celularDocente}
-                    </p>
+                    <p className="font-semibold">{transferencia.docenteDestino.celularDocente}</p>
                   </div>
                 )}
                 {transferencia.firmaDestino && (
@@ -239,19 +220,11 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     </p>
                   </div>
                 )}
-                {transferencia.fechaConfirmacionDestino && (
-                  <div>
-                    <span className="text-xs text-gray-600">Aceptado el:</span>
-                    <p className="text-xs font-semibold">
-                      {formatFecha(transferencia.fechaConfirmacionDestino)}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* ✅ CORRECCIÓN 5: Recursos con detalles completos igual a DetallePrestamo */}
+          {/* ✅ CORRECCIÓN 5: Recursos Principales - estructura EXACTA de DetallePrestamo */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
               📦 Recursos Principales
@@ -263,10 +236,10 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     key={rec._id}
                     className="bg-white p-3 rounded-lg border border-blue-200"
                   >
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <span className="text-xs text-gray-600">Nombre:</span>
-                        <p className="font-semibold">{rec.nombre}</p>
+                        <p className="font-semibold">{rec.nombre || "N/A"}</p>
                       </div>
                       <div>
                         <span className="text-xs text-gray-600">Tipo:</span>
@@ -277,9 +250,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                       {rec.laboratorio && (
                         <>
                           <div>
-                            <span className="text-xs text-gray-600">
-                              Laboratorio:
-                            </span>
+                            <span className="text-xs text-gray-600">Laboratorio:</span>
                             <p className="font-semibold">{rec.laboratorio}</p>
                           </div>
                           <div>
@@ -290,9 +261,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                       )}
                       {rec.contenido && rec.contenido.length > 0 && (
                         <div className="col-span-2">
-                          <span className="text-xs text-gray-600">
-                            Contenido:
-                          </span>
+                          <span className="text-xs text-gray-600">Contenido:</span>
                           <ul className="list-disc pl-5 mt-1">
                             {rec.contenido.map((item, i) => (
                               <li key={i} className="text-sm">
@@ -311,7 +280,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             )}
           </div>
 
-          {/* ✅ CORRECCIÓN 5: Recursos Adicionales con detalles completos */}
+          {/* ✅ CORRECCIÓN 5: Recursos Adicionales - estructura EXACTA de DetallePrestamo */}
           {transferencia.recursosAdicionales &&
             transferencia.recursosAdicionales.length > 0 && (
               <div className="bg-yellow-50 p-4 rounded-lg">
@@ -324,7 +293,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                       key={rec._id}
                       className="bg-white p-3 rounded-lg border border-yellow-200"
                     >
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-3">
                         <div>
                           <span className="text-xs text-gray-600">Nombre:</span>
                           <p className="font-semibold">{rec.nombre}</p>
@@ -356,7 +325,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                             </span>
                             <ul className="list-disc pl-5 mt-1">
                               {rec.contenido.map((item, i) => (
-                                <li key={i} className="text-xs">
+                                <li key={i} className="text-sm">
                                   {item}
                                 </li>
                               ))}
@@ -371,11 +340,11 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             )}
 
           {/* Fechas */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-sm font-bold text-gray-700 mb-3">
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <p className="text-sm font-semibold text-gray-700 mb-3">
               ⏰ Registro de Tiempos
             </p>
-            <div className="grid md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <span className="text-xs text-gray-600">Fecha Solicitud:</span>
                 <p className="font-semibold text-sm">

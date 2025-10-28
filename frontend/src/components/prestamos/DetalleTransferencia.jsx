@@ -1,40 +1,9 @@
-import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { MdDownload, MdContentCopy } from "react-icons/md";
 import { toast } from "react-toastify";
-import QRCode from "qrcode";
 
 const DetalleTransferencia = ({ transferencia, onClose }) => {
-  const [qrImage, setQrImage] = useState(null);
-  const [loadingQR, setLoadingQR] = useState(false);
-  const [urlQR, setUrlQR] = useState("");
-
-  useEffect(() => {
-    if (transferencia.codigoQR) {
-      generarQR();
-    }
-  }, [transferencia.codigoQR]);
-
-  const generarQR = async () => {
-    setLoadingQR(true);
-    try {
-      // ✅ Generar URL igual que en el backend
-      const url = `${import.meta.env.VITE_FRONTEND_URL}/dashboard/transferencia/${transferencia.codigoQR}`;
-      setUrlQR(url);
-
-      // ✅ Generar imagen QR
-      const qrDataURL = await QRCode.toDataURL(url, {
-        width: 300,
-        margin: 2,
-      });
-      setQrImage(qrDataURL);
-    } catch (error) {
-      console.error("Error al generar QR:", error);
-      toast.error("Error al generar código QR");
-    } finally {
-      setLoadingQR(false);
-    }
-  };
+  const urlQR = `${import.meta.env.VITE_FRONTEND_URL}/dashboard/transferencia/${transferencia.codigoQR}`;
 
   const formatFecha = (fecha) => {
     if (!fecha) return "-";
@@ -67,15 +36,6 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
       finalizado: "Finalizado",
     };
     return textos[estado] || estado;
-  };
-
-  const handleDescargarQR = () => {
-    if (!qrImage) return;
-    const link = document.createElement("a");
-    link.href = qrImage;
-    link.download = `transferencia-${transferencia.codigoQR.substring(0, 8)}.png`;
-    link.click();
-    toast.success("QR descargado exitosamente");
   };
 
   const handleCopiarURL = () => {
@@ -118,92 +78,59 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             </span>
           </div>
 
-          {/* QR Code y URL */}
+          {/* URL y Código QR */}
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-blue-200">
             <p className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              📱 Código QR de Transferencia
+              📱 Información de Transferencia
             </p>
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* QR Image */}
-              <div className="flex flex-col items-center">
-                {loadingQR ? (
-                  <div className="w-64 h-64 flex items-center justify-center bg-white rounded-lg border-4 border-gray-300">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                  </div>
-                ) : qrImage ? (
-                  <div className="border-4 border-white rounded-lg shadow-lg">
-                    <img
-                      src={qrImage}
-                      alt="QR Transferencia"
-                      className="w-64 h-64"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-64 h-64 flex items-center justify-center bg-gray-100 rounded-lg">
-                    <p className="text-gray-500">QR no disponible</p>
-                  </div>
-                )}
-                {qrImage && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1 block">
+                  🔗 URL de Transferencia
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={urlQR}
+                    className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
+                  />
                   <button
-                    onClick={handleDescargarQR}
-                    className="mt-4 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                    onClick={handleCopiarURL}
+                    className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                    title="Copiar URL"
                   >
-                    <MdDownload size={20} />
-                    Descargar QR
+                    <MdContentCopy size={18} />
                   </button>
-                )}
+                </div>
               </div>
 
-              {/* URL y Código */}
-              <div className="flex flex-col justify-center space-y-4">
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 mb-1 block">
-                    🔗 URL de Transferencia
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={urlQR}
-                      className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
-                    />
-                    <button
-                      onClick={handleCopiarURL}
-                      className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
-                      title="Copiar URL"
-                    >
-                      <MdContentCopy size={18} />
-                    </button>
-                  </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1 block">
+                  🔑 Código de Transferencia
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={transferencia.codigoQR}
+                    className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
+                  />
+                  <button
+                    onClick={handleCopiarCodigo}
+                    className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                    title="Copiar código"
+                  >
+                    <MdContentCopy size={18} />
+                  </button>
                 </div>
+              </div>
 
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 mb-1 block">
-                    🔑 Código de Transferencia
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={transferencia.codigoQR}
-                      className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
-                    />
-                    <button
-                      onClick={handleCopiarCodigo}
-                      className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
-                      title="Copiar código"
-                    >
-                      <MdContentCopy size={18} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
-                  <p className="text-xs text-yellow-800">
-                    <strong>💡 Instrucciones:</strong> El docente origen debe
-                    escanear este QR para confirmar la transferencia.
-                  </p>
-                </div>
+              <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                <p className="text-xs text-yellow-800">
+                  <strong>💡 Instrucciones:</strong> El docente origen debe escanear el QR
+                  (generado al crear la transferencia) o usar esta URL para confirmar.
+                </p>
               </div>
             </div>
           </div>
@@ -372,32 +299,32 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
           {/* Observaciones */}
           {(transferencia.observacionesOrigen ||
             transferencia.observacionesDestino) && (
-            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <p className="text-sm font-bold text-gray-700 mb-3">
-                💬 Observaciones
-              </p>
-              {transferencia.observacionesOrigen && (
-                <div className="mb-2">
-                  <span className="text-xs font-semibold text-gray-600">
-                    Origen:
-                  </span>
-                  <p className="text-sm text-gray-700">
-                    {transferencia.observacionesOrigen}
-                  </p>
-                </div>
-              )}
-              {transferencia.observacionesDestino && (
-                <div>
-                  <span className="text-xs font-semibold text-gray-600">
-                    Destino:
-                  </span>
-                  <p className="text-sm text-gray-700">
-                    {transferencia.observacionesDestino}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <p className="text-sm font-bold text-gray-700 mb-3">
+                  💬 Observaciones
+                </p>
+                {transferencia.observacionesOrigen && (
+                  <div className="mb-2">
+                    <span className="text-xs font-semibold text-gray-600">
+                      Origen:
+                    </span>
+                    <p className="text-sm text-gray-700">
+                      {transferencia.observacionesOrigen}
+                    </p>
+                  </div>
+                )}
+                {transferencia.observacionesDestino && (
+                  <div>
+                    <span className="text-xs font-semibold text-gray-600">
+                      Destino:
+                    </span>
+                    <p className="text-sm text-gray-700">
+                      {transferencia.observacionesDestino}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
           {/* Botón Cerrar */}
           <div className="pt-4 border-t">

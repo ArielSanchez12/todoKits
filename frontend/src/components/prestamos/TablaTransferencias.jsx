@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MdVisibility, MdQrCodeScanner, MdRefresh } from "react-icons/md";
 import storeTransferencias from "../../context/storeTransferencias";
 import { toast } from "react-toastify";
-import DetallePrestamo from "./DetallePrestamo";
+import DetalleTransferencia from "./DetalleTransferencia"; // ✅ CAMBIO 1: Importar DetalleTransferencia en lugar de DetallePrestamo
 
 const TablaTransferencias = () => {
   const [transferencias, setTransferencias] = useState([]);
@@ -265,10 +265,10 @@ const TablaTransferencias = () => {
         )}
       </div>
 
-      {/* Modal de detalle */}
+      {/* ✅ CAMBIO 2: Usar DetalleTransferencia con prop "transferencia" */}
       {mostrarDetalle && transferenciaSel && (
-        <DetallePrestamo
-          prestamo={transferenciaSel}
+        <DetalleTransferencia
+          transferencia={transferenciaSel}
           onClose={() => {
             setMostrarDetalle(false);
             setTransferenciaSel(null);

@@ -376,9 +376,10 @@ const listarTransferencias = async (req, res) => {
     const adminId = req.adminEmailBDD._id;
 
     const transferencias = await Transferencia.find({ admin: adminId })
-      .populate("docenteOrigen", "nombreDocente apellidoDocente")
-      .populate("docenteDestino", "nombreDocente apellidoDocente")
-      .populate("recursos", "nombre tipo")
+      .populate("docenteOrigen", "nombreDocente apellidoDocente emailDocente celularDocente") // ✅ AGREGADO emailDocente y celularDocente
+      .populate("docenteDestino", "nombreDocente apellidoDocente emailDocente celularDocente") // ✅ AGREGADO emailDocente y celularDocente
+      .populate("recursos", "nombre tipo laboratorio aula contenido") // ✅ AGREGADO laboratorio, aula, contenido
+      .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido") // ✅ AGREGADO recursosAdicionales completo
       .sort({ createdAt: -1 });
 
     res.json(transferencias);

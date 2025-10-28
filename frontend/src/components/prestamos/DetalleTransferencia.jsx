@@ -4,6 +4,9 @@ import { toast } from "react-toastify";
 
 const DetalleTransferencia = ({ transferencia, onClose }) => {
   const urlQR = `${import.meta.env.VITE_FRONTEND_URL}/dashboard/transferencia/${transferencia.codigoQR}`;
+  
+  // ✅ URL de la imagen QR generada por el backend
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
 
   const formatFecha = (fecha) => {
     if (!fecha) return "-";
@@ -43,9 +46,12 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
     toast.success("URL copiada al portapapeles");
   };
 
-  const handleCopiarCodigo = () => {
-    navigator.clipboard.writeText(transferencia.codigoQR);
-    toast.success("Código copiado al portapapeles");
+  const handleDescargarQR = () => {
+    const link = document.createElement("a");
+    link.href = qrImageUrl;
+    link.download = `transferencia-${transferencia.codigoQR.substring(0, 8)}.png`;
+    link.click();
+    toast.success("QR descargado exitosamente");
   };
 
   return (
@@ -78,59 +84,59 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             </span>
           </div>
 
-          {/* URL y Código QR */}
+          {/* QR Code */}
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-blue-200">
             <p className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              📱 Información de Transferencia
+              📱 Código QR de Transferencia
             </p>
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1 block">
-                  🔗 URL de Transferencia
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={urlQR}
-                    className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Imagen QR */}
+              <div className="flex flex-col items-center">
+                <div className="border-4 border-white rounded-lg shadow-lg bg-white">
+                  <img
+                    src={qrImageUrl}
+                    alt="QR Transferencia"
+                    className="w-64 h-64"
                   />
-                  <button
-                    onClick={handleCopiarURL}
-                    className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
-                    title="Copiar URL"
-                  >
-                    <MdContentCopy size={18} />
-                  </button>
                 </div>
+                <button
+                  onClick={handleDescargarQR}
+                  className="mt-4 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                >
+                  <MdDownload size={20} />
+                  Descargar QR
+                </button>
               </div>
 
-              <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1 block">
-                  🔑 Código de Transferencia
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={transferencia.codigoQR}
-                    className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
-                  />
-                  <button
-                    onClick={handleCopiarCodigo}
-                    className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
-                    title="Copiar código"
-                  >
-                    <MdContentCopy size={18} />
-                  </button>
+              {/* URL */}
+              <div className="flex flex-col justify-center space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 mb-1 block">
+                    🔗 URL de Transferencia
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={urlQR}
+                      className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
+                    />
+                    <button
+                      onClick={handleCopiarURL}
+                      className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                      title="Copiar URL"
+                    >
+                      <MdContentCopy size={18} />
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
-                <p className="text-xs text-yellow-800">
-                  <strong>💡 Instrucciones:</strong> El docente origen debe escanear el QR
-                  (generado al crear la transferencia) o usar esta URL para confirmar.
-                </p>
+                <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                  <p className="text-xs text-yellow-800">
+                    <strong>💡 Instrucciones:</strong> El docente origen debe
+                    escanear este QR para confirmar la transferencia.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -153,14 +159,22 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                 <div>
                   <span className="text-xs text-gray-600">Email:</span>
                   <p className="font-semibold text-sm">
-                    {transferencia.docenteOrigen?.emailDocente}
+                    {transferencia.docenteOrigen?.emailDocente || "N/A"}
                   </p>
                 </div>
+                {transferencia.docenteOrigen?.celularDocente && (
+                  <div>
+                    <span className="text-xs text-gray-600">Celular:</span>
+                    <p className="font-semibold">
+                      {transferencia.docenteOrigen.celularDocente}
+                    </p>
+                  </div>
+                )}
                 {transferencia.firmaOrigen && (
                   <div>
                     <span className="text-xs text-gray-600">Firma Digital:</span>
                     <p className="font-mono text-xs bg-white px-2 py-1 rounded border">
-                      ✓ Firmado
+                      {transferencia.firmaOrigen}
                     </p>
                   </div>
                 )}
@@ -191,14 +205,22 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                 <div>
                   <span className="text-xs text-gray-600">Email:</span>
                   <p className="font-semibold text-sm">
-                    {transferencia.docenteDestino?.emailDocente}
+                    {transferencia.docenteDestino?.emailDocente || "N/A"}
                   </p>
                 </div>
+                {transferencia.docenteDestino?.celularDocente && (
+                  <div>
+                    <span className="text-xs text-gray-600">Celular:</span>
+                    <p className="font-semibold">
+                      {transferencia.docenteDestino.celularDocente}
+                    </p>
+                  </div>
+                )}
                 {transferencia.firmaDestino && (
                   <div>
                     <span className="text-xs text-gray-600">Firma Digital:</span>
                     <p className="font-mono text-xs bg-white px-2 py-1 rounded border">
-                      ✓ Firmado
+                      {transferencia.firmaDestino}
                     </p>
                   </div>
                 )}
@@ -219,21 +241,60 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             <p className="text-sm font-bold text-gray-700 mb-3">
               📦 Recursos Transferidos
             </p>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {/* Recursos Principales */}
               {transferencia.recursos && transferencia.recursos.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-gray-600 mb-2">
                     Recursos Principales:
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="space-y-3">
                     {transferencia.recursos.map((rec) => (
-                      <span
+                      <div
                         key={rec._id}
-                        className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold"
+                        className="bg-blue-50 p-3 rounded-lg border border-blue-200"
                       >
-                        {rec.nombre}
-                      </span>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="text-xs text-gray-600">Nombre:</span>
+                            <p className="font-semibold">{rec.nombre}</p>
+                          </div>
+                          <div>
+                            <span className="text-xs text-gray-600">Tipo:</span>
+                            <p className="font-semibold">
+                              {rec.tipo?.toUpperCase() || "N/A"}
+                            </p>
+                          </div>
+                          {rec.laboratorio && (
+                            <>
+                              <div>
+                                <span className="text-xs text-gray-600">
+                                  Laboratorio:
+                                </span>
+                                <p className="font-semibold">{rec.laboratorio}</p>
+                              </div>
+                              <div>
+                                <span className="text-xs text-gray-600">Aula:</span>
+                                <p className="font-semibold">{rec.aula}</p>
+                              </div>
+                            </>
+                          )}
+                          {rec.contenido && rec.contenido.length > 0 && (
+                            <div className="col-span-2">
+                              <span className="text-xs text-gray-600">
+                                Contenido:
+                              </span>
+                              <ul className="list-disc pl-5 mt-1">
+                                {rec.contenido.map((item, i) => (
+                                  <li key={i} className="text-xs">
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -246,14 +307,53 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     <p className="text-xs font-semibold text-gray-600 mb-2">
                       Recursos Adicionales:
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-3">
                       {transferencia.recursosAdicionales.map((rec) => (
-                        <span
+                        <div
                           key={rec._id}
-                          className="text-xs bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-semibold"
+                          className="bg-yellow-50 p-3 rounded-lg border border-yellow-200"
                         >
-                          {rec.nombre}
-                        </span>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <span className="text-xs text-gray-600">Nombre:</span>
+                              <p className="font-semibold">{rec.nombre}</p>
+                            </div>
+                            <div>
+                              <span className="text-xs text-gray-600">Tipo:</span>
+                              <p className="font-semibold">
+                                {rec.tipo?.toUpperCase() || "N/A"}
+                              </p>
+                            </div>
+                            {rec.laboratorio && (
+                              <>
+                                <div>
+                                  <span className="text-xs text-gray-600">
+                                    Laboratorio:
+                                  </span>
+                                  <p className="font-semibold">{rec.laboratorio}</p>
+                                </div>
+                                <div>
+                                  <span className="text-xs text-gray-600">Aula:</span>
+                                  <p className="font-semibold">{rec.aula}</p>
+                                </div>
+                              </>
+                            )}
+                            {rec.contenido && rec.contenido.length > 0 && (
+                              <div className="col-span-2">
+                                <span className="text-xs text-gray-600">
+                                  Contenido:
+                                </span>
+                                <ul className="list-disc pl-5 mt-1">
+                                  {rec.contenido.map((item, i) => (
+                                    <li key={i} className="text-xs">
+                                      {item}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -299,32 +399,32 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
           {/* Observaciones */}
           {(transferencia.observacionesOrigen ||
             transferencia.observacionesDestino) && (
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <p className="text-sm font-bold text-gray-700 mb-3">
-                  💬 Observaciones
-                </p>
-                {transferencia.observacionesOrigen && (
-                  <div className="mb-2">
-                    <span className="text-xs font-semibold text-gray-600">
-                      Origen:
-                    </span>
-                    <p className="text-sm text-gray-700">
-                      {transferencia.observacionesOrigen}
-                    </p>
-                  </div>
-                )}
-                {transferencia.observacionesDestino && (
-                  <div>
-                    <span className="text-xs font-semibold text-gray-600">
-                      Destino:
-                    </span>
-                    <p className="text-sm text-gray-700">
-                      {transferencia.observacionesDestino}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+              <p className="text-sm font-bold text-gray-700 mb-3">
+                💬 Observaciones
+              </p>
+              {transferencia.observacionesOrigen && (
+                <div className="mb-2">
+                  <span className="text-xs font-semibold text-gray-600">
+                    Origen:
+                  </span>
+                  <p className="text-sm text-gray-700">
+                    {transferencia.observacionesOrigen}
+                  </p>
+                </div>
+              )}
+              {transferencia.observacionesDestino && (
+                <div>
+                  <span className="text-xs font-semibold text-gray-600">
+                    Destino:
+                  </span>
+                  <p className="text-sm text-gray-700">
+                    {transferencia.observacionesDestino}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Botón Cerrar */}
           <div className="pt-4 border-t">

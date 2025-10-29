@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MdCheckCircle, MdAssignmentTurnedIn, MdRefresh } from "react-icons/md"; // ✅ IMPORTAR MdRefresh
+import { MdCheckCircle, MdAssignmentTurnedIn, MdRefresh } from "react-icons/md";
 import storePrestamos from "../../context/storePrestamos";
 import storeProfile from "../../context/storeProfile";
 import { toast } from "react-toastify";
@@ -7,7 +7,7 @@ import ModalResponderTransferencia from "./ModalResponderTransferencia";
 
 const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const { confirmarPrestamo, finalizarPrestamo } = storePrestamos();
-  const { user } = storeProfile(); // ✅ AGREGAR ESTA LÍNEA
+  const { user } = storeProfile();
   const [loading, setLoading] = useState(false);
   const [modalConfirmar, setModalConfirmar] = useState(null);
   const [modalDevolver, setModalDevolver] = useState(null);
@@ -15,7 +15,6 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const [motivoRechazo, setMotivoRechazo] = useState("");
   const [observacionesDevolucion, setObservacionesDevolucion] = useState("");
 
-  // ✅ AGREGAR: Firma automática
   const firmaDigital = user?._doc?._id || user?._id;
 
   const getBadgeEstado = (estado) => {
@@ -107,8 +106,8 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
   return (
     <>
-      {/* ✅ HEADER CON BOTÓN ACTUALIZAR */}
-      <div className="flex justify-between items-center mb-4 bg-black text-white p-4 rounded-t-lg">
+      {/* ✅ HEADER SIN mb-4 - NEGRO */}
+      <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
         <h2 className="text-xl font-bold">📦 Mis Préstamos Activos</h2>
         <button
           onClick={onRefresh}
@@ -119,8 +118,9 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto shadow-lg bg-white">
+      {/* ✅ TABLA PEGADA CON shadow-lg */}
+      <div className="overflow-x-auto shadow-lg">
+        <table className="w-full table-auto bg-white">
           <thead className="bg-black text-white">
             <tr>
               <th className="p-2">N°</th>

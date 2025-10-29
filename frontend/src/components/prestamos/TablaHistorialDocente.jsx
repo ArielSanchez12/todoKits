@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { MdVisibility, MdCancel, MdAssignmentTurnedIn, MdRefresh } from "react-icons/md";
+import { MdVisibility, MdCancel, MdAssignmentTurnedIn } from "react-icons/md";
 import DetallePrestamo from "./DetallePrestamo";
 import storePrestamos from "../../context/storePrestamos";
 
@@ -172,16 +172,9 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
         ))}
       </div>
 
-      {/* ✅ HEADER CON BOTÓN ACTUALIZAR (SIN mb-4) */}
-      <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
+      {/* ✅ HEADER SIN BOTÓN ACTUALIZAR */}
+      <div className="bg-black text-white p-4 rounded-t-lg">
         <h2 className="text-xl font-bold">📚 Historial del Docente</h2>
-        <button
-          onClick={onRefresh}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-        >
-          <MdRefresh size={20} />
-          Actualizar
-        </button>
       </div>
 
       {/* ✅ TABLA PEGADA AL HEADER */}

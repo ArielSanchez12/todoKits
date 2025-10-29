@@ -1,18 +1,17 @@
 import { useState } from "react";
-import { MdVisibility, MdTransferWithinAStation, MdRefresh } from "react-icons/md"; // ✅ IMPORTAR MdRefresh
-import { toast } from "react-toastify"; // ✅ AGREGADO: Import toast
+import { MdVisibility, MdTransferWithinAStation, MdRefresh } from "react-icons/md";
+import { toast } from "react-toastify";
 import DetallePrestamo from "./DetallePrestamo";
 import ModalTransferirRecurso from "./ModalTransferirRecurso";
 import ModalQRTransferencia from "./ModalQRTransferencia";
 
-// ✅ ACTUALIZADO: Agregar docentes a los parámetros
 const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, docentes }) => {
   const [modalTransferir, setModalTransferir] = useState(false);
   const [modalQR, setModalQR] = useState(false);
   const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [qrData, setQRData] = useState(null);
-  const [modalKey, setModalKey] = useState(0); // ✅ AGREGADO: Key para re-render
+  const [modalKey, setModalKey] = useState(0);
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -51,13 +50,11 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
     console.log("👥 Docentes en tabla:", docentes);
     console.log("📦 Préstamo:", prestamo);
 
-    // ✅ VALIDACIÓN: Verificar que hay docentes disponibles
     if (!Array.isArray(docentes) || docentes.length === 0) {
       toast.error("No hay docentes disponibles. Por favor recarga la página.");
       return;
     }
 
-    // Solo abre el modal una vez
     setPrestamoSeleccionado(prestamo);
     setModalTransferir(true);
   };
@@ -74,8 +71,8 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
 
   return (
     <>
-      {/* ✅ HEADER CON BOTÓN ACTUALIZAR */}
-      <div className="flex justify-between items-center mb-4 bg-black text-white p-4 rounded-t-lg">
+      {/* ✅ HEADER SIN mb-4 - NEGRO */}
+      <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
         <h2 className="text-xl font-bold">📋 Gestión de Préstamos</h2>
         <button
           onClick={onRefresh}
@@ -86,8 +83,9 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto shadow-lg bg-white">
+      {/* ✅ TABLA PEGADA CON shadow-lg */}
+      <div className="overflow-x-auto shadow-lg">
+        <table className="w-full table-auto bg-white">
           <thead className="bg-black text-white">
             <tr>
               <th className="p-2">N°</th>
@@ -210,7 +208,7 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
         />
       )}
 
-      {/* ✅ ACTUALIZADO: Modal de transferencia con key y docentes */}
+      {/* Modal de transferencia con key y docentes */}
       {modalTransferir && prestamoSeleccionado && Array.isArray(docentes) && docentes.length > 0 && (
         <ModalTransferirRecurso
           key={modalKey}

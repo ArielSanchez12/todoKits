@@ -1,4 +1,4 @@
-import { MdDeleteForever, MdPublishedWithChanges, MdRefresh } from "react-icons/md"; // ✅ IMPORTAR MdRefresh
+import { MdDeleteForever, MdPublishedWithChanges, MdRefresh } from "react-icons/md";
 import storeRecursos from "../../context/storeRecursos";
 import { useState, useRef } from "react";
 
@@ -15,7 +15,6 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
       : recursos?.filter((r) => r.tipo === filtro);
 
   const handleDelete = async (id, recurso) => {
-    // Validar si está en préstamo
     if (recurso.estado === "activo" || recurso.estado === "prestado") {
       alert("No se puede eliminar un recurso que está en préstamo activo");
       return;
@@ -34,13 +33,12 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
   const getBadgeEstado = (estado) => {
     const colors = {
       pendiente: "bg-yellow-100 text-yellow-800",
-      activo: "bg-orange-100 text-orange-800", // Cambiar color para activo
+      activo: "bg-orange-100 text-orange-800",
       prestado: "bg-blue-100 text-blue-800",
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
   };
 
-  // Calcular posición del tooltip de forma responsive
   const handleMouseEnter = (recursoId) => {
     setHoveredContenido(recursoId);
 
@@ -144,8 +142,8 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
 
   return (
     <>
-      {/* ✅ HEADER CON BOTÓN ACTUALIZAR */}
-      <div className="flex justify-between items-center mb-4 bg-black text-white p-4 rounded-t-lg">
+      {/* ✅ HEADER SIN mb-4 */}
+      <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
         <h2 className="text-xl font-bold">🔧 Gestión de Recursos</h2>
         <button
           onClick={onRefresh}
@@ -156,9 +154,10 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto shadow-lg bg-white">
-          <thead className="bg-black text-white">
+      {/* ✅ TABLA PEGADA CON shadow-lg */}
+      <div className="overflow-x-auto shadow-lg">
+        <table className="w-full table-auto bg-white">
+          <thead className="bg-gray-800 text-white">
             <tr>
               <th className="p-2">N°</th>
               <th className="p-2">Tipo</th>
@@ -173,21 +172,19 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
           <tbody>
             {recursosFiltrados && recursosFiltrados.length > 0 ? (
               recursosFiltrados.map((recurso, index) => {
-                // Determinar si está bloqueado
                 const estaBloqueado = recurso.estado === "activo" || recurso.estado === "prestado";
 
                 return (
                   <tr
                     key={recurso._id}
                     className={`text-center ${estaBloqueado
-                        ? "bg-gray-100" // Fondo gris claro para bloqueados
-                        : "hover:bg-gray-300"
+                      ? "bg-gray-100"
+                      : "hover:bg-gray-300"
                       }`}
                   >
                     <td className="p-2">{index + 1}</td>
                     <td className="p-2 font-semibold">
                       {recurso.tipo.toUpperCase()}
-                      {/* Badge de bloqueado */}
                       {estaBloqueado && (
                         <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded-full">
                           EN PRÉSTAMO
@@ -215,11 +212,10 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
                       {renderContenido(recurso)}
                     </td>
                     <td className="p-2 flex justify-center gap-2">
-                      {/* Deshabilitar botones si está bloqueado */}
                       <MdPublishedWithChanges
                         className={`h-6 w-6 ${estaBloqueado
-                            ? "text-gray-400 cursor-not-allowed"
-                            : "text-blue-600 cursor-pointer hover:text-blue-800"
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-blue-600 cursor-pointer hover:text-blue-800"
                           }`}
                         title={estaBloqueado ? "No se puede editar (en préstamo)" : "Editar"}
                         onClick={() => {
@@ -232,8 +228,8 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
                       />
                       <MdDeleteForever
                         className={`h-6 w-6 ${estaBloqueado
-                            ? "text-gray-400 cursor-not-allowed"
-                            : "text-red-600 cursor-pointer hover:text-red-800"
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-red-600 cursor-pointer hover:text-red-800"
                           }`}
                         title={estaBloqueado ? "No se puede eliminar (en préstamo)" : "Eliminar"}
                         onClick={() => handleDelete(recurso._id, recurso)}

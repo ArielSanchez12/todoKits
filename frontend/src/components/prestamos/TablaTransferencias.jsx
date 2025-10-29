@@ -47,6 +47,7 @@ const TablaTransferencias = () => {
       aceptado_destino: "bg-green-100 text-green-800",
       rechazado: "bg-red-100 text-red-800",
       finalizado: "bg-purple-100 text-purple-800",
+      cancelado: "bg-gray-100 text-gray-800",
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
   };
@@ -58,6 +59,7 @@ const TablaTransferencias = () => {
       aceptado_destino: "Aceptado",
       rechazado: "Rechazado",
       finalizado: "Finalizado",
+      cancelado: "Cancelado"
     };
     return textos[estado] || estado;
   };
@@ -281,6 +283,15 @@ const TablaTransferencias = () => {
                     <span className="font-bold text-red-600">
                       {transferencias.filter((t) => t.estado === "rechazado")
                         .length}
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-gray-500"></div>
+                  <span className="text-gray-700">
+                    Canceladas:{" "}
+                    <span className="font-bold text-gray-600">
+                      {transferencias.filter((t) => t.estado === "cancelado").length}
                     </span>
                   </span>
                 </div>

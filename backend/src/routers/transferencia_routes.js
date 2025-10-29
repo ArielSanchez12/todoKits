@@ -6,6 +6,7 @@ import {
   confirmarTransferenciaOrigen,
   responderTransferenciaDestino,
   listarTransferencias,
+  cancelarTransferencia
 } from "../controllers/transferencia_controller.js";
 
 const router = Router();
@@ -24,5 +25,8 @@ router.patch("/docente/transferencia/:codigoQR/confirmar", verificarTokenJWT, co
 
 // Docente destino responde a la transferencia
 router.patch("/docente/transferencia/:codigoQR/responder", verificarTokenJWT, responderTransferenciaDestino);
+
+// Cancelar transferencia (Docente Origen o Admin)
+router.patch("/transferencia/:codigoQR/cancelar", verificarTokenJWT, cancelarTransferencia);
 
 export default router;

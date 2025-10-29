@@ -389,10 +389,109 @@ const listarTransferencias = async (req, res) => {
   }
 };
 
+const cancelarTransferencia = async (req, res) => {
+  try {
+    const { codigoQR } = req.params;
+    const { motivoCancelacion } = req.body;
+
+    // Verificar si es admin o docente
+    const usuarioId = req.adminEmailBDD?._id || req.docenteBDD?._id;
+    const esAdmin = !!req.adminEmailBDD;
+
+    if (!usuarioId) {
+      return res.status(401).json({ msg: "Error de autenticación" });
+    }
+
+    console.log("🔍 Buscando transferencia para cancelar:", codigoQR);
+
+    const transferencia = await Transferencia.findOne({ codigoQR })
+      .populate("docenteOrigen", "nombreDocente apellidoDocente emailDocente")
+      .populate("docenteDestino", "nombreDocente apellidoDocente emailDocente")
+      .populate("recursos", "nombre tipo")
+      .populate("recursosAdicionales", "nombre tipo")
+      .populate("prestamoOriginal");
+
+    if (!transferencia) {
+      return res.status(404).json({ msg: "Transferencia no encontrada" });
+    }
+
+    // Validar permisos (solo docente origen o admin pueden cancelar)
+    if (!esAdmin && transferencia.docenteOrigen._id.toString() !== usuarioId.toString()) {
+      return res.status(403).json({
+        msg: "No tienes permisos para cancelar esta transferencia",
+        detalle: "Solo el docente origen o administrador pueden cancelar"
+      });
+    }
+
+    // Validar estado (solo se puede cancelar si está pendiente_origen o confirmado_origen)
+    if (!["pendiente_origen", "confirmado_origen"].includes(transferencia.estado)) {
+      return res.status(400).json({
+        msg: "Esta transferencia no puede ser cancelada",
+        detalle: transferencia.estado === "finalizado" 
+          ? "La transferencia ya fue completada"
+          : "La transferencia ya fue procesada",
+        estadoActual: transferencia.estado
+      });
+    }
+
+    // Si ya había un préstamo pendiente creado para el destino, eliminarlo
+    if (transferencia.estado === "confirmado_origen") {
+      console.log("🗑️ Buscando préstamo pendiente generado para el docente destino...");
+      
+      // Buscar el préstamo pendiente que se creó al confirmar origen
+      const prestamoPendiente = await prestamo.findOne({
+        docente: transferencia.docenteDestino._id,
+        estado: "pendiente",
+        "motivo.tipo": "Transferencia",
+        observaciones: { $regex: transferencia.codigoQR }
+      });
+
+      if (prestamoPendiente) {
+        console.log("✅ Préstamo pendiente encontrado:", prestamoPendiente._id);
+        
+        // Eliminar el préstamo pendiente
+        await prestamo.findByIdAndDelete(prestamoPendiente._id);
+        console.log("🗑️ Préstamo pendiente eliminado");
+      } else {
+        console.log("⚠️ No se encontró préstamo pendiente asociado");
+      }
+    }
+
+    // Actualizar transferencia a cancelado
+    transferencia.estado = "cancelado";
+    transferencia.observacionesOrigen += `\n[CANCELADO] ${motivoCancelacion || "Solicitud cancelada"}`;
+    transferencia.fechaCancelacion = new Date();
+    await transferencia.save();
+
+    console.log("✅ Transferencia cancelada exitosamente");
+
+    // Notificar por Pusher
+    pusher.trigger("chat", "transferencia-cancelada", {
+      transferencia,
+      para: transferencia.docenteDestino._id.toString(),
+      mensaje: `La transferencia de ${transferencia.docenteOrigen.nombreDocente} ha sido cancelada`
+    });
+
+    res.json({
+      msg: "Solicitud de transferencia cancelada exitosamente",
+      transferencia,
+      detalle: "El préstamo original permanece activo con el docente origen"
+    });
+  } catch (error) {
+    console.error("❌ Error al cancelar transferencia:", error);
+    res.status(500).json({
+      msg: "Error en el servidor",
+      error: error.message
+    });
+  }
+};
+
+
 export {
   crearTransferencia,
   obtenerTransferenciaPorQR,
   confirmarTransferenciaOrigen,
   responderTransferenciaDestino,
   listarTransferencias,
+  cancelarTransferencia
 };

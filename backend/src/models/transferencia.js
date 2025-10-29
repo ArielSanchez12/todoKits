@@ -41,7 +41,7 @@ const transferenciaSchema = new Schema(
     },
     estado: {
       type: String,
-      enum: ["pendiente_origen", "confirmado_origen", "aceptado_destino", "rechazado", "finalizado"],
+      enum: ["pendiente_origen", "confirmado_origen", "aceptado_destino", "cancelado", "rechazado", "finalizado"],
       default: "pendiente_origen",
     },
     observacionesOrigen: {
@@ -68,6 +68,9 @@ const transferenciaSchema = new Schema(
       type: Date,
     },
     fechaConfirmacionDestino: {
+      type: Date,
+    },
+    fechaCancelacion: {
       type: Date,
     },
   },

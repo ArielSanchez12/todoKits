@@ -439,7 +439,7 @@ const cancelarTransferencia = async (req, res) => {
       console.log("🗑️ Buscando préstamo pendiente generado para el docente destino...");
       
       // Buscar el préstamo pendiente que se creó al confirmar origen
-      const prestamoPendiente = await prestamo.findOne({
+      const prestamoPendiente = await Prestamo.findOne({
         docente: transferencia.docenteDestino._id,
         estado: "pendiente",
         "motivo.tipo": "Transferencia",
@@ -450,7 +450,7 @@ const cancelarTransferencia = async (req, res) => {
         console.log("✅ Préstamo pendiente encontrado:", prestamoPendiente._id);
         
         // Eliminar el préstamo pendiente
-        await prestamo.findByIdAndDelete(prestamoPendiente._id);
+        await Prestamo.findByIdAndDelete(prestamoPendiente._id);
         console.log("🗑️ Préstamo pendiente eliminado");
       } else {
         console.log("⚠️ No se encontró préstamo pendiente asociado");

@@ -1,4 +1,4 @@
-import { MdDeleteForever, MdPublishedWithChanges } from "react-icons/md";
+import { MdDeleteForever, MdPublishedWithChanges, MdRefresh } from "react-icons/md"; // ✅ IMPORTAR MdRefresh
 import storeRecursos from "../../context/storeRecursos";
 import { useState, useRef } from "react";
 
@@ -143,105 +143,116 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full mt-5 table-auto shadow-lg bg-white">
-        <thead className="bg-black text-white">
-          <tr>
-            <th className="p-2">N°</th>
-            <th className="p-2">Tipo</th>
-            <th className="p-2">Nombre</th>
-            <th className="p-2">Laboratorio</th>
-            <th className="p-2">Aula</th>
-            <th className="p-2">Estado</th>
-            <th className="p-2">Contenido</th>
-            <th className="p-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {recursosFiltrados && recursosFiltrados.length > 0 ? (
-            recursosFiltrados.map((recurso, index) => {
-              // Determinar si está bloqueado
-              const estaBloqueado = recurso.estado === "activo" || recurso.estado === "prestado";
-              
-              return (
-                <tr 
-                  key={recurso._id} 
-                  className={`text-center ${
-                    estaBloqueado 
-                      ? "bg-gray-100" // Fondo gris claro para bloqueados
-                      : "hover:bg-gray-300"
-                  }`}
-                >
-                  <td className="p-2">{index + 1}</td>
-                  <td className="p-2 font-semibold">
-                    {recurso.tipo.toUpperCase()}
-                    {/* Badge de bloqueado */}
-                    {estaBloqueado && (
-                      <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded-full">
-                        EN PRÉSTAMO
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-2">{recurso.nombre}</td>
-                  <td className="p-2">
-                    {recurso.laboratorio || <span className="text-gray-400">No aplica</span>}
-                  </td>
-                  <td className="p-2">
-                    {recurso.aula || <span className="text-gray-400">No aplica</span>}
-                  </td>
-                  <td className="p-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${getBadgeEstado(
-                        recurso.estado
-                      )}`}
-                    >
-                      {recurso.estado.charAt(0).toUpperCase() +
-                        recurso.estado.slice(1)}
-                    </span>
-                  </td>
-                  <td className="p-2 text-left">
-                    {renderContenido(recurso)}
-                  </td>
-                  <td className="p-2 flex justify-center gap-2">
-                    {/* Deshabilitar botones si está bloqueado */}
-                    <MdPublishedWithChanges
-                      className={`h-6 w-6 ${
-                        estaBloqueado
-                          ? "text-gray-400 cursor-not-allowed"
-                          : "text-blue-600 cursor-pointer hover:text-blue-800"
-                      }`}
-                      title={estaBloqueado ? "No se puede editar (en préstamo)" : "Editar"}
-                      onClick={() => {
-                        if (estaBloqueado) {
-                          alert("No se puede editar un recurso que está en préstamo activo");
-                        } else {
-                          onEdit(recurso);
-                        }
-                      }}
-                    />
-                    <MdDeleteForever
-                      className={`h-6 w-6 ${
-                        estaBloqueado
-                          ? "text-gray-400 cursor-not-allowed"
-                          : "text-red-600 cursor-pointer hover:text-red-800"
-                      }`}
-                      title={estaBloqueado ? "No se puede eliminar (en préstamo)" : "Eliminar"}
-                      onClick={() => handleDelete(recurso._id, recurso)}
-                    />
-                  </td>
-                </tr>
-              );
-            })
-          ) : (
+    <>
+      {/* ✅ HEADER CON BOTÓN ACTUALIZAR */}
+      <div className="flex justify-between items-center mb-4 bg-black text-white p-4 rounded-t-lg">
+        <h2 className="text-xl font-bold">🔧 Gestión de Recursos</h2>
+        <button
+          onClick={onRefresh}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+        >
+          <MdRefresh size={20} />
+          Actualizar
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto shadow-lg bg-white">
+          <thead className="bg-black text-white">
             <tr>
-              <td colSpan={8} className="p-4 text-center text-gray-500">
-                No hay recursos disponibles
-              </td>
+              <th className="p-2">N°</th>
+              <th className="p-2">Tipo</th>
+              <th className="p-2">Nombre</th>
+              <th className="p-2">Laboratorio</th>
+              <th className="p-2">Aula</th>
+              <th className="p-2">Estado</th>
+              <th className="p-2">Contenido</th>
+              <th className="p-2">Acciones</th>
             </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {recursosFiltrados && recursosFiltrados.length > 0 ? (
+              recursosFiltrados.map((recurso, index) => {
+                // Determinar si está bloqueado
+                const estaBloqueado = recurso.estado === "activo" || recurso.estado === "prestado";
+
+                return (
+                  <tr
+                    key={recurso._id}
+                    className={`text-center ${estaBloqueado
+                        ? "bg-gray-100" // Fondo gris claro para bloqueados
+                        : "hover:bg-gray-300"
+                      }`}
+                  >
+                    <td className="p-2">{index + 1}</td>
+                    <td className="p-2 font-semibold">
+                      {recurso.tipo.toUpperCase()}
+                      {/* Badge de bloqueado */}
+                      {estaBloqueado && (
+                        <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded-full">
+                          EN PRÉSTAMO
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-2">{recurso.nombre}</td>
+                    <td className="p-2">
+                      {recurso.laboratorio || <span className="text-gray-400">No aplica</span>}
+                    </td>
+                    <td className="p-2">
+                      {recurso.aula || <span className="text-gray-400">No aplica</span>}
+                    </td>
+                    <td className="p-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${getBadgeEstado(
+                          recurso.estado
+                        )}`}
+                      >
+                        {recurso.estado.charAt(0).toUpperCase() +
+                          recurso.estado.slice(1)}
+                      </span>
+                    </td>
+                    <td className="p-2 text-left">
+                      {renderContenido(recurso)}
+                    </td>
+                    <td className="p-2 flex justify-center gap-2">
+                      {/* Deshabilitar botones si está bloqueado */}
+                      <MdPublishedWithChanges
+                        className={`h-6 w-6 ${estaBloqueado
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-blue-600 cursor-pointer hover:text-blue-800"
+                          }`}
+                        title={estaBloqueado ? "No se puede editar (en préstamo)" : "Editar"}
+                        onClick={() => {
+                          if (estaBloqueado) {
+                            alert("No se puede editar un recurso que está en préstamo activo");
+                          } else {
+                            onEdit(recurso);
+                          }
+                        }}
+                      />
+                      <MdDeleteForever
+                        className={`h-6 w-6 ${estaBloqueado
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-red-600 cursor-pointer hover:text-red-800"
+                          }`}
+                        title={estaBloqueado ? "No se puede eliminar (en préstamo)" : "Eliminar"}
+                        onClick={() => handleDelete(recurso._id, recurso)}
+                      />
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={8} className="p-4 text-center text-gray-500">
+                  No hay recursos disponibles
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 };
 

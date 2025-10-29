@@ -1,4 +1,4 @@
-import { MdDeleteForever, MdInfo, MdPublishedWithChanges } from "react-icons/md";
+import { MdDeleteForever, MdInfo, MdPublishedWithChanges, MdRefresh } from "react-icons/md";
 import useFetch from "../../hooks/useFetch";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router';
@@ -21,7 +21,7 @@ const Table = () => {
             Authorization: `Bearer ${storedUser.state.token}`,
         }
         const response = await fetchDataBackend(url, null, "GET", headers)
-        setDocentes(response) 
+        setDocentes(response)
     }
 
     useEffect(() => {
@@ -62,6 +62,18 @@ const Table = () => {
 
         <table className="w-full mt-5 table-auto shadow-lg bg-white">
             <ToastContainer />
+
+            {/* ✅ HEADER CON BOTÓN ACTUALIZAR */}
+            <div className="flex justify-between items-center mb-4 bg-black text-white p-4 rounded-t-lg">
+                <h2 className="text-xl font-bold">👥 Lista de Docentes</h2>
+                <button
+                    onClick={listPatients}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                >
+                    <MdRefresh size={20} />
+                    Actualizar
+                </button>
+            </div>
             <thead className="bg-black text-white">
                 <tr>
                     {["N°", "Nombre", "Apellido", "Celular", "Email", "Estado", "Acciones"].map((header) => (

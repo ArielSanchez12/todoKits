@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { MdVisibility, MdCancel, MdAssignmentTurnedIn } from "react-icons/md";
+import { MdVisibility, MdCancel, MdAssignmentTurnedIn, MdRefresh } from "react-icons/md"; // ✅ IMPORTAR MdRefresh
 import DetallePrestamo from "./DetallePrestamo";
 import storePrestamos from "../../context/storePrestamos";
 
@@ -140,6 +140,18 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
 
   return (
     <>
+      {/* ✅ HEADER CON BOTÓN ACTUALIZAR Y FILTROS */}
+      <div className="flex justify-between items-center mb-4 bg-black text-white p-4 rounded-t-lg">
+        <h2 className="text-xl font-bold">📚 Historial del Docente</h2>
+        <button
+          onClick={onRefresh}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+        >
+          <MdRefresh size={20} />
+          Actualizar
+        </button>
+      </div>
+
       {/* Filtros */}
       <div className="flex flex-wrap gap-2 mb-4">
         {[
@@ -152,19 +164,17 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
           <button
             key={tipo.key}
             onClick={() => setFiltro(tipo.key)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
-              filtro === tipo.key
+            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${filtro === tipo.key
                 ? "bg-blue-600 text-white"
                 : "bg-white text-gray-700 border hover:bg-gray-50"
-            }`}
+              }`}
           >
             {tipo.label}
             <span
-              className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                filtro === tipo.key
+              className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filtro === tipo.key
                   ? "bg-white text-blue-600"
                   : "bg-gray-200 text-gray-700"
-              }`}
+                }`}
             >
               {contadores[tipo.key]}
             </span>
@@ -174,7 +184,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
 
       {/* Tabla */}
       <div className="overflow-x-auto">
-        <table className="w-full mt-5 table-auto shadow-lg bg-white">
+        <table className="w-full table-auto shadow-lg bg-white">
           <thead className="bg-black text-white">
             <tr>
               <th className="p-2">N°</th>
@@ -199,7 +209,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
                       {prestamo.recurso?.tipo?.toUpperCase() || ""}
                     </span>
                   </td>
-                  <td 
+                  <td
                     className="p-2 relative"
                     ref={prestamo._id === hoveredMotivo ? cellRef : null}
                     onMouseEnter={() => {

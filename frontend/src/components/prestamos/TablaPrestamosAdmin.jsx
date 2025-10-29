@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MdVisibility, MdTransferWithinAStation } from "react-icons/md";
+import { MdVisibility, MdTransferWithinAStation, MdRefresh } from "react-icons/md"; // ✅ IMPORTAR MdRefresh
 import { toast } from "react-toastify"; // ✅ AGREGADO: Import toast
 import DetallePrestamo from "./DetallePrestamo";
 import ModalTransferirRecurso from "./ModalTransferirRecurso";
@@ -74,8 +74,20 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
 
   return (
     <>
+      {/* ✅ HEADER CON BOTÓN ACTUALIZAR */}
+      <div className="flex justify-between items-center mb-4 bg-black text-white p-4 rounded-t-lg">
+        <h2 className="text-xl font-bold">📋 Gestión de Préstamos</h2>
+        <button
+          onClick={onRefresh}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+        >
+          <MdRefresh size={20} />
+          Actualizar
+        </button>
+      </div>
+
       <div className="overflow-x-auto">
-        <table className="w-full mt-5 table-auto shadow-lg bg-white">
+        <table className="w-full table-auto shadow-lg bg-white">
           <thead className="bg-black text-white">
             <tr>
               <th className="p-2">N°</th>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MdCheckCircle, MdAssignmentTurnedIn } from "react-icons/md";
+import { MdCheckCircle, MdAssignmentTurnedIn, MdRefresh } from "react-icons/md"; // ✅ IMPORTAR MdRefresh
 import storePrestamos from "../../context/storePrestamos";
 import storeProfile from "../../context/storeProfile";
 import { toast } from "react-toastify";
@@ -107,8 +107,20 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
   return (
     <>
+      {/* ✅ HEADER CON BOTÓN ACTUALIZAR */}
+      <div className="flex justify-between items-center mb-4 bg-black text-white p-4 rounded-t-lg">
+        <h2 className="text-xl font-bold">📦 Mis Préstamos Activos</h2>
+        <button
+          onClick={onRefresh}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+        >
+          <MdRefresh size={20} />
+          Actualizar
+        </button>
+      </div>
+
       <div className="overflow-x-auto">
-        <table className="w-full mt-5 table-auto shadow-lg bg-white">
+        <table className="w-full table-auto shadow-lg bg-white">
           <thead className="bg-black text-white">
             <tr>
               <th className="p-2">N°</th>

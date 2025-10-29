@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { MdVisibility, MdQrCodeScanner, MdRefresh } from "react-icons/md";
+import { MdVisibility, MdQrCodeScanner, MdRefresh, MdCancel } from "react-icons/md";
 import storeTransferencias from "../../context/storeTransferencias";
 import { toast } from "react-toastify";
 import DetalleTransferencia from "./DetalleTransferencia"; // ✅ CAMBIO 1: Importar DetalleTransferencia en lugar de DetallePrestamo
+import ModalCancelarTransferencia from "./ModalCancelarTransferencia"; // ✅ IMPORTAR
+
 
 const TablaTransferencias = () => {
   const [transferencias, setTransferencias] = useState([]);
@@ -10,6 +12,7 @@ const TablaTransferencias = () => {
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [transferenciaSel, setTransferenciaSel] = useState(null);
   const { fetchTransferencias } = storeTransferencias();
+  const [mostrarModalCancelar, setMostrarModalCancelar] = useState(false); // ✅ AGREGAR ESTADO
 
   const cargarTransferencias = async () => {
     setLoading(true);
@@ -27,6 +30,15 @@ const TablaTransferencias = () => {
   useEffect(() => {
     cargarTransferencias();
   }, []);
+
+  const handleCancelar = (transferencia) => {
+    setTransferenciaSel(transferencia);
+    setMostrarModalCancelar(true);
+  };
+  // ✅ NUEVA FUNCIÓN: Verificar si se puede cancelar
+  const puedeCancelar = (transferencia) => {
+    return ["pendiente_origen", "confirmado_origen"].includes(transferencia.estado);
+  };
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -198,13 +210,26 @@ const TablaTransferencias = () => {
                       </span>
                     </td>
                     <td className="p-4 text-center">
-                      <button
-                        onClick={() => handleVerDetalle(transferencia)}
-                        className="text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-2"
-                        title="Ver detalles"
-                      >
-                        <MdVisibility size={20} />
-                      </button>
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleVerDetalle(transferencia)}
+                          className="text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1"
+                          title="Ver detalles"
+                        >
+                          <MdVisibility size={20} />
+                        </button>
+                        
+                        {/* ✅ BOTÓN CANCELAR (solo si está pendiente o confirmado) */}
+                        {puedeCancelar(transferencia) && (
+                          <button
+                            onClick={() => handleCancelar(transferencia)}
+                            className="text-red-600 hover:text-red-800 transition-colors inline-flex items-center gap-1"
+                            title="Cancelar transferencia"
+                          >
+                            <MdCancel size={20} />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -272,6 +297,20 @@ const TablaTransferencias = () => {
           onClose={() => {
             setMostrarDetalle(false);
             setTransferenciaSel(null);
+          }}
+        />
+      )}
+
+  {/* ✅ MODAL CANCELAR */}
+      {mostrarModalCancelar && transferenciaSel && (
+        <ModalCancelarTransferencia
+          transferencia={transferenciaSel}
+          onClose={() => {
+            setMostrarModalCancelar(false);
+            setTransferenciaSel(null);
+          }}
+          onSuccess={() => {
+            cargarTransferencias(); // Recargar tabla
           }}
         />
       )}

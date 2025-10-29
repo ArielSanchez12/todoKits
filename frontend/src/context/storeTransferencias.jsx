@@ -113,6 +113,37 @@ const storeTransferencias = create(
         }
       },
 
+      //Cancelar transferencia
+      cancelarTransferencia: async (codigoQR, motivoCancelacion = "") => {
+        try {
+          const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+          const response = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/transferencia/${codigoQR}/cancelar`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${storedUser.state.token}`,
+              },
+              body: JSON.stringify({ motivoCancelacion }),
+            }
+          );
+          const data = await response.json();
+          
+          if (!response.ok) {
+            throw new Error(data.msg || "Error al cancelar transferencia");
+          }
+          
+          // Actualizar lista de transferencias
+          await get().fetchTransferencias();
+          
+          return data;
+        } catch (error) {
+          console.error("Error al cancelar transferencia:", error);
+          throw error;
+        }
+      },
+
       limpiarTransferenciaActual: () => set({ transferenciaActual: null }),
     }),
     {

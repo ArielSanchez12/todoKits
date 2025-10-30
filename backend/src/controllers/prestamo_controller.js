@@ -139,12 +139,12 @@ const historialPrestamosDocente = async (req, res) => {
     const prestamos = await prestamo
       .find({
         docente: docenteId,
-        estado: "finalizado"
+        estado: { $in: ["finalizado", "rechazado", "cancelado"] }
       })
       .populate("recurso", "nombre tipo laboratorio aula contenido")
       .populate("admin", "nombre apellido")
       .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido")
-      .sort({ horaDevolucion: -1 });
+      .sort({ horaDevolucion: -1, createdAt: -1 });
 
     res.status(200).json(prestamos);
   } catch (error) {

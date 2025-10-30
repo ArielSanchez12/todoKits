@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import storePrestamos from "../context/storePrestamos";
 import TablaPrestamosDocente from "../components/prestamos/TablaPrestamosDocente";
+import TablaHistorialDocente from "../components/prestamos/TablaHistorialDocente";
 import { ToastContainer, toast } from "react-toastify";
 import { MdHistory, MdAssignment } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,7 +10,7 @@ import ModalConfirmarTransferencia from "../components/prestamos/ModalConfirmarT
 import NotificacionesTransferencias from "../components/prestamos/NotificacionesTransferencias";
 import { MdQrCodeScanner } from "react-icons/md";
 import storeProfile from "../context/storeProfile";
-import storeTransferencias from "../context/storeTransferencias"; // ✅ AGREGAR IMPORT
+import storeTransferencias from "../context/storeTransferencias";
 
 const PrestamosDocente = () => {
   const {
@@ -20,13 +21,13 @@ const PrestamosDocente = () => {
     clearPrestamos,
     loading,
   } = storePrestamos();
-  
+
   const [vista, setVista] = useState("activos"); // "activos" o "historial"
   const [mostrarEscaner, setMostrarEscaner] = useState(false);
   const [transferenciaEscaneada, setTransferenciaEscaneada] = useState(null);
   const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
   const { user } = storeProfile();
-  
+
   const docenteId = user?._doc?._id || user?._id;
 
   useEffect(() => {
@@ -36,7 +37,7 @@ const PrestamosDocente = () => {
         await fetchHistorialDocente();
       } catch (error) {
         console.error("Error al cargar préstamos:", error);
-        if (document.location.pathname.includes('/prestamos-docente')) {
+        if (document.location.pathname.includes("/prestamos-docente")) {
           toast.error("No se pudieron cargar los préstamos");
         }
       }
@@ -62,23 +63,13 @@ const PrestamosDocente = () => {
     }
   };
 
-  // ✅ CORRECCIÓN: Usar storeTransferencias correctamente
   const handleScanSuccess = async (url) => {
     try {
-      console.log("🔍 URL escaneada:", url);
-      
-      // Extraer código QR de la URL
-      // URL esperada: https://kitsfrontend-zeta.vercel.app/dashboard/transferencia/{codigoQR}
       const codigoQR = url.split("/").pop();
-      
-      console.log("✅ Código QR extraído:", codigoQR);
-      
-      // ✅ CORRECCIÓN: Obtener datos de la transferencia
+
       const { obtenerTransferenciaPorQR } = storeTransferencias.getState();
       const transferencia = await obtenerTransferenciaPorQR(codigoQR);
-      
-      console.log("📦 Transferencia obtenida:", transferencia);
-      
+
       setTransferenciaEscaneada(transferencia);
       setMostrarEscaner(false);
       setMostrarModalConfirmacion(true);
@@ -179,16 +170,6 @@ const PrestamosDocente = () => {
         </div>
       )}
 
-      {/* Botón de actualizar */}
-      {/* <div className="flex justify-end mb-4">
-        <button
-          onClick={handleRefresh}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Actualizar
-        </button>
-      </div> */}
-
       {/* Tabla según vista */}
       {loading ? (
         <div className="text-center py-8">
@@ -200,61 +181,17 @@ const PrestamosDocente = () => {
           onRefresh={handleRefresh}
         />
       ) : (
-        // Tabla de historial (reutilizamos TablaPrestamosAdmin pero sin acciones)
-        <div className="overflow-x-auto">
-          <table className="w-full mt-5 table-auto shadow-lg bg-white">
-            <thead className="bg-black text-white">
-              <tr>
-                <th className="p-2">N°</th>
-                <th className="p-2">Recurso</th>
-                <th className="p-2">Motivo</th>
-                <th className="p-2">Fecha Préstamo</th>
-                <th className="p-2">Fecha Confirmación</th>
-                <th className="p-2">Fecha Devolución</th>
-              </tr>
-            </thead>
-            <tbody>
-              {historialDocente && historialDocente.length > 0 ? (
-                historialDocente.map((prestamo, index) => (
-                  <tr key={prestamo._id} className="hover:bg-gray-300 text-center">
-                    <td className="p-2">{index + 1}</td>
-                    <td className="p-2 font-semibold">
-                      {prestamo.recurso?.nombre || "N/A"}
-                      <br />
-                      <span className="text-xs text-gray-600">
-                        {prestamo.recurso?.tipo?.toUpperCase() || ""}
-                      </span>
-                    </td>
-                    <td className="p-2">{prestamo.motivo?.tipo}</td>
-                    <td className="p-2 text-sm">
-                      {new Date(prestamo.fechaPrestamo).toLocaleDateString("es-ES")}
-                    </td>
-                    <td className="p-2 text-sm">
-                      {prestamo.horaConfirmacion
-                        ? new Date(prestamo.horaConfirmacion).toLocaleString("es-ES")
-                        : "-"}
-                    </td>
-                    <td className="p-2 text-sm">
-                      {prestamo.horaDevolucion
-                        ? new Date(prestamo.horaDevolucion).toLocaleString("es-ES")
-                        : "-"}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="p-4 text-center text-gray-500">
-                    No hay historial de préstamos
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        // ✅ USAR TablaHistorialDocente para el historial
+        <TablaHistorialDocente
+          prestamos={historialDocente}
+          onRefresh={handleRefresh}
+          docenteId={docenteId}
+          esDocente={true}
+        />
       )}
 
       {/* Botón para abrir escáner */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-4 mt-6">
         <button
           onClick={() => setMostrarEscaner(true)}
           className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
@@ -280,7 +217,6 @@ const PrestamosDocente = () => {
             setTransferenciaEscaneada(null);
           }}
           onSuccess={() => {
-            // Recargar préstamos
             fetchPrestamosDocente();
           }}
         />

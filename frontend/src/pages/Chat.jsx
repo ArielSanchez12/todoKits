@@ -48,7 +48,7 @@ const Chat = () => {
             });
     }, [token, userType]);
 
-    // ✅ NUEVO: Filtrar contactos por nombre
+    // Filtrar contactos por nombre
     useEffect(() => {
         if (!searchTerm.trim()) {
             setFilteredContacts(contacts);
@@ -164,7 +164,7 @@ const Chat = () => {
         }
     }
 
-    // ✅ Renderizar mensaje de transferencia
+    // Renderizar mensaje de transferencia
     const renderMensajeTransferencia = (msg) => {
         const { transferencia } = msg;
         return (
@@ -202,15 +202,15 @@ const Chat = () => {
     };
 
     return (
-        <div className="flex h-screen bg-gray-100">
-            {/* ✅ SIDEBAR - Contactos (Responsive) */}
-            <div className="w-full md:w-80 bg-white border-r border-gray-300 flex flex-col shadow-lg">
+        <div className="fixed inset-0 flex bg-gray-100">
+            {/* SIDEBAR - Contactos */}
+            <div className="w-full md:w-80 bg-white border-r border-gray-300 flex flex-col">
                 {/* Header del Sidebar */}
-                <div className="p-4 border-b border-gray-200">
+                <div className="p-4 border-b border-gray-200 flex-shrink-0">
                     <h1 className="text-2xl font-bold text-gray-800 mb-4">
                         {userType === "docente" ? "💬 Chat" : "👥 Docentes"}
                     </h1>
-                    {/* ✅ Barra de búsqueda funcional */}
+                    {/* Barra de búsqueda funcional */}
                     <div className="relative">
                         <MdSearch className="absolute left-3 top-3 text-gray-400" size={20} />
                         <input
@@ -223,7 +223,7 @@ const Chat = () => {
                     </div>
                 </div>
 
-                {/* Lista de contactos */}
+                {/* Lista de contactos - SCROLL SOLO AQUI */}
                 <div className="flex-1 overflow-y-auto">
                     {filteredContacts.length === 0 ? (
                         <div className="p-4 text-center text-gray-500">
@@ -251,7 +251,7 @@ const Chat = () => {
                                                     : (contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
                                             }
                                             alt="avatar"
-                                            className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover"
+                                            className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0"
                                         />
 
                                         {/* Info */}
@@ -281,39 +281,36 @@ const Chat = () => {
                 </div>
             </div>
 
-            {/* ✅ AREA DE CHAT PRINCIPAL */}
+            {/* AREA DE CHAT PRINCIPAL */}
             {selectedContact ? (
-                <div className="flex-1 flex flex-col bg-white">
-                    {/* ✅ HEADER DEL CHAT - Sin 3 puntos */}
-                    <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between shadow-sm">
-                        <div className="flex items-center gap-3">
-                            {/* Avatar del contacto */}
-                            <img
-                                src={
-                                    userType === "docente"
-                                        ? (selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                        : (selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                }
-                                alt="avatar"
-                                className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover"
-                            />
+                <div className="flex-1 flex flex-col">
+                    {/* HEADER DEL CHAT */}
+                    <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 flex-shrink-0">
+                        {/* Avatar del contacto */}
+                        <img
+                            src={
+                                userType === "docente"
+                                    ? (selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                    : (selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                            }
+                            alt="avatar"
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover flex-shrink-0"
+                        />
 
-                            {/* Nombre e info */}
-                            <div>
-                                <h2 className="font-bold text-gray-800 text-sm md:text-base">
-                                    {selectedContact.nombreDocente
-                                        ? `${selectedContact.nombreDocente} ${selectedContact.apellidoDocente}`
-                                        : `${selectedContact.nombre} ${selectedContact.apellido}`}
-                                </h2>
-                                {/* ✅ Mostrar correo en lugar de "Activo ahora" */}
-                                <p className="text-xs text-gray-500">
-                                    {selectedContact.emailDocente || selectedContact.email || "Sin email"}
-                                </p>
-                            </div>
+                        {/* Nombre e info */}
+                        <div>
+                            <h2 className="font-bold text-gray-800 text-sm md:text-base">
+                                {selectedContact.nombreDocente
+                                    ? `${selectedContact.nombreDocente} ${selectedContact.apellidoDocente}`
+                                    : `${selectedContact.nombre} ${selectedContact.apellido}`}
+                            </h2>
+                            <p className="text-xs text-gray-500">
+                                {selectedContact.emailDocente || selectedContact.email || "Sin email"}
+                            </p>
                         </div>
                     </div>
 
-                    {/* ✅ AREA DE MENSAJES - Con scroll independiente */}
+                    {/* AREA DE MENSAJES - SCROLL SOLO AQUI */}
                     <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
                         {responses.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
@@ -334,13 +331,12 @@ const Chat = () => {
                             <>
                                 {responses.map((msg, idx) => (
                                     <div key={idx} className={`mb-4 flex ${msg.de === user._id ? "justify-end" : "justify-start"}`}>
-                                        {/* ✅ RENDERIZADO CONDICIONAL: Normal vs Transferencia */}
                                         {msg.tipo === "transferencia" ? (
                                             <div className="max-w-xs md:max-w-sm">
                                                 {renderMensajeTransferencia(msg)}
                                             </div>
                                         ) : (
-                                            <div className={`max-w-xs md:max-w-sm lg:max-w-md`}>
+                                            <div className="max-w-xs md:max-w-sm lg:max-w-md">
                                                 <div
                                                     className={`px-4 py-3 rounded-2xl ${
                                                         msg.de === user._id
@@ -376,10 +372,9 @@ const Chat = () => {
                         )}
                     </div>
 
-                    {/* ✅ AREA DE ENTRADA DE MENSAJES - FIJA SIN SCROLL */}
+                    {/* AREA DE ENTRADA DE MENSAJES - FIJA */}
                     <form onSubmit={handleSend} className="bg-white border-t border-gray-300 p-4 md:p-6 flex-shrink-0">
                         <div className="flex items-center gap-3">
-                            {/* Input de mensaje */}
                             <input
                                 type="text"
                                 value={message}
@@ -387,12 +382,10 @@ const Chat = () => {
                                 placeholder="Escribe un mensaje..."
                                 className="flex-1 bg-gray-100 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
-
-                            {/* Botón de enviar */}
                             <button
                                 type="submit"
                                 disabled={!message.trim()}
-                                className="p-2 hover:bg-blue-100 rounded-full transition-colors text-blue-500 disabled:text-gray-300 disabled:hover:bg-transparent"
+                                className="p-2 hover:bg-blue-100 rounded-full transition-colors text-blue-500 disabled:text-gray-300 disabled:hover:bg-transparent flex-shrink-0"
                             >
                                 <IoSend size={24} />
                             </button>
@@ -400,7 +393,6 @@ const Chat = () => {
                     </form>
                 </div>
             ) : (
-                /* ✅ PANTALLA VACIA CUANDO NO HAY CONTACTO SELECCIONADO */
                 <div className="hidden md:flex flex-1 items-center justify-center bg-gradient-to-b from-blue-50 to-gray-50">
                     <div className="text-center">
                         <div className="text-6xl mb-4">💬</div>

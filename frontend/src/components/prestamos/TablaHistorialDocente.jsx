@@ -45,7 +45,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
       // ✅ SI ES DOCENTE, obtener sus propios préstamos
       if (esDocente) {
         const response = await fetch(
-          `${import.meta.env.VITE_BACKEND_URL}/docente/mihistorial`,
+          `${import.meta.env.VITE_BACKEND_URL}/docente/prestamos/historial`,
           { headers }
         );
         const data = await response.json();

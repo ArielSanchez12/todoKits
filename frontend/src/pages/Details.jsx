@@ -2,22 +2,22 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useFetch from "../hooks/useFetch";
 import storeAuth from "../context/storeAuth";
-import storePrestamos from "../context/storePrestamos"; // Cambiar import
-import storeRecursos from "../context/storeRecursos"; // Agregar
+import storePrestamos from "../context/storePrestamos";
+import storeRecursos from "../context/storeRecursos";
 import { ToastContainer, toast } from "react-toastify";
-import { MdDeleteForever, MdNoteAdd, MdAssignment } from "react-icons/md";
-import ModalPrestarRecurso from "../components/prestamos/ModalPrestarRecurso"; // Nuevo modal
+import { MdAssignment } from "react-icons/md";
+import ModalPrestarRecurso from "../components/prestamos/ModalPrestarRecurso";
 import TablaHistorialDocente from "../components/prestamos/TablaHistorialDocente";
 
 const Details = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [docente, setDocente] = useState({});
-    const [prestamos, setPrestamos] = useState([]); // Cambiar de treatments a prestamos
+    const [prestamos, setPrestamos] = useState([]);
     const { fetchDataBackend } = useFetch();
     const { rol } = storeAuth();
-    const [showModalPrestamo, setShowModalPrestamo] = useState(false); // Estado para modal
-    const { fetchRecursos } = storeRecursos(); // Para recargar recursos
+    const [showModalPrestamo, setShowModalPrestamo] = useState(false);
+    const { fetchRecursos } = storeRecursos();
 
     const listDocente = async () => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/detailsDocente/${id}`;
@@ -29,43 +29,30 @@ const Details = () => {
         const response = await fetchDataBackend(url, null, "GET", headers);
         setDocente(response.docentes);
 
-        // Cargar préstamos del docente
         await loadPrestamosDocente();
     };
 
-    // Nueva función para cargar préstamos del docente
     const loadPrestamosDocente = async () => {
-        console.log("📚 loadPrestamosDocente llamado desde Details");
-        console.log("📍 ID del docente:", id);
-        
         try {
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
             const headers = {
                 Authorization: `Bearer ${storedUser.state.token}`,
             };
 
-            console.log("🌐 Fetching desde Details:", `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`);
-            
-            // Obtener todos los préstamos y filtrar los de este docente
             const response = await fetch(
                 `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`,
                 { headers }
             );
 
             const data = await response.json();
-            console.log("📍 Préstamos del backend:", data);
-            
             const prestamosDocente = data.filter(p => p.docente?._id === id);
-            console.log("📍 Préstamos filtrados para este docente en Details:", prestamosDocente);
-            
             setPrestamos(prestamosDocente);
         } catch (error) {
-            console.error("❌ Error al cargar préstamos:", error);
+            console.error("Error al cargar préstamos:", error);
             setPrestamos([]);
         }
     };
 
-    // Función para eliminar docente
     const handleDelete = async () => {
         if (window.confirm("¿Estás seguro de que deseas eliminar este docente?")) {
             try {
@@ -110,7 +97,6 @@ const Details = () => {
                 <div className="m-5 flex justify-between">
                     <div>
                         <ul className="list-disc pl-5">
-                            {/* Datos del docente */}
                             <li className="text-md text-gray-00 mt-4 font-bold text-xl">
                                 Datos del docente
                             </li>
@@ -156,7 +142,6 @@ const Details = () => {
 
                 <hr className="my-4 border-t-2 border-gray-300" />
 
-                {/* Solo mostrar botón de Prestar Recursos (centrado y destacado) */}
                 {rol === "Administrador" && (
                     <div className="flex flex-wrap gap-4 mb-6">
                         <button
@@ -171,7 +156,6 @@ const Details = () => {
 
                 <hr className="my-4 border-t-2 border-gray-300" />
 
-                {/* Sección de préstamos */}
                 <div className="mb-6">
                     <h2 className="text-2xl font-bold mb-4">
                         Préstamos del Docente ({prestamos.length})
@@ -191,24 +175,14 @@ const Details = () => {
                         </span>
                     </div>
                 ) : (
-                    <>
-                      {/* DEBUG: Mostrar props recibidas */}
-                      <div className="mb-2 p-2 bg-yellow-100 rounded text-sm">
-                        <p>🔍 DEBUG - docenteId: {id}</p>
-                        <p>🔍 DEBUG - onRefresh: {typeof onRefresh}</p>
-                        <p>🔍 DEBUG - prestamos: {prestamos.length}</p>
-                      </div>
-                      
-                      <TablaHistorialDocente
+                    <TablaHistorialDocente
                         prestamos={prestamos}
                         onRefresh={loadPrestamosDocente}
                         docenteId={id}
-                      />
-                    </>
+                    />
                 )}
             </div>
 
-            {/* Modal de préstamo */}
             {showModalPrestamo && docente && (
                 <ModalPrestarRecurso
                     docente={docente}

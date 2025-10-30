@@ -22,20 +22,13 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
   const [prestamosLocal, setPrestamosLocal] = useState(prestamos);
   const [loadingRefresh, setLoadingRefresh] = useState(false);
 
-  // ✅ NUEVOS ESTADOS PARA DATEPICKERS
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
 
   const { cancelarPrestamoAdmin, finalizarPrestamoAdmin } = storePrestamos();
 
-  // ✅ NUEVA FUNCIÓN: Refrescar préstamos del docente
   const handleRefreshPrestamos = async () => {
-    console.log("🔄 handleRefreshPrestamos llamado");
-    console.log("📍 docenteId:", docenteId);
-    console.log("📍 prestamosLocal antes:", prestamosLocal);
-
     if (!docenteId) {
-      console.warn("❌ docenteId no disponible");
       toast.error("No se puede actualizar: ID de docente no disponible");
       return;
     }
@@ -43,38 +36,26 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
     setLoadingRefresh(true);
     try {
       const storedUser = JSON.parse(localStorage.getItem("auth-token"));
-      console.log("📍 storedUser:", storedUser);
-
       const headers = {
         Authorization: `Bearer ${storedUser.state.token}`,
       };
 
-      console.log("🌐 Fetching desde:", `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`);
-
-      // Obtener todos los préstamos y filtrar los de este docente
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`,
         { headers }
       );
 
-      console.log("📨 Response status:", response.status);
-
       const data = await response.json();
-      console.log("📍 Todos los préstamos del backend:", data);
-
       const prestamosDocente = data.filter(p => p.docente?._id === docenteId);
-      console.log("📍 Préstamos filtrados para docente:", prestamosDocente);
 
       setPrestamosLocal(prestamosDocente);
       toast.success("Préstamos actualizados");
 
-      // Llamar a onRefresh si existe
       if (onRefresh) {
-        console.log("🔗 Llamando a onRefresh()");
         onRefresh();
       }
     } catch (error) {
-      console.error("❌ Error al recargar préstamos:", error);
+      console.error("Error al recargar préstamos:", error);
       toast.error("Error al actualizar préstamos");
     } finally {
       setLoadingRefresh(false);
@@ -148,7 +129,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
     }
   };
 
-  // ✅ NUEVA FUNCIÓN: Filtrar por fechas
   const prestamosFiltradosPorFecha = () => {
     if (!fechaDesde && !fechaHasta) return prestamosLocal;
 
@@ -180,18 +160,15 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
     });
   };
 
-  // ✅ NUEVA FUNCIÓN: Limpiar filtros de fecha
   const limpiarFechas = () => {
     setFechaDesde(null);
     setFechaHasta(null);
   };
 
-  // Filtrar préstamos por estado primero
   const prestamosPorEstado = filtro === "todos"
     ? prestamosFiltradosPorFecha()
     : prestamosFiltradosPorFecha()?.filter((p) => p.estado === filtro);
 
-  // Contar por estado (usando todos los préstamos locales sin filtro de fecha)
   const contadores = {
     activo: prestamosLocal?.filter((p) => p.estado === "activo").length || 0,
     pendiente: prestamosLocal?.filter((p) => p.estado === "pendiente").length || 0,
@@ -200,7 +177,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
     todos: prestamosLocal?.length || 0,
   };
 
-  // Tooltip responsive para motivo
   const handleMouseEnter = (prestamoId) => {
     setHoveredMotivo(prestamoId);
 

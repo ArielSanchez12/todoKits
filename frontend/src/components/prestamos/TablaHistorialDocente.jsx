@@ -180,7 +180,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
       {/* ✅ TABLA PEGADA AL HEADER */}
       <div className="overflow-x-auto shadow-lg">
         <table className="w-full table-auto bg-white">
-          <thead className="bg-gray-800 text-white">
+          <thead className="bg-black text-white">
             <tr>
               <th className="p-2">N°</th>
               <th className="p-2">Recurso</th>

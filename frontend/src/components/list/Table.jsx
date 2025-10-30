@@ -88,7 +88,7 @@ const Table = () => {
             ) : (
                 <div className="overflow-x-auto shadow-lg">
                     <table className="w-full table-auto bg-white">
-                        <thead className="bg-gray-800 text-white">
+                        <thead className="bg-black text-white">
                             <tr>
                                 {["N°", "Nombre", "Apellido", "Celular", "Email", "Estado", "Acciones"].map((header) => (
                                     <th key={header} className="p-2">{header}</th>

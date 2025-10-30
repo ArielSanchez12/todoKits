@@ -119,14 +119,14 @@ const TablaTransferencias = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto">
-              <thead className="bg-gray-100 border-b-2 border-gray-300">
+          <div className="overflow-x-auto shadow-lg">
+            <table className="w-full table-auto bg-white">
+              <thead className="bg-black text-white">
                 <tr>
-                  <th className="p-4 text-left text-xs font-bold text-gray-700 uppercase">
+                  <th className="p-2">
                     N°
                   </th>
-                  <th className="p-4 text-left text-xs font-bold text-gray-700 uppercase">
+                  <th className="p-2">
                     Fecha Solicitud
                   </th>
                   <th className="p-4 text-left text-xs font-bold text-gray-700 uppercase">

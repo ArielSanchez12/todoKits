@@ -202,9 +202,9 @@ const Chat = () => {
     };
 
     return (
-        <div className="flex h-screen w-screen overflow-hidden bg-gray-100">
+        <div className="flex h-screen w-full overflow-hidden bg-gray-100">
             {/* SIDEBAR - Contactos */}
-            <div className="w-full md:w-80 bg-white border-r border-gray-300 flex flex-col h-screen overflow-hidden">
+            <div className="w-full md:w-80 bg-white border-r border-gray-300 flex flex-col h-full overflow-hidden">
                 {/* Header del Sidebar */}
                 <div className="p-4 border-b border-gray-200 flex-shrink-0">
                     <h1 className="text-2xl font-bold text-gray-800 mb-4">
@@ -283,7 +283,7 @@ const Chat = () => {
 
             {/* AREA DE CHAT PRINCIPAL */}
             {selectedContact ? (
-                <div className="flex-1 flex flex-col h-screen">
+                <div className="flex-1 flex flex-col h-full overflow-hidden">
                     {/* HEADER DEL CHAT */}
                     <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 flex-shrink-0">
                         {/* Avatar del contacto */}
@@ -311,7 +311,7 @@ const Chat = () => {
                     </div>
 
                     {/* AREA DE MENSAJES - SCROLL SOLO AQUI */}
-                    <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 min-h-0">
                         {responses.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
                                 <div className="text-center">
@@ -393,7 +393,7 @@ const Chat = () => {
                     </form>
                 </div>
             ) : (
-                <div className="hidden md:flex flex-1 items-center justify-center bg-gradient-to-b from-blue-50 to-gray-50 h-screen">
+                <div className="hidden md:flex flex-1 items-center justify-center bg-gradient-to-b from-blue-50 to-gray-50 h-full">
                     <div className="text-center">
                         <div className="text-6xl mb-4">💬</div>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Selecciona un chat</h2>

@@ -6,7 +6,7 @@ import DetallePrestamo from "./DetallePrestamo";
 import storePrestamos from "../../context/storePrestamos";
 import { toast } from "react-toastify";
 
-const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
+const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = false }) => {
   const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [filtro, setFiltro] = useState("todos");
@@ -40,13 +40,25 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
         Authorization: `Bearer ${storedUser.state.token}`,
       };
 
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`,
-        { headers }
-      );
+      let prestamosDocente = [];
 
-      const data = await response.json();
-      const prestamosDocente = data.filter(p => p.docente?._id === docenteId);
+      // ✅ SI ES DOCENTE, obtener sus propios préstamos
+      if (esDocente) {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/docente/mihistorial`,
+          { headers }
+        );
+        const data = await response.json();
+        prestamosDocente = Array.isArray(data) ? data : [];
+      } else {
+        // ✅ SI ES ADMIN, obtener préstamos de un docente específico
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`,
+          { headers }
+        );
+        const data = await response.json();
+        prestamosDocente = Array.isArray(data) ? data.filter(p => p.docente?._id === docenteId) : [];
+      }
 
       setPrestamosLocal(prestamosDocente);
       toast.success("Préstamos actualizados");
@@ -174,6 +186,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
     pendiente: prestamosLocal?.filter((p) => p.estado === "pendiente").length || 0,
     finalizado: prestamosLocal?.filter((p) => p.estado === "finalizado").length || 0,
     rechazado: prestamosLocal?.filter((p) => p.estado === "rechazado").length || 0,
+    cancelado: prestamosLocal?.filter((p) => p.estado === "cancelado").length || 0,
     todos: prestamosLocal?.length || 0,
   };
 
@@ -218,7 +231,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
 
   return (
     <>
-      {/* ✅ FILTROS DE ESTADO */}
+      {/* ✅ FILTROS DE ESTADO - MOSTRAR PARA TODOS (ADMIN Y DOCENTE) */}
       <div className="flex flex-wrap gap-2 mb-4">
         {[
           { key: "todos", label: "Todos" },
@@ -226,6 +239,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
           { key: "pendiente", label: "Pendientes" },
           { key: "finalizado", label: "Finalizados" },
           { key: "rechazado", label: "Rechazados" },
+          { key: "cancelado", label: "Cancelados" },
         ].map((tipo) => (
           <button
             key={tipo.key}
@@ -455,6 +469,8 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
                 <td colSpan={8} className="p-4 text-center text-gray-500">
                   {prestamosPorEstado?.length === 0 && (fechaDesde || fechaHasta)
                     ? "No hay préstamos en el rango de fechas seleccionado"
+                    : esDocente 
+                    ? "No tienes préstamos finalizados"
                     : "No hay préstamos en esta categoría"}
                 </td>
               </tr>
@@ -570,5 +586,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
     </>
   );
 };
+
 
 export default TablaHistorialDocente;

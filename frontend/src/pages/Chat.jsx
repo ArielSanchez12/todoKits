@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import Pusher from "pusher-js";
 import storeAuth from "../context/storeAuth";
+import { MdQrCode } from "react-icons/md";
 
 const PUSHER_KEY = import.meta.env.VITE_PUSHER_KEY;
 const PUSHER_CLUSTER = import.meta.env.VITE_PUSHER_CLUSTER;
@@ -167,6 +168,44 @@ const Chat = () => {
         }
     }
 
+    //Renderizar mensaje de transferencia
+    const renderMensajeTransferencia = (msg) => {
+        const { transferencia } = msg;
+        return (
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-l-4 border-purple-500 shadow-md">
+                <div className="flex items-center gap-2 mb-3">
+                    <MdQrCode className="text-purple-600" size={24} />
+                    <span className="font-bold text-purple-700">📦 Transferencia de Recursos</span>
+                </div>
+
+                <div className="space-y-2 text-sm text-gray-700 mb-3">
+                    <p>
+                        <span className="font-semibold">De:</span> {transferencia.docenteOrigen}
+                    </p>
+                    <p>
+                        <span className="font-semibold">Recursos:</span>{" "}
+                        {transferencia.recursos.join(", ")}
+                    </p>
+                </div>
+
+                {/* Botón para ver el QR */}
+                <a
+                    href={transferencia.qrImageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm"
+                >
+                    <MdQrCode size={20} />
+                    Ver código QR
+                </a>
+
+                <p className="text-xs text-gray-500 mt-3">
+                    Código: {transferencia.codigo}
+                </p>
+            </div>
+        );
+    };
+
     contacts.forEach(contact => console.log(contact));
     return (
         <div className="flex h-[80vh]">
@@ -229,34 +268,39 @@ const Chat = () => {
             <div className="flex-1 flex flex-col">
                 <div className="flex-1 p-4 overflow-y-auto">
                     {responses.map((msg, idx) => (
-                        <div
-                            key={idx}
-                            className={`flex ${msg.de === user._id ? "justify-end" : "justify-start"} mb-1`}
-                        >
-                            <div
-                                className={`relative max-w-[75%] px-3 py-2 rounded-xl shadow
-                                    ${msg.de === user._id
-                                        ? "bg-gray-900 text-white rounded-br-none"
-                                        : "bg-gray-200 text-black rounded-bl-none"
-                                    }`}
-                                style={{ wordBreak: "break-word" }}
-                            >
-                                <div className="flex items-end gap-2">
-                                    <span className="text-base">{msg.texto}</span>
-                                    <span className="text-sm text-white-500 opacity-80 pb-[2px]">
-                                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
+                        <div key={idx} className="mb-4">
+                            {/* ✅ RENDERIZADO CONDICIONAL: Normal vs Transferencia */}
+                            {msg.tipo === "transferencia" ? (
+                                renderMensajeTransferencia(msg)
+                            ) : (
+                                <div
+                                    className={`flex ${msg.de === user._id ? "justify-end" : "justify-start"}`}
+                                >
+                                    <div
+                                        className={`relative max-w-[75%] px-3 py-2 rounded-xl shadow
+                                            ${msg.de === user._id
+                                                ? "bg-gray-900 text-white rounded-br-none"
+                                                : "bg-gray-200 text-black rounded-bl-none"
+                                            }`}
+                                        style={{ wordBreak: "break-word" }}
+                                    >
+                                        <div className="flex items-end gap-2">
+                                            <span className="text-base">{msg.texto}</span>
+                                            <span className="text-sm text-white-500 opacity-80 pb-[2px]">
+                                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                        <span className={`absolute top-2 ${msg.de === user._id ? "right-[-11px]" : "left-[-11px]"}`}>
+                                            <svg width="12" height="20" viewBox="0 0 12 25">
+                                                <polygon
+                                                    points={msg.de === user._id ? "0,0 12,10 0,20" : "12,0 0,10 12,20"}
+                                                    fill={msg.de === user._id ? "#000000ff" : "#e5e7eb"}
+                                                />
+                                            </svg>
+                                        </span>
+                                    </div>
                                 </div>
-                                {/* Flechita tipo burbuja */}
-                                <span className={`absolute top-2 ${msg.de === user._id ? "right-[-11px]" : "left-[-11px]"}`}>
-                                    <svg width="12" height="20" viewBox="0 0 12 25">
-                                        <polygon
-                                            points={msg.de === user._id ? "0,0 12,10 0,20" : "12,0 0,10 12,20"}
-                                            fill={msg.de === user._id ? "#000000ff" : "#e5e7eb"}
-                                        />
-                                    </svg>
-                                </span>
-                            </div>
+                            )}
                         </div>
                     ))}
                     {isTyping && (

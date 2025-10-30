@@ -1,14 +1,51 @@
 import { IoClose } from "react-icons/io5";
 import { MdDownload, MdChat } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useState } from "react";
 
-const ModalQRTransferencia = ({ transferencia, qrImage, onClose, onEnviarPorChat }) => {
+const ModalQRTransferencia = ({ transferencia, qrImage, onClose }) => {
+  const [loading, setLoading] = useState(false);
   const handleDescargarQR = () => {
     const link = document.createElement("a");
     link.href = qrImage;
     link.download = `transferencia-${transferencia.codigoQR}.png`;
     link.click();
     toast.success("QR descargado exitosamente");
+  };
+
+  const handleEnviarPorChat = async () => {
+    setLoading(true);
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/chat/enviar-transferencia`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${storedUser.state.token}`,
+          },
+          body: JSON.stringify({
+            codigoTransferencia: transferencia.codigoQR,
+            docenteDestinoId: transferencia.docenteDestino._id
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("✅ Transferencia enviada por chat al docente destino");
+        onClose(); // Cerrar el modal
+      } else {
+        toast.error(data.msg || "Error al enviar por chat");
+      }
+    } catch (error) {
+      console.error("Error al enviar transferencia por chat:", error);
+      toast.error("Error al enviar por chat");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,11 +114,12 @@ const ModalQRTransferencia = ({ transferencia, qrImage, onClose, onEnviarPorChat
               Descargar QR
             </button>
             <button
-              onClick={onEnviarPorChat}
+              onClick={handleEnviarPorChat}
+              disabled={loading}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
             >
               <MdChat size={20} />
-              Enviar por Chat
+              {loading ? "Enviando..." : "Enviar por Chat"}
             </button>
           </div>
         </div>

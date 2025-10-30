@@ -71,4 +71,74 @@ router.get("/chat/all-messages/:userId", verificarTokenJWT, async (req, res) => 
   res.json(mensajes);
 });
 
+router.post("/chat/enviar-transferencia", verificarTokenJWT, async (req, res) => {
+  try {
+    const { codigoTransferencia, docenteDestinoId } = req.body;
+
+    // Validar que sea admin
+    if (!req.adminEmailBDD) {
+      return res.status(403).json({ msg: "Solo administradores pueden enviar transferencias" });
+    }
+
+    // Buscar la transferencia
+    const transferencia = await Transferencia.findOne({ codigoQR: codigoTransferencia })
+      .populate("prestamoOriginal")
+      .populate("recursos", "nombre")
+      .populate("recursosAdicionales", "nombre")
+      .populate("docenteOrigen", "nombreDocente apellidoDocente")
+      .populate("docenteDestino", "nombreDocente apellidoDocente");
+
+    if (!transferencia) {
+      return res.status(404).json({ msg: "Transferencia no encontrada" });
+    }
+
+    // Verificar que el docente destino sea correcto
+    if (transferencia.docenteDestino._id.toString() !== docenteDestinoId) {
+      return res.status(400).json({ msg: "El docente destino no coincide" });
+    }
+
+    // Construir URL del QR (la misma que usa el backend para generar)
+    const urlQR = `${process.env.URL_FRONTEND}dashboard/transferencia/${transferencia.codigoQR}`;
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
+
+    // Extraer nombres de recursos
+    const nombresRecursos = [
+      ...transferencia.recursos.map(r => r.nombre),
+      ...transferencia.recursosAdicionales.map(r => r.nombre)
+    ];
+    const nombreDocenteOrigen = `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
+
+    // Crear mensaje especial
+    const mensaje = await Mensaje.create({
+      texto: `📦 Nueva transferencia de recursos`,
+      de: req.adminEmailBDD._id,
+      deTipo: "admin",
+      para: docenteDestinoId,
+      paraTipo: "docente",
+      tipo: "transferencia",
+      transferencia: {
+        codigo: transferencia.codigoQR,
+        qrImageUrl: qrImageUrl,
+        recursos: nombresRecursos,
+        docenteOrigen: nombreDocenteOrigen
+      }
+    });
+
+    // Emitir evento a Pusher (para que se actualice el chat en tiempo real)
+    pusher.trigger("chat", "nuevo-mensaje", mensaje);
+
+    res.json({
+      msg: "Transferencia enviada por chat exitosamente",
+      mensaje
+    });
+
+  } catch (error) {
+    console.error("Error al enviar transferencia por chat:", error);
+    res.status(500).json({
+      msg: "Error al enviar transferencia por chat",
+      error: error.message
+    });
+  }
+});
+
 export default router;

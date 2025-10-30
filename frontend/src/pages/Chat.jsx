@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import Pusher from "pusher-js";
 import storeAuth from "../context/storeAuth";
-import { MdQrCode, MdMoreVert, MdSearch, MdAttachFile } from "react-icons/md";
+import { MdQrCode, MdSearch } from "react-icons/md";
 import { IoSend } from "react-icons/io5";
 
 const PUSHER_KEY = import.meta.env.VITE_PUSHER_KEY;
@@ -10,11 +10,12 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Chat = () => {
     const [contacts, setContacts] = useState([]);
+    const [filteredContacts, setFilteredContacts] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
     const [selectedContact, setSelectedContact] = useState(null);
     const [responses, setResponses] = useState([]);
     const [message, setMessage] = useState("");
     const [isTyping, setIsTyping] = useState(false);
-    const [showContactMenu, setShowContactMenu] = useState(false);
     const token = storeAuth((state) => state.token);
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const [userType, setUserType] = useState("");
@@ -41,9 +42,25 @@ const Chat = () => {
         })
             .then(res => res.json())
             .then(data => {
-                setContacts(userType === "docente" ? (data ? [data] : []) : data);
+                const contactList = userType === "docente" ? (data ? [data] : []) : data;
+                setContacts(contactList);
+                setFilteredContacts(contactList);
             });
     }, [token, userType]);
+
+    // ✅ NUEVO: Filtrar contactos por nombre
+    useEffect(() => {
+        if (!searchTerm.trim()) {
+            setFilteredContacts(contacts);
+        } else {
+            const term = searchTerm.toLowerCase();
+            const filtered = contacts.filter(contact => {
+                const fullName = `${contact.nombreDocente || contact.nombre} ${contact.apellidoDocente || contact.apellido}`.toLowerCase();
+                return fullName.includes(term);
+            });
+            setFilteredContacts(filtered);
+        }
+    }, [searchTerm, contacts]);
 
     // Cargar historial al seleccionar contacto
     useEffect(() => {
@@ -116,7 +133,7 @@ const Chat = () => {
                 (msg.de === contactId && msg.para === user._id) ||
                 (msg.de === user._id && msg.para === contactId)
         );
-        if (msgs.length === 0) return { texto: "Sin mensajes", esMio: false, estado: null, createdAt: null };
+        if (msgs.length === 0) return { texto: "", esMio: false, estado: null, createdAt: null };
         const last = msgs[msgs.length - 1];
         return {
             texto: last.texto,
@@ -193,11 +210,14 @@ const Chat = () => {
                     <h1 className="text-2xl font-bold text-gray-800 mb-4">
                         {userType === "docente" ? "💬 Chat" : "👥 Docentes"}
                     </h1>
-                    <div className="relative hidden md:block">
+                    {/* ✅ Barra de búsqueda funcional */}
+                    <div className="relative">
                         <MdSearch className="absolute left-3 top-3 text-gray-400" size={20} />
                         <input
                             type="text"
-                            placeholder="Buscar..."
+                            placeholder="Buscar por nombre..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
@@ -205,12 +225,12 @@ const Chat = () => {
 
                 {/* Lista de contactos */}
                 <div className="flex-1 overflow-y-auto">
-                    {contacts.length === 0 ? (
+                    {filteredContacts.length === 0 ? (
                         <div className="p-4 text-center text-gray-500">
-                            <p>No hay contactos disponibles</p>
+                            <p>{searchTerm ? "No se encontraron contactos" : "No hay contactos disponibles"}</p>
                         </div>
                     ) : (
-                        contacts.map(contact => {
+                        filteredContacts.map(contact => {
                             const lastMsg = getLastMessageInfo(contact._id);
                             return (
                                 <div
@@ -246,10 +266,12 @@ const Chat = () => {
                                                     {formatLastMessageDate(lastMsg.createdAt)}
                                                 </span>
                                             </div>
-                                            <p className={`text-sm truncate ${lastMsg.esMio ? "font-semibold" : "text-gray-600"}`}>
-                                                {lastMsg.esMio && "Tú: "}
-                                                {lastMsg.texto}
-                                            </p>
+                                            {lastMsg.texto && (
+                                                <p className={`text-sm truncate ${lastMsg.esMio ? "font-semibold" : "text-gray-600"}`}>
+                                                    {lastMsg.esMio && "Tú: "}
+                                                    {lastMsg.texto}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -262,7 +284,7 @@ const Chat = () => {
             {/* ✅ AREA DE CHAT PRINCIPAL */}
             {selectedContact ? (
                 <div className="flex-1 flex flex-col bg-white">
-                    {/* ✅ HEADER DEL CHAT */}
+                    {/* ✅ HEADER DEL CHAT - Sin 3 puntos */}
                     <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between shadow-sm">
                         <div className="flex items-center gap-3">
                             {/* Avatar del contacto */}
@@ -283,36 +305,15 @@ const Chat = () => {
                                         ? `${selectedContact.nombreDocente} ${selectedContact.apellidoDocente}`
                                         : `${selectedContact.nombre} ${selectedContact.apellido}`}
                                 </h2>
-                                <p className="text-xs text-gray-500">Activo ahora</p>
+                                {/* ✅ Mostrar correo en lugar de "Activo ahora" */}
+                                <p className="text-xs text-gray-500">
+                                    {selectedContact.emailDocente || selectedContact.email || "Sin email"}
+                                </p>
                             </div>
-                        </div>
-
-                        {/* Botón de opciones */}
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowContactMenu(!showContactMenu)}
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                            >
-                                <MdMoreVert size={24} className="text-gray-600" />
-                            </button>
-
-                            {showContactMenu && (
-                                <div className="absolute right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
-                                    <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
-                                        Ver contacto
-                                    </button>
-                                    <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700 border-t">
-                                        Limpiar chat
-                                    </button>
-                                    <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600 border-t">
-                                        Bloquear
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </div>
 
-                    {/* ✅ AREA DE MENSAJES */}
+                    {/* ✅ AREA DE MENSAJES - Con scroll independiente */}
                     <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
                         {responses.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
@@ -339,7 +340,7 @@ const Chat = () => {
                                                 {renderMensajeTransferencia(msg)}
                                             </div>
                                         ) : (
-                                            <div className={`max-w-xs md:max-w-sm lg:max-w-md ${msg.de === user._id ? "" : ""}`}>
+                                            <div className={`max-w-xs md:max-w-sm lg:max-w-md`}>
                                                 <div
                                                     className={`px-4 py-3 rounded-2xl ${
                                                         msg.de === user._id
@@ -375,17 +376,9 @@ const Chat = () => {
                         )}
                     </div>
 
-                    {/* ✅ AREA DE ENTRADA DE MENSAJES */}
-                    <form onSubmit={handleSend} className="bg-white border-t border-gray-300 p-4 md:p-6">
+                    {/* ✅ AREA DE ENTRADA DE MENSAJES - FIJA SIN SCROLL */}
+                    <form onSubmit={handleSend} className="bg-white border-t border-gray-300 p-4 md:p-6 flex-shrink-0">
                         <div className="flex items-center gap-3">
-                            {/* Botón de adjuntar (opcional) */}
-                            <button
-                                type="button"
-                                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600"
-                            >
-                                <MdAttachFile size={24} />
-                            </button>
-
                             {/* Input de mensaje */}
                             <input
                                 type="text"

@@ -123,25 +123,25 @@ const TablaTransferencias = () => {
             <table className="w-full table-auto bg-white">
               <thead className="bg-black text-white">
                 <tr>
-                  <th className="p-2 text-left text-xs">
+                  <th className="p-4 text-left font-bold">
                     N°
                   </th>
-                  <th className="p-2 text-left text-xs">
+                  <th className="p-4 text-left font-bold">
                     Fecha Solicitud
                   </th>
-                  <th className="p-2 text-left text-xs">
+                  <th className="p-4 text-left font-bold">
                     Docente Origen
                   </th>
-                  <th className="p-2 text-left text-xs">
+                  <th className="p-4 text-left font-bold">
                     Docente Destino
                   </th>
-                  <th className="p-2 text-left text-xs">
+                  <th className="p-4 text-left font-bold">
                     Recursos
                   </th>
-                  <th className="p-2 text-left text-xs">
+                  <th className="p-4 text-left font-bold">
                     Estado
                   </th>
-                  <th className="p-2 text-center text-xs">
+                  <th className="p-4 text-center font-bold">
                     Acciones
                   </th>
                 </tr>

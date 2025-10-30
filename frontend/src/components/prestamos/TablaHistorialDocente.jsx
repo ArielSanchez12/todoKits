@@ -30,17 +30,26 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
 
   // ✅ NUEVA FUNCIÓN: Refrescar préstamos del docente
   const handleRefreshPrestamos = async () => {
+    console.log("🔄 handleRefreshPrestamos llamado");
+    console.log("📍 docenteId:", docenteId);
+    console.log("📍 prestamosLocal antes:", prestamosLocal);
+
     if (!docenteId) {
-      console.warn("docenteId no disponible");
+      console.warn("❌ docenteId no disponible");
+      toast.error("No se puede actualizar: ID de docente no disponible");
       return;
     }
 
     setLoadingRefresh(true);
     try {
       const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+      console.log("📍 storedUser:", storedUser);
+
       const headers = {
         Authorization: `Bearer ${storedUser.state.token}`,
       };
+
+      console.log("🌐 Fetching desde:", `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`);
 
       // Obtener todos los préstamos y filtrar los de este docente
       const response = await fetch(
@@ -48,17 +57,24 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
         { headers }
       );
 
+      console.log("📨 Response status:", response.status);
+
       const data = await response.json();
+      console.log("📍 Todos los préstamos del backend:", data);
+
       const prestamosDocente = data.filter(p => p.docente?._id === docenteId);
+      console.log("📍 Préstamos filtrados para docente:", prestamosDocente);
+
       setPrestamosLocal(prestamosDocente);
       toast.success("Préstamos actualizados");
 
       // Llamar a onRefresh si existe
       if (onRefresh) {
+        console.log("🔗 Llamando a onRefresh()");
         onRefresh();
       }
     } catch (error) {
-      console.error("Error al recargar préstamos:", error);
+      console.error("❌ Error al recargar préstamos:", error);
       toast.error("Error al actualizar préstamos");
     } finally {
       setLoadingRefresh(false);

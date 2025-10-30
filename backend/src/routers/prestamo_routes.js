@@ -41,7 +41,7 @@ router.patch("/administrador/prestamo/:id/finalizar",verificarTokenJWT,validate(
 // Listar préstamos activos y pendientes del docente
 router.get("/docente/prestamos", verificarTokenJWT, listarPrestamosDocente);
 
-// Historial de préstamos finalizados del docente
+// Historial de préstamos del docente
 router.get("/docente/prestamos/historial", verificarTokenJWT, historialPrestamosDocente);
 
 // Confirmar o rechazar préstamo (Docente)

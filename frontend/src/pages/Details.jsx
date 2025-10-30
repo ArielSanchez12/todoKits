@@ -35,12 +35,17 @@ const Details = () => {
 
     // Nueva función para cargar préstamos del docente
     const loadPrestamosDocente = async () => {
+        console.log("📚 loadPrestamosDocente llamado desde Details");
+        console.log("📍 ID del docente:", id);
+        
         try {
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
             const headers = {
                 Authorization: `Bearer ${storedUser.state.token}`,
             };
 
+            console.log("🌐 Fetching desde Details:", `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`);
+            
             // Obtener todos los préstamos y filtrar los de este docente
             const response = await fetch(
                 `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`,
@@ -48,10 +53,14 @@ const Details = () => {
             );
 
             const data = await response.json();
+            console.log("📍 Préstamos del backend:", data);
+            
             const prestamosDocente = data.filter(p => p.docente?._id === id);
+            console.log("📍 Préstamos filtrados para este docente en Details:", prestamosDocente);
+            
             setPrestamos(prestamosDocente);
         } catch (error) {
-            console.error("Error al cargar préstamos:", error);
+            console.error("❌ Error al cargar préstamos:", error);
             setPrestamos([]);
         }
     };
@@ -182,11 +191,20 @@ const Details = () => {
                         </span>
                     </div>
                 ) : (
-                    <TablaHistorialDocente
+                    <>
+                      {/* DEBUG: Mostrar props recibidas */}
+                      <div className="mb-2 p-2 bg-yellow-100 rounded text-sm">
+                        <p>🔍 DEBUG - docenteId: {id}</p>
+                        <p>🔍 DEBUG - onRefresh: {typeof onRefresh}</p>
+                        <p>🔍 DEBUG - prestamos: {prestamos.length}</p>
+                      </div>
+                      
+                      <TablaHistorialDocente
                         prestamos={prestamos}
                         onRefresh={loadPrestamosDocente}
                         docenteId={id}
-                    />
+                      />
+                    </>
                 )}
             </div>
 

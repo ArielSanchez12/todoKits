@@ -131,7 +131,7 @@ const listarPrestamosDocente = async (req, res) => {
   }
 };
 
-// Historial de préstamos del docente (finalizados)
+// Historial de préstamos del docente
 const historialPrestamosDocente = async (req, res) => {
   try {
     const docenteId = req.docenteBDD._id;

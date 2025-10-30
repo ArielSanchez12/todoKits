@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { MdVisibility, MdTransferWithinAStation, MdRefresh } from "react-icons/md";
+import { MdVisibility, MdTransferWithinAStation, MdRefresh, MdClear } from "react-icons/md";
 import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import DetallePrestamo from "./DetallePrestamo";
 import ModalTransferirRecurso from "./ModalTransferirRecurso";
 import ModalQRTransferencia from "./ModalQRTransferencia";
@@ -12,6 +14,10 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [qrData, setQRData] = useState(null);
   const [modalKey, setModalKey] = useState(0);
+  
+  // ✅ NUEVOS ESTADOS PARA DATEPICKERS
+  const [fechaDesde, setFechaDesde] = useState(null);
+  const [fechaHasta, setFechaHasta] = useState(null);
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -38,6 +44,44 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // ✅ NUEVA FUNCIÓN: Filtrar por fechas
+  const prestamosFiltradosPorFecha = () => {
+    if (!fechaDesde && !fechaHasta) return prestamos;
+
+    return prestamos.filter((prestamo) => {
+      const fechaPrestamo = new Date(prestamo.fechaPrestamo);
+      fechaPrestamo.setHours(0, 0, 0, 0);
+
+      if (fechaDesde && fechaHasta) {
+        const desde = new Date(fechaDesde);
+        const hasta = new Date(fechaHasta);
+        desde.setHours(0, 0, 0, 0);
+        hasta.setHours(23, 59, 59, 999);
+        return fechaPrestamo >= desde && fechaPrestamo <= hasta;
+      }
+
+      if (fechaDesde) {
+        const desde = new Date(fechaDesde);
+        desde.setHours(0, 0, 0, 0);
+        return fechaPrestamo >= desde;
+      }
+
+      if (fechaHasta) {
+        const hasta = new Date(fechaHasta);
+        hasta.setHours(23, 59, 59, 999);
+        return fechaPrestamo <= hasta;
+      }
+
+      return true;
+    });
+  };
+
+  // ✅ NUEVA FUNCIÓN: Limpiar filtros de fecha
+  const limpiarFechas = () => {
+    setFechaDesde(null);
+    setFechaHasta(null);
   };
 
   const handleVerDetalle = (prestamo) => {
@@ -69,18 +113,73 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
     toast.info("Funcionalidad de envío por chat próximamente");
   };
 
+  // ✅ OBTENER PRÉSTAMOS FILTRADOS
+  const prestamosFiltrados = prestamosFiltradosPorFecha();
+
   return (
     <>
-      {/* ✅ HEADER SIN mb-4 - NEGRO */}
-      <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
-        <h2 className="text-xl font-bold">📋 Gestión de Préstamos</h2>
-        <button
-          onClick={onRefresh}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-        >
-          <MdRefresh size={20} />
-          Actualizar
-        </button>
+      {/* ✅ HEADER MEJORADO CON DATEPICKERS */}
+      <div className="bg-black text-white p-4 rounded-t-lg">
+        <div className="flex justify-between items-center gap-4 flex-wrap">
+          <h2 className="text-xl font-bold">📋 Gestión de Préstamos</h2>
+          
+          {/* ✅ DATEPICKERS EN LÍNEA (COMPACTOS) */}
+          <div className="flex gap-2 items-center flex-wrap">
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-300">Desde:</span>
+              <DatePicker
+                selected={fechaDesde}
+                onChange={(date) => setFechaDesde(date)}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Desde"
+                className="px-2 py-1 text-sm rounded border border-gray-400 text-black focus:outline-none focus:ring-2 focus:ring-blue-400 w-28"
+                isClearable
+              />
+            </div>
+
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-gray-300">Hasta:</span>
+              <DatePicker
+                selected={fechaHasta}
+                onChange={(date) => setFechaHasta(date)}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Hasta"
+                className="px-2 py-1 text-sm rounded border border-gray-400 text-black focus:outline-none focus:ring-2 focus:ring-blue-400 w-28"
+                isClearable
+              />
+            </div>
+
+            {/* ✅ BOTÓN LIMPIAR FECHAS */}
+            {(fechaDesde || fechaHasta) && (
+              <button
+                onClick={limpiarFechas}
+                className="p-1 text-gray-300 hover:text-white transition-colors"
+                title="Limpiar filtros de fecha"
+              >
+                <MdClear size={18} />
+              </button>
+            )}
+
+            {/* ✅ BOTÓN ACTUALIZAR */}
+            <button
+              onClick={onRefresh}
+              className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-semibold text-sm"
+            >
+              <MdRefresh size={18} />
+              Actualizar
+            </button>
+          </div>
+        </div>
+
+        {/* ✅ INDICADOR DE FILTROS ACTIVOS */}
+        {(fechaDesde || fechaHasta) && (
+          <div className="text-xs text-blue-300 mt-2">
+            📅 Filtrando:
+            {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
+            {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
+            {!fechaDesde && !fechaHasta && " sin filtros"}
+          </div>
+        )}
       </div>
 
       {/* ✅ TABLA PEGADA CON shadow-lg */}
@@ -100,8 +199,8 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
             </tr>
           </thead>
           <tbody>
-            {prestamos && prestamos.length > 0 ? (
-              prestamos.map((prestamo, index) => (
+            {prestamosFiltrados && prestamosFiltrados.length > 0 ? (
+              prestamosFiltrados.map((prestamo, index) => (
                 <tr key={prestamo._id} className="hover:bg-gray-300 text-center">
                   <td className="p-2">{index + 1}</td>
                   <td className="p-2 font-semibold">
@@ -189,7 +288,9 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
             ) : (
               <tr>
                 <td colSpan={9} className="p-4 text-center text-gray-500">
-                  No hay préstamos registrados
+                  {prestamosFiltrados?.length === 0 && (fechaDesde || fechaHasta)
+                    ? "No hay préstamos en el rango de fechas seleccionado"
+                    : "No hay préstamos registrados"}
                 </td>
               </tr>
             )}

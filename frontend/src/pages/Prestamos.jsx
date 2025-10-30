@@ -149,13 +149,6 @@ const Prestamos = () => {
       </p>
 
       <div className="flex justify-between items-center mb-6">
-        <button
-          onClick={handleRefresh}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Actualizar Préstamos
-        </button>
-
         <div className="text-xs text-gray-500">
           Docentes cargados: {docentes.length}
         </div>

@@ -119,8 +119,7 @@ const Details = () => {
                                     {docente?.celularDocente}
                                 </li>
                                 <li className="text-md text-gray-00 mt-2">
-                                    <span className="text-gray-600 font-bold">
-                                        Correo electrónico:{" "}
+                                    <span className="text-gray-600 font-bold">Correo electrónico:{" "}
                                     </span>
                                     {docente?.emailDocente}
                                 </li>
@@ -186,6 +185,7 @@ const Details = () => {
                     <TablaHistorialDocente
                         prestamos={prestamos}
                         onRefresh={loadPrestamosDocente}
+                        docenteId={id}
                     />
                 )}
             </div>

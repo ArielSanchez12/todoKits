@@ -4,8 +4,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import DetallePrestamo from "./DetallePrestamo";
 import storePrestamos from "../../context/storePrestamos";
+import { toast } from "react-toastify";
 
-const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
+const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId }) => {
   const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [filtro, setFiltro] = useState("todos");
@@ -18,12 +19,51 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0, direction: 'right' });
   const tooltipRef = useRef(null);
   const cellRef = useRef(null);
+  const [prestamosLocal, setPrestamosLocal] = useState(prestamos);
+  const [loadingRefresh, setLoadingRefresh] = useState(false);
 
   // ✅ NUEVOS ESTADOS PARA DATEPICKERS
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
 
   const { cancelarPrestamoAdmin, finalizarPrestamoAdmin } = storePrestamos();
+
+  // ✅ NUEVA FUNCIÓN: Refrescar préstamos del docente
+  const handleRefreshPrestamos = async () => {
+    if (!docenteId) {
+      console.warn("docenteId no disponible");
+      return;
+    }
+
+    setLoadingRefresh(true);
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+      const headers = {
+        Authorization: `Bearer ${storedUser.state.token}`,
+      };
+
+      // Obtener todos los préstamos y filtrar los de este docente
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`,
+        { headers }
+      );
+
+      const data = await response.json();
+      const prestamosDocente = data.filter(p => p.docente?._id === docenteId);
+      setPrestamosLocal(prestamosDocente);
+      toast.success("Préstamos actualizados");
+
+      // Llamar a onRefresh si existe
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (error) {
+      console.error("Error al recargar préstamos:", error);
+      toast.error("Error al actualizar préstamos");
+    } finally {
+      setLoadingRefresh(false);
+    }
+  };
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -68,9 +108,10 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
       await cancelarPrestamoAdmin(modalCancelar._id, motivoCancelacion);
       setModalCancelar(null);
       setMotivoCancelacion("");
-      onRefresh();
+      await handleRefreshPrestamos();
     } catch (error) {
       console.error("Error al cancelar:", error);
+      toast.error("Error al cancelar el préstamo");
     } finally {
       setLoading(false);
     }
@@ -82,9 +123,10 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
       await finalizarPrestamoAdmin(modalFinalizar._id, observacionesDevolucion);
       setModalFinalizar(null);
       setObservacionesDevolucion("");
-      onRefresh();
+      await handleRefreshPrestamos();
     } catch (error) {
       console.error("Error al finalizar:", error);
+      toast.error("Error al finalizar el préstamo");
     } finally {
       setLoading(false);
     }
@@ -92,9 +134,9 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
 
   // ✅ NUEVA FUNCIÓN: Filtrar por fechas
   const prestamosFiltradosPorFecha = () => {
-    if (!fechaDesde && !fechaHasta) return prestamos;
+    if (!fechaDesde && !fechaHasta) return prestamosLocal;
 
-    return prestamos.filter((prestamo) => {
+    return prestamosLocal.filter((prestamo) => {
       const fechaPrestamo = new Date(prestamo.fechaPrestamo);
       fechaPrestamo.setHours(0, 0, 0, 0);
 
@@ -133,13 +175,13 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
     ? prestamosFiltradosPorFecha()
     : prestamosFiltradosPorFecha()?.filter((p) => p.estado === filtro);
 
-  // Contar por estado (usando todos los préstamos sin filtro de fecha)
+  // Contar por estado (usando todos los préstamos locales sin filtro de fecha)
   const contadores = {
-    activo: prestamos?.filter((p) => p.estado === "activo").length || 0,
-    pendiente: prestamos?.filter((p) => p.estado === "pendiente").length || 0,
-    finalizado: prestamos?.filter((p) => p.estado === "finalizado").length || 0,
-    rechazado: prestamos?.filter((p) => p.estado === "rechazado").length || 0,
-    todos: prestamos?.length || 0,
+    activo: prestamosLocal?.filter((p) => p.estado === "activo").length || 0,
+    pendiente: prestamosLocal?.filter((p) => p.estado === "pendiente").length || 0,
+    finalizado: prestamosLocal?.filter((p) => p.estado === "finalizado").length || 0,
+    rechazado: prestamosLocal?.filter((p) => p.estado === "rechazado").length || 0,
+    todos: prestamosLocal?.length || 0,
   };
 
   // Tooltip responsive para motivo
@@ -196,19 +238,17 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
           <button
             key={tipo.key}
             onClick={() => setFiltro(tipo.key)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
-              filtro === tipo.key
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 border hover:bg-gray-50"
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${filtro === tipo.key
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-700 border hover:bg-gray-50"
+              }`}
           >
             {tipo.label}
             <span
-              className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-                filtro === tipo.key
-                  ? "bg-white text-blue-600"
-                  : "bg-gray-200 text-gray-700"
-              }`}
+              className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filtro === tipo.key
+                ? "bg-white text-blue-600"
+                : "bg-gray-200 text-gray-700"
+                }`}
             >
               {contadores[tipo.key]}
             </span>
@@ -258,11 +298,12 @@ const TablaHistorialDocente = ({ prestamos, onRefresh }) => {
 
             {/* ✅ BOTÓN ACTUALIZAR */}
             <button
-              onClick={onRefresh}
-              className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-semibold text-sm"
+              onClick={handleRefreshPrestamos}
+              disabled={loadingRefresh}
+              className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors font-semibold text-sm"
             >
-              <MdRefresh size={18} />
-              Actualizar
+              <MdRefresh size={18} className={loadingRefresh ? "animate-spin" : ""} />
+              {loadingRefresh ? "Actualizando..." : "Actualizar"}
             </button>
           </div>
         </div>

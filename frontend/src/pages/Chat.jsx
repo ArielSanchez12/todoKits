@@ -202,9 +202,9 @@ const Chat = () => {
     };
 
     return (
-        <div className="fixed inset-0 flex bg-gray-100">
+        <div className="flex h-full w-full overflow-hidden bg-gray-100">
             {/* SIDEBAR - Contactos */}
-            <div className="w-full md:w-80 bg-white border-r border-gray-300 flex flex-col">
+            <div className="w-full md:w-80 bg-white border-r border-gray-300 flex flex-col overflow-hidden">
                 {/* Header del Sidebar */}
                 <div className="p-4 border-b border-gray-200 flex-shrink-0">
                     <h1 className="text-2xl font-bold text-gray-800 mb-4">
@@ -283,7 +283,7 @@ const Chat = () => {
 
             {/* AREA DE CHAT PRINCIPAL */}
             {selectedContact ? (
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col overflow-hidden">
                     {/* HEADER DEL CHAT */}
                     <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 flex-shrink-0">
                         {/* Avatar del contacto */}

@@ -4,6 +4,7 @@ import Docente from "../models/docente.js";
 import Admin from "../models/admin.js";
 import { verificarTokenJWT } from "../middlewares/jwt.js";
 import Pusher from "pusher";
+import Transferencia from "../models/transferencia.js";
 
 const router = Router();
 

@@ -8,7 +8,6 @@ import Transferencia from "../models/transferencia.js";
 
 const router = Router();
 
-// Configura Pusher con tus claves
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID,
   key: process.env.PUSHER_KEY,
@@ -41,46 +40,63 @@ router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
   res.json(docentes);
 });
 
+// ✅ ACTUALIZADO: Enviar mensaje con encriptación automática
 router.post("/chat/send", verificarTokenJWT, async (req, res) => {
   const { texto, de, deNombre, para, paraNombre, deTipo, paraTipo } = req.body;
-  const mensaje = await Mensaje.create({ texto, de, deNombre, para, paraNombre, deTipo, paraTipo });
-  // Emitir evento a Pusher
-  pusher.trigger("chat", "nuevo-mensaje", mensaje);
-  res.json(mensaje);
+
+  // El mensaje se encripta automáticamente por el hook pre-save
+  const mensaje = await Mensaje.create({
+    texto,
+    de,
+    deNombre,
+    para,
+    paraNombre,
+    deTipo,
+    paraTipo
+  });
+
+  // Emitir mensaje DESENCRIPTADO a Pusher
+  const mensajeDesencriptado = mensaje.desencriptar();
+  pusher.trigger("chat", "nuevo-mensaje", mensajeDesencriptado);
+
+  res.json(mensajeDesencriptado);
 });
 
-// Obtener historial de chat entre el usuario autenticado y otro usuario
+// ✅ ACTUALIZADO: Obtener historial desencriptado
 router.get("/chat/chat-history/:contactId", verificarTokenJWT, async (req, res) => {
   const miId = req.docenteBDD?._id || req.adminEmailBDD?._id;
   const contactId = req.params.contactId;
-  const mensajes = await Mensaje.find({
+
+  const mensajes = await Mensaje.findDesencriptados({
     $or: [
       { de: miId, para: contactId },
       { de: contactId, para: miId }
     ]
   }).sort({ createdAt: 1 });
+
   res.json(mensajes);
 });
 
-// Obtener todos los mensajes del chat del usuario autenticado
+// ✅ ACTUALIZADO: Obtener todos los mensajes desencriptados
 router.get("/chat/all-messages/:userId", verificarTokenJWT, async (req, res) => {
   const { userId } = req.params;
-  const mensajes = await Mensaje.find({
+
+  const mensajes = await Mensaje.findDesencriptados({
     $or: [{ de: userId }, { para: userId }]
   }).sort({ createdAt: 1 });
+
   res.json(mensajes);
 });
 
+// ✅ ACTUALIZADO: Enviar transferencia (se encripta automáticamente)
 router.post("/chat/enviar-transferencia", verificarTokenJWT, async (req, res) => {
   try {
     const { codigoTransferencia, docenteDestinoId } = req.body;
 
-    // Validar que sea admin
     if (!req.adminEmailBDD) {
       return res.status(403).json({ msg: "Solo administradores pueden enviar transferencias" });
     }
 
-    // Buscar la transferencia
     const transferencia = await Transferencia.findOne({ codigoQR: codigoTransferencia })
       .populate("prestamoOriginal")
       .populate("recursos", "nombre")
@@ -92,23 +108,20 @@ router.post("/chat/enviar-transferencia", verificarTokenJWT, async (req, res) =>
       return res.status(404).json({ msg: "Transferencia no encontrada" });
     }
 
-    // Verificar que el docente destino sea correcto
     if (transferencia.docenteDestino._id.toString() !== docenteDestinoId) {
       return res.status(400).json({ msg: "El docente destino no coincide" });
     }
 
-    // Construir URL del QR (la misma que usa el backend para generar)
     const urlQR = `${process.env.URL_FRONTEND}dashboard/transferencia/${transferencia.codigoQR}`;
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
 
-    // Extraer nombres de recursos
     const nombresRecursos = [
       ...transferencia.recursos.map(r => r.nombre),
       ...transferencia.recursosAdicionales.map(r => r.nombre)
     ];
     const nombreDocenteOrigen = `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
 
-    // Crear mensaje especial
+    // Se encripta automáticamente por el hook pre-save
     const mensaje = await Mensaje.create({
       texto: `📦 Nueva transferencia de recursos`,
       de: req.adminEmailBDD._id,
@@ -124,12 +137,13 @@ router.post("/chat/enviar-transferencia", verificarTokenJWT, async (req, res) =>
       }
     });
 
-    // Emitir evento a Pusher (para que se actualice el chat en tiempo real)
-    pusher.trigger("chat", "nuevo-mensaje", mensaje);
+    // Emitir mensaje DESENCRIPTADO a Pusher
+    const mensajeDesencriptado = mensaje.desencriptar();
+    pusher.trigger("chat", "nuevo-mensaje", mensajeDesencriptado);
 
     res.json({
       msg: "Transferencia enviada por chat exitosamente",
-      mensaje
+      mensaje: mensajeDesencriptado
     });
 
   } catch (error) {

@@ -180,14 +180,14 @@ const PrestamosDocente = () => {
       )}
 
       {/* Botón de actualizar */}
-      <div className="flex justify-end mb-4">
+      {/* <div className="flex justify-end mb-4">
         <button
           onClick={handleRefresh}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           Actualizar
         </button>
-      </div>
+      </div> */}
 
       {/* Tabla según vista */}
       {loading ? (

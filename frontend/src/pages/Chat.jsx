@@ -227,16 +227,12 @@ const Chat = () => {
                                     userType === "docente"
                                         ? (
                                             contact.avatar ||
-                                            contact.avatarIA ||
                                             contact.avatarDocente ||
-                                            contact.avatarDocenteIA ||
                                             "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
                                         )
                                         : (
                                             contact.avatarDocente ||
-                                            contact.avatarDocenteIA ||
                                             contact.avatar ||
-                                            contact.avatarIA ||
                                             "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
                                         )
                                 }

@@ -11,7 +11,7 @@ import NotificacionesTransferencias from "../components/prestamos/Notificaciones
 import { MdQrCodeScanner } from "react-icons/md";
 import storeProfile from "../context/storeProfile";
 import storeTransferencias from "../context/storeTransferencias";
-import DetallePrestamo from "./DetallePrestamo";
+import DetallePrestamo from "../components/prestamos/DetallePrestamo";
 
 const PrestamosDocente = () => {
   const {

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { MdVisibility, MdQrCodeScanner, MdRefresh, MdCancel } from "react-icons/md";
+import { MdVisibility, MdQrCodeScanner, MdRefresh, MdCancel, MdClear } from "react-icons/md";
 import storeTransferencias from "../../context/storeTransferencias";
 import { toast } from "react-toastify";
-import DetalleTransferencia from "./DetalleTransferencia"; // ✅ CAMBIO 1: Importar DetalleTransferencia en lugar de DetallePrestamo
-import ModalCancelarTransferencia from "./ModalCancelarTransferencia"; // ✅ IMPORTAR
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import DetalleTransferencia from "./DetalleTransferencia";
+import ModalCancelarTransferencia from "./ModalCancelarTransferencia";
 
 
 const TablaTransferencias = () => {
@@ -12,7 +14,11 @@ const TablaTransferencias = () => {
   const [mostrarDetalle, setMostrarDetalle] = useState(false);
   const [transferenciaSel, setTransferenciaSel] = useState(null);
   const { fetchTransferencias } = storeTransferencias();
-  const [mostrarModalCancelar, setMostrarModalCancelar] = useState(false); // ✅ AGREGAR ESTADO
+  const [mostrarModalCancelar, setMostrarModalCancelar] = useState(false);
+
+  // ✅ NUEVOS ESTADOS PARA DATEPICKERS
+  const [fechaDesde, setFechaDesde] = useState(null);
+  const [fechaHasta, setFechaHasta] = useState(null);
 
   const cargarTransferencias = async () => {
     setLoading(true);
@@ -35,6 +41,7 @@ const TablaTransferencias = () => {
     setTransferenciaSel(transferencia);
     setMostrarModalCancelar(true);
   };
+
   // ✅ NUEVA FUNCIÓN: Verificar si se puede cancelar
   const puedeCancelar = (transferencia) => {
     return ["pendiente_origen", "confirmado_origen"].includes(transferencia.estado);
@@ -81,10 +88,51 @@ const TablaTransferencias = () => {
     });
   };
 
+  // ✅ NUEVA FUNCIÓN: Filtrar por fechas
+  const transferenciasFiltradosPorFecha = () => {
+    if (!fechaDesde && !fechaHasta) return transferencias;
+
+    return transferencias.filter((transferencia) => {
+      const fechaTransferencia = new Date(transferencia.fechaSolicitud);
+      fechaTransferencia.setHours(0, 0, 0, 0);
+
+      if (fechaDesde && fechaHasta) {
+        const desde = new Date(fechaDesde);
+        const hasta = new Date(fechaHasta);
+        desde.setHours(0, 0, 0, 0);
+        hasta.setHours(23, 59, 59, 999);
+        return fechaTransferencia >= desde && fechaTransferencia <= hasta;
+      }
+
+      if (fechaDesde) {
+        const desde = new Date(fechaDesde);
+        desde.setHours(0, 0, 0, 0);
+        return fechaTransferencia >= desde;
+      }
+
+      if (fechaHasta) {
+        const hasta = new Date(fechaHasta);
+        hasta.setHours(23, 59, 59, 999);
+        return fechaTransferencia <= hasta;
+      }
+
+      return true;
+    });
+  };
+
+  // ✅ NUEVA FUNCIÓN: Limpiar filtros de fecha
+  const limpiarFechas = () => {
+    setFechaDesde(null);
+    setFechaHasta(null);
+  };
+
   const handleVerDetalle = (transferencia) => {
     setTransferenciaSel(transferencia);
     setMostrarDetalle(true);
   };
+
+  // ✅ OBTENER TRANSFERENCIAS FILTRADAS
+  const transferenciasFiltradas = transferenciasFiltradosPorFecha();
 
   if (loading) {
     return (
@@ -97,23 +145,77 @@ const TablaTransferencias = () => {
   return (
     <>
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 bg-black text-white">
-          <h2 className="text-2xl font-bold">📋 Historial de Transferencias</h2>
-          <button
-            onClick={cargarTransferencias}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-          >
-            <MdRefresh size={20} />
-            Actualizar
-          </button>
+        {/* ✅ HEADER MEJORADO CON DATEPICKERS */}
+        <div className="bg-black text-white p-4">
+          <div className="flex justify-between items-center gap-4 flex-wrap">
+            <h2 className="text-xl font-bold">📋 Historial de Transferencias</h2>
+
+            {/* ✅ DATEPICKERS EN LÍNEA (COMPACTOS) */}
+            <div className="flex gap-2 items-center flex-wrap">
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-gray-300">Desde:</span>
+                <DatePicker
+                  selected={fechaDesde}
+                  onChange={(date) => setFechaDesde(date)}
+                  dateFormat="dd/MM/yyyy"
+                  className="px-2 py-1 text-sm rounded border border-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 w-28"
+                  isClearable
+                />
+              </div>
+
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-gray-300">Hasta:</span>
+                <DatePicker
+                  selected={fechaHasta}
+                  onChange={(date) => setFechaHasta(date)}
+                  dateFormat="dd/MM/yyyy"
+                  className="px-2 py-1 text-sm rounded border border-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 w-28"
+                  isClearable
+                />
+              </div>
+
+              {/* ✅ BOTÓN LIMPIAR FECHAS */}
+              {(fechaDesde || fechaHasta) && (
+                <button
+                  onClick={limpiarFechas}
+                  className="p-1 text-gray-300 hover:text-white transition-colors"
+                  title="Limpiar filtros de fecha"
+                >
+                  <MdClear size={18} />
+                </button>
+              )}
+
+              {/* ✅ BOTÓN ACTUALIZAR */}
+              <button
+                onClick={cargarTransferencias}
+                className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-semibold text-sm"
+              >
+                <MdRefresh size={18} />
+                Actualizar
+              </button>
+            </div>
+          </div>
+
+          {/* ✅ INDICADOR DE FILTROS ACTIVOS */}
+          {(fechaDesde || fechaHasta) && (
+            <div className="text-xs text-blue-300 mt-2">
+              📅 Filtrando:
+              {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
+              {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
+              {!fechaDesde && !fechaHasta && " sin filtros"}
+            </div>
+          )}
         </div>
 
         {/* Tabla */}
-        {transferencias.length === 0 ? (
+        {transferenciasFiltradas.length === 0 ? (
           <div className="p-8 text-center">
             <MdQrCodeScanner className="mx-auto text-gray-400 mb-4" size={64} />
-            <p className="text-gray-600 text-lg">No hay transferencias registradas</p>
+            <p className="text-gray-600 text-lg">
+              {(fechaDesde || fechaHasta)
+                ? "No hay transferencias en el rango de fechas seleccionado"
+                : "No hay transferencias registradas"}
+            </p>
             <p className="text-gray-500 text-sm mt-2">
               Las transferencias de recursos aparecerán aquí
             </p>
@@ -123,31 +225,17 @@ const TablaTransferencias = () => {
             <table className="w-full table-auto bg-white">
               <thead className="bg-black text-white">
                 <tr>
-                  <th className="p-4 text-left font-bold">
-                    N°
-                  </th>
-                  <th className="p-4 text-left font-bold">
-                    Fecha Solicitud
-                  </th>
-                  <th className="p-4 text-left font-bold">
-                    Docente Origen
-                  </th>
-                  <th className="p-4 text-left font-bold">
-                    Docente Destino
-                  </th>
-                  <th className="p-4 text-left font-bold">
-                    Recursos
-                  </th>
-                  <th className="p-4 text-left font-bold">
-                    Estado
-                  </th>
-                  <th className="p-4 text-center font-bold">
-                    Acciones
-                  </th>
+                  <th className="p-4 text-left font-bold">N°</th>
+                  <th className="p-4 text-left font-bold">Fecha Solicitud</th>
+                  <th className="p-4 text-left font-bold">Docente Origen</th>
+                  <th className="p-4 text-left font-bold">Docente Destino</th>
+                  <th className="p-4 text-left font-bold">Recursos</th>
+                  <th className="p-4 text-left font-bold">Estado</th>
+                  <th className="p-4 text-center font-bold">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {transferencias.map((transferencia, index) => (
+                {transferenciasFiltradas.map((transferencia, index) => (
                   <tr
                     key={transferencia._id}
                     className="hover:bg-gray-300 transition-colors"
@@ -241,22 +329,22 @@ const TablaTransferencias = () => {
         )}
 
         {/* Footer con resumen */}
-        {transferencias.length > 0 && (
+        {transferenciasFiltradas.length > 0 && (
           <div className="bg-gray-50 px-6 py-4 border-t-2 border-gray-200">
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-sm flex-wrap gap-4">
               <p className="text-gray-700">
                 Total de transferencias:{" "}
                 <span className="font-bold text-gray-900">
-                  {transferencias.length}
+                  {transferenciasFiltradas.length}
                 </span>
               </p>
-              <div className="flex gap-6">
+              <div className="flex gap-6 flex-wrap">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                   <span className="text-gray-700">
                     Finalizadas:{" "}
                     <span className="font-bold text-green-600">
-                      {transferencias.filter((t) => t.estado === "finalizado")
+                      {transferenciasFiltradas.filter((t) => t.estado === "finalizado")
                         .length}
                     </span>
                   </span>
@@ -267,7 +355,7 @@ const TablaTransferencias = () => {
                     Pendientes:{" "}
                     <span className="font-bold text-yellow-600">
                       {
-                        transferencias.filter(
+                        transferenciasFiltradas.filter(
                           (t) =>
                             t.estado === "pendiente_origen" ||
                             t.estado === "confirmado_origen"
@@ -281,7 +369,7 @@ const TablaTransferencias = () => {
                   <span className="text-gray-700">
                     Rechazadas:{" "}
                     <span className="font-bold text-red-600">
-                      {transferencias.filter((t) => t.estado === "rechazado")
+                      {transferenciasFiltradas.filter((t) => t.estado === "rechazado")
                         .length}
                     </span>
                   </span>
@@ -291,7 +379,7 @@ const TablaTransferencias = () => {
                   <span className="text-gray-700">
                     Canceladas:{" "}
                     <span className="font-bold text-gray-600">
-                      {transferencias.filter((t) => t.estado === "cancelado").length}
+                      {transferenciasFiltradas.filter((t) => t.estado === "cancelado").length}
                     </span>
                   </span>
                 </div>
@@ -301,7 +389,7 @@ const TablaTransferencias = () => {
         )}
       </div>
 
-      {/* ✅ CAMBIO 2: Usar DetalleTransferencia con prop "transferencia" */}
+      {/* Modal detalle */}
       {mostrarDetalle && transferenciaSel && (
         <DetalleTransferencia
           transferencia={transferenciaSel}
@@ -312,7 +400,7 @@ const TablaTransferencias = () => {
         />
       )}
 
-  {/* ✅ MODAL CANCELAR */}
+      {/* Modal cancelar */}
       {mostrarModalCancelar && transferenciaSel && (
         <ModalCancelarTransferencia
           transferencia={transferenciaSel}
@@ -321,7 +409,7 @@ const TablaTransferencias = () => {
             setTransferenciaSel(null);
           }}
           onSuccess={() => {
-            cargarTransferencias(); // Recargar tabla
+            cargarTransferencias();
           }}
         />
       )}

@@ -131,7 +131,6 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
                 selected={fechaDesde}
                 onChange={(date) => setFechaDesde(date)}
                 dateFormat="dd/MM/yyyy"
-                placeholderText="Desde"
                 className="px-2 py-1 text-sm rounded border border-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 w-28"
                 isClearable
               />
@@ -143,7 +142,6 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
                 selected={fechaHasta}
                 onChange={(date) => setFechaHasta(date)}
                 dateFormat="dd/MM/yyyy"
-                placeholderText="Hasta"
                 className="px-2 py-1 text-sm rounded border border-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 w-28"
                 isClearable
               />

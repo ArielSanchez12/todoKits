@@ -123,30 +123,30 @@ const TablaTransferencias = () => {
             <table className="w-full table-auto bg-white">
               <thead className="bg-black text-white">
                 <tr>
-                  <th className="p-2 text-left">
+                  <th className="p-2 text-left text-xs">
                     N°
                   </th>
-                  <th className="p-2 text-left">
+                  <th className="p-2 text-left text-xs">
                     Fecha Solicitud
                   </th>
-                  <th className="p-2 text-left">
+                  <th className="p-2 text-left text-xs">
                     Docente Origen
                   </th>
-                  <th className="p-2 text-left">
+                  <th className="p-2 text-left text-xs">
                     Docente Destino
                   </th>
-                  <th className="p-2 text-left">
+                  <th className="p-2 text-left text-xs">
                     Recursos
                   </th>
-                  <th className="p-2 text-left">
+                  <th className="p-2 text-left text-xs">
                     Estado
                   </th>
-                  <th className="p-2 text-left">
+                  <th className="p-2 text-center text-xs">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-200">
                 {transferencias.map((transferencia, index) => (
                   <tr
                     key={transferencia._id}

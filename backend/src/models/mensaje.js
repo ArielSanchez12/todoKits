@@ -20,7 +20,7 @@ const mensajeSchema = new mongoose.Schema(
       docenteOrigen: { type: String }, // Encriptado
     },
   },
-  { 
+  {
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -28,12 +28,12 @@ const mensajeSchema = new mongoose.Schema(
 );
 
 // ✅ HOOK: Encriptar antes de guardar
-mensajeSchema.pre("save", function(next) {
+mensajeSchema.pre("save", function (next) {
   // Encriptar texto del mensaje
   if (this.isModified("texto")) {
     this.texto = encrypt(this.texto);
   }
-  
+
   // Encriptar datos de transferencia si existen
   if (this.tipo === "transferencia" && this.transferencia) {
     if (this.isModified("transferencia.codigo")) {
@@ -49,12 +49,12 @@ mensajeSchema.pre("save", function(next) {
       this.transferencia.docenteOrigen = encrypt(this.transferencia.docenteOrigen);
     }
   }
-  
+
   next();
 });
 
 // ✅ MÉTODO: Obtener mensaje desencriptado
-mensajeSchema.methods.desencriptar = function() {
+mensajeSchema.methods.desencriptar = function () {
   const mensajeDesencriptado = {
     _id: this._id,
     texto: decrypt(this.texto),
@@ -66,7 +66,7 @@ mensajeSchema.methods.desencriptar = function() {
     createdAt: this.createdAt,
     updatedAt: this.updatedAt
   };
-  
+
   // Desencriptar transferencia si existe
   if (this.tipo === "transferencia" && this.transferencia) {
     mensajeDesencriptado.transferencia = {
@@ -76,14 +76,8 @@ mensajeSchema.methods.desencriptar = function() {
       docenteOrigen: decrypt(this.transferencia.docenteOrigen)
     };
   }
-  
-  return mensajeDesencriptado;
-};
 
-// ✅ MÉTODO ESTÁTICO: Obtener mensajes desencriptados
-mensajeSchema.statics.findDesencriptados = async function(query) {
-  const mensajes = await this.find(query);
-  return mensajes.map(msg => msg.desencriptar());
+  return mensajeDesencriptado;
 };
 
 export default mongoose.model("Mensaje", mensajeSchema);

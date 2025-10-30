@@ -31,7 +31,7 @@ router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
     rol: admin.rol
   });
 });
-//este comentario es solo para poder hace commit
+
 // Obtener docentes del admin autenticado
 router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
   if (!req.adminEmailBDD) return res.status(401).json({ msg: "No autorizado" });
@@ -42,50 +42,73 @@ router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
 
 // ✅ ACTUALIZADO: Enviar mensaje con encriptación automática
 router.post("/chat/send", verificarTokenJWT, async (req, res) => {
-  const { texto, de, deNombre, para, paraNombre, deTipo, paraTipo } = req.body;
+  try {
+    const { texto, de, deNombre, para, paraNombre, deTipo, paraTipo } = req.body;
 
-  // El mensaje se encripta automáticamente por el hook pre-save
-  const mensaje = await Mensaje.create({
-    texto,
-    de,
-    deNombre,
-    para,
-    paraNombre,
-    deTipo,
-    paraTipo
-  });
+    // El mensaje se encripta automáticamente por el hook pre-save
+    const mensaje = await Mensaje.create({
+      texto,
+      de,
+      deNombre,
+      para,
+      paraNombre,
+      deTipo,
+      paraTipo
+    });
 
-  // Emitir mensaje DESENCRIPTADO a Pusher
-  const mensajeDesencriptado = mensaje.desencriptar();
-  pusher.trigger("chat", "nuevo-mensaje", mensajeDesencriptado);
+    // Emitir mensaje DESENCRIPTADO a Pusher
+    const mensajeDesencriptado = mensaje.desencriptar();
+    pusher.trigger("chat", "nuevo-mensaje", mensajeDesencriptado);
 
-  res.json(mensajeDesencriptado);
+    res.json(mensajeDesencriptado);
+  } catch (error) {
+    console.error("Error al enviar mensaje:", error);
+    res.status(500).json({ msg: "Error al enviar mensaje", error: error.message });
+  }
 });
 
-// ✅ ACTUALIZADO: Obtener historial desencriptado
+// ✅ CORREGIDO: Obtener historial con sort ANTES de desencriptar
 router.get("/chat/chat-history/:contactId", verificarTokenJWT, async (req, res) => {
-  const miId = req.docenteBDD?._id || req.adminEmailBDD?._id;
-  const contactId = req.params.contactId;
+  try {
+    const miId = req.docenteBDD?._id || req.adminEmailBDD?._id;
+    const contactId = req.params.contactId;
 
-  const mensajes = await Mensaje.findDesencriptados({
-    $or: [
-      { de: miId, para: contactId },
-      { de: contactId, para: miId }
-    ]
-  }).sort({ createdAt: 1 });
+    // ✅ Hacer el sort PRIMERO en la query, LUEGO desencriptar
+    const mensajesEncriptados = await Mensaje.find({
+      $or: [
+        { de: miId, para: contactId },
+        { de: contactId, para: miId }
+      ]
+    }).sort({ createdAt: 1 });
 
-  res.json(mensajes);
+    // ✅ Desencriptar después
+    const mensajesDesencriptados = mensajesEncriptados.map(msg => msg.desencriptar());
+
+    res.json(mensajesDesencriptados);
+  } catch (error) {
+    console.error("Error al obtener historial:", error);
+    res.status(500).json({ msg: "Error al obtener historial", error: error.message });
+  }
 });
 
-// ✅ ACTUALIZADO: Obtener todos los mensajes desencriptados
+// ✅ CORREGIDO: Obtener todos los mensajes con sort ANTES de desencriptar
 router.get("/chat/all-messages/:userId", verificarTokenJWT, async (req, res) => {
-  const { userId } = req.params;
+  try {
+    const { userId } = req.params;
 
-  const mensajes = await Mensaje.findDesencriptados({
-    $or: [{ de: userId }, { para: userId }]
-  }).sort({ createdAt: 1 });
+    // ✅ Hacer el sort PRIMERO en la query, LUEGO desencriptar
+    const mensajesEncriptados = await Mensaje.find({
+      $or: [{ de: userId }, { para: userId }]
+    }).sort({ createdAt: 1 });
 
-  res.json(mensajes);
+    // ✅ Desencriptar después
+    const mensajesDesencriptados = mensajesEncriptados.map(msg => msg.desencriptar());
+
+    res.json(mensajesDesencriptados);
+  } catch (error) {
+    console.error("Error al obtener mensajes:", error);
+    res.status(500).json({ msg: "Error al obtener mensajes", error: error.message });
+  }
 });
 
 // ✅ ACTUALIZADO: Enviar transferencia (se encripta automáticamente)

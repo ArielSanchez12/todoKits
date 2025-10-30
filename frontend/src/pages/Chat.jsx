@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import Pusher from "pusher-js";
 import storeAuth from "../context/storeAuth";
-import { MdQrCode } from "react-icons/md";
+import { MdQrCode, MdMoreVert, MdSearch, MdAttachFile } from "react-icons/md";
+import { IoSend } from "react-icons/io5";
 
 const PUSHER_KEY = import.meta.env.VITE_PUSHER_KEY;
 const PUSHER_CLUSTER = import.meta.env.VITE_PUSHER_CLUSTER;
@@ -13,21 +14,19 @@ const Chat = () => {
     const [responses, setResponses] = useState([]);
     const [message, setMessage] = useState("");
     const [isTyping, setIsTyping] = useState(false);
+    const [showContactMenu, setShowContactMenu] = useState(false);
     const token = storeAuth((state) => state.token);
     const user = JSON.parse(localStorage.getItem("user")) || {};
-    const [userType, setUserType] = useState(""); // "docente" o "admin"
+    const [userType, setUserType] = useState("");
     const pusherRef = useRef(null);
     const channelRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     // Detectar tipo de usuario
     useEffect(() => {
-        console.log("Usuario actual:", user);
         if (user.rolDocente) {
-            console.log("Es docente");
             setUserType("docente");
-        } else if (user.rol === "Administrador") { // Cambio importante aquí
-            console.log("Es admin");
+        } else if (user.rol === "Administrador") {
             setUserType("admin");
         }
     }, [user]);
@@ -36,26 +35,18 @@ const Chat = () => {
     useEffect(() => {
         if (!token || !userType) return;
         const endpoint = userType === "docente" ? "/chat/admin" : "/chat/docentes";
-        console.log("UserType:", userType); // Para ver qué tipo de usuario es
-        console.log("Endpoint:", endpoint); // Para ver qué endpoint se está llamando
 
         fetch(`${BACKEND_URL}${endpoint}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => {
-                console.log("Datos recibidos:", data); // Para ver los datos que llegan
                 setContacts(userType === "docente" ? (data ? [data] : []) : data);
             });
     }, [token, userType]);
 
     // Cargar historial al seleccionar contacto
     useEffect(() => {
-        console.log("Estado actual:", {
-            userType,
-            contacts,
-            selectedContact
-        });
         if (!selectedContact) return;
         fetch(`${BACKEND_URL}/chat/chat-history/${selectedContact._id}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -86,18 +77,8 @@ const Chat = () => {
 
         return () => {
             channel.unbind("nuevo-mensaje", handleNewMessage);
-            // No desconectes Pusher aquí, solo desuscribe el canal si quieres
         };
     }, [selectedContact, user]);
-
-    // Simulación: activa cuando el otro usuario está escribiendo
-    useEffect(() => {
-        if (!selectedContact) return;
-        // Aquí deberías escuchar el evento "typing" de Pusher y activar setIsTyping(true)
-        // Simulación temporal:
-        // setIsTyping(true);
-        // setTimeout(() => setIsTyping(false), 2000);
-    }, [selectedContact]);
 
     // Enviar mensaje
     const handleSend = async (e) => {
@@ -135,7 +116,7 @@ const Chat = () => {
                 (msg.de === contactId && msg.para === user._id) ||
                 (msg.de === user._id && msg.para === contactId)
         );
-        if (msgs.length === 0) return { texto: " ", esMio: false, estado: null, createdAt: null };
+        if (msgs.length === 0) return { texto: "Sin mensajes", esMio: false, estado: null, createdAt: null };
         const last = msgs[msgs.length - 1];
         return {
             texto: last.texto,
@@ -160,15 +141,13 @@ const Chat = () => {
         } else if (isYesterday) {
             return "Ayer";
         } else if (now - date < 7 * 24 * 60 * 60 * 1000) {
-            // Dentro de la última semana
-            return date.toLocaleDateString('es-ES', { weekday: 'short' }); // ej: "lun."
+            return date.toLocaleDateString('es-ES', { weekday: 'short' });
         } else {
-            // Fecha completa
             return date.toLocaleDateString();
         }
     }
 
-    //Renderizar mensaje de transferencia
+    // ✅ Renderizar mensaje de transferencia
     const renderMensajeTransferencia = (msg) => {
         const { transferencia } = msg;
         return (
@@ -188,7 +167,6 @@ const Chat = () => {
                     </p>
                 </div>
 
-                {/* Botón para ver el QR */}
                 <a
                     href={transferencia.qrImageUrl}
                     target="_blank"
@@ -206,126 +184,238 @@ const Chat = () => {
         );
     };
 
-    contacts.forEach(contact => console.log(contact));
     return (
-        <div className="flex h-[80vh]">
-            {/* Sidebar de contactos */}
-            <div className="w-1/4 bg-gray-200 p-4 overflow-y-auto">
-                <h2 className="text-lg text-center text-black font-bold mb-4">
-                    {userType === "docente" ? "Administrador" : "Docentes"}
-                </h2>
-                {contacts.map(contact => {
-                    const lastMsg = getLastMessageInfo(contact._id);
-                    return (
-                        <div
-                            key={contact._id}
-                            className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-300 ${selectedContact?._id === contact._id ? "bg-gray-300" : ""}`}
-                            onClick={() => setSelectedContact(contact)}
-                        >
+        <div className="flex h-screen bg-gray-100">
+            {/* ✅ SIDEBAR - Contactos (Responsive) */}
+            <div className="w-full md:w-80 bg-white border-r border-gray-300 flex flex-col shadow-lg">
+                {/* Header del Sidebar */}
+                <div className="p-4 border-b border-gray-200">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                        {userType === "docente" ? "💬 Chat" : "👥 Docentes"}
+                    </h1>
+                    <div className="relative hidden md:block">
+                        <MdSearch className="absolute left-3 top-3 text-gray-400" size={20} />
+                        <input
+                            type="text"
+                            placeholder="Buscar..."
+                            className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+
+                {/* Lista de contactos */}
+                <div className="flex-1 overflow-y-auto">
+                    {contacts.length === 0 ? (
+                        <div className="p-4 text-center text-gray-500">
+                            <p>No hay contactos disponibles</p>
+                        </div>
+                    ) : (
+                        contacts.map(contact => {
+                            const lastMsg = getLastMessageInfo(contact._id);
+                            return (
+                                <div
+                                    key={contact._id}
+                                    onClick={() => setSelectedContact(contact)}
+                                    className={`p-3 md:p-4 border-b border-gray-200 cursor-pointer transition-colors ${
+                                        selectedContact?._id === contact._id
+                                            ? "bg-blue-50 border-l-4 border-l-blue-500"
+                                            : "hover:bg-gray-50"
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {/* Avatar */}
+                                        <img
+                                            src={
+                                                userType === "docente"
+                                                    ? (contact.avatar || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                                    : (contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                            }
+                                            alt="avatar"
+                                            className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover"
+                                        />
+
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start">
+                                                <h3 className="font-semibold text-gray-800 truncate">
+                                                    {contact.nombreDocente
+                                                        ? `${contact.nombreDocente} ${contact.apellidoDocente}`
+                                                        : `${contact.nombre} ${contact.apellido}`}
+                                                </h3>
+                                                <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                                                    {formatLastMessageDate(lastMsg.createdAt)}
+                                                </span>
+                                            </div>
+                                            <p className={`text-sm truncate ${lastMsg.esMio ? "font-semibold" : "text-gray-600"}`}>
+                                                {lastMsg.esMio && "Tú: "}
+                                                {lastMsg.texto}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
+            </div>
+
+            {/* ✅ AREA DE CHAT PRINCIPAL */}
+            {selectedContact ? (
+                <div className="flex-1 flex flex-col bg-white">
+                    {/* ✅ HEADER DEL CHAT */}
+                    <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between shadow-sm">
+                        <div className="flex items-center gap-3">
+                            {/* Avatar del contacto */}
                             <img
                                 src={
                                     userType === "docente"
-                                        ? (
-                                            contact.avatar ||
-                                            contact.avatarDocente ||
-                                            "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
-                                        )
-                                        : (
-                                            contact.avatarDocente ||
-                                            contact.avatar ||
-                                            "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
-                                        )
+                                        ? (selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                        : (selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
                                 }
                                 alt="avatar"
-                                className="w-13 h-13 rounded-full"
+                                className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover"
                             />
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-center">
-                                    <span className="font-semibold truncate">
-                                        {contact.nombreDocente
-                                            ? `${contact.nombreDocente} ${contact.apellidoDocente}`
-                                            : `${contact.nombre} ${contact.apellido}`}
-                                    </span>
-                                    {/* Fecha tipo WhatsApp */}
-                                    <span className="text-sm text-black ml-2">
-                                        {formatLastMessageDate(lastMsg.createdAt)}
-                                    </span>
-                                </div>
-                                <div className="text-base text-black flex items-center gap-1 truncate">
-                                    {lastMsg.esMio && <span className="font-bold text-black">tu:</span>}
-                                    <span className="truncate">{lastMsg.texto}</span>
-                                </div>
+
+                            {/* Nombre e info */}
+                            <div>
+                                <h2 className="font-bold text-gray-800 text-sm md:text-base">
+                                    {selectedContact.nombreDocente
+                                        ? `${selectedContact.nombreDocente} ${selectedContact.apellidoDocente}`
+                                        : `${selectedContact.nombre} ${selectedContact.apellido}`}
+                                </h2>
+                                <p className="text-xs text-gray-500">Activo ahora</p>
                             </div>
                         </div>
-                    );
-                })}
-            </div>
-            {/* Chat principal */}
-            <div className="flex-1 flex flex-col">
-                <div className="flex-1 p-4 overflow-y-auto">
-                    {responses.map((msg, idx) => (
-                        <div key={idx} className="mb-4">
-                            {/* ✅ RENDERIZADO CONDICIONAL: Normal vs Transferencia */}
-                            {msg.tipo === "transferencia" ? (
-                                renderMensajeTransferencia(msg)
-                            ) : (
-                                <div
-                                    className={`flex ${msg.de === user._id ? "justify-end" : "justify-start"}`}
-                                >
-                                    <div
-                                        className={`relative max-w-[75%] px-3 py-2 rounded-xl shadow
-                                            ${msg.de === user._id
-                                                ? "bg-gray-900 text-white rounded-br-none"
-                                                : "bg-gray-200 text-black rounded-bl-none"
-                                            }`}
-                                        style={{ wordBreak: "break-word" }}
-                                    >
-                                        <div className="flex items-end gap-2">
-                                            <span className="text-base">{msg.texto}</span>
-                                            <span className="text-sm text-white-500 opacity-80 pb-[2px]">
-                                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </span>
-                                        </div>
-                                        <span className={`absolute top-2 ${msg.de === user._id ? "right-[-11px]" : "left-[-11px]"}`}>
-                                            <svg width="12" height="20" viewBox="0 0 12 25">
-                                                <polygon
-                                                    points={msg.de === user._id ? "0,0 12,10 0,20" : "12,0 0,10 12,20"}
-                                                    fill={msg.de === user._id ? "#000000ff" : "#e5e7eb"}
-                                                />
-                                            </svg>
-                                        </span>
-                                    </div>
+
+                        {/* Botón de opciones */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowContactMenu(!showContactMenu)}
+                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                            >
+                                <MdMoreVert size={24} className="text-gray-600" />
+                            </button>
+
+                            {showContactMenu && (
+                                <div className="absolute right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
+                                    <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
+                                        Ver contacto
+                                    </button>
+                                    <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700 border-t">
+                                        Limpiar chat
+                                    </button>
+                                    <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600 border-t">
+                                        Bloquear
+                                    </button>
                                 </div>
                             )}
                         </div>
-                    ))}
-                    {isTyping && (
-                        <div className="flex items-center mb-2">
-                            <div className="bg-gray-300 rounded-full px-4 py-2 flex items-center gap-2">
-                                <span className="text-sm text-gray-700">Escribiendo</span>
-                                <span className="flex gap-1">
-                                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></span>
-                                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:.2s]"></span>
-                                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:.4s]"></span>
-                                </span>
+                    </div>
+
+                    {/* ✅ AREA DE MENSAJES */}
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
+                        {responses.length === 0 ? (
+                            <div className="flex items-center justify-center h-full">
+                                <div className="text-center">
+                                    <img
+                                        src={
+                                            userType === "docente"
+                                                ? (selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                                : (selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                        }
+                                        alt="avatar"
+                                        className="w-20 h-20 rounded-full mx-auto mb-4 opacity-30"
+                                    />
+                                    <p className="text-gray-500 text-sm">Inicia la conversación</p>
+                                </div>
                             </div>
+                        ) : (
+                            <>
+                                {responses.map((msg, idx) => (
+                                    <div key={idx} className={`mb-4 flex ${msg.de === user._id ? "justify-end" : "justify-start"}`}>
+                                        {/* ✅ RENDERIZADO CONDICIONAL: Normal vs Transferencia */}
+                                        {msg.tipo === "transferencia" ? (
+                                            <div className="max-w-xs md:max-w-sm">
+                                                {renderMensajeTransferencia(msg)}
+                                            </div>
+                                        ) : (
+                                            <div className={`max-w-xs md:max-w-sm lg:max-w-md ${msg.de === user._id ? "" : ""}`}>
+                                                <div
+                                                    className={`px-4 py-3 rounded-2xl ${
+                                                        msg.de === user._id
+                                                            ? "bg-blue-500 text-white rounded-br-none"
+                                                            : "bg-gray-300 text-gray-900 rounded-bl-none"
+                                                    }`}
+                                                    style={{ wordBreak: "break-word" }}
+                                                >
+                                                    <p className="text-sm md:text-base">{msg.texto}</p>
+                                                    <p className={`text-xs mt-1 ${msg.de === user._id ? "text-blue-100" : "text-gray-600"}`}>
+                                                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {isTyping && (
+                                    <div className="mb-4 flex justify-start">
+                                        <div className="bg-gray-300 rounded-2xl px-4 py-3 rounded-bl-none">
+                                            <div className="flex gap-2">
+                                                <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></div>
+                                                <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:.2s]"></div>
+                                                <div className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:.4s]"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div ref={messagesEndRef} />
+                            </>
+                        )}
+                    </div>
+
+                    {/* ✅ AREA DE ENTRADA DE MENSAJES */}
+                    <form onSubmit={handleSend} className="bg-white border-t border-gray-300 p-4 md:p-6">
+                        <div className="flex items-center gap-3">
+                            {/* Botón de adjuntar (opcional) */}
+                            <button
+                                type="button"
+                                className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-600"
+                            >
+                                <MdAttachFile size={24} />
+                            </button>
+
+                            {/* Input de mensaje */}
+                            <input
+                                type="text"
+                                value={message}
+                                onChange={e => setMessage(e.target.value)}
+                                placeholder="Escribe un mensaje..."
+                                className="flex-1 bg-gray-100 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+
+                            {/* Botón de enviar */}
+                            <button
+                                type="submit"
+                                disabled={!message.trim()}
+                                className="p-2 hover:bg-blue-100 rounded-full transition-colors text-blue-500 disabled:text-gray-300 disabled:hover:bg-transparent"
+                            >
+                                <IoSend size={24} />
+                            </button>
                         </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-                {selectedContact && (
-                    <form onSubmit={handleSend} className="flex p-4 border-t">
-                        <input
-                            type="text"
-                            value={message}
-                            onChange={e => setMessage(e.target.value)}
-                            className="flex-1 border rounded px-2 py-1"
-                            placeholder="Escribe tu mensaje..."
-                        />
-                        <button type="submit" className="ml-2 px-4 py-1 bg-black text-white rounded">Enviar</button>
                     </form>
-                )}
-            </div>
+                </div>
+            ) : (
+                /* ✅ PANTALLA VACIA CUANDO NO HAY CONTACTO SELECCIONADO */
+                <div className="hidden md:flex flex-1 items-center justify-center bg-gradient-to-b from-blue-50 to-gray-50">
+                    <div className="text-center">
+                        <div className="text-6xl mb-4">💬</div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Selecciona un chat</h2>
+                        <p className="text-gray-500">Elige un contacto para comenzar a chatear</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

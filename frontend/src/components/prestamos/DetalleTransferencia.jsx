@@ -1,12 +1,15 @@
 import { IoClose } from "react-icons/io5";
-import { MdDownload, MdContentCopy } from "react-icons/md";
+import { MdDownload, MdContentCopy, MdChat } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useState } from "react";
 
 const DetalleTransferencia = ({ transferencia, onClose }) => {
-  // ✅ CORRECCIÓN 1: URL quemada como solicitaste
+  const [loading, setLoading] = useState(false);
+
+  // ✅ URL quemada como solicitaste
   const urlQR = `https://kitsfrontend-zeta.vercel.app/dashboard/transferencia/${transferencia.codigoQR}`;
   
-  // ✅ CORRECCIÓN 2: Usar API de QR Server para generar imagen
+  // ✅ Usar API de QR Server para generar imagen
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
 
   const formatFecha = (fecha) => {
@@ -27,6 +30,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
       aceptado_destino: "bg-green-100 text-green-800",
       rechazado: "bg-red-100 text-red-800",
       finalizado: "bg-purple-100 text-purple-800",
+      cancelado: "bg-gray-100 text-gray-800",
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
   };
@@ -38,11 +42,11 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
       aceptado_destino: "Aceptado Destino",
       rechazado: "Rechazado",
       finalizado: "Finalizado",
+      cancelado: "Cancelado",
     };
     return textos[estado] || estado;
   };
 
-  // ✅ CORRECCIÓN 3: Función de descarga igual a ModalQRTransferencia
   const handleDescargarQR = async () => {
     try {
       const response = await fetch(qrImageUrl);
@@ -64,6 +68,41 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
   const handleCopiarURL = () => {
     navigator.clipboard.writeText(urlQR);
     toast.success("URL copiada al portapapeles");
+  };
+
+  // ✅ NUEVA FUNCIÓN: Enviar por chat (copiada de ModalQRTransferencia)
+  const handleEnviarPorChat = async () => {
+    setLoading(true);
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/chat/enviar-transferencia`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${storedUser.state.token}`,
+          },
+          body: JSON.stringify({
+            codigoTransferencia: transferencia.codigoQR,
+            docenteDestinoId: transferencia.docenteDestino._id
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("✅ Transferencia enviada por chat al docente destino");
+      } else {
+        toast.error(data.msg || "Error al enviar por chat");
+      }
+    } catch (error) {
+      console.error("Error al enviar transferencia por chat:", error);
+      toast.error("Error al enviar por chat");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -111,17 +150,29 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     className="w-64 h-64"
                   />
                 </div>
-                <button
-                  onClick={handleDescargarQR}
-                  className="mt-4 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-                >
-                  <MdDownload size={20} />
-                  Descargar QR
-                </button>
+                {/* ✅ BOTONES MEJORADOS: Descargar y Enviar por Chat lado a lado */}
+                <div className="mt-4 flex gap-2 w-full max-w-xs">
+                  <button
+                    onClick={handleDescargarQR}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                  >
+                    <MdDownload size={20} />
+                    Descargar
+                  </button>
+                  <button
+                    onClick={handleEnviarPorChat}
+                    disabled={loading}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    <MdChat size={20} />
+                    {loading ? "Enviando..." : "Enviar"}
+                  </button>
+                </div>
               </div>
 
-              {/* URL */}
+              {/* URLs */}
               <div className="flex flex-col justify-center space-y-4">
+                {/* ✅ URL DE TRANSFERENCIA (original) */}
                 <div>
                   <label className="text-xs font-semibold text-gray-600 mb-1 block">
                     🔗 URL de Transferencia
@@ -143,10 +194,36 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                   </div>
                 </div>
 
+                {/* ✅ NUEVA: URL DEL CÓDIGO QR */}
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 mb-1 block">
+                    🖼️ URL del Código QR
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={qrImageUrl}
+                      className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(qrImageUrl);
+                        toast.success("URL del QR copiada");
+                      }}
+                      className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                      title="Copiar URL del QR"
+                    >
+                      <MdContentCopy size={18} />
+                    </button>
+                  </div>
+                </div>
+
                 <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
                   <p className="text-xs text-yellow-800">
                     <strong>💡 Instrucciones:</strong> El docente origen debe
-                    escanear este QR para confirmar la transferencia.
+                    escanear este QR para confirmar la transferencia. Puedes reenviar
+                    el mensaje por chat si es necesario.
                   </p>
                 </div>
               </div>
@@ -155,7 +232,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
 
           {/* Información de Docentes */}
           <div className="grid md:grid-cols-2 gap-4">
-            {/* ✅ CORRECCIÓN 4: Docente Origen - estructura igual a DetallePrestamo */}
+            {/* Docente Origen */}
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 👤 Docente Origen
@@ -189,7 +266,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
               </div>
             </div>
 
-            {/* ✅ CORRECCIÓN 4: Docente Destino - estructura igual a DetallePrestamo */}
+            {/* Docente Destino */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 👤 Docente Destino
@@ -224,7 +301,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             </div>
           </div>
 
-          {/* ✅ CORRECCIÓN 5: Recursos Principales - estructura EXACTA de DetallePrestamo */}
+          {/* Recursos Principales */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
               📦 Recursos Principales
@@ -280,7 +357,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             )}
           </div>
 
-          {/* ✅ CORRECCIÓN 5: Recursos Adicionales - estructura EXACTA de DetallePrestamo */}
+          {/* Recursos Adicionales */}
           {transferencia.recursosAdicionales &&
             transferencia.recursosAdicionales.length > 0 && (
               <div className="bg-yellow-50 p-4 rounded-lg">

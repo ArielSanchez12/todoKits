@@ -29,7 +29,7 @@ router.get('/confirm/:token', confirmarMail)
 router.get('/perfil', verificarTokenJWT, perfil) //verificarTokenJWT es un MIDDLEWARE que se ejecuta antes de llegar al controlador perfil (así protegemos la ruta de acceso al perfil del administrador)
 router.put('/administrador/:id', verificarTokenJWT, validate(updateProfileSchema), actualizarPerfil)
 router.put('/administrador/actualizarpassword/:id', verificarTokenJWT, validate(updatePasswordSchema), actualizarPassword)
-router.get('/administrador/confirm-new-email/:token', confirmarNuevoEmail); // Ruta para confirmar email nuevo después de cambiarlo
+router.get('/administrador/confirm-new-email/:token', confirmarNuevoEmail); // Ruta para confirmar email nuevo después de cambiarlo (lo que se abre al hacer click en el correo)
 
 // Rutas para gestionar docentes
 // Nueva ruta para que los administradores creen docentes

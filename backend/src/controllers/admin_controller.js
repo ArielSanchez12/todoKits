@@ -13,8 +13,11 @@ const registro = async (req, res) => {
         const { nombre, apellido, celular, email, password } = req.validated || req.body;
 
         // comprobacion de email existente
-        const adminEmailBDD = await admin.findOne({ email });
-        if (adminEmailBDD) return res.status(400).json({ msg: "El email ya está registrado" });
+        const adminExistente = await admin.findOne({ email });
+        const docenteExistente = await docente.findOne({ emailDocente: email });
+        if (adminExistente || docenteExistente) {
+            return res.status(400).json({ msg: "El email ya está registrado en el sistema" });
+        }
 
         const nuevoAdmin = new admin({ nombre, apellido, celular, email });
         nuevoAdmin.password = await nuevoAdmin.encryptPassword(password);
@@ -41,104 +44,104 @@ const confirmarMail = async (req, res) => {
 }
 
 //Etapa 1
-const recuperarPassword = async (req, res) => {
-    try {
-        // Datos ya validados por Zod (req.validated)
-        const { email } = req.validated || req.body;
+// const recuperarPassword = async (req, res) => {
+//     try {
+//         // Datos ya validados por Zod (req.validated)
+//         const { email } = req.validated || req.body;
 
-        const adminEmailBDD = await admin.findOne({ email });
-        if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" });
+//         const adminEmailBDD = await admin.findOne({ email });
+//         if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" });
 
-        const token = adminEmailBDD.createToken();
-        adminEmailBDD.token = token;
-        await adminEmailBDD.save();
+//         const token = adminEmailBDD.createToken();
+//         adminEmailBDD.token = token;
+//         await adminEmailBDD.save();
 
-        // Enviar el correo con el token
-        await sendMailToRecoveryPassword(email, token);
+//         // Enviar el correo con el token
+//         await sendMailToRecoveryPassword(email, token);
 
-        res.status(200).json({ msg: "Revisa tu correo para restablecer tu contraseña" });
-    } catch (error) {
-        console.error("recuperarPassword error:", error);
-        res.status(500).json({ msg: "Error en el servidor" });
-    }
-}
+//         res.status(200).json({ msg: "Revisa tu correo para restablecer tu contraseña" });
+//     } catch (error) {
+//         console.error("recuperarPassword error:", error);
+//         res.status(500).json({ msg: "Error en el servidor" });
+//     }
+// }
 
-//Etapa 2
-const comprobarTokenPassword = async (req, res) => {
-    const { token } = req.params
-    const adminEmailBDD = await admin.findOne({ token })
-    if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" })
+// //Etapa 2
+// const comprobarTokenPassword = async (req, res) => {
+//     const { token } = req.params
+//     const adminEmailBDD = await admin.findOne({ token })
+//     if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" })
 
-    await adminEmailBDD.save()
+//     await adminEmailBDD.save()
 
-    res.status(200).json({ msg: "Token confirmado, ya puedes crear tu nuevo password" })
-}
+//     res.status(200).json({ msg: "Token confirmado, ya puedes crear tu nuevo password" })
+// }
 
-//Etapa 3
-const crearNuevoPassword = async (req, res) => {
-    try {
-        // Datos ya validados por Zod (incluye validación de coincidencia)
-        const { password, confirmpassword } = req.validated || req.body;
-        const { token } = req.params;
+// //Etapa 3
+// const crearNuevoPassword = async (req, res) => {
+//     try {
+//         // Datos ya validados por Zod (incluye validación de coincidencia)
+//         const { password, confirmpassword } = req.validated || req.body;
+//         const { token } = req.params;
 
-        if (!token) return res.status(400).json({ msg: "Token inválido" });
+//         if (!token) return res.status(400).json({ msg: "Token inválido" });
 
-        const adminEmailBDD = await admin.findOne({ token });
-        if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" });
-        if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, token inválido o expirado" });
+//         const adminEmailBDD = await admin.findOne({ token });
+//         if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" });
+//         if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, token inválido o expirado" });
 
-        adminEmailBDD.token = null;
-        adminEmailBDD.password = await adminEmailBDD.encryptPassword(password);
-        await adminEmailBDD.save();
+//         adminEmailBDD.token = null;
+//         adminEmailBDD.password = await adminEmailBDD.encryptPassword(password);
+//         await adminEmailBDD.save();
 
-        res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" });
-    } catch (error) {
-        console.error("crearNuevoPassword error:", error);
-        res.status(500).json({ msg: "Error en el servidor" });
-    }
-}
+//         res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" });
+//     } catch (error) {
+//         console.error("crearNuevoPassword error:", error);
+//         res.status(500).json({ msg: "Error en el servidor" });
+//     }
+// }
 
-const login = async (req, res) => {
-    //Obtencion de datos
-    const { email, password } = req.body
+// const login = async (req, res) => {
+//     //Obtencion de datos
+//     const { email, password } = req.body
 
-    //Validacion de datos
-    if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Todos los campos son obligatorios" })
+//     //Validacion de datos
+//     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Todos los campos son obligatorios" })
 
-    //Comprobacion de email/password
-    const adminEmailBDD = await admin.findOne({ email }).select("-status -__v -token -createdAt -updatedAt")
-    if (adminEmailBDD?.confirmEmail === false) return res.status(401).json({ msg: "Lo sentimos, debes verificar tu cuenta antes de iniciar sesión" })
-    if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" })
+//     //Comprobacion de email/password
+//     const adminEmailBDD = await admin.findOne({ email }).select("-status -__v -token -createdAt -updatedAt")
+//     if (adminEmailBDD?.confirmEmail === false) return res.status(401).json({ msg: "Lo sentimos, debes verificar tu cuenta antes de iniciar sesión" })
+//     if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" })
 
-    const verificarPassword = await adminEmailBDD.matchPassword(password)
-    if (!verificarPassword) return res.status(401).json({ msg: "Lo sentimos, el password es incorrecto" })
+//     const verificarPassword = await adminEmailBDD.matchPassword(password)
+//     if (!verificarPassword) return res.status(401).json({ msg: "Lo sentimos, el password es incorrecto" })
 
-    //Desestructurar solo los campos permitidos (sin 'direccion')
-    const { nombre, apellido, celular, _id, rol, email: emailAd } = adminEmailBDD;
-    const tokenJWT = crearTokenJWT(adminEmailBDD._id, adminEmailBDD.rol)
+//     //Desestructurar solo los campos permitidos (sin 'direccion')
+//     const { nombre, apellido, celular, _id, rol, email: emailAd } = adminEmailBDD;
+//     const tokenJWT = crearTokenJWT(adminEmailBDD._id, adminEmailBDD.rol)
 
-    //Aca mandamos el objeto que desestructuramos arriba
-    res.status(200).json({
-        token: tokenJWT,
-        rol,
-        usuario: {
-            _id,
-            nombre,
-            apellido,
-            celular,
-            emailAd,
-            rol,
-            avatar: adminEmailBDD.avatar || null
-        }
-    });
-}
+//     //Aca mandamos el objeto que desestructuramos arriba
+//     res.status(200).json({
+//         token: tokenJWT,
+//         rol,
+//         usuario: {
+//             _id,
+//             nombre,
+//             apellido,
+//             celular,
+//             emailAd,
+//             rol,
+//             avatar: adminEmailBDD.avatar || null
+//         }
+//     });
+// }
 
 const perfil = (req, res) => {
     const { token, confirmEmail, createdAt, updatedAt, __v, ...datosPerfil } = req.adminEmailBDD //Quita todo lo que esta antes de ... y lo demas lo guarda en datosPerfil para almacenarlos en la respuesta req.admin
     res.status(200).json(datosPerfil)
 }
 
-// Confirmación de nuevo email (token enviado al nuevo correo)
+//Confirmación de nuevo email (token enviado al nuevo correo)
 const confirmarNuevoEmail = async (req, res) => {
     try {
         const { token } = req.params;
@@ -166,13 +169,7 @@ const actualizarPerfil = async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.validated || req.body;
-        // ✅ LOGS TEMPORALES PARA DEBUGGING
-        console.log("🔍 Content-Type:", req.headers['content-type']);
-        console.log("📥 Datos recibidos:", data);
-        console.log("🗑️ removeAvatar value:", data.removeAvatar);
-        console.log("🗑️ removeAvatar type:", typeof data.removeAvatar);
-        console.log("📁 req.files:", req.files);
-
+        
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
         }
@@ -184,8 +181,13 @@ const actualizarPerfil = async (req, res) => {
 
         // Si cambian email, iniciar flujo de verificación
         if (data.email && data.email !== adminEmailBDD.email) {
-            const existe = await admin.findOne({ email: data.email });
-            if (existe) return res.status(400).json({ msg: "El email ya se encuentra registrado" });
+            // VERIFICAR EN AMBAS COLECCIONES
+            const adminExistente = await admin.findOne({ email: data.email });
+            const docenteExistente = await docente.findOne({ emailDocente: data.email });
+
+            if (adminExistente || docenteExistente) {
+                return res.status(400).json({ msg: "El email ya está registrado en el sistema" });
+            }
 
             const token = adminEmailBDD.createToken();
             adminEmailBDD.pendingEmail = data.email;
@@ -304,8 +306,11 @@ const registrarDocente = async (req, res) => {
         const datos = req.validated || req.body;
         const { emailDocente } = datos;
 
-        const verificarEmailBDD = await docente.findOne({ emailDocente });
-        if (verificarEmailBDD) return res.status(400).json({ msg: "Lo sentimos, el email ya se encuentra registrado" });
+        const docenteExistente = await docente.findOne({ emailDocente });
+        const adminExistente = await admin.findOne({ email: emailDocente });
+        if (docenteExistente || adminExistente) {
+            return res.status(400).json({ msg: "El email ya está registrado en el sistema" });
+        }
 
         const password = Math.random().toString(36).toUpperCase().slice(2, 5);
 
@@ -414,9 +419,11 @@ const actualizarDocente = async (req, res) => {
         // Si el correo fue cambiado
         if (nuevoCorreo && nuevoCorreo !== correoAnterior) {
             // Verificar si el nuevo correo ya está en uso
-            const existeCorreo = await docente.findOne({ emailDocente: nuevoCorreo });
-            if (existeCorreo) {
-                return res.status(400).json({ msg: "El correo ya está en uso por otro docente" });
+            const docenteExistente = await docente.findOne({ emailDocente: nuevoCorreo });
+            const adminExistente = await admin.findOne({ email: nuevoCorreo });
+
+            if (docenteExistente || adminExistente) {
+                return res.status(400).json({ msg: "El email ya está en uso en el sistema" });
             }
 
             // Generar token para confirmar cambio de email
@@ -498,10 +505,10 @@ const detalleDocente = async (req, res) => {
 export {
     registro,
     confirmarMail,
-    recuperarPassword,
-    comprobarTokenPassword,
-    crearNuevoPassword,
-    login,
+    // recuperarPassword,
+    // comprobarTokenPassword,
+    // crearNuevoPassword,
+    //login,
     perfil,
     actualizarPerfil,
     actualizarPassword,

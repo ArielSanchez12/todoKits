@@ -197,6 +197,10 @@ const Chat = () => {
                 <p className="text-xs text-gray-500 mt-3">
                     Código: {transferencia.codigo}
                 </p>
+                {/* ✅ HORA DEL MENSAJE */}
+                <p className="text-xs text-gray-500">
+                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
             </div>
         );
     };

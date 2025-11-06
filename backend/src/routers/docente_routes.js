@@ -1,13 +1,10 @@
 import { Router } from 'express'
 import { 
   perfilDocente, 
-  //actualizarPasswordDocente, 
   confirmarNuevoEmailDocente, 
   confirmarMailDocente
 } from '../controllers/docente_controller.js'
 import { verificarTokenJWT } from '../middlewares/jwt.js'
-import { validate } from "../middlewares/zodValidations.js"
-import { updateDocentePasswordSchema } from "../schemas/docenteSchema.js"
 
 const router = Router()
 

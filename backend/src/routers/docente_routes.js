@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { 
   perfilDocente, 
-  actualizarPasswordDocente, 
+  //actualizarPasswordDocente, 
   confirmarNuevoEmailDocente, 
   confirmarMailDocente
 } from '../controllers/docente_controller.js'
@@ -18,7 +18,7 @@ router.get('/docente/confirm/:token', confirmarMailDocente)
 router.get('/docente/profile', verificarTokenJWT, perfilDocente)
 
 // Actualizar contraseña del docente (protegido)
-router.put("/docente/actualizarpassword/:id", verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)
+//router.put("/docente/actualizarpassword/:id", verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)
 
 // Confirmar cambio de email
 router.get("/docente/confirm-new-email/:token", confirmarNuevoEmailDocente)

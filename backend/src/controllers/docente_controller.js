@@ -95,37 +95,38 @@ const perfilDocente = (req, res) => {
 //   }
 // };
 
-// const confirmarNuevoEmailDocente = async (req, res) => {
-//   try {
-//     const { token } = req.params;
+//Este es el que se abre al hacer clic en el enlace del correo para confirmar el nuevo email
+const confirmarNuevoEmailDocente = async (req, res) => {
+  try {
+    const { token } = req.params;
 
-//     if (!token) {
-//       return res.status(400).json({ msg: "Token inválido" });
-//     }
+    if (!token) {
+      return res.status(400).json({ msg: "Token inválido" });
+    }
 
-//     const docenteBDD = await docente.findOne({
-//       tokenDocente: token,
-//       pendingEmailDocente: { $exists: true, $ne: null }
-//     });
+    const docenteBDD = await docente.findOne({
+      tokenDocente: token,
+      pendingEmailDocente: { $exists: true, $ne: null }
+    });
 
-//     if (!docenteBDD) {
-//       return res.status(404).json({ msg: "Token inválido o expirado" });
-//     }
+    if (!docenteBDD) {
+      return res.status(404).json({ msg: "Token inválido o expirado" });
+    }
 
-//     // Aplicar cambio de email
-//     docenteBDD.emailDocente = docenteBDD.pendingEmailDocente;
-//     docenteBDD.pendingEmailDocente = null;
-//     docenteBDD.tokenDocente = null;
-//     docenteBDD.confirmEmailDocente = true;
+    // Aplicar cambio de email
+    docenteBDD.emailDocente = docenteBDD.pendingEmailDocente;
+    docenteBDD.pendingEmailDocente = null;
+    docenteBDD.tokenDocente = null;
+    docenteBDD.confirmEmailDocente = true;
 
-//     await docenteBDD.save();
+    await docenteBDD.save();
 
-//     res.status(200).json({ msg: "Email confirmado y actualizado correctamente" });
-//   } catch (error) {
-//     console.error("confirmarNuevoEmailDocente error:", error);
-//     res.status(500).json({ msg: "Error en el servidor" });
-//   }
-// };
+    res.status(200).json({ msg: "Email confirmado y actualizado correctamente" });
+  } catch (error) {
+    console.error("confirmarNuevoEmailDocente error:", error);
+    res.status(500).json({ msg: "Error en el servidor" });
+  }
+};
 
 // const recuperarPasswordDocente = async (req, res) => {
 //   try {
@@ -219,7 +220,7 @@ export {
   //loginDocente,
   perfilDocente,
   // actualizarPasswordDocente,
-  // confirmarNuevoEmailDocente,
+  confirmarNuevoEmailDocente,
   // recuperarPasswordDocente,
   // comprobarTokenPasswordDocente,
   // crearNuevoPasswordDocente,

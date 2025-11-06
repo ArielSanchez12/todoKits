@@ -19,15 +19,15 @@ const Profile = () => {
                 user && user?.rolDocente == "Docente"
                     ? (<CardProfileOwner />)
                     : (
-                        // ✅ NUEVO LAYOUT: CardProfile arriba (ancho completo), FormProfile y CardPassword abajo
-                        <div className='space-y-8'>
+                        // ✅ NUEVA ESTRUCTURA: CardProfile arriba (ancho completo), FormProfile y CardPassword abajo lado a lado
+                        <div className='flex flex-col gap-8'>
                             {/* ✅ CardProfile - Ancho completo arriba */}
                             <div className='w-full'>
                                 <CardProfile />
                             </div>
 
-                            {/* ✅ FormProfile y CardPassword - Lado a lado abajo con misma altura */}
-                            <div className='flex justify-between gap-8 flex-wrap md:flex-nowrap'>
+                            {/* ✅ FormProfile y CardPassword - Lado a lado abajo */}
+                            <div className='flex justify-between gap-x-8 flex-wrap gap-y-8 md:flex-nowrap'>
                                 <div className='w-full md:w-1/2'>
                                     <FormProfile />
                                 </div>

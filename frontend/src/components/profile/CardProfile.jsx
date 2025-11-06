@@ -44,17 +44,15 @@ export const CardProfile = () => {
                 "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
 
     return (
-        // ✅ DISEÑO HORIZONTAL: Avatar a la izquierda, datos a la derecha
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-300 p-6 flex items-center gap-8 shadow-xl rounded-lg">
-            {/* ✅ Avatar con botón de cámara */}
-            <div className="relative flex-shrink-0">
+        <div className="bg-gray-200 border border-black h-auto p-4 flex flex-col items-center justify-between shadow-xl rounded-lg">
+            <div className="relative">
                 <img
                     src={avatarUrl + `?t=${Date.now()}`}
                     alt="avatar"
-                    className="w-40 h-40 rounded-full border-4 border-white object-cover shadow-lg"
+                    className="w-32 h-32 max-w-full max-h-40 rounded-full border-2 border-gray-300 object-cover mx-auto"
                     style={{ aspectRatio: '1/1' }}
                 />
-                <label className="absolute bottom-2 right-2 bg-blue-600 text-white rounded-full p-3 cursor-pointer hover:bg-blue-700 transition-all shadow-lg hover:scale-110">
+                <label className="absolute bottom-0 right-0 bg-blue-400 text-white rounded-full p-2 cursor-pointer hover:bg-emerald-400">
                     {loading ? '⏳' : '📷'}
                     <input
                         type="file"
@@ -66,36 +64,17 @@ export const CardProfile = () => {
                     />
                 </label>
             </div>
-
-            {/* ✅ Información del usuario en grid 2x2 */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-                    <p className="text-xs text-gray-500 font-semibold mb-1">Nombre</p>
-                    <p className="text-lg font-bold text-gray-800">
-                        {userData?.nombre || userData?.nombreDocente || 'Sin nombre'}
-                    </p>
-                </div>
-
-                <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-                    <p className="text-xs text-gray-500 font-semibold mb-1">Apellido</p>
-                    <p className="text-lg font-bold text-gray-800">
-                        {userData?.apellido || userData?.apellidoDocente || 'Sin apellido'}
-                    </p>
-                </div>
-
-                <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-                    <p className="text-xs text-gray-500 font-semibold mb-1">Teléfono</p>
-                    <p className="text-lg font-bold text-gray-800">
-                        {userData?.celular || userData?.celularDocente || 'Sin teléfono'}
-                    </p>
-                </div>
-
-                <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-                    <p className="text-xs text-gray-500 font-semibold mb-1">Correo</p>
-                    <p className="text-sm font-bold text-gray-800 break-all">
-                        {userData?.email || userData?.emailDocente || 'Sin correo'}
-                    </p>
-                </div>
+            <div className="self-start">
+                <b>Nombre:</b><p className="inline-block ml-3">{userData?.nombre || userData?.nombreDocente || 'Sin nombre'}</p>
+            </div>
+            <div className="self-start">
+                <b>Apellido:</b><p className="inline-block ml-3">{userData?.apellido || userData?.apellidoDocente || 'Sin apellido'}</p>
+            </div >
+            <div className="self-start">
+                <b>Teléfono:</b><p className="inline-block ml-3">{userData?.celular || userData?.celularDocente || 'Sin teléfono'}</p>
+            </div>
+            <div className="self-start">
+                <b>Correo:</b><p className="inline-block ml-3">{userData?.email || userData?.emailDocente || 'Sin correo'}</p>
             </div>
         </div>
     )

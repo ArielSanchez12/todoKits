@@ -9,10 +9,14 @@ export const CardProfile = () => {
 
     const userData = user?._doc || user || {}
 
+    // ✅ FIX: Obtener el ID correctamente desde _doc
+    const userId = user?._doc?._id || user?._id
+
     // ✅ DEPURACIÓN: Ver datos del usuario
     useEffect(() => {
+        console.log("🔍 USER COMPLETO:", user)
         console.log("🔍 USER DATA:", userData)
-        console.log("🔍 USER ID:", user?._id)
+        console.log("🔍 USER ID EXTRAÍDO:", userId)
         console.log("🔍 Avatar actual:", userData?.avatar)
     }, [user])
 
@@ -31,12 +35,15 @@ export const CardProfile = () => {
         }
         console.log("✅ Archivo seleccionado:", file.name, file.type, file.size)
 
-        if (!user?._id) {
+        // ✅ FIX: Usar userId extraído correctamente
+        if (!userId) {
             console.log("❌ No hay ID de usuario disponible")
             console.log("🔍 User completo:", user)
+            console.log("🔍 user._id:", user?._id)
+            console.log("🔍 user._doc._id:", user?._doc?._id)
             return
         }
-        console.log("✅ ID de usuario:", user._id)
+        console.log("✅ ID de usuario:", userId)
 
         // ✅ VALIDAR TIPO DE ARCHIVO
         if (!file.type.startsWith('image/')) {
@@ -69,8 +76,8 @@ export const CardProfile = () => {
         }
 
         try {
-            console.log("🚀 Llamando a updateProfile...")
-            const response = await updateProfile(formData, user._id)
+            console.log("🚀 Llamando a updateProfile con ID:", userId)
+            const response = await updateProfile(formData, userId) // ✅ FIX: Usar userId
             console.log("✅ Respuesta de updateProfile:", response)
 
             setPreview(URL.createObjectURL(file))
@@ -99,6 +106,14 @@ export const CardProfile = () => {
         }
 
         console.log("🗑️ Eliminando avatar...")
+
+        // ✅ FIX: Validar userId
+        if (!userId) {
+            console.log("❌ No hay ID de usuario para eliminar avatar")
+            alert("Error: No se pudo identificar el usuario")
+            return
+        }
+
         setLoading(true)
 
         const formData = new FormData()
@@ -109,8 +124,8 @@ export const CardProfile = () => {
         formData.append('email', userData.email || '')
 
         try {
-            console.log("🚀 Eliminando avatar...")
-            await updateProfile(formData, user._id)
+            console.log("🚀 Eliminando avatar con ID:", userId)
+            await updateProfile(formData, userId) // ✅ FIX: Usar userId
             console.log("✅ Avatar eliminado")
             window.location.reload()
         } catch (error) {

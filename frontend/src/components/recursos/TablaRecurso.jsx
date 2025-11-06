@@ -1,4 +1,4 @@
-import { MdDeleteForever, MdPublishedWithChanges, MdRefresh } from "react-icons/md";
+import { MdDeleteForever, MdPublishedWithChanges, MdRefresh, MdExpandMore, MdExpandLess } from "react-icons/md";
 import storeRecursos from "../../context/storeRecursos";
 import { useState, useRef } from "react";
 
@@ -9,10 +9,22 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
   const tooltipRef = useRef(null);
   const cellRef = useRef(null);
 
+  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  const [mostrarTodos, setMostrarTodos] = useState(false);
+  const REGISTROS_INICIALES = 5;
+
   const recursosFiltrados =
     filtro === "todos"
       ? recursos
       : recursos?.filter((r) => r.tipo === filtro);
+
+  // ✅ FUNCIÓN PARA OBTENER RECURSOS A MOSTRAR
+  const recursosMostrados = mostrarTodos 
+    ? recursosFiltrados 
+    : recursosFiltrados?.slice(0, REGISTROS_INICIALES);
+
+  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  const hayMasRegistros = recursosFiltrados?.length > REGISTROS_INICIALES;
 
   const handleDelete = async (id, recurso) => {
     if (recurso.estado === "activo" || recurso.estado === "prestado") {
@@ -142,9 +154,14 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
 
   return (
     <>
-      {/* ✅ HEADER SIN mb-4 */}
+      {/* ✅ HEADER CON CONTADOR */}
       <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
-        <h2 className="text-xl font-bold">🔧 Gestión de Recursos</h2>
+        <div>
+          <h2 className="text-xl font-bold">🔧 Gestión de Recursos</h2>
+          <p className="text-xs text-gray-300 mt-1">
+            Mostrando {recursosMostrados?.length || 0} de {recursosFiltrados?.length || 0} recursos
+          </p>
+        </div>
         <button
           onClick={onRefresh}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
@@ -170,8 +187,8 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
             </tr>
           </thead>
           <tbody>
-            {recursosFiltrados && recursosFiltrados.length > 0 ? (
-              recursosFiltrados.map((recurso, index) => {
+            {recursosMostrados && recursosMostrados.length > 0 ? (
+              recursosMostrados.map((recurso, index) => {
                 const estaBloqueado = recurso.estado === "activo" || recurso.estado === "prestado";
 
                 return (
@@ -248,6 +265,29 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
           </tbody>
         </table>
       </div>
+
+      {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+      {hayMasRegistros && (
+        <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
+          {!mostrarTodos ? (
+            <button
+              onClick={() => setMostrarTodos(true)}
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            >
+              <MdExpandMore size={20} />
+              Mostrar Todos ({recursosFiltrados.length - REGISTROS_INICIALES} más)
+            </button>
+          ) : (
+            <button
+              onClick={() => setMostrarTodos(false)}
+              className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+            >
+              <MdExpandLess size={20} />
+              Colapsar Todo
+            </button>
+          )}
+        </div>
+      )}
     </>
   );
 };

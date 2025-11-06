@@ -1,17 +1,23 @@
 import { useRef, useState, useEffect } from "react"
 import storeProfile from "../../context/storeProfile"
 
+
+
 export const CardProfile = () => {
     const { user, updateProfile } = storeProfile()
     const [preview, setPreview] = useState(null)
     const fileInputRef = useRef(null)
     const [loading, setLoading] = useState(false)
 
+    // Si el user contiene _doc, usa los datos de _doc, de lo contrario usa el user directamente
     const userData = user?._doc || user || {}
 
+    // Reset preview cuando cambia user (después de actualizar)
     useEffect(() => {
         setPreview(null)
     }, [user])
+
+
 
     const handleImageChange = async (e) => {
         const file = e.target.files[0]
@@ -27,6 +33,8 @@ export const CardProfile = () => {
             try {
                 await updateProfile(formData, user._id)
                 setPreview(URL.createObjectURL(file))
+                //recarga la página para ver la nueva imagen
+                //si sirvió, ya se recarga sola y se muestra la nueva imagen, ademas direccion ya se borro de perfil
                 window.location.reload()
             } catch (error) {
                 console.error("Error al actualizar la imagen:", error)
@@ -36,6 +44,7 @@ export const CardProfile = () => {
         }
     }
 
+    // Prioriza avatarDocente, luego preview, luego imagen por defecto
     const avatarUrl =
         (userData?.avatarDocente && typeof userData.avatarDocente === 'string' && userData.avatarDocente.startsWith('http'))
             ? userData.avatarDocente

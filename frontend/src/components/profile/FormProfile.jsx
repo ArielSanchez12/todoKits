@@ -31,6 +31,10 @@ const FormularioPerfil = () => {
 
     return (
         <form onSubmit={handleSubmit(updateUser)}>
+            <div className='mt-5'>
+                <h1 className='font-black text-2xl text-gray-500 mt-16'>Actualizar perfil</h1>
+                <hr className='my-4 border-t-2 border-gray-300' />
+            </div>
             <div>
                 <label className="mb-2 block text-base font-semibold">Nombre</label>
                 <input

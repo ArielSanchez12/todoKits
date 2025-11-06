@@ -142,7 +142,7 @@ const historialPrestamosDocente = async (req, res) => {
         estado: { $in: ["finalizado", "rechazado", "cancelado"] }
       })
       .populate("recurso", "nombre tipo laboratorio aula contenido")
-      .populate("admin", "nombre apellido")
+      .populate("docente", "nombreDocente apellidoDocente emailDocente")
       .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido")
       .sort({ horaDevolucion: -1, createdAt: -1 });
 

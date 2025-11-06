@@ -1,4 +1,4 @@
-import { MdDeleteForever, MdInfo, MdPublishedWithChanges, MdRefresh } from "react-icons/md";
+import { MdDeleteForever, MdInfo, MdPublishedWithChanges, MdRefresh, MdExpandMore, MdExpandLess } from "react-icons/md";
 import useFetch from "../../hooks/useFetch";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router';
@@ -11,6 +11,10 @@ const Table = () => {
     const [docentes, setDocentes] = useState([]);
     const [loading, setLoading] = useState(false);
     const { rol } = storeAuth();
+
+    // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+    const [mostrarTodos, setMostrarTodos] = useState(false);
+    const REGISTROS_INICIALES = 5;
 
     const listPatients = async () => {
         setLoading(true);
@@ -55,6 +59,14 @@ const Table = () => {
         }
     };
 
+    // ✅ FUNCIÓN PARA OBTENER DOCENTES A MOSTRAR
+    const docentesMostrados = mostrarTodos
+        ? docentes
+        : docentes.slice(0, REGISTROS_INICIALES);
+
+    // ✅ VERIFICAR SI HAY MÁS REGISTROS
+    const hayMasRegistros = docentes.length > REGISTROS_INICIALES;
+
     if (docentes.length === 0 && !loading) {
         return (
             <div className="p-4 mb-4 text-base text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
@@ -67,9 +79,14 @@ const Table = () => {
         <>
             <ToastContainer />
 
-            {/* ✅ HEADER SIN mb-4 */}
+            {/* ✅ HEADER CON CONTADOR */}
             <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
-                <h2 className="text-xl font-bold">👥 Lista de Docentes</h2>
+                <div>
+                    <h2 className="text-xl font-bold">👥 Lista de Docentes</h2>
+                    <p className="text-xs text-gray-300 mt-1">
+                        Mostrando {docentesMostrados.length} de {docentes.length} registros
+                    </p>
+                </div>
                 <button
                     onClick={listPatients}
                     disabled={loading}
@@ -86,56 +103,81 @@ const Table = () => {
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
             ) : (
-                <div className="overflow-x-auto shadow-lg">
-                    <table className="w-full table-auto bg-white">
-                        <thead className="bg-black text-white">
-                            <tr>
-                                {["N°", "Nombre", "Apellido", "Celular", "Email", "Estado", "Acciones"].map((header) => (
-                                    <th key={header} className="p-2">{header}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {docentes.map((docente, index) => (
-                                <tr className="hover:bg-gray-300 text-center" key={docente._id}>
-                                    <td>{index + 1}</td>
-                                    <td>{docente.nombreDocente}</td>
-                                    <td>{docente.apellidoDocente}</td>
-                                    <td>{docente.celularDocente}</td>
-                                    <td>{docente.emailDocente}</td>
-                                    <td>
-                                        <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                            {docente.statusDocente && "Activo"}
-                                        </span>
-                                    </td>
-                                    <td className='py-2 text-center'>
-                                        <MdInfo
-                                            title="Detalles"
-                                            className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-500"
-                                            onClick={() => navigate(`/dashboard/visualizar/${docente._id}`)}
-                                        />
-
-                                        {rol === "Administrador" && (
-                                            <>
-                                                <MdPublishedWithChanges
-                                                    title="Actualizar"
-                                                    className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-500"
-                                                    onClick={() => navigate(`/dashboard/actualizar/${docente._id}`)}
-                                                />
-
-                                                <MdDeleteForever
-                                                    title="Eliminar"
-                                                    className="h-8 w-8 text-red-800 cursor-pointer inline-block hover:text-red-500"
-                                                    onClick={() => { deleteDocente(docente._id) }}
-                                                />
-                                            </>
-                                        )}
-                                    </td>
+                <>
+                    <div className="overflow-x-auto shadow-lg">
+                        <table className="w-full table-auto bg-white">
+                            <thead className="bg-black text-white">
+                                <tr>
+                                    {["N°", "Nombre", "Apellido", "Celular", "Email", "Estado", "Acciones"].map((header) => (
+                                        <th key={header} className="p-2">{header}</th>
+                                    ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {docentesMostrados.map((docente, index) => (
+                                    <tr className="hover:bg-gray-300 text-center" key={docente._id}>
+                                        <td>{index + 1}</td>
+                                        <td>{docente.nombreDocente}</td>
+                                        <td>{docente.apellidoDocente}</td>
+                                        <td>{docente.celularDocente}</td>
+                                        <td>{docente.emailDocente}</td>
+                                        <td>
+                                            <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                {docente.statusDocente && "Activo"}
+                                            </span>
+                                        </td>
+                                        <td className='py-2 text-center'>
+                                            <MdInfo
+                                                title="Detalles"
+                                                className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-500"
+                                                onClick={() => navigate(`/dashboard/visualizar/${docente._id}`)}
+                                            />
+
+                                            {rol === "Administrador" && (
+                                                <>
+                                                    <MdPublishedWithChanges
+                                                        title="Actualizar"
+                                                        className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-500"
+                                                        onClick={() => navigate(`/dashboard/actualizar/${docente._id}`)}
+                                                    />
+
+                                                    <MdDeleteForever
+                                                        title="Eliminar"
+                                                        className="h-8 w-8 text-red-800 cursor-pointer inline-block hover:text-red-500"
+                                                        onClick={() => { deleteDocente(docente._id) }}
+                                                    />
+                                                </>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+                    {hayMasRegistros && (
+                        <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
+                            {!mostrarTodos ? (
+                                <button
+                                    onClick={() => setMostrarTodos(true)}
+                                    className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                                >
+                                    <MdExpandMore size={20} />
+                                    Mostrar Todos ({docentes.length - REGISTROS_INICIALES} más)
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setMostrarTodos(false)}
+                                    className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                                >
+                                    <MdExpandLess size={20} />
+                                    Colapsar Todo
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </>
             )}
         </>
     );

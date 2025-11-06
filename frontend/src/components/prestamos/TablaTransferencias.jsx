@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { MdVisibility, MdQrCodeScanner, MdRefresh, MdCancel, MdClear } from "react-icons/md";
+import { MdVisibility, MdQrCodeScanner, MdRefresh, MdCancel, MdClear, MdExpandMore, MdExpandLess } from "react-icons/md";
 import storeTransferencias from "../../context/storeTransferencias";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import DetalleTransferencia from "./DetalleTransferencia";
 import ModalCancelarTransferencia from "./ModalCancelarTransferencia";
-
 
 const TablaTransferencias = () => {
   const [transferencias, setTransferencias] = useState([]);
@@ -16,9 +15,12 @@ const TablaTransferencias = () => {
   const { fetchTransferencias } = storeTransferencias();
   const [mostrarModalCancelar, setMostrarModalCancelar] = useState(false);
 
-  // ✅ NUEVOS ESTADOS PARA DATEPICKERS
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
+
+  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  const [mostrarTodos, setMostrarTodos] = useState(false);
+  const REGISTROS_INICIALES = 5;
 
   const cargarTransferencias = async () => {
     setLoading(true);
@@ -42,7 +44,6 @@ const TablaTransferencias = () => {
     setMostrarModalCancelar(true);
   };
 
-  // ✅ NUEVA FUNCIÓN: Verificar si se puede cancelar
   const puedeCancelar = (transferencia) => {
     return ["pendiente_origen", "confirmado_origen"].includes(transferencia.estado);
   };
@@ -88,7 +89,6 @@ const TablaTransferencias = () => {
     });
   };
 
-  // ✅ NUEVA FUNCIÓN: Filtrar por fechas
   const transferenciasFiltradosPorFecha = () => {
     if (!fechaDesde && !fechaHasta) return transferencias;
 
@@ -100,7 +100,7 @@ const TablaTransferencias = () => {
         const desde = new Date(fechaDesde);
         const hasta = new Date(fechaHasta);
         desde.setHours(0, 0, 0, 0);
-        hasta.setHours(23, 59, 59, 999);
+        hasta.setHoras(23, 59, 59, 999);
         return fechaTransferencia >= desde && fechaTransferencia <= hasta;
       }
 
@@ -120,7 +120,6 @@ const TablaTransferencias = () => {
     });
   };
 
-  // ✅ NUEVA FUNCIÓN: Limpiar filtros de fecha
   const limpiarFechas = () => {
     setFechaDesde(null);
     setFechaHasta(null);
@@ -131,8 +130,15 @@ const TablaTransferencias = () => {
     setMostrarDetalle(true);
   };
 
-  // ✅ OBTENER TRANSFERENCIAS FILTRADAS
   const transferenciasFiltradas = transferenciasFiltradosPorFecha();
+
+  // ✅ FUNCIÓN PARA OBTENER TRANSFERENCIAS A MOSTRAR
+  const transferenciasMostradas = mostrarTodos 
+    ? transferenciasFiltradas 
+    : transferenciasFiltradas?.slice(0, REGISTROS_INICIALES);
+
+  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  const hayMasRegistros = transferenciasFiltradas?.length > REGISTROS_INICIALES;
 
   if (loading) {
     return (
@@ -145,12 +151,17 @@ const TablaTransferencias = () => {
   return (
     <>
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* ✅ HEADER MEJORADO CON DATEPICKERS */}
-        <div className="bg-black text-white p-4">
+        {/* ✅ HEADER CON CONTADOR */}
+        <div className="bg-black text-white p-4 rounded-t-lg">
           <div className="flex justify-between items-center gap-4 flex-wrap">
-            <h2 className="text-xl font-bold">📋 Historial de Transferencias</h2>
+            <div>
+              <h2 className="text-xl font-bold">📋 Historial de Transferencias</h2>
+              <p className="text-xs text-gray-300 mt-1">
+                Mostrando {transferenciasMostradas?.length || 0} de {transferenciasFiltradas?.length || 0} transferencias
+              </p>
+            </div>
 
-            {/* ✅ DATEPICKERS EN LÍNEA (COMPACTOS) */}
+            {/* ✅ DATEPICKERS Y BOTÓN ACTUALIZAR */}
             <div className="flex gap-2 items-center flex-wrap">
               <div className="flex items-center gap-1">
                 <span className="text-xs text-gray-300">Desde:</span>
@@ -174,7 +185,6 @@ const TablaTransferencias = () => {
                 />
               </div>
 
-              {/* ✅ BOTÓN LIMPIAR FECHAS */}
               {(fechaDesde || fechaHasta) && (
                 <button
                   onClick={limpiarFechas}
@@ -185,7 +195,6 @@ const TablaTransferencias = () => {
                 </button>
               )}
 
-              {/* ✅ BOTÓN ACTUALIZAR */}
               <button
                 onClick={cargarTransferencias}
                 className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-semibold text-sm"
@@ -196,13 +205,11 @@ const TablaTransferencias = () => {
             </div>
           </div>
 
-          {/* ✅ INDICADOR DE FILTROS ACTIVOS */}
           {(fechaDesde || fechaHasta) && (
             <div className="text-xs text-blue-300 mt-2">
               📅 Filtrando:
               {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
               {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
-              {!fechaDesde && !fechaHasta && " sin filtros"}
             </div>
           )}
         </div>
@@ -221,116 +228,138 @@ const TablaTransferencias = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto shadow-lg">
-            <table className="w-full table-auto bg-white">
-              <thead className="bg-black text-white">
-                <tr>
-                  <th className="p-4 text-left font-bold">N°</th>
-                  <th className="p-4 text-left font-bold">Fecha Solicitud</th>
-                  <th className="p-4 text-left font-bold">Docente Origen</th>
-                  <th className="p-4 text-left font-bold">Docente Destino</th>
-                  <th className="p-4 text-left font-bold">Recursos</th>
-                  <th className="p-4 text-left font-bold">Estado</th>
-                  <th className="p-4 text-center font-bold">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {transferenciasFiltradas.map((transferencia, index) => (
-                  <tr
-                    key={transferencia._id}
-                    className="hover:bg-gray-300 transition-colors"
-                  >
-                    <td className="p-4 text-sm text-gray-700 font-semibold">
-                      {index + 1}
-                    </td>
-                    <td className="p-4 text-sm text-gray-700">
-                      {formatFecha(transferencia.fechaSolicitud)}
-                      {transferencia.fechaSolicitud && <br />}
-                      <span className="text-xs text-gray-600">
-                        {formatHora(transferencia.fechaSolicitud)}
-                      </span>
-                    </td>
-                    <td className="p-4 text-sm text-gray-700">
-                      <p className="font-semibold">
-                        {transferencia.docenteOrigen?.nombreDocente}{" "}
-                        {transferencia.docenteOrigen?.apellidoDocente}
-                      </p>
-                      <span className="text-xs text-gray-600">
-                        {transferencia.docenteOrigen?.emailDocente}
-                      </span>
-                    </td>
-                    <td className="p-4 text-sm text-gray-700">
-                      <p className="font-semibold">
-                        {transferencia.docenteDestino?.nombreDocente}{" "}
-                        {transferencia.docenteDestino?.apellidoDocente}
-                      </p>
-                      <span className="text-xs text-gray-600">
-                        {transferencia.docenteDestino?.emailDocente}
-                      </span>
-                    </td>
-                    <td className="p-4 text-sm">
-                      <div className="flex flex-col gap-2">
-                        {/* Recursos principales (azul) */}
-                        {transferencia.recursos?.map((rec) => (
-                          <span
-                            key={rec._id}
-                            className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded font-semibold inline-block"
-                          >
-                            {rec.nombre}
-                          </span>
-                        ))}
-                        {/* Recursos adicionales (amarillo) */}
-                        {transferencia.recursosAdicionales?.map((rec) => (
-                          <span
-                            key={rec._id}
-                            className="text-xs bg-yellow-100 text-yellow-800 px-3 py-1 rounded font-semibold inline-block"
-                          >
-                            {rec.nombre}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="p-4 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${getBadgeEstado(
-                          transferencia.estado
-                        )}`}
-                      >
-                        {getTextoEstado(transferencia.estado)}
-                      </span>
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => handleVerDetalle(transferencia)}
-                          className="text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1"
-                          title="Ver detalles"
-                        >
-                          <MdVisibility size={20} />
-                        </button>
-                        
-                        {/* ✅ BOTÓN CANCELAR (solo si está pendiente o confirmado) */}
-                        {puedeCancelar(transferencia) && (
-                          <button
-                            onClick={() => handleCancelar(transferencia)}
-                            className="text-red-600 hover:text-red-800 transition-colors inline-flex items-center gap-1"
-                            title="Cancelar transferencia"
-                          >
-                            <MdCancel size={20} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
+          <>
+            <div className="overflow-x-auto shadow-lg">
+              <table className="w-full table-auto bg-white">
+                <thead className="bg-black text-white">
+                  <tr>
+                    <th className="p-4 text-left font-bold">N°</th>
+                    <th className="p-4 text-left font-bold">Fecha Solicitud</th>
+                    <th className="p-4 text-left font-bold">Docente Origen</th>
+                    <th className="p-4 text-left font-bold">Docente Destino</th>
+                    <th className="p-4 text-left font-bold">Recursos</th>
+                    <th className="p-4 text-left font-bold">Estado</th>
+                    <th className="p-4 text-center font-bold">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {transferenciasMostradas.map((transferencia, index) => (
+                    <tr
+                      key={transferencia._id}
+                      className="hover:bg-gray-300 transition-colors"
+                    >
+                      <td className="p-4 text-sm text-gray-700 font-semibold">
+                        {index + 1}
+                      </td>
+                      <td className="p-4 text-sm text-gray-700">
+                        {formatFecha(transferencia.fechaSolicitud)}
+                        {transferencia.fechaSolicitud && <br />}
+                        <span className="text-xs text-gray-600">
+                          {formatHora(transferencia.fechaSolicitud)}
+                        </span>
+                      </td>
+                      <td className="p-4 text-sm text-gray-700">
+                        <p className="font-semibold">
+                          {transferencia.docenteOrigen?.nombreDocente}{" "}
+                          {transferencia.docenteOrigen?.apellidoDocente}
+                        </p>
+                        <span className="text-xs text-gray-600">
+                          {transferencia.docenteOrigen?.emailDocente}
+                        </span>
+                      </td>
+                      <td className="p-4 text-sm text-gray-700">
+                        <p className="font-semibold">
+                          {transferencia.docenteDestino?.nombreDocente}{" "}
+                          {transferencia.docenteDestino?.apellidoDocente}
+                        </p>
+                        <span className="text-xs text-gray-600">
+                          {transferencia.docenteDestino?.emailDocente}
+                        </span>
+                      </td>
+                      <td className="p-4 text-sm">
+                        <div className="flex flex-col gap-2">
+                          {transferencia.recursos?.map((rec) => (
+                            <span
+                              key={rec._id}
+                              className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded font-semibold inline-block"
+                            >
+                              {rec.nombre}
+                            </span>
+                          ))}
+                          {transferencia.recursosAdicionales?.map((rec) => (
+                            <span
+                              key={rec._id}
+                              className="text-xs bg-yellow-100 text-yellow-800 px-3 py-1 rounded font-semibold inline-block"
+                            >
+                              {rec.nombre}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="p-4 whitespace-nowrap">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${getBadgeEstado(
+                            transferencia.estado
+                          )}`}
+                        >
+                          {getTextoEstado(transferencia.estado)}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => handleVerDetalle(transferencia)}
+                            className="text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1"
+                            title="Ver detalles"
+                          >
+                            <MdVisibility size={20} />
+                          </button>
+                          
+                          {puedeCancelar(transferencia) && (
+                            <button
+                              onClick={() => handleCancelar(transferencia)}
+                              className="text-red-600 hover:text-red-800 transition-colors inline-flex items-center gap-1"
+                              title="Cancelar transferencia"
+                            >
+                              <MdCancel size={20} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+            {hayMasRegistros && (
+              <div className="bg-white p-4 border-t border-gray-200 flex justify-center">
+                {!mostrarTodos ? (
+                  <button
+                    onClick={() => setMostrarTodos(true)}
+                    className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  >
+                    <MdExpandMore size={20} />
+                    Mostrar Todos ({transferenciasFiltradas.length - REGISTROS_INICIALES} más)
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setMostrarTodos(false)}
+                    className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                  >
+                    <MdExpandLess size={20} />
+                    Colapsar Todo
+                  </button>
+                )}
+              </div>
+            )}
+          </>
         )}
 
         {/* Footer con resumen */}
         {transferenciasFiltradas.length > 0 && (
-          <div className="bg-gray-50 px-6 py-4 border-t-2 border-gray-200">
+          <div className="bg-gray-50 px-6 py-4 border-t-2 border-gray-200 rounded-b-lg">
             <div className="flex justify-between items-center text-sm flex-wrap gap-4">
               <p className="text-gray-700">
                 Total de transferencias:{" "}
@@ -389,7 +418,7 @@ const TablaTransferencias = () => {
         )}
       </div>
 
-      {/* Modal detalle */}
+      {/* Modales */}
       {mostrarDetalle && transferenciaSel && (
         <DetalleTransferencia
           transferencia={transferenciaSel}
@@ -400,7 +429,6 @@ const TablaTransferencias = () => {
         />
       )}
 
-      {/* Modal cancelar */}
       {mostrarModalCancelar && transferenciaSel && (
         <ModalCancelarTransferencia
           transferencia={transferenciaSel}

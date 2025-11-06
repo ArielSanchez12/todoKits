@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { 
+import {
+    loginUniversal,
     recuperarPasswordUniversal, 
     comprobarTokenPasswordUniversal, 
     crearNuevoPasswordUniversal,
@@ -11,6 +12,8 @@ import { recuperarPasswordSchema, crearNuevoPasswordSchema } from "../schemas/pa
 
 const router = Router();
 
+// Login universal para admin y docente
+router.post('/login', loginUniversal);
 // Rutas unificadas para recuperación de contraseña (admin y docente)
 router.post('/passwordrecovery', validate(recuperarPasswordSchema), recuperarPasswordUniversal);
 router.get('/passwordrecovery/:token', comprobarTokenPasswordUniversal);

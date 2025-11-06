@@ -57,7 +57,8 @@ export const updateProfileSchema = z
       .email("El correo electrónico no es válido")
       .regex(/^[a-z0-9._%+-]+@gmail\.com$/, "El correo debe ser de Gmail y en minúsculas (ej: usuario@gmail.com)")
       .refine((val) => val === val.toLowerCase(), "El correo debe estar en minúsculas")
-      .optional()
+      .optional(),
+    removeAvatar: z.boolean().optional()
   })
   .refine((data) => Object.keys(data).length > 0, { message: "Al menos un campo debe enviarse para actualizar" });
 

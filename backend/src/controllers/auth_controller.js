@@ -1,6 +1,96 @@
 import admin from "../models/admin.js";
 import docente from "../models/docente.js";
 import { sendMailToRecoveryPassword } from "../config/nodemailer.js";
+import { crearTokenJWT } from "../middlewares/jwt.js";
+
+// ✅ NUEVO: Login unificado para admin y docente
+const loginUniversal = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Validar campos vacíos
+        if (!email || !password) {
+            return res.status(400).json({ msg: "Todos los campos son obligatorios" });
+        }
+
+        console.log("🔍 Intentando login con email:", email);
+
+        // ✅ PASO 1: Buscar como administrador
+        let usuario = await admin.findOne({ email }).select("-status -__v -token -createdAt -updatedAt");
+        let tipoUsuario = 'admin';
+        let campoEmail = 'email';
+        let campoPassword = 'password';
+
+        console.log("👨‍💼 ¿Es admin?", !!usuario);
+
+        // ✅ PASO 2: Si no es admin, buscar como docente
+        if (!usuario) {
+            usuario = await docente.findOne({ emailDocente: email });
+            tipoUsuario = 'docente';
+            campoEmail = 'emailDocente';
+            campoPassword = 'passwordDocente';
+            console.log("👨‍🏫 ¿Es docente?", !!usuario);
+        }
+
+        // ✅ PASO 3: Si no existe en ninguna colección
+        if (!usuario) {
+            return res.status(404).json({ msg: "Lo sentimos, el usuario no se encuentra registrado" });
+        }
+
+        // ✅ PASO 4: Verificar confirmación de email (solo para admin)
+        if (tipoUsuario === 'admin' && usuario.confirmEmail === false) {
+            return res.status(401).json({ msg: "Lo sentimos, debes verificar tu cuenta antes de iniciar sesión" });
+        }
+
+        // ✅ PASO 5: Verificar contraseña
+        const verificarPassword = await usuario.matchPassword(password);
+        if (!verificarPassword) {
+            return res.status(401).json({ msg: "Lo sentimos, el password es incorrecto" });
+        }
+
+        // ✅ PASO 6: Generar token JWT
+        const rol = tipoUsuario === 'admin' ? usuario.rol : usuario.rolDocente;
+        const tokenJWT = crearTokenJWT(usuario._id, rol);
+
+        console.log("✅ Login exitoso como:", tipoUsuario);
+
+        // ✅ PASO 7: Preparar respuesta según tipo de usuario
+        if (tipoUsuario === 'admin') {
+            return res.status(200).json({
+                token: tokenJWT,
+                rol: usuario.rol,
+                usuario: {
+                    _id: usuario._id,
+                    nombre: usuario.nombre,
+                    apellido: usuario.apellido,
+                    celular: usuario.celular,
+                    email: usuario.email,
+                    avatar: usuario.avatar || null,
+                    rol: usuario.rol
+                }
+            });
+        } else {
+            // Respuesta para docente
+            return res.status(200).json({
+                token: tokenJWT,
+                rol: usuario.rolDocente,
+                usuario: {
+                    _id: usuario._id,
+                    nombreDocente: usuario.nombreDocente,
+                    apellidoDocente: usuario.apellidoDocente,
+                    celularDocente: usuario.celularDocente,
+                    emailDocente: usuario.emailDocente,
+                    avatarDocente: usuario.avatarDocente || null,
+                    rolDocente: usuario.rolDocente,
+                    admin: usuario.admin
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Error en loginUniversal:", error);
+        return res.status(500).json({ msg: "Error en el servidor" });
+    }
+};
 
 // Recuperación universal (busca en ambas colecciones)
 const recuperarPasswordUniversal = async (req, res) => {
@@ -190,6 +280,7 @@ const confirmarCambioEmailUniversal = async (req, res) => {
 };
 
 export {
+    loginUniversal,
     recuperarPasswordUniversal,
     comprobarTokenPasswordUniversal,
     crearNuevoPasswordUniversal,

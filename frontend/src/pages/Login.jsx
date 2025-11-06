@@ -41,28 +41,17 @@ const Login = () => {
 
     const loginUser = async (data) => {
 
-        const url = data.password.includes("KITS")
-            ? `${import.meta.env.VITE_BACKEND_URL}/docente/login`
-            : `${import.meta.env.VITE_BACKEND_URL}/login`
+        // USAR ENDPOINT UNIVERSAL (sin validación de "KITS" para docentes)
+        const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
 
         const response = await fetchDataBackend(url, data, 'POST');
-        setToken(response.token);
-        setRol(response.rol);
         // Verifica si la respuesta es exitosa
         if (response) {
-            // Guarda el usuario completo en localStorage
-            // Para docente: response.docenteBDD o response.usuario
-            // Para admin: response.adminEmailBDD o response.usuario
-            // Ajusta según cómo lo envíes desde el backend
+            setToken(response.token);
+            setRol(response.rol);
+
             if (response.usuario) {
                 localStorage.setItem("user", JSON.stringify(response.usuario));
-            } else if (response.docenteBDD) {
-                localStorage.setItem("user", JSON.stringify(response.docenteBDD));
-            } else if (response.adminEmailBDD) {
-                localStorage.setItem("user", JSON.stringify(response.adminEmailBDD));
-            } else {
-                // fallback: guarda todo el response
-                localStorage.setItem("user", JSON.stringify(response));
             }
 
             if (rememberMe) {

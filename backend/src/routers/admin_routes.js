@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { 
   confirmarMail, 
-  login, 
   registro, 
   perfil, 
   actualizarPerfil, 
@@ -27,7 +26,6 @@ router.post('/register', validate(registerSchema), registro)
 //Verbo  Ruta     Controlador
 
 router.get('/confirm/:token', confirmarMail)
-router.post('/login', login)
 router.get('/perfil', verificarTokenJWT, perfil) //verificarTokenJWT es un MIDDLEWARE que se ejecuta antes de llegar al controlador perfil (así protegemos la ruta de acceso al perfil del administrador)
 router.put('/administrador/:id', verificarTokenJWT, validate(updateProfileSchema), actualizarPerfil)
 router.put('/administrador/actualizarpassword/:id', verificarTokenJWT, validate(updatePasswordSchema), actualizarPassword)

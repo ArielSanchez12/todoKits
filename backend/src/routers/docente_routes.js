@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { 
-  loginDocente, 
   perfilDocente, 
   actualizarPasswordDocente, 
   confirmarNuevoEmailDocente, 
@@ -14,9 +13,6 @@ const router = Router()
 
 // Confirmación de email inicial
 router.get('/docente/confirm/:token', confirmarMailDocente)
-
-// Login del docente
-router.post('/docente/login', loginDocente)
 
 // Perfil del docente (protegido)
 router.get('/docente/profile', verificarTokenJWT, perfilDocente)

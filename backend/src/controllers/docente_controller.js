@@ -180,7 +180,7 @@ const crearNuevoPasswordDocente = async (req, res) => {
     if (docenteBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, token inválido o expirado" });
 
     docenteBDD.token = null;
-    docenteBDD.password = await docenteBDD.encryptPassword(password);
+    docenteBDD.passwordDocente = await docenteBDD.encryptPassword(password);
     await docenteBDD.save();
 
     res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" });

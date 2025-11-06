@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { MdVisibility, MdCancel, MdAssignmentTurnedIn, MdRefresh, MdClear } from "react-icons/md";
+import { MdVisibility, MdCancel, MdAssignmentTurnedIn, MdRefresh, MdClear, MdExpandMore, MdExpandLess } from "react-icons/md";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import DetallePrestamo from "./DetallePrestamo";
@@ -25,6 +25,10 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
 
+  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  const [mostrarTodos, setMostrarTodos] = useState(false);
+  const REGISTROS_INICIALES = 5;
+
   const { cancelarPrestamoAdmin, finalizarPrestamoAdmin } = storePrestamos();
 
   const handleRefreshPrestamos = async () => {
@@ -42,7 +46,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
       let prestamosDocente = [];
 
-      // ✅ SI ES DOCENTE, obtener sus propios préstamos
       if (esDocente) {
         const response = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/docente/prestamos/historial`,
@@ -51,7 +54,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
         const data = await response.json();
         prestamosDocente = Array.isArray(data) ? data : [];
       } else {
-        // ✅ SI ES ADMIN, obtener préstamos de un docente específico
         const response = await fetch(
           `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`,
           { headers }
@@ -80,6 +82,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
       activo: "bg-green-100 text-green-800",
       finalizado: "bg-blue-100 text-blue-800",
       rechazado: "bg-red-100 text-red-800",
+      cancelado: "bg-gray-100 text-gray-800",
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
   };
@@ -229,9 +232,17 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
     }, 10);
   };
 
+  // ✅ FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
+  const prestamosMostrados = mostrarTodos 
+    ? prestamosPorEstado 
+    : prestamosPorEstado?.slice(0, REGISTROS_INICIALES);
+
+  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  const hayMasRegistros = prestamosPorEstado?.length > REGISTROS_INICIALES;
+
   return (
     <>
-      {/* ✅ FILTROS DE ESTADO - MOSTRAR PARA TODOS (ADMIN Y DOCENTE) */}
+      {/* ✅ FILTROS DE ESTADO */}
       <div className="flex flex-wrap gap-2 mb-4">
         {[
           { key: "todos", label: "Todos" },
@@ -262,12 +273,19 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
         ))}
       </div>
 
-      {/* ✅ HEADER MEJORADO CON DATEPICKERS Y BOTÓN ACTUALIZAR */}
+      {/* ✅ HEADER CON CONTADOR */}
       <div className="bg-black text-white p-4 rounded-t-lg">
         <div className="flex justify-between items-center gap-4 flex-wrap">
-          <h2 className="text-xl font-bold">📚 Historial del Docente</h2>
+          <div>
+            <h2 className="text-xl font-bold">
+              {esDocente ? "📚 Mi Historial" : "📚 Historial del Docente"}
+            </h2>
+            <p className="text-xs text-gray-300 mt-1">
+              Mostrando {prestamosMostrados?.length || 0} de {prestamosPorEstado?.length || 0} préstamos
+            </p>
+          </div>
 
-          {/* ✅ DATEPICKERS EN LÍNEA (COMPACTOS) */}
+          {/* ✅ DATEPICKERS Y BOTÓN ACTUALIZAR */}
           <div className="flex gap-2 items-center flex-wrap">
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-300">Desde:</span>
@@ -291,7 +309,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
               />
             </div>
 
-            {/* ✅ BOTÓN LIMPIAR FECHAS */}
             {(fechaDesde || fechaHasta) && (
               <button
                 onClick={limpiarFechas}
@@ -302,7 +319,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
               </button>
             )}
 
-            {/* ✅ BOTÓN ACTUALIZAR */}
             <button
               onClick={handleRefreshPrestamos}
               disabled={loadingRefresh}
@@ -314,13 +330,11 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
           </div>
         </div>
 
-        {/* ✅ INDICADOR DE FILTROS ACTIVOS */}
         {(fechaDesde || fechaHasta) && (
           <div className="text-xs text-blue-300 mt-2">
             📅 Filtrando:
             {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
             {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
-            {!fechaDesde && !fechaHasta && " sin filtros"}
           </div>
         )}
       </div>
@@ -341,8 +355,8 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
             </tr>
           </thead>
           <tbody>
-            {prestamosPorEstado && prestamosPorEstado.length > 0 ? (
-              prestamosPorEstado.map((prestamo, index) => (
+            {prestamosMostrados && prestamosMostrados.length > 0 ? (
+              prestamosMostrados.map((prestamo, index) => (
                 <tr key={prestamo._id} className="hover:bg-gray-300 text-center">
                   <td className="p-2">{index + 1}</td>
                   <td className="p-2 font-semibold">
@@ -370,7 +384,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
                       </span>
                     )}
 
-                    {/* Tooltip */}
                     {hoveredMotivo === prestamo._id && prestamo.motivo?.descripcion && prestamo.motivo.descripcion.length > 30 && (
                       <div
                         ref={tooltipRef}
@@ -412,7 +425,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
                   </td>
                   <td className="p-2">{formatFecha(prestamo.fechaPrestamo)}</td>
                   <td className="p-2">
-                    {prestamo.estado === "rechazado" ? (
+                    {prestamo.estado === "rechazado" || prestamo.estado === "cancelado" ? (
                       <span className="text-gray-400">No Aplica</span>
                     ) : prestamo.horaConfirmacion ? (
                       <>
@@ -427,7 +440,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
                     )}
                   </td>
                   <td className="p-2">
-                    {prestamo.estado === "rechazado" ? (
+                    {prestamo.estado === "rechazado" || prestamo.estado === "cancelado" ? (
                       <span className="text-gray-400">No Aplica</span>
                     ) : prestamo.horaDevolucion ? (
                       <>
@@ -447,19 +460,23 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
                       title="Ver detalles"
                       onClick={() => handleVerDetalle(prestamo)}
                     />
-                    {prestamo.estado === "pendiente" && (
-                      <MdCancel
-                        className="h-6 w-6 text-red-600 cursor-pointer hover:text-red-800"
-                        title="Cancelar solicitud"
-                        onClick={() => setModalCancelar(prestamo)}
-                      />
-                    )}
-                    {prestamo.estado === "activo" && (
-                      <MdAssignmentTurnedIn
-                        className="h-6 w-6 text-green-600 cursor-pointer hover:text-green-800"
-                        title="Finalizar préstamo"
-                        onClick={() => setModalFinalizar(prestamo)}
-                      />
+                    {!esDocente && (
+                      <>
+                        {prestamo.estado === "pendiente" && (
+                          <MdCancel
+                            className="h-6 w-6 text-red-600 cursor-pointer hover:text-red-800"
+                            title="Cancelar solicitud"
+                            onClick={() => setModalCancelar(prestamo)}
+                          />
+                        )}
+                        {prestamo.estado === "activo" && (
+                          <MdAssignmentTurnedIn
+                            className="h-6 w-6 text-green-600 cursor-pointer hover:text-green-800"
+                            title="Finalizar préstamo"
+                            onClick={() => setModalFinalizar(prestamo)}
+                          />
+                        )}
+                      </>
                     )}
                   </td>
                 </tr>
@@ -479,7 +496,30 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
         </table>
       </div>
 
-      {/* Modal de detalle */}
+      {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+      {hayMasRegistros && (
+        <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
+          {!mostrarTodos ? (
+            <button
+              onClick={() => setMostrarTodos(true)}
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            >
+              <MdExpandMore size={20} />
+              Mostrar Todos ({prestamosPorEstado.length - REGISTROS_INICIALES} más)
+            </button>
+          ) : (
+            <button
+              onClick={() => setMostrarTodos(false)}
+              className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+            >
+              <MdExpandLess size={20} />
+              Colapsar Todo
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Modales (sin cambios) */}
       {mostrarDetalle && prestamoSeleccionado && (
         <DetallePrestamo
           prestamo={prestamoSeleccionado}
@@ -490,7 +530,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
         />
       )}
 
-      {/* Modal de cancelación */}
       {modalCancelar && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
@@ -535,7 +574,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
         </div>
       )}
 
-      {/* Modal de finalización */}
       {modalFinalizar && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
@@ -586,6 +624,5 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
     </>
   );
 };
-
 
 export default TablaHistorialDocente;

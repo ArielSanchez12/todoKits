@@ -152,9 +152,9 @@ const Dashboard = () => {
                 <div className='overflow-y-scroll p-8'>
                     <Outlet />
                 </div>
-                <div className='bg-black h-12'>
+                {/* <div className='bg-black h-12'>
                     <p className='text-center  text-white leading-[2.9rem] underline'>Todos los derechos reservados</p>
-                </div>
+                </div> */}
             </div>
 
         </div>

@@ -35,20 +35,24 @@ const storeProfile = create((set) => ({
     updateProfile: async (data, id) => {
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/${id}`;
-            let payload = data;
-            let headers = getAuthHeaders();
+            let headers;
             
+            // ✅ FIX: Detectar correctamente el tipo de contenido
             if (data instanceof FormData) {
+                // Para subir archivos - NO establecer Content-Type, let axios handle it
+                const storedUser = JSON.parse(localStorage.getItem("auth-token"));
                 headers = {
                     headers: {
-                        ...headers.headers,
-                        'Content-Type': 'multipart/form-data',
+                        Authorization: `Bearer ${storedUser?.state?.token}`,
+                        // No incluir Content-Type para FormData - axios lo maneja automáticamente
                     },
                 };
-                payload = data;
+            } else {
+                // Para datos JSON (como removeAvatar: true)
+                headers = getAuthHeaders(); // Content-Type: application/json
             }
             
-            await axios.put(url, payload, headers);
+            await axios.put(url, data, headers);
             await storeProfile.getState().profile();
             toast.success("Perfil actualizado correctamente");
         } catch (error) {

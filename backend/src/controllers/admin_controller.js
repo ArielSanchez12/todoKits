@@ -166,6 +166,12 @@ const actualizarPerfil = async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.validated || req.body;
+        // ✅ LOGS TEMPORALES PARA DEBUGGING
+        console.log("🔍 Content-Type:", req.headers['content-type']);
+        console.log("📥 Datos recibidos:", data);
+        console.log("🗑️ removeAvatar value:", data.removeAvatar);
+        console.log("🗑️ removeAvatar type:", typeof data.removeAvatar);
+        console.log("📁 req.files:", req.files);
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
@@ -201,8 +207,10 @@ const actualizarPerfil = async (req, res) => {
 
         // ✅ NUEVO: Verificar si se debe eliminar el avatar
         if (data.removeAvatar === true || data.removeAvatar === 'true') {
+            console.log("🗑️ ELIMINANDO AVATAR - ENTRANDO AL IF");
             adminEmailBDD.avatar = null;
             await adminEmailBDD.save();
+            console.log("✅ Avatar eliminado, valor en DB:", adminEmailBDD.avatar);
             return res.status(200).json({
                 msg: "Foto de perfil eliminada correctamente",
                 admin: {
@@ -218,6 +226,7 @@ const actualizarPerfil = async (req, res) => {
 
         // ✅ LÓGICA ORIGINAL: Manejo de avatar (si llega file)
         if (req.files?.avatar) {
+            console.log("📤 SUBIENDO IMAGEN - ENTRANDO AL IF");
             try {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: 'Admins' },
@@ -225,6 +234,7 @@ const actualizarPerfil = async (req, res) => {
                         if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
                         adminEmailBDD.avatar = result.secure_url;
                         await adminEmailBDD.save();
+                        console.log("✅ Avatar actualizado:", adminEmailBDD.avatar);
                         return res.status(200).json({
                             msg: "Foto de perfil actualizada correctamente",
                             admin: {
@@ -244,7 +254,8 @@ const actualizarPerfil = async (req, res) => {
                 return res.status(500).json({ msg: 'Error al procesar imagen', err });
             }
         }
-
+        
+        console.log("📝 ACTUALIZANDO SOLO OTROS CAMPOS");
         // Si solo se actualizan otros campos (sin avatar)
         await adminEmailBDD.save();
         return res.status(200).json({

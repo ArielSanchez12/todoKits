@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MdVisibility, MdTransferWithinAStation, MdRefresh, MdClear } from "react-icons/md";
+import { MdVisibility, MdTransferWithinAStation, MdRefresh, MdClear, MdExpandMore, MdExpandLess } from "react-icons/md";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -15,9 +15,12 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
   const [qrData, setQRData] = useState(null);
   const [modalKey, setModalKey] = useState(0);
   
-  // ✅ NUEVOS ESTADOS PARA DATEPICKERS
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
+
+  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  const [mostrarTodos, setMostrarTodos] = useState(false);
+  const REGISTROS_INICIALES = 5;
 
   const getBadgeEstado = (estado) => {
     const colors = {
@@ -46,7 +49,6 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
     });
   };
 
-  // ✅ NUEVA FUNCIÓN: Filtrar por fechas
   const prestamosFiltradosPorFecha = () => {
     if (!fechaDesde && !fechaHasta) return prestamos;
 
@@ -78,7 +80,6 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
     });
   };
 
-  // ✅ NUEVA FUNCIÓN: Limpiar filtros de fecha
   const limpiarFechas = () => {
     setFechaDesde(null);
     setFechaHasta(null);
@@ -90,10 +91,6 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
   };
 
   const handleAbrirTransferencia = (prestamo) => {
-    console.log("📋 TablaPrestamosAdmin - Abriendo transferencia");
-    console.log("👥 Docentes en tabla:", docentes);
-    console.log("📦 Préstamo:", prestamo);
-
     if (!Array.isArray(docentes) || docentes.length === 0) {
       toast.error("No hay docentes disponibles. Por favor recarga la página.");
       return;
@@ -113,17 +110,29 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
     toast.info("Funcionalidad de envío por chat próximamente");
   };
 
-  // ✅ OBTENER PRÉSTAMOS FILTRADOS
   const prestamosFiltrados = prestamosFiltradosPorFecha();
+
+  // ✅ FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
+  const prestamosMostrados = mostrarTodos 
+    ? prestamosFiltrados 
+    : prestamosFiltrados?.slice(0, REGISTROS_INICIALES);
+
+  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  const hayMasRegistros = prestamosFiltrados?.length > REGISTROS_INICIALES;
 
   return (
     <>
-      {/* ✅ HEADER MEJORADO CON DATEPICKERS */}
+      {/* ✅ HEADER CON CONTADOR */}
       <div className="bg-black text-white p-4 rounded-t-lg">
         <div className="flex justify-between items-center gap-4 flex-wrap">
-          <h2 className="text-xl font-bold">📋 Gestión de Préstamos</h2>
+          <div>
+            <h2 className="text-xl font-bold">📋 Gestión de Préstamos</h2>
+            <p className="text-xs text-gray-300 mt-1">
+              Mostrando {prestamosMostrados?.length || 0} de {prestamosFiltrados?.length || 0} préstamos
+            </p>
+          </div>
           
-          {/* ✅ DATEPICKERS EN LÍNEA (COMPACTOS) */}
+          {/* ✅ DATEPICKERS Y BOTÓN ACTUALIZAR */}
           <div className="flex gap-2 items-center flex-wrap">
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-300">Desde:</span>
@@ -147,7 +156,6 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
               />
             </div>
 
-            {/* ✅ BOTÓN LIMPIAR FECHAS */}
             {(fechaDesde || fechaHasta) && (
               <button
                 onClick={limpiarFechas}
@@ -158,7 +166,6 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
               </button>
             )}
 
-            {/* ✅ BOTÓN ACTUALIZAR */}
             <button
               onClick={onRefresh}
               className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-semibold text-sm"
@@ -169,13 +176,11 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
           </div>
         </div>
 
-        {/* ✅ INDICADOR DE FILTROS ACTIVOS */}
         {(fechaDesde || fechaHasta) && (
           <div className="text-xs text-blue-300 mt-2">
             📅 Filtrando:
             {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
             {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
-            {!fechaDesde && !fechaHasta && " sin filtros"}
           </div>
         )}
       </div>
@@ -197,8 +202,8 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
             </tr>
           </thead>
           <tbody>
-            {prestamosFiltrados && prestamosFiltrados.length > 0 ? (
-              prestamosFiltrados.map((prestamo, index) => (
+            {prestamosMostrados && prestamosMostrados.length > 0 ? (
+              prestamosMostrados.map((prestamo, index) => (
                 <tr key={prestamo._id} className="hover:bg-gray-300 text-center">
                   <td className="p-2">{index + 1}</td>
                   <td className="p-2 font-semibold">
@@ -295,6 +300,29 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
           </tbody>
         </table>
       </div>
+
+      {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+      {hayMasRegistros && (
+        <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
+          {!mostrarTodos ? (
+            <button
+              onClick={() => setMostrarTodos(true)}
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            >
+              <MdExpandMore size={20} />
+              Mostrar Todos ({prestamosFiltrados.length - REGISTROS_INICIALES} más)
+            </button>
+          ) : (
+            <button
+              onClick={() => setMostrarTodos(false)}
+              className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+            >
+              <MdExpandLess size={20} />
+              Colapsar Todo
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Modal de detalle */}
       {mostrarDetalle && prestamoSeleccionado && (

@@ -165,40 +165,58 @@ const confirmarNuevoEmail = async (req, res) => {
 const actualizarPerfil = async (req, res) => {
     try {
         const { id } = req.params;
-        const data = req.validated || req.body; // datos validados por Zod
-        if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
+        const data = req.validated || req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
+        }
 
         const adminEmailBDD = await admin.findById(id);
-        if (!adminEmailBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el usuario ${id}` });
+        if (!adminEmailBDD) {
+            return res.status(404).json({ msg: `Lo sentimos, no existe el usuario ${id}` });
+        }
 
-        // Si cambian email, iniciar flujo de verificación (No hace falta verificar si los correos son iguales ya que el flujo solo se inicia si son diferentes, caso contrario se actualizan los otros campos)
+        // Si cambian email, iniciar flujo de verificación
         if (data.email && data.email !== adminEmailBDD.email) {
-            // comprobar que no exista ese email ya en uso
             const existe = await admin.findOne({ email: data.email });
             if (existe) return res.status(400).json({ msg: "El email ya se encuentra registrado" });
 
-            // Crear token y guardar email pendiente
             const token = adminEmailBDD.createToken();
             adminEmailBDD.pendingEmail = data.email;
             adminEmailBDD.token = token;
 
-            // Actualizar otros campos
             if (data.nombre) adminEmailBDD.nombre = data.nombre;
             if (data.apellido) adminEmailBDD.apellido = data.apellido;
             if (data.celular) adminEmailBDD.celular = data.celular;
 
             await adminEmailBDD.save();
-            // enviar correo de verificación al nuevo email
             await sendMailToChangeEmail(data.email, token);
             return res.status(200).json({ msg: "Se envió un correo de confirmación al nuevo email. El cambio se aplicará cuando lo confirmes." });
         }
 
-        // Si no hay cambio de email, actualiza directamente
+        // Actualizar campos básicos
         if (data.nombre) adminEmailBDD.nombre = data.nombre;
         if (data.apellido) adminEmailBDD.apellido = data.apellido;
         if (data.celular) adminEmailBDD.celular = data.celular;
 
-        // Manejo de avatar (si llega file)
+        // ✅ NUEVO: Verificar si se debe eliminar el avatar
+        if (data.removeAvatar === true || data.removeAvatar === 'true') {
+            adminEmailBDD.avatar = null;
+            await adminEmailBDD.save();
+            return res.status(200).json({
+                msg: "Foto de perfil eliminada correctamente",
+                admin: {
+                    _id: adminEmailBDD._id,
+                    nombre: adminEmailBDD.nombre,
+                    apellido: adminEmailBDD.apellido,
+                    email: adminEmailBDD.email,
+                    celular: adminEmailBDD.celular,
+                    avatar: null
+                }
+            });
+        }
+
+        // ✅ LÓGICA ORIGINAL: Manejo de avatar (si llega file)
         if (req.files?.avatar) {
             try {
                 const uploadStream = cloudinary.uploader.upload_stream(
@@ -207,7 +225,17 @@ const actualizarPerfil = async (req, res) => {
                         if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
                         adminEmailBDD.avatar = result.secure_url;
                         await adminEmailBDD.save();
-                        return res.status(200).json(adminEmailBDD);
+                        return res.status(200).json({
+                            msg: "Foto de perfil actualizada correctamente",
+                            admin: {
+                                _id: adminEmailBDD._id,
+                                nombre: adminEmailBDD.nombre,
+                                apellido: adminEmailBDD.apellido,
+                                email: adminEmailBDD.email,
+                                celular: adminEmailBDD.celular,
+                                avatar: adminEmailBDD.avatar
+                            }
+                        });
                     }
                 );
                 uploadStream.end(req.files.avatar.data);
@@ -217,14 +245,17 @@ const actualizarPerfil = async (req, res) => {
             }
         }
 
+        // Si solo se actualizan otros campos (sin avatar)
         await adminEmailBDD.save();
         return res.status(200).json({
             msg: "Perfil actualizado correctamente",
             admin: {
+                _id: adminEmailBDD._id,
                 nombre: adminEmailBDD.nombre,
                 apellido: adminEmailBDD.apellido,
                 email: adminEmailBDD.email,
-                celular: adminEmailBDD.celular
+                celular: adminEmailBDD.celular,
+                avatar: adminEmailBDD.avatar
             }
         });
     } catch (error) {
@@ -305,7 +336,7 @@ const listarDocentes = async (req, res) => {
         if (req.docenteBDD?.rolDocente === "Docente") {
             // Si es un docente consultando su propio perfil
             const docentes = await docente
-                .find({ 
+                .find({
                     _id: req.docenteBDD._id,
                     confirmEmailDocente: true  // Los docentes podran consultar su perfil solo si confirmaron su email
                 })
@@ -315,7 +346,7 @@ const listarDocentes = async (req, res) => {
         } else {
             // Si es un admin listando todos sus docentes
             const docentes = await docente
-                .find({ 
+                .find({
                     statusDocente: true,
                     confirmEmailDocente: true,  // Los docentes podran ser listados en la pantalla del admin solo si confirmaron su email
                     admin: req.adminEmailBDD._id

@@ -8,59 +8,32 @@ export const CardProfile = () => {
     const [loading, setLoading] = useState(false)
 
     const userData = user?._doc || user || {}
-
-    // ✅ FIX: Obtener el ID correctamente desde _doc
     const userId = user?._doc?._id || user?._id
-
-    // ✅ DEPURACIÓN: Ver datos del usuario
-    useEffect(() => {
-        console.log("🔍 USER COMPLETO:", user)
-        console.log("🔍 USER DATA:", userData)
-        console.log("🔍 USER ID EXTRAÍDO:", userId)
-        console.log("🔍 Avatar actual:", userData?.avatar)
-    }, [user])
 
     useEffect(() => {
         setPreview(null)
     }, [user])
 
     const handleImageChange = async (e) => {
-        console.log("📷 handleImageChange iniciado")
         const file = e.target.files[0]
-
-        // ✅ VALIDACIONES CON LOGS
-        if (!file) {
-            console.log("❌ No se seleccionó ningún archivo")
-            return
-        }
-        console.log("✅ Archivo seleccionado:", file.name, file.type, file.size)
-
-        // ✅ FIX: Usar userId extraído correctamente
+        
+        if (!file) return
         if (!userId) {
-            console.log("❌ No hay ID de usuario disponible")
-            console.log("🔍 User completo:", user)
-            console.log("🔍 user._id:", user?._id)
-            console.log("🔍 user._doc._id:", user?._doc?._id)
+            alert("Error: No se pudo identificar el usuario")
             return
         }
-        console.log("✅ ID de usuario:", userId)
 
-        // ✅ VALIDAR TIPO DE ARCHIVO
         if (!file.type.startsWith('image/')) {
-            console.log("❌ El archivo no es una imagen válida")
             alert("Por favor selecciona una imagen válida")
             return
         }
 
-        // ✅ VALIDAR TAMAÑO (máximo 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            console.log("❌ Archivo muy grande:", file.size)
             alert("La imagen no debe superar los 5MB")
             return
         }
 
         setLoading(true)
-        console.log("⏳ Iniciando carga...")
 
         const formData = new FormData()
         formData.append('avatar', file)
@@ -69,67 +42,42 @@ export const CardProfile = () => {
         formData.append('celular', userData.celular || '')
         formData.append('email', userData.email || '')
 
-        // ✅ VER CONTENIDO DEL FORMDATA
-        console.log("📦 FormData creado:")
-        for (let pair of formData.entries()) {
-            console.log(`  ${pair[0]}:`, pair[1])
-        }
-
         try {
-            console.log("🚀 Llamando a updateProfile con ID:", userId)
-            const response = await updateProfile(formData, userId) // ✅ FIX: Usar userId
-            console.log("✅ Respuesta de updateProfile:", response)
-
+            await updateProfile(formData, userId)
             setPreview(URL.createObjectURL(file))
-            console.log("🖼️ Preview establecido")
-
-            console.log("🔄 Recargando página...")
             window.location.reload()
         } catch (error) {
-            console.error("❌ Error al actualizar la imagen:", error)
-            console.error("📋 Detalles del error:", {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status
-            })
-            alert("Error al actualizar la imagen. Revisa la consola para más detalles.")
+            alert("Error al actualizar la imagen. Por favor intenta nuevamente.")
         } finally {
             setLoading(false)
-            console.log("✅ Loading finalizado")
         }
     }
 
-    // ✅ NUEVA FUNCIÓN: Eliminar avatar
     const handleRemoveAvatar = async () => {
         if (!window.confirm("¿Estás seguro de eliminar tu foto de perfil?")) {
             return
         }
 
-        console.log("🗑️ Eliminando avatar...")
-
-        // ✅ FIX: Validar userId
         if (!userId) {
-            console.log("❌ No hay ID de usuario para eliminar avatar")
             alert("Error: No se pudo identificar el usuario")
             return
         }
 
         setLoading(true)
 
-        const formData = new FormData()
-        formData.append('avatar', '') // Enviar cadena vacía para eliminar
-        formData.append('nombre', userData.nombre || '')
-        formData.append('apellido', userData.apellido || '')
-        formData.append('celular', userData.celular || '')
-        formData.append('email', userData.email || '')
+        // ✅ Enviar objeto JSON con removeAvatar: true
+        const data = {
+            nombre: userData.nombre || '',
+            apellido: userData.apellido || '',
+            celular: userData.celular || '',
+            email: userData.email || '',
+            removeAvatar: true // ✅ Señal para eliminar avatar
+        }
 
         try {
-            console.log("🚀 Eliminando avatar con ID:", userId)
-            await updateProfile(formData, userId) // ✅ FIX: Usar userId
-            console.log("✅ Avatar eliminado")
+            await updateProfile(data, userId)
             window.location.reload()
         } catch (error) {
-            console.error("❌ Error al eliminar avatar:", error)
             alert("Error al eliminar la imagen")
         } finally {
             setLoading(false)
@@ -143,12 +91,9 @@ export const CardProfile = () => {
                 userData?.avatar ||
                 "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
 
-    // ✅ VERIFICAR SI TIENE AVATAR PERSONALIZADO
-    const tieneAvatarPersonalizado = userData?.avatar &&
-        userData.avatar !== "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
-
-    console.log("🖼️ Avatar URL final:", avatarUrl)
-    console.log("🎨 Tiene avatar personalizado:", tieneAvatarPersonalizado)
+    const tieneAvatarPersonalizado = userData?.avatar && 
+        userData.avatar !== "https://cdn-icons-png.flaticon.com/512/4715/4715329.png" &&
+        userData.avatar !== null;
 
     return (
         <div className="bg-gray-200 border border-black h-auto p-4 flex flex-col items-center justify-between shadow-xl rounded-lg">
@@ -160,7 +105,6 @@ export const CardProfile = () => {
                     style={{ aspectRatio: '1/1' }}
                 />
 
-                {/* ✅ BOTÓN PARA CAMBIAR FOTO */}
                 <label className="absolute bottom-0 right-0 bg-blue-400 text-white rounded-full p-2 cursor-pointer hover:bg-emerald-400 transition-colors">
                     {loading ? '⏳' : '📷'}
                     <input
@@ -173,7 +117,6 @@ export const CardProfile = () => {
                     />
                 </label>
 
-                {/* ✅ NUEVO BOTÓN PARA ELIMINAR FOTO (solo si tiene avatar personalizado) */}
                 {tieneAvatarPersonalizado && !loading && (
                     <button
                         onClick={handleRemoveAvatar}
@@ -198,7 +141,6 @@ export const CardProfile = () => {
                 <b>Correo:</b><p className="inline-block ml-3">{userData?.email || userData?.emailDocente || 'Sin correo'}</p>
             </div>
 
-            {/* ✅ INDICADOR DE ESTADO DE CARGA */}
             {loading && (
                 <div className="mt-3 text-sm text-gray-600 animate-pulse">
                     ⏳ Actualizando imagen...

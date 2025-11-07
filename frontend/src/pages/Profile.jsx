@@ -1,6 +1,6 @@
 import CardPassword from '../components/profile/CardPassword'
 import { CardProfile } from '../components/profile/CardProfile'
-import { CardProfileOwner } from '../components/profile/CardProfileOwner'
+import { CardProfileDocente } from '../components/profile/CardProfileDocente'
 import FormProfile from '../components/profile/FormProfile'
 import storeProfile from '../context/storeProfile'
 
@@ -17,7 +17,7 @@ const Profile = () => {
             </div>
             {
                 user && user?.rolDocente == "Docente"
-                    ? (<CardProfileOwner />)
+                    ? (<CardProfileDocente />)
                     : (
                         // ✅ NUEVA ESTRUCTURA: CardProfile arriba (ancho completo), FormProfile y CardPassword abajo lado a lado
                         <div className='flex flex-col gap-8'>

@@ -3,6 +3,7 @@ import { z } from "zod";
 const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 const celularRegex = /^09\d{8}$/;
 const emailGmail = /^[a-z0-9._%+-]+@gmail\.com$/;
+const passwordFuerte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
 
 const noSoloRepetidos = (value) => {
   if (!value) return false;
@@ -86,23 +87,42 @@ export const updateDocenteSchema = z.object({
   avatarDocente: z.string().optional()
 });
 
-// Esquema para actualizar contraseña del docente
-export const updateDocentePasswordSchema = z.object({
-  currentPasswordDocente: z.string().trim().min(1, "La contraseña actual es requerida"),
-  newPasswordDocente: z
-    .string()
-    .trim()
-    .min(8, "La contraseña debe tener al menos 8 caracteres")
-    .max(12, "La contraseña debe tener máximo 12 caracteres")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/,
-      "La contraseña debe tener al menos una mayúscula, una minúscula, un número y un símbolo"
-    ),
-  confirmPasswordDocente: z
-    .string()
-    .trim()
-    .min(8, "La confirmación es requerida")
-}).refine((data) => data.newPasswordDocente === data.confirmPasswordDocente, {
-  message: "Las contraseñas no coinciden",
-  path: ["confirmPasswordDocente"],
-});
+// ✅ NUEVO: Esquema para que el docente actualice solo su perfil (solo email y foto)
+export const updateDocenteProfileSchema = z
+  .object({
+    emailDocente: z
+      .string()
+      .trim()
+      .email("El correo electrónico no es válido")
+      .regex(emailGmail, "El correo debe ser de Gmail y en minúsculas (ej: usuario@gmail.com)")
+      .transform(val => val.toLowerCase())
+      .optional(),
+    removeAvatar: z.boolean().optional()
+  })
+  .refine((data) => Object.keys(data).length > 0, { 
+    message: "Al menos un campo debe enviarse para actualizar" 
+  });
+
+// ✅ NUEVO: Esquema para actualizar contraseña del docente
+export const updateDocentePasswordSchema = z
+  .object({
+    currentPasswordDocente: z.string().min(1, "La contraseña actual es requerida"),
+    newPasswordDocente: z
+      .string()
+      .trim()
+      .min(8, "La contraseña debe tener al menos 8 caracteres")
+      .max(12, "La contraseña debe tener máximo 12 caracteres")
+      .regex(
+        passwordFuerte,
+        "La contraseña debe tener mayúscula, minúscula, número, símbolo y entre 8 y 12 caracteres"
+      ),
+    confirmPasswordDocente: z.string().min(1, "La confirmación es requerida")
+  })
+  .refine((data) => data.newPasswordDocente === data.confirmPasswordDocente, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmPasswordDocente"]
+  })
+  .refine((data) => data.currentPasswordDocente !== data.newPasswordDocente, {
+    message: "La nueva contraseña debe ser diferente a la actual",
+    path: ["newPasswordDocente"]
+  });

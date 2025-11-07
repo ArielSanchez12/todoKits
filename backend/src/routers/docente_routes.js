@@ -2,17 +2,29 @@ import { Router } from 'express'
 import { 
   perfilDocente, 
   confirmarNuevoEmailDocente, 
-  confirmarMailDocente
+  confirmarMailDocente,
+  actualizarPerfilDocente,
+  actualizarPasswordDocente
 } from '../controllers/docente_controller.js'
 import { verificarTokenJWT } from '../middlewares/jwt.js'
+import { 
+  updateDocenteProfileSchema,
+  updateDocentePasswordSchema
+} from "../schemas/docenteSchema.js"
 
 const router = Router()
 
-// Confirmación de email inicial
+// Confirmación de email inicial (cuando el admin crea al docente)
 router.get('/docente/confirm/:token', confirmarMailDocente)
 
 // Perfil del docente (protegido)
 router.get('/docente/profile', verificarTokenJWT, perfilDocente)
+
+// Actualizar perfil del docente (solo email y foto con los cards) (protegido)
+router.put('/docente/actualizarperfil/:id', verificarTokenJWT, validate(updateDocenteProfileSchema), actualizarPerfilDocente)
+
+// Actualizar contraseña del docente
+router.put('/docente/actualizarpassword/:id', verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)
 
 // Actualizar contraseña del docente (protegido)
 //router.put("/docente/actualizarpassword/:id", verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)

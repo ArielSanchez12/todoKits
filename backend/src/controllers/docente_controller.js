@@ -216,6 +216,124 @@ const confirmarMailDocente = async (req, res) => {
   }
 };
 
+// Actualizar perfil del docente (solo foto y email)
+const actualizarPerfilDocente = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.validated || req.body;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
+    }
+
+    const docenteBDD = await docente.findById(id);
+    if (!docenteBDD) {
+      return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
+    }
+
+    // ✅ Si cambian email, iniciar flujo de verificación
+    if (data.emailDocente && data.emailDocente !== docenteBDD.emailDocente) {
+      // Verificar en ambas colecciones
+      const docenteExistente = await docente.findOne({ emailDocente: data.emailDocente });
+      const adminExistente = await admin.findOne({ email: data.emailDocente });
+
+      if (docenteExistente || adminExistente) {
+        return res.status(400).json({ msg: "El email ya está registrado en el sistema" });
+      }
+
+      const token = docenteBDD.createToken();
+      docenteBDD.pendingEmailDocente = data.emailDocente;
+      docenteBDD.tokenDocente = token;
+
+      await docenteBDD.save();
+      await sendMailToChangeEmailDocente(data.emailDocente, token);
+      return res.status(200).json({ 
+        msg: "Se envió un correo de confirmación al nuevo email. El cambio se aplicará cuando lo confirmes." 
+      });
+    }
+
+    // ✅ Verificar si se debe eliminar el avatar
+    if (data.removeAvatar === true || data.removeAvatar === 'true') {
+      console.log("🗑️ ELIMINANDO AVATAR DOCENTE - ENTRANDO AL IF");
+      docenteBDD.avatarDocente = null;
+      await docenteBDD.save();
+      console.log("✅ Avatar docente eliminado, valor en DB:", docenteBDD.avatarDocente);
+      return res.status(200).json({
+        msg: "Foto de perfil eliminada correctamente",
+        docente: {
+          _id: docenteBDD._id,
+          nombreDocente: docenteBDD.nombreDocente,
+          apellidoDocente: docenteBDD.apellidoDocente,
+          emailDocente: docenteBDD.emailDocente,
+          celularDocente: docenteBDD.celularDocente,
+          avatarDocente: null
+        }
+      });
+    }
+
+    // ✅ Manejo de avatar (si llega file)
+    if (req.files?.avatarDocente) {
+      console.log("📤 SUBIENDO IMAGEN DOCENTE - ENTRANDO AL IF");
+      try {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: 'Docentes' },
+          async (error, result) => {
+            if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
+            docenteBDD.avatarDocente = result.secure_url;
+            await docenteBDD.save();
+            console.log("✅ Avatar docente actualizado:", docenteBDD.avatarDocente);
+            return res.status(200).json({
+              msg: "Foto de perfil actualizada correctamente",
+              docente: {
+                _id: docenteBDD._id,
+                nombreDocente: docenteBDD.nombreDocente,
+                apellidoDocente: docenteBDD.apellidoDocente,
+                emailDocente: docenteBDD.emailDocente,
+                celularDocente: docenteBDD.celularDocente,
+                avatarDocente: docenteBDD.avatarDocente
+              }
+            });
+          }
+        );
+        uploadStream.end(req.files.avatarDocente.data);
+        return;
+      } catch (err) {
+        return res.status(500).json({ msg: 'Error al procesar imagen', err });
+      }
+    }
+    
+    console.log("⚠️ No se realizó ningún cambio");
+    return res.status(400).json({ msg: "No se proporcionaron datos para actualizar" });
+  } catch (error) {
+    console.error("actualizarPerfilDocente error:", error);
+    return res.status(500).json({ msg: "Error en el servidor" });
+  }
+};
+
+// Actualizar contraseña del docente
+const actualizarPasswordDocente = async (req, res) => {
+  try {
+    // Datos validados por Zod (incluye confirmPasswordDocente y que newPasswordDocente sea diferente)
+    const { currentPasswordDocente, newPasswordDocente, confirmPasswordDocente } = req.validated || {};
+
+    // Verificar token JWT y obtener docente
+    const docenteBDD = await docente.findById(req.docenteBDD._id);
+    if (!docenteBDD) return res.status(404).json({ msg: "Docente no encontrado" });
+
+    // Verificar contraseña actual
+    const verificarPassword = await docenteBDD.matchPassword(currentPasswordDocente);
+    if (!verificarPassword) return res.status(400).json({ msg: "La contraseña actual es incorrecta" });
+
+    // Aquí Zod ya verificó que newPasswordDocente !== currentPasswordDocente
+    docenteBDD.passwordDocente = await docenteBDD.encryptPassword(newPasswordDocente);
+    await docenteBDD.save();
+    return res.status(200).json({ msg: "Contraseña actualizada correctamente" });
+  } catch (error) {
+    console.error("actualizarPasswordDocente error:", error);
+    return res.status(500).json({ msg: "Error del servidor" });
+  }
+};
+
 export {
   //loginDocente,
   perfilDocente,
@@ -224,5 +342,7 @@ export {
   // recuperarPasswordDocente,
   // comprobarTokenPasswordDocente,
   // crearNuevoPasswordDocente,
-  confirmarMailDocente
+  confirmarMailDocente,
+  actualizarPerfilDocente,
+  actualizarPasswordDocente
 }

@@ -7,6 +7,7 @@ import { formProfileDocenteSchema } from "../../schemas/formProfileDocenteSchema
 const FormProfileDocente = () => {
     const { user, updateProfile } = storeProfile()
     const [showEmailWarning, setShowEmailWarning] = useState(false);
+    const [showAdminWarning, setShowAdminWarning] = useState(false); // ✅ NUEVO
 
     const userData = user?._doc || user || {};
 
@@ -32,7 +33,29 @@ const FormProfileDocente = () => {
     return (
         <form onSubmit={handleSubmit(updateUser)}>
             <div className='mt-5'>
-                <h1 className='font-black text-2xl text-gray-500 mt-16'>Actualizar perfil</h1>
+                {/* ✅ Título con tooltip de advertencia */}
+                <div className="flex items-center gap-2">
+                    <h1 className='font-black text-2xl text-gray-500 mt-16'>Actualizar perfil</h1>
+                    <div className="relative mt-16">
+                        <button
+                            type="button"
+                            onMouseEnter={() => setShowAdminWarning(true)}
+                            onMouseLeave={() => setShowAdminWarning(false)}
+                            onClick={() => setShowAdminWarning(!showAdminWarning)}
+                            className="text-yellow-500 hover:text-yellow-700 focus:outline-none"
+                            title="Información importante"
+                        >
+                            <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
+                            </svg>
+                        </button>
+                        {showAdminWarning && (
+                            <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-yellow-100 border border-yellow-400 rounded-md text-xs sm:text-sm text-yellow-800 whitespace-normal sm:whitespace-nowrap z-20 max-w-xs sm:max-w-none">
+                                Contacta a tu administrador mediante el chat si necesitas modificar los datos de los campos bloqueados
+                            </div>
+                        )}
+                    </div>
+                </div>
                 <hr className='my-4 border-t-2 border-gray-300' />
             </div>
             
@@ -45,7 +68,6 @@ const FormProfileDocente = () => {
                     disabled
                     className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-400 mb-4 bg-gray-100 cursor-not-allowed"
                 />
-                <p className="text-xs text-gray-500 -mt-3 mb-4">⚠️ Solo el administrador puede modificar este campo</p>
             </div>
             
             <div>
@@ -56,7 +78,6 @@ const FormProfileDocente = () => {
                     disabled
                     className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-400 mb-4 bg-gray-100 cursor-not-allowed"
                 />
-                <p className="text-xs text-gray-500 -mt-3 mb-4">⚠️ Solo el administrador puede modificar este campo</p>
             </div>
             
             <div>
@@ -67,7 +88,6 @@ const FormProfileDocente = () => {
                     disabled
                     className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-400 mb-4 bg-gray-100 cursor-not-allowed"
                 />
-                <p className="text-xs text-gray-500 -mt-3 mb-4">⚠️ Solo el administrador puede modificar este campo</p>
             </div>
 
             {/* ✅ Campo editable: Email */}

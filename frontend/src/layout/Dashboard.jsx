@@ -57,22 +57,21 @@ const Dashboard = () => {
                         </Link>
                     </li>
 
-                    <li className="text-center">
-                        <Link
-                            to={
-                                esDocente
-                                    ? `/dashboard/visualizar/${userData?._id}`
-                                    : "/dashboard/listar"
-                            }
-                            className={`${
-                                isListarActive
-                                    ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center'
-                                    : 'text-slate-400'
-                            } text-xl block mt-2 hover:text-white`}
-                        >
-                            Listar
-                        </Link>
-                    </li>
+                    {/* ✅ MODIFICADO: Solo mostrar "Listar" para administradores */}
+                    {esAdministrador && (
+                        <li className="text-center">
+                            <Link
+                                to="/dashboard/listar"
+                                className={`${
+                                    isListarActive
+                                        ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center'
+                                        : 'text-slate-400'
+                                } text-xl block mt-2 hover:text-white`}
+                            >
+                                Listar
+                            </Link>
+                        </li>
+                    )}
 
                     {/* Solo mostrar "Crear" para administradores */}
                     {esAdministrador && (

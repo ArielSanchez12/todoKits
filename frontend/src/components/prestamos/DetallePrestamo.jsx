@@ -18,8 +18,14 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
       activo: "bg-green-100 text-green-800",
       finalizado: "bg-blue-100 text-blue-800",
       rechazado: "bg-red-100 text-red-800",
+      cancelado: "bg-gray-100 text-gray-800", // ✅ Agregado
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
+  };
+
+  // ✅ NUEVA FUNCIÓN: Verificar si el estado es rechazado o cancelado
+  const esEstadoInactivo = (estado) => {
+    return estado === "rechazado" || estado === "cancelado";
   };
 
   return (
@@ -144,7 +150,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
             )}
           </div>
 
-          {/* Fechas y Horas */}
+          {/* ✅ FECHAS Y HORAS CON VALIDACIÓN DE ESTADO */}
           <div className="bg-purple-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
               ⏰ Registro de Tiempos
@@ -159,7 +165,9 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
               <div>
                 <span className="text-xs text-gray-600">Hora de Confirmación:</span>
                 <p className="font-semibold text-sm">
-                  {prestamo.horaConfirmacion ? (
+                  {esEstadoInactivo(prestamo.estado) ? (
+                    <span className="text-gray-400">No aplica</span>
+                  ) : prestamo.horaConfirmacion ? (
                     formatFecha(prestamo.horaConfirmacion)
                   ) : (
                     <span className="text-gray-400">Pendiente</span>
@@ -169,7 +177,9 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
               <div>
                 <span className="text-xs text-gray-600">Hora de Devolución:</span>
                 <p className="font-semibold text-sm">
-                  {prestamo.horaDevolucion ? (
+                  {esEstadoInactivo(prestamo.estado) ? (
+                    <span className="text-gray-400">No aplica</span>
+                  ) : prestamo.horaDevolucion ? (
                     formatFecha(prestamo.horaDevolucion)
                   ) : (
                     <span className="text-gray-400">-</span>

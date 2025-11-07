@@ -47,6 +47,10 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
     return textos[estado] || estado;
   };
 
+  const esEstadoInactivo = (estado) => {
+    return estado === "rechazado" || estado === "cancelado";
+  };
+
   const handleDescargarQR = async () => {
     try {
       const response = await fetch(qrImageUrl);
@@ -428,26 +432,34 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                   {formatFecha(transferencia.fechaSolicitud)}
                 </p>
               </div>
-              {transferencia.fechaConfirmacionOrigen && (
-                <div>
-                  <span className="text-xs text-gray-600">
-                    Confirmación Origen:
-                  </span>
-                  <p className="font-semibold text-sm">
-                    {formatFecha(transferencia.fechaConfirmacionOrigen)}
-                  </p>
-                </div>
-              )}
-              {transferencia.fechaConfirmacionDestino && (
-                <div>
-                  <span className="text-xs text-gray-600">
-                    Confirmación Destino:
-                  </span>
-                  <p className="font-semibold text-sm">
-                    {formatFecha(transferencia.fechaConfirmacionDestino)}
-                  </p>
-                </div>
-              )}
+              <div>
+                <span className="text-xs text-gray-600">
+                  Confirmación Origen:
+                </span>
+                <p className="font-semibold text-sm">
+                  {esEstadoInactivo(transferencia.estado) ? (
+                    <span className="text-gray-400">No aplica</span>
+                  ) : transferencia.fechaConfirmacionOrigen ? (
+                    formatFecha(transferencia.fechaConfirmacionOrigen)
+                  ) : (
+                    <span className="text-gray-400">Pendiente</span>
+                  )}
+                </p>
+              </div>
+              <div>
+                <span className="text-xs text-gray-600">
+                  Confirmación Destino:
+                </span>
+                <p className="font-semibold text-sm">
+                  {esEstadoInactivo(transferencia.estado) ? (
+                    <span className="text-gray-400">No aplica</span>
+                  ) : transferencia.fechaConfirmacionDestino ? (
+                    formatFecha(transferencia.fechaConfirmacionDestino)
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </p>
+              </div>
             </div>
           </div>
 

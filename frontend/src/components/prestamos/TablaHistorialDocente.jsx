@@ -426,7 +426,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
                   <td className="p-2">{formatFecha(prestamo.fechaPrestamo)}</td>
                   <td className="p-2">
                     {prestamo.estado === "rechazado" || prestamo.estado === "cancelado" ? (
-                      <span className="text-gray-400">No Aplica</span>
+                      <span className="text-gray-400">No aplica</span>
                     ) : prestamo.horaConfirmacion ? (
                       <>
                         {formatFecha(prestamo.horaConfirmacion)}

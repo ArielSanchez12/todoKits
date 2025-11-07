@@ -7,6 +7,7 @@ import {
   actualizarPasswordDocente
 } from '../controllers/docente_controller.js'
 import { verificarTokenJWT } from '../middlewares/jwt.js'
+import { validate } from "../middlewares/zodValidations.js"
 import { 
   updateDocenteProfileSchema,
   updateDocentePasswordSchema
@@ -26,10 +27,10 @@ router.put('/docente/actualizarperfil/:id', verificarTokenJWT, validate(updateDo
 // Actualizar contraseña del docente
 router.put('/docente/actualizarpassword/:id', verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)
 
-// Actualizar contraseña del docente (protegido)
-//router.put("/docente/actualizarpassword/:id", verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)
-
 // Confirmar cambio de email
 router.get("/docente/confirm-new-email/:token", confirmarNuevoEmailDocente)
+
+// Actualizar contraseña del docente (protegido)
+//router.put("/docente/actualizarpassword/:id", verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)
 
 export default router

@@ -22,7 +22,7 @@ router.get('/docente/confirm/:token', confirmarMailDocente)
 router.get('/docente/profile', verificarTokenJWT, perfilDocente)
 
 // Actualizar perfil del docente (solo email y foto con los cards) (protegido)
-router.put('/docente/actualizarperfil/:id', verificarTokenJWT, validate(updateDocenteProfileSchema), actualizarPerfilDocente)
+router.put('/docente/actualizarperfil/:id', verificarTokenJWT, conditionalValidate(updateDocenteProfileSchema), actualizarPerfilDocente)
 
 // Actualizar contraseña del docente
 router.put('/docente/actualizarpassword/:id', verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)

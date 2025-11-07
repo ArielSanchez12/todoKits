@@ -217,10 +217,13 @@ const confirmarMailDocente = async (req, res) => {
 };
 
 // Actualizar perfil del docente (solo foto y email)
+// ✅ ACTUALIZAR: Actualizar perfil del docente (solo foto y email)
 const actualizarPerfilDocente = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = req.validated || req.body;
+    
+    // ✅ Si hay archivo, no validar con Zod (req.files tiene la imagen)
+    const data = req.files ? {} : (req.validated || req.body);
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
@@ -229,6 +232,41 @@ const actualizarPerfilDocente = async (req, res) => {
     const docenteBDD = await docente.findById(id);
     if (!docenteBDD) {
       return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
+    }
+
+    // ✅ Manejo de avatar (si llega file) - ESTO VA PRIMERO
+    if (req.files?.avatarDocente) {
+      console.log("📤 SUBIENDO IMAGEN DOCENTE - ENTRANDO AL IF");
+      try {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: 'Docentes' },
+          async (error, result) => {
+            if (error) {
+              console.error("❌ Error al subir a Cloudinary:", error);
+              return res.status(500).json({ msg: 'Error al subir imagen', error });
+            }
+            docenteBDD.avatarDocente = result.secure_url;
+            await docenteBDD.save();
+            console.log("✅ Avatar docente actualizado:", docenteBDD.avatarDocente);
+            return res.status(200).json({
+              msg: "Foto de perfil actualizada correctamente",
+              docente: {
+                _id: docenteBDD._id,
+                nombreDocente: docenteBDD.nombreDocente,
+                apellidoDocente: docenteBDD.apellidoDocente,
+                emailDocente: docenteBDD.emailDocente,
+                celularDocente: docenteBDD.celularDocente,
+                avatarDocente: docenteBDD.avatarDocente
+              }
+            });
+          }
+        );
+        uploadStream.end(req.files.avatarDocente.data);
+        return;
+      } catch (err) {
+        console.error("❌ Error al procesar imagen:", err);
+        return res.status(500).json({ msg: 'Error al procesar imagen', err });
+      }
     }
 
     // ✅ Si cambian email, iniciar flujo de verificación
@@ -269,37 +307,6 @@ const actualizarPerfilDocente = async (req, res) => {
           avatarDocente: null
         }
       });
-    }
-
-    // ✅ Manejo de avatar (si llega file)
-    if (req.files?.avatarDocente) {
-      console.log("📤 SUBIENDO IMAGEN DOCENTE - ENTRANDO AL IF");
-      try {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: 'Docentes' },
-          async (error, result) => {
-            if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
-            docenteBDD.avatarDocente = result.secure_url;
-            await docenteBDD.save();
-            console.log("✅ Avatar docente actualizado:", docenteBDD.avatarDocente);
-            return res.status(200).json({
-              msg: "Foto de perfil actualizada correctamente",
-              docente: {
-                _id: docenteBDD._id,
-                nombreDocente: docenteBDD.nombreDocente,
-                apellidoDocente: docenteBDD.apellidoDocente,
-                emailDocente: docenteBDD.emailDocente,
-                celularDocente: docenteBDD.celularDocente,
-                avatarDocente: docenteBDD.avatarDocente
-              }
-            });
-          }
-        );
-        uploadStream.end(req.files.avatarDocente.data);
-        return;
-      } catch (err) {
-        return res.status(500).json({ msg: 'Error al procesar imagen', err });
-      }
     }
     
     console.log("⚠️ No se realizó ningún cambio");

@@ -99,9 +99,14 @@ export const updateDocenteProfileSchema = z
       .optional(),
     removeAvatar: z.boolean().optional()
   })
-  .refine((data) => Object.keys(data).length > 0, { 
-    message: "Al menos un campo debe enviarse para actualizar" 
-  });
+  .partial() // ✅ Hace que todos los campos sean opcionales
+  .refine(
+    (data) => {
+      // ✅ Permitir que el objeto esté vacío si es FormData (se valida en el controlador)
+      return Object.keys(data).length >= 0;
+    },
+    { message: "Datos inválidos" }
+  );
 
 // ✅ NUEVO: Esquema para actualizar contraseña del docente
 export const updateDocentePasswordSchema = z

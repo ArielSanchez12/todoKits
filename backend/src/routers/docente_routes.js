@@ -8,6 +8,7 @@ import {
 } from '../controllers/docente_controller.js'
 import { verificarTokenJWT } from '../middlewares/jwt.js'
 import { validate } from "../middlewares/zodValidations.js"
+import { conditionalValidate } from "../middlewares/conditionalValidation.js"
 import { 
   updateDocenteProfileSchema,
   updateDocentePasswordSchema

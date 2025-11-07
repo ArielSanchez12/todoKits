@@ -47,7 +47,7 @@ export const loginSchema = z.object({
       } else {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-            message: "Contraseña segura (8-12 caracteres) o temporal de 7 dígitos"
+            message: "Contraseña segura o temporal"
         });
       }
     }),

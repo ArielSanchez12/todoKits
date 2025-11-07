@@ -45,7 +45,7 @@ const loginUniversal = async (req, res) => {
         // ✅ PASO 5: Verificar contraseña
         const verificarPassword = await usuario.matchPassword(password);
         if (!verificarPassword) {
-            return res.status(401).json({ msg: "Lo sentimos, el password es incorrecto" });
+            return res.status(401).json({ msg: "Usuario o contraseña incorrectos" });
         }
 
         // ✅ PASO 6: Generar token JWT
@@ -170,7 +170,7 @@ const comprobarTokenPasswordUniversal = async (req, res) => {
             return res.status(404).json({ msg: "Token inválido o expirado" });
         }
 
-        res.status(200).json({ msg: "Token confirmado, ya puedes crear tu nuevo password" });
+        res.status(200).json({ msg: "Token confirmado, ya puedes crear tu nueva contraseña" });
     } catch (error) {
         console.error("ComprobarTokenPasswordUniversal error:", error);
         res.status(500).json({ msg: "Error en el servidor" });
@@ -217,7 +217,7 @@ const crearNuevoPasswordUniversal = async (req, res) => {
 
         console.log(`Contraseña actualizada para ${tipoUsuario}`);
 
-        res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" });
+        res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nueva contraseña" });
     } catch (error) {
         console.error("crearNuevoPasswordUniversal error:", error);
         res.status(500).json({ msg: "Error en el servidor" });

@@ -129,7 +129,7 @@ const CardPassword = () => {
                 <input
                     type="submit"
                     className="bg-black text-white border py-2 w-full rounded-xl mt-5 hover:scale-105 duration-300 hover:bg-blue-600 hover:text-white"
-                    value="Cambiar"
+                    value="ACTUALIZAR CONTRASEÑA"
                 />
             </form>
         </>

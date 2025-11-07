@@ -102,8 +102,8 @@ const FormularioPerfil = () => {
 
             <input
                 type="submit"
-                className="bg-black w-full p-2 mt-1 text-white uppercase font-bold rounded-lg hover:bg-blue-600 hover:scale-105 duration-300 cursor-pointer transition-all"
-                value="Actualizar"
+                className="bg-black w-full p-2 mt-1 text-white font-bold rounded-lg hover:bg-blue-600 hover:scale-105 duration-300 cursor-pointer transition-all"
+                value="ACTUALIZAR PERFIL"
             />
         </form>
     );

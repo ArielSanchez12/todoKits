@@ -35,24 +35,14 @@ export const CardProfileDocente = () => {
 
         setLoading(true)
 
-        // TODO: Implementar lógica de actualización para docente
-        // const formData = new FormData()
-        // formData.append('avatar', file)
-        // formData.append('nombreDocente', userData.nombreDocente || '')
-        // formData.append('apellidoDocente', userData.apellidoDocente || '')
-        // formData.append('celularDocente', userData.celularDocente || '')
-        // formData.append('emailDocente', userData.emailDocente || '')
+        // ✅ FormData con el campo correcto para docente
+        const formData = new FormData()
+        formData.append('avatarDocente', file)
 
         try {
-            // await updateProfile(formData, userId)
+            await updateProfile(formData, userId)
             setPreview(URL.createObjectURL(file))
-            // window.location.reload()
-
-            // ⏳ Simulación temporal (remover cuando implementes la lógica real)
-            setTimeout(() => {
-                alert("⏳ Funcionalidad en desarrollo. La imagen se actualizará pronto.")
-                setLoading(false)
-            }, 1000)
+            window.location.reload()
         } catch (error) {
             alert("Error al actualizar la imagen. Por favor intenta nuevamente.")
             setLoading(false)
@@ -71,24 +61,14 @@ export const CardProfileDocente = () => {
 
         setLoading(true)
 
-        // TODO: Implementar lógica de eliminación para docente
-        // const data = {
-        //     nombreDocente: userData.nombreDocente || '',
-        //     apellidoDocente: userData.apellidoDocente || '',
-        //     celularDocente: userData.celularDocente || '',
-        //     emailDocente: userData.emailDocente || '',
-        //     removeAvatar: true
-        // }
+        // ✅ Enviar removeAvatar como JSON
+        const data = {
+            removeAvatar: true
+        }
 
         try {
-            // await updateProfile(data, userId)
-            // window.location.reload()
-
-            // ⏳ Simulación temporal (remover cuando implementes la lógica real)
-            setTimeout(() => {
-                alert("⏳ Funcionalidad en desarrollo. La foto se eliminará pronto.")
-                setLoading(false)
-            }, 1000)
+            await updateProfile(data, userId)
+            window.location.reload()
         } catch (error) {
             alert("Error al eliminar la imagen")
             setLoading(false)
@@ -147,7 +127,7 @@ export const CardProfileDocente = () => {
             </div>
 
             <div className="self-start mt-4">
-                <b>Docente:</b>
+                <b>Nombre:</b>
                 <p className="inline-block ml-3">
                     {userData?.nombreDocente || userData?.nombre || 'Sin nombre'}
                 </p>

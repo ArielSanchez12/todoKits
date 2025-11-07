@@ -16,7 +16,7 @@ const storeProfile = create((set) => ({
 
     user: null,
     clearUser: () => set({ user: null }),
-    
+
     profile: async () => {
         try {
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
@@ -31,27 +31,31 @@ const storeProfile = create((set) => ({
             console.error(error)
         }
     },
-    
+
     updateProfile: async (data, id) => {
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/${id}`;
+            const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+            const isDocente = storedUser.state.rol === "Docente";
+
+            // ✅ Endpoint según el rol
+            const endpoint = isDocente
+                ? `docente/actualizarperfil/${id}`
+                : `administrador/${id}`;
+
+            const url = `${import.meta.env.VITE_BACKEND_URL}/${endpoint}`;
             let headers;
-            
-            // ✅ FIX: Detectar correctamente el tipo de contenido
+
+            // Detectar correctamente el tipo de contenido
             if (data instanceof FormData) {
-                // Para subir archivos - NO establecer Content-Type, let axios handle it
-                const storedUser = JSON.parse(localStorage.getItem("auth-token"));
                 headers = {
                     headers: {
                         Authorization: `Bearer ${storedUser?.state?.token}`,
-                        // No incluir Content-Type para FormData - axios lo maneja automáticamente
                     },
                 };
             } else {
-                // Para datos JSON (como removeAvatar: true)
-                headers = getAuthHeaders(); // Content-Type: application/json
+                headers = getAuthHeaders();
             }
-            
+
             await axios.put(url, data, headers);
             await storeProfile.getState().profile();
             toast.success("Perfil actualizado correctamente");
@@ -60,16 +64,24 @@ const storeProfile = create((set) => ({
             toast.error(error.response?.data?.msg);
         }
     },
-    
+
     updatePasswordProfile: async (data, id) => {
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/actualizarpassword/${id}`
-            const respuesta = await axios.put(url, data, getAuthHeaders())
-            toast.success("Contraseña actualizada correctamente")
-            return respuesta
+            const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+            const isDocente = storedUser.state.rol === "Docente";
+
+            // ✅ Endpoint según el rol
+            const endpoint = isDocente
+                ? `docente/actualizarpassword/${id}`
+                : `administrador/actualizarpassword/${id}`;
+
+            const url = `${import.meta.env.VITE_BACKEND_URL}/${endpoint}`;
+            const respuesta = await axios.put(url, data, getAuthHeaders());
+            toast.success("Contraseña actualizada correctamente");
+            return respuesta;
         } catch (error) {
-            console.log(error)
-            toast.error(error.response?.data?.msg)
+            console.log(error);
+            toast.error(error.response?.data?.msg);
         }
     },
 
@@ -78,7 +90,7 @@ const storeProfile = create((set) => ({
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/listDocentes`;
             const respuesta = await axios.get(url, getAuthHeaders());
-            
+
             // Validar que la respuesta sea un array
             return Array.isArray(respuesta.data) ? respuesta.data : [];
         } catch (error) {

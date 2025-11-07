@@ -34,9 +34,9 @@ const FormProfileDocente = () => {
         <form onSubmit={handleSubmit(updateUser)}>
             <div className='mt-5'>
                 {/* ✅ Título con tooltip de advertencia */}
-                <div className="flex items-center gap-2">
-                    <h1 className='font-black text-2xl text-gray-500 mt-16'>Actualizar perfil</h1>
-                    <div className="relative mt-16">
+                <div className="flex items-center gap-2 mt-16">
+                    <h1 className='font-black text-2xl text-gray-500'>Actualizar perfil</h1>
+                    <div className="relative">
                         <button
                             type="button"
                             onMouseEnter={() => setShowAdminWarning(true)}

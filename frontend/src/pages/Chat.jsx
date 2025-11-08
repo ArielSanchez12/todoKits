@@ -69,8 +69,9 @@ const Chat = () => {
         } catch {}
         setSelectedIds(new Set());
         setMultiSelectMode(false);
+        setShowContext(false);
     };
-
+    
     // Eliminar múltiple "para mí" (ocultar)
     const deleteManyForMe = async () => {
         if (!anySelected) return;
@@ -643,20 +644,7 @@ const Chat = () => {
         setSelectedIds(new Set());
         setShowContext(false);
     };
-    const deleteMany = async () => {
-        if (!anySelected) return;
-        if (!window.confirm("Eliminar mensajes seleccionados para ambos usuarios?")) return;
-        try {
-            await fetch(`${BACKEND_URL}/chat/messages/delete-many`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ ids: Array.from(selectedIds) })
-            });
-        } catch { }
-        setSelectedIds(new Set());
-        setMultiSelectMode(false);
-        setShowContext(false);
-    };
+    
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-gray-100">

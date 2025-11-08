@@ -32,6 +32,11 @@ const Chat = () => {
     const readFlushTimer = useRef(null); // ✅ NUEVO
     const [highlightedId, setHighlightedId] = useState(null); // ✅ NUEVO
     const highlightTimerRef = useRef(null); // ✅ NUEVO
+    const [showContext, setShowContext] = useState(false);          // ✅ NUEVO
+    const [contextMsg, setContextMsg] = useState(null);             // ✅ NUEVO
+    const [contextPos, setContextPos] = useState({ x: 0, y: 0 });   // ✅ NUEVO
+    const [multiSelectMode, setMultiSelectMode] = useState(false);  // ✅ NUEVO
+    const [selectedIds, setSelectedIds] = useState(new Set());      // ✅ NUEVO
 
     // Detectar tipo de usuario
     useEffect(() => {
@@ -479,6 +484,89 @@ const Chat = () => {
         setHighlightedId(id);
         if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
         highlightTimerRef.current = setTimeout(() => setHighlightedId(null), 1600);
+    };
+
+    // ✅ Abrir menú contextual (desktop y móvil)
+    const openContextMenu = (e, msg) => {
+        e.preventDefault();
+        const x = e?.clientX ?? e?.touches?.[0]?.clientX ?? window.innerWidth / 2;
+        const y = e?.clientY ?? e?.touches?.[0]?.clientY ?? window.innerHeight / 2;
+        setContextPos({ x, y });
+        setContextMsg(msg);
+        setShowContext(true);
+    };
+
+    // ✅ Cerrar menú al click global
+    useEffect(() => {
+        const close = () => setShowContext(false);
+        window.addEventListener("click", close);
+        return () => window.removeEventListener("click", close);
+    }, []);
+
+    // ✅ Reglas de edición (≤10 min, propio, no transferencia)
+    const canEdit = (msg) => {
+        if (!msg || msg.de !== user._id) return false;
+        if (msg.tipo === "transferencia" || msg.softDeleted) return false;
+        const diffMin = (Date.now() - new Date(msg.createdAt).getTime()) / 60000;
+        return diffMin <= 10;
+    };
+
+    // ✅ Editar (prompt simple para no tocar UI)
+    const startEdit = async () => {
+        if (!contextMsg) return;
+        const nuevo = window.prompt("Editar mensaje:", contextMsg.texto || "");
+        setShowContext(false);
+        if (nuevo == null) return;
+        const trimmed = nuevo.trim();
+        if (!trimmed || trimmed === contextMsg.texto) return;
+        try {
+            await fetch(`${BACKEND_URL}/chat/message/${contextMsg._id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ nuevoTexto: trimmed })
+            });
+        } catch {}
+    };
+
+    // ✅ Copiar
+    const copyMsg = async () => {
+        if (!contextMsg) return;
+        try { await navigator.clipboard.writeText(contextMsg.texto || ""); } catch {}
+        setShowContext(false);
+    };
+
+    // ✅ Eliminar (para ambos) solo propios
+    const deleteOne = async () => {
+        if (!contextMsg) return;
+        if (!window.confirm("Se eliminará para ambos. ¿Continuar?")) return;
+        try {
+            await fetch(`${BACKEND_URL}/chat/message/${contextMsg._id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        } catch {}
+        setShowContext(false);
+    };
+
+    // ✅ Selección múltiple (infra mínima)
+    const toggleMultiMode = () => {
+        setMultiSelectMode(prev => !prev);
+        setSelectedIds(new Set());
+        setShowContext(false);
+    };
+    const deleteMany = async () => {
+        if (!selectedIds.size) return;
+        if (!window.confirm("Eliminar mensajes seleccionados para ambos usuarios?")) return;
+        try {
+            await fetch(`${BACKEND_URL}/chat/messages/delete-many`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ ids: Array.from(selectedIds) })
+            });
+        } catch {}
+        setSelectedIds(new Set());
+        setMultiSelectMode(false);
+        setShowContext(false);
     };
 
     return (

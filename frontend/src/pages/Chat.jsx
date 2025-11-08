@@ -266,10 +266,10 @@ const Chat = () => {
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                // ✅ CORRECCIÓN: Usar 'contact' en lugar de 'selectedContact'
+                                                // ✅ CORRECCIÓN: Modal muestra ORIGINAL
                                                 const imageUrl = userType === "docente"
                                                     ? (contact.avatarOriginal || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                                    : (contact.avatarDocenteOriginal || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
+                                                    : (contact.avatarDocenteOriginal || contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
                                                 handleOpenImage(imageUrl);
                                             }}
                                             title="Click para ver imagen"
@@ -317,9 +317,9 @@ const Chat = () => {
                             alt="avatar"
                             className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                             onClick={() => {
-                                // ✅ Modal muestra ORIGINAL
+                                // ✅ CORRECCIÓN: Modal muestra ORIGINAL
                                 const imageUrl = userType === "docente"
-                                    ? (selectedContact.avatarOriginal || selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                    ? (selectedContact.avatarOriginal || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
                                     : (selectedContact.avatarDocenteOriginal || selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
                                 handleOpenImage(imageUrl);
                             }}

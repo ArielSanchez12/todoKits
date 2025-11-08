@@ -247,16 +247,16 @@ const actualizarPerfilDocente = async (req, res) => {
             }
             docenteBDD.avatarDocente = result.secure_url;
             // ✅ NUEVO: Guardar coordenadas de recorte si vienen
-            if (req.body.cropData) {
-              try {
-                docenteBDD.cropDataDocente = JSON.parse(req.body.cropData);
-              } catch (e) {
-                console.warn("Error al parsear cropData:", e);
-              }
-            }
+            // if (req.body.cropData) {
+            //   try {
+            //     docenteBDD.cropDataDocente = JSON.parse(req.body.cropData);
+            //   } catch (e) {
+            //     console.warn("Error al parsear cropData:", e);
+            //   }
+            // }
             await docenteBDD.save();
             console.log("✅ Avatar docente actualizado:", docenteBDD.avatarDocente);
-            console.log("✅ CropData docente guardado:", docenteBDD.cropDataDocente);
+            //console.log("✅ CropData docente guardado:", docenteBDD.cropDataDocente);
             return res.status(200).json({
               msg: "Foto de perfil actualizada correctamente",
               docente: {
@@ -266,7 +266,7 @@ const actualizarPerfilDocente = async (req, res) => {
                 emailDocente: docenteBDD.emailDocente,
                 celularDocente: docenteBDD.celularDocente,
                 avatarDocente: docenteBDD.avatarDocente,
-                cropDataDocente: docenteBDD.cropDataDocente
+                //cropDataDocente: docenteBDD.cropDataDocente
               }
             });
           }
@@ -304,7 +304,7 @@ const actualizarPerfilDocente = async (req, res) => {
     if (data.removeAvatar === true || data.removeAvatar === 'true') {
       console.log("🗑️ ELIMINANDO AVATAR DOCENTE - ENTRANDO AL IF");
       docenteBDD.avatarDocente = null;
-      docenteBDD.cropDataDocente = null;
+      //docenteBDD.cropDataDocente = null;
       await docenteBDD.save();
       console.log("✅ Avatar docente eliminado, valor en DB:", docenteBDD.avatarDocente);
       return res.status(200).json({
@@ -316,7 +316,7 @@ const actualizarPerfilDocente = async (req, res) => {
           emailDocente: docenteBDD.emailDocente,
           celularDocente: docenteBDD.celularDocente,
           avatarDocente: null,
-          cropDataDocente: null
+          //cropDataDocente: null
         }
       });
     }

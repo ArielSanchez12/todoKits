@@ -39,10 +39,6 @@ const adminSchema = new Schema({
         type: String,
         default: null
     },
-    cropData: { //Coordenadas de recorte para avatar
-        type: Object,
-        default: null
-    },
     status: {
         type: Boolean,
         default: true

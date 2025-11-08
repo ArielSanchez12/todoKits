@@ -211,7 +211,7 @@ const actualizarPerfil = async (req, res) => {
         if (data.removeAvatar === true || data.removeAvatar === 'true') {
             console.log("🗑️ ELIMINANDO AVATAR - ENTRANDO AL IF");
             adminEmailBDD.avatar = null;
-            adminEmailBDD.cropData = null;
+            //adminEmailBDD.cropData = null;
             await adminEmailBDD.save();
             console.log("✅ Avatar eliminado, valor en DB:", adminEmailBDD.avatar);
             return res.status(200).json({
@@ -237,16 +237,16 @@ const actualizarPerfil = async (req, res) => {
                         if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
                         adminEmailBDD.avatar = result.secure_url;
                         // ✅ NUEVO: Guardar coordenadas de recorte si vienen
-                        if (data.cropData || req.body.cropData) {
-                            try {
-                                adminEmailBDD.cropData = JSON.parse(data.cropData || req.body.cropData);
-                            } catch (e) {
-                                console.warn("Error al parsear cropData:", e);
-                            }
-                        }
+                        // if (data.cropData || req.body.cropData) {
+                        //     try {
+                        //         adminEmailBDD.cropData = JSON.parse(data.cropData || req.body.cropData);
+                        //     } catch (e) {
+                        //         console.warn("Error al parsear cropData:", e);
+                        //     }
+                        // }
                         await adminEmailBDD.save();
                         console.log("✅ Avatar actualizado:", adminEmailBDD.avatar);
-                        console.log("✅ CropData guardado:", adminEmailBDD.cropData);
+                        //console.log("✅ CropData guardado:", adminEmailBDD.cropData);
                         return res.status(200).json({
                             msg: "Foto de perfil actualizada correctamente",
                             admin: {
@@ -256,7 +256,7 @@ const actualizarPerfil = async (req, res) => {
                                 email: adminEmailBDD.email,
                                 celular: adminEmailBDD.celular,
                                 avatar: adminEmailBDD.avatar,
-                                cropData: adminEmailBDD.cropData
+                                //cropData: adminEmailBDD.cropData
                             }
                         });
                     }

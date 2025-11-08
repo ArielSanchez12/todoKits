@@ -164,7 +164,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
               </div>
               <div>
                 <span className="text-xs text-gray-600">Hora de Confirmación:</span>
-                <p className="font-semibold text-sm">
+                <p className="text-sm">
                   {esEstadoInactivo(prestamo.estado) ? (
                     <span className="text-gray-400">No aplica</span>
                   ) : prestamo.horaConfirmacion ? (
@@ -176,7 +176,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
               </div>
               <div>
                 <span className="text-xs text-gray-600">Hora de Devolución:</span>
-                <p className="font-semibold text-sm">
+                <p className="text-sm">
                   {esEstadoInactivo(prestamo.estado) ? (
                     <span className="text-gray-400">No aplica</span>
                   ) : prestamo.horaDevolucion ? (

@@ -4,14 +4,12 @@ import dotenv from 'dotenv'   //Este framework es para trabajar con variables gl
 import cors from 'cors';      //Este funciona cuando trabajamos con distintos sitios de despliegue, por ejemplo el front lo subo a github y el server a otra pagina y con cors se pueden comunicar sin dar problemas
 import routerAdmin from './routers/admin_routes.js'; //Renombrar cada router para cada modelo, luego copia y pega abajo en app.use para que se ponga en azul
 import routerDocente from './routers/docente_routes.js';
-import routerTratamiento from './routers/tratamiento_routes.js'; //Importar el router de tratamiento
 import cloudinary from 'cloudinary'
 import fileUpload from "express-fileupload"
 //IMPORTACIONES NUEVAS PARA GOOGLE LOGIN
 import session from 'express-session'
 import passport from 'passport'
-import './config/google.js' // Importa configuración de Google OAuth
-import routerAuth from './routers/auth_routes.js' // Nueva ruta para login con Google
+import routerAuth from './routers/auth_routes.js'
 import routerChat from './routers/mensaje_routes.js';
 import routerRecurso from './routers/recurso_routes.js';
 import routerPrestamo from './routers/prestamo_routes.js';
@@ -56,8 +54,6 @@ app.use('/api', routerAuth)
 app.use('/api', routerAdmin)//Aca copia y pega
 //Rutas docente
 app.use('/api', routerDocente)
-//Rutas tratamiento
-app.use('/api', routerTratamiento)
 // Ruta para gestionar los recursos
 app.use('/api', routerRecurso)
 //Ruta de chat

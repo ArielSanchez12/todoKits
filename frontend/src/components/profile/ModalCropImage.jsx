@@ -25,12 +25,24 @@ const ModalCropImage = ({ imageSrc, onCropComplete, onClose, isOpen }) => {
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+        <div
+            // Fondo borroso igual que ModalViewImage
+            style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999
+            }}
+        >
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 shadow-xl">
                 <h2 className="text-2xl font-bold mb-4 text-center">Ajusta tu foto de perfil</h2>
-                
-                {/* Contenedor del cropper */}
-                <div className="relative w-full h-96 bg-gray-200 rounded-lg mb-4">
+
+                <div className="relative w-full h-96 bg-gray-200 rounded-lg mb-4 overflow-hidden">
                     <Cropper
                         image={imageSrc}
                         crop={crop}
@@ -44,7 +56,6 @@ const ModalCropImage = ({ imageSrc, onCropComplete, onClose, isOpen }) => {
                     />
                 </div>
 
-                {/* Control de zoom */}
                 <div className="mb-6">
                     <label className="block text-sm font-semibold mb-2">
                         Zoom: {Math.round(zoom * 100)}%
@@ -60,12 +71,10 @@ const ModalCropImage = ({ imageSrc, onCropComplete, onClose, isOpen }) => {
                     />
                 </div>
 
-                {/* Instrucciones */}
                 <p className="text-sm text-gray-600 mb-4 text-center">
                     💡 Arrastra la imagen para posicionarla y usa el deslizador para hacer zoom
                 </p>
 
-                {/* Botones */}
                 <div className="flex gap-4">
                     <button
                         onClick={onClose}

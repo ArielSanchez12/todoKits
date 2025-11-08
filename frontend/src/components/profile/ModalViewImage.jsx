@@ -1,5 +1,14 @@
 const ModalViewImage = ({ imageSrc, onClose, isOpen, userName }) => {
-    if (!isOpen) return null
+    console.log("🔍 ModalViewImage - isOpen:", isOpen); // ✅ DEBUG
+    console.log("🔍 imageSrc:", imageSrc); // ✅ DEBUG
+    console.log("🔍 userName:", userName); // ✅ DEBUG
+    
+    if (!isOpen) {
+        console.log("❌ Modal está cerrado"); // ✅ DEBUG
+        return null;
+    }
+
+    console.log("✅ Modal debería estar visible"); // ✅ DEBUG
 
     return (
         <div 
@@ -7,7 +16,6 @@ const ModalViewImage = ({ imageSrc, onClose, isOpen, userName }) => {
             onClick={onClose}
         >
             <div className="relative max-w-4xl max-h-[90vh] p-4">
-                {/* Botón cerrar */}
                 <button
                     onClick={onClose}
                     className="absolute -top-2 -right-2 text-white bg-red-600 hover:bg-red-700 rounded-full w-10 h-10 flex items-center justify-center text-2xl font-bold transition-colors z-10 shadow-lg"
@@ -16,7 +24,6 @@ const ModalViewImage = ({ imageSrc, onClose, isOpen, userName }) => {
                     ×
                 </button>
 
-                {/* Imagen ampliada */}
                 <img
                     src={imageSrc}
                     alt={userName || "Foto de perfil"}
@@ -24,7 +31,6 @@ const ModalViewImage = ({ imageSrc, onClose, isOpen, userName }) => {
                     onClick={(e) => e.stopPropagation()}
                 />
 
-                {/* Nombre del usuario (opcional) */}
                 {userName && (
                     <p className="text-white text-center mt-4 text-lg font-semibold drop-shadow-lg">
                         {userName}

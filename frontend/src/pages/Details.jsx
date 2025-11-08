@@ -84,8 +84,8 @@ const Details = () => {
         listDocente();
     }, []);
 
-    // ✅ URL de la imagen para el modal
-    const avatarUrl = docente?.avatarDocente || docente?.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+    // ✅ URL de la imagen ORIGINAL para el modal
+    const avatarUrl = docente?.avatarDocenteOriginal || docente?.avatarOriginal || docente?.avatarDocente || docente?.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
     return (
         <>

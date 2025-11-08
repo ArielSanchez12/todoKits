@@ -249,27 +249,26 @@ const Chat = () => {
                                 <div
                                     key={contact._id}
                                     onClick={() => setSelectedContact(contact)}
-                                    className={`p-3 md:p-4 border-b border-gray-200 cursor-pointer transition-colors ${
-                                        selectedContact?._id === contact._id
+                                    className={`p-3 md:p-4 border-b border-gray-200 cursor-pointer transition-colors ${selectedContact?._id === contact._id
                                             ? "bg-blue-50 border-l-4 border-l-blue-500"
                                             : "hover:bg-gray-50"
-                                    }`}
+                                        }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        {/* ✅ Avatar clickeable */}
+                                        {/* ✅ Avatar clickeable - MOSTRAR ORIGINAL */}
                                         <img
                                             src={
                                                 userType === "docente"
-                                                    ? (contact.avatar || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                                    : (contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                                    ? (contact.avatarOriginal || contact.avatar || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                                    : (contact.avatarDocenteOriginal || contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
                                             }
                                             alt="avatar"
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 const imageUrl = userType === "docente"
-                                                    ? (contact.avatar || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                                    : (contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
+                                                    ? (contact.avatarOriginal || contact.avatar || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                                    : (contact.avatarDocenteOriginal || contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
                                                 handleOpenImage(imageUrl);
                                             }}
                                             title="Click para ver imagen"
@@ -307,19 +306,19 @@ const Chat = () => {
                 <div className="flex-1 flex flex-col h-full overflow-hidden">
                     {/* HEADER DEL CHAT */}
                     <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 flex-shrink-0">
-                        {/* ✅ Avatar clickeable del header */}
+                        {/* ✅ Avatar clickeable del header - MOSTRAR ORIGINAL */}
                         <img
                             src={
                                 userType === "docente"
-                                    ? (selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                    : (selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                    ? (selectedContact.avatarOriginal || selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                    : (selectedContact.avatarDocenteOriginal || selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
                             }
                             alt="avatar"
                             className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                             onClick={() => {
                                 const imageUrl = userType === "docente"
-                                    ? (selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                    : (selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
+                                    ? (selectedContact.avatarOriginal || selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                    : (selectedContact.avatarDocenteOriginal || selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
                                 handleOpenImage(imageUrl);
                             }}
                             title="Click para ver imagen"
@@ -346,8 +345,8 @@ const Chat = () => {
                                     <img
                                         src={
                                             userType === "docente"
-                                                ? (selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                                : (selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                                ? (selectedContact.avatarOriginal || selectedContact.avatar || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                                : (selectedContact.avatarDocenteOriginal || selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
                                         }
                                         alt="avatar"
                                         className="w-20 h-20 rounded-full mx-auto mb-4 opacity-30"
@@ -366,11 +365,10 @@ const Chat = () => {
                                         ) : (
                                             <div className="max-w-xs md:max-w-sm lg:max-w-md">
                                                 <div
-                                                    className={`px-4 py-3 rounded-2xl ${
-                                                        msg.de === user._id
+                                                    className={`px-4 py-3 rounded-2xl ${msg.de === user._id
                                                             ? "bg-blue-500 text-white rounded-br-none"
                                                             : "bg-gray-300 text-gray-900 rounded-bl-none"
-                                                    }`}
+                                                        }`}
                                                     style={{ wordBreak: "break-word" }}
                                                 >
                                                     <p className="text-sm md:text-base">{msg.texto}</p>

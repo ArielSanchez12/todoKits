@@ -27,7 +27,8 @@ const Dashboard = () => {
     const esAdministrador = userData?.rol === "Administrador";
     const esDocente = userData?.rol === "docente" || userData?.rolDocente === "Docente";
 
-    const avatarUrl = userData.avatarDocente || userData.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+    // ✅ Mostrar imagen ORIGINAL en sidebar y header
+    const avatarUrl = userData.avatarDocenteOriginal || userData.avatarOriginal || userData.avatarDocente || userData.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
     return (
         <>

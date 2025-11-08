@@ -177,10 +177,23 @@ const Chat = () => {
         };
     }, [selectedContact, user]);
 
+    // ✅ NUEVO estado y refs para bloquear envíos repetidos
+    const sendingRef = useRef(false);
+    const [allowSend, setAllowSend] = useState(true); // Se reactiva solo cuando el usuario escribe algo
+
     // Enviar mensaje (optimista) con reply
     const handleSend = async (e) => {
         e.preventDefault();
-        if (!message.trim() || !selectedContact) return;
+        const contenido = message.trim();
+        if (!selectedContact) return;
+        // Bloqueos:
+        if (!contenido) return;
+        if (!allowSend) return;
+        if (sendingRef.current) return;
+
+        // Bloquear más envíos hasta que el usuario vuelva a escribir
+        sendingRef.current = true;
+        setAllowSend(false);
 
         const clientId = genClientId();
         const nowIso = new Date().toISOString();
@@ -188,7 +201,7 @@ const Chat = () => {
         const optimisticMsg = {
             _id: clientId,
             clientId,
-            texto: message,
+            texto: contenido,
             de: user._id,
             deNombre: user.nombreDocente || user.nombreAdmin || user.nombre,
             para: selectedContact._id,
@@ -201,9 +214,13 @@ const Chat = () => {
         };
         setResponses(prev => [...prev, optimisticMsg]);
 
+        // Vaciar input inmediatamente
+        setMessage("");
+        setReplyTarget(null);
+
         try {
             const payload = {
-                texto: message,
+                texto: contenido,
                 de: user._id,
                 deNombre: optimisticMsg.deNombre,
                 para: selectedContact._id,
@@ -211,8 +228,8 @@ const Chat = () => {
                 deTipo: userType,
                 paraTipo: userType === "docente" ? "admin" : "docente",
                 clientId,
-                replyToId: replyTarget?._id || null,
-                replyToTexto: replyTarget?.texto || null
+                replyToId: optimisticMsg.replyTo?._id || null,
+                replyToTexto: optimisticMsg.replyTo?.texto || null
             };
 
             const res = await fetch(`${BACKEND_URL}/chat/send`, {
@@ -229,9 +246,10 @@ const Chat = () => {
             }
         } catch {
             setResponses(prev => prev.map(m => (m.clientId === clientId ? { ...m, estado: 'error' } : m)));
+        } finally {
+            // Mantiene el bloqueo hasta que el usuario escriba algo nuevo (allowSend se activa en onChange)
+            sendingRef.current = false;
         }
-        setMessage("");
-        setReplyTarget(null);
     };
 
     useEffect(() => {
@@ -353,8 +371,8 @@ const Chat = () => {
             <div className="max-w-xs md:max-w-sm lg:max-w-md">
                 <div
                     className={`px-4 py-3 rounded-2xl ${msg.de === user._id
-                            ? "bg-blue-500 text-white rounded-br-none"
-                            : "bg-gray-300 text-gray-900 rounded-bl-none"
+                        ? "bg-blue-500 text-white rounded-br-none"
+                        : "bg-gray-300 text-gray-900 rounded-bl-none"
                         } ${highlightedId === msg._id ? "ring-2 ring-amber-300" : ""}`}
                     style={{ wordBreak: "break-word" }}
                     onTouchStart={startPress}
@@ -489,8 +507,16 @@ const Chat = () => {
     // ✅ Abrir menú contextual (desktop y móvil)
     const openContextMenu = (e, msg) => {
         e.preventDefault();
-        const x = e?.clientX ?? e?.touches?.[0]?.clientX ?? window.innerWidth / 2;
-        const y = e?.clientY ?? e?.touches?.[0]?.clientY ?? window.innerHeight / 2;
+        const clickX = e?.clientX ?? e?.touches?.[0]?.clientX ?? window.innerWidth / 2;
+        const clickY = e?.clientY ?? e?.touches?.[0]?.clientY ?? window.innerHeight / 2;
+        const MENU_W = 200;
+        const MENU_H = 220; // aproximado
+        let x = clickX;
+        let y = clickY;
+        if (x + MENU_W > window.innerWidth - 8) x = window.innerWidth - MENU_W - 8;
+        if (y + MENU_H > window.innerHeight - 8) y = window.innerHeight - MENU_H - 8;
+        if (x < 8) x = 8;
+        if (y < 8) y = 8;
         setContextPos({ x, y });
         setContextMsg(msg);
         setShowContext(true);
@@ -525,13 +551,13 @@ const Chat = () => {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ nuevoTexto: trimmed })
             });
-        } catch {}
+        } catch { }
     };
 
     // ✅ Copiar
     const copyMsg = async () => {
         if (!contextMsg) return;
-        try { await navigator.clipboard.writeText(contextMsg.texto || ""); } catch {}
+        try { await navigator.clipboard.writeText(contextMsg.texto || ""); } catch { }
         setShowContext(false);
     };
 
@@ -544,7 +570,7 @@ const Chat = () => {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` }
             });
-        } catch {}
+        } catch { }
         setShowContext(false);
     };
 
@@ -563,7 +589,7 @@ const Chat = () => {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ ids: Array.from(selectedIds) })
             });
-        } catch {}
+        } catch { }
         setSelectedIds(new Set());
         setMultiSelectMode(false);
         setShowContext(false);
@@ -750,7 +776,14 @@ const Chat = () => {
                             <input
                                 type="text"
                                 value={message}
-                                onChange={e => setMessage(e.target.value)}
+                                onChange={e => {
+                                    const val = e.target.value;
+                                    setMessage(val);
+                                    // Al escribir algo distinto de solo espacios vuelves a permitir un envío
+                                    if (val.trim().length > 0) {
+                                        allowSend === false && setAllowSend(true);
+                                    }
+                                }}
                                 placeholder="Escribe un mensaje..."
                                 className="flex-1 bg-gray-100 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -784,27 +817,85 @@ const Chat = () => {
 
             {/* Context menu */}
             {showContext && contextMsg && (
-                <div style={{ top: contextPos.y, left: contextPos.x }} className="fixed z-[9999] bg-white shadow-lg border rounded-md py-2 w-48 text-sm">
-                    <button onClick={startReply} className="w-full text-left px-3 py-2 hover:bg-gray-100">Responder</button>
-                    {canEdit(contextMsg) && (
-                        <button onClick={startEdit} className="w-full text-left px-3 py-2 hover:bg-gray-100">Editar</button>
-                    )}
-                    <button onClick={copyMsg} className="w-full text-left px-3 py-2 hover:bg-gray-100">Copiar</button>
-                    {contextMsg.de === user._id ? (
-                        <>
-                            <button onClick={deleteOne} className="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">Eliminar (para ambos)</button>
-                            <button onClick={toggleMultiMode} className="w-full text-left px-3 py-2 hover:bg-gray-100">
-                                {multiSelectMode ? "Cancelar múltiple" : "Seleccionar varios"}
+                <div
+                    style={{ top: contextPos.y, left: contextPos.x }}
+                    className="fixed z-[9999] bg-white shadow-xl border border-gray-200 rounded-lg w-52 overflow-hidden text-sm animate-fade-in"
+                >
+                    <ul className="flex flex-col">
+                        <li>
+                            <button
+                                onClick={startReply}
+                                className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                            >
+                                <span className="text-blue-500">↩</span> Responder
                             </button>
-                            {multiSelectMode && selectedIds.size > 0 && (
-                                <button onClick={deleteMany} className="w-full text-left px-3 py-2 hover:bg-red-50 text-red-600">
-                                    Eliminar seleccionados ({selectedIds.size})
+                        </li>
+                        {canEdit(contextMsg) && (
+                            <li className="border-t border-gray-200">
+                                <button
+                                    onClick={startEdit}
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                                >
+                                    ✏️ Editar
                                 </button>
-                            )}
-                        </>
-                    ) : (
-                        <button onClick={hideForMe} className="w-full text-left px-3 py-2 hover:bg-gray-100">Eliminar para mí</button>
-                    )}
+                            </li>
+                        )}
+                        <li className="border-t border-gray-200">
+                            <button
+                                onClick={copyMsg}
+                                className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                            >
+                                📋 Copiar
+                            </button>
+                        </li>
+                        {contextMsg.de === user._id ? (
+                            <>
+                                <li className="border-t border-gray-200">
+                                    <button
+                                        onClick={deleteOne}
+                                        className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
+                                    >
+                                        🗑 Eliminar (ambos)
+                                    </button>
+                                </li>
+                                <li className="border-t border-gray-200">
+                                    <button
+                                        onClick={toggleMultiMode}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                                    >
+                                        {multiSelectMode ? "✖ Cancelar múltiple" : "✅ Seleccionar varios"}
+                                    </button>
+                                </li>
+                                {multiSelectMode && selectedIds.size > 0 && (
+                                    <li className="border-t border-gray-200">
+                                        <button
+                                            onClick={deleteMany}
+                                            className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
+                                        >
+                                            🗑 Eliminar ({selectedIds.size})
+                                        </button>
+                                    </li>
+                                )}
+                            </>
+                        ) : (
+                            <li className="border-t border-gray-200">
+                                <button
+                                    onClick={hideForMe}
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                                >
+                                    🙈 Eliminar para mí
+                                </button>
+                            </li>
+                        )}
+                        <li className="border-t border-gray-200">
+                            <button
+                                onClick={() => setShowContext(false)}
+                                className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                            >
+                                ✕ Cerrar
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             )}
         </div>

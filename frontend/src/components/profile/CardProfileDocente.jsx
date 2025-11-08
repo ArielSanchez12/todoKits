@@ -2,32 +2,38 @@ import { useRef, useState, useEffect } from "react"
 import storeProfile from "../../context/storeProfile"
 import ModalCropImage from "./ModalCropImage"
 import ModalViewImage from "./ModalViewImage"
+import { createCroppedImage } from "../../helpers/imageHelpers"
 
 export const CardProfileDocente = () => {
     const { user, updateProfile } = storeProfile()
     const [preview, setPreview] = useState(null)
-    const [previewCropData, setPreviewCropData] = useState(null) // ✅ NUEVO
     const fileInputRef = useRef(null)
     const [loading, setLoading] = useState(false)
-
+    
+    // ✅ Estados para modales
     const [showCropModal, setShowCropModal] = useState(false)
     const [showViewModal, setShowViewModal] = useState(false)
     const [imageToCrop, setImageToCrop] = useState(null)
     const [originalFile, setOriginalFile] = useState(null)
+    const [originalImageUrl, setOriginalImageUrl] = useState(null) // ✅ NUEVO
 
     const userData = user?._doc || user || {}
     const userId = user?._doc?._id || user?._id
 
     useEffect(() => {
         setPreview(null)
-        setPreviewCropData(null)
-    }, [user])
+        // ✅ Actualizar URL original
+        if (userData?.avatarDocente) {
+            setOriginalImageUrl(userData.avatarDocente)
+        }
+    }, [user, userData?.avatarDocente])
 
+    // ✅ Cuando selecciona una imagen, abrir modal de recorte
     const handleImageSelect = (e) => {
         const file = e.target.files[0]
-
+        
         if (!file) return
-
+        
         if (!file.type.startsWith('image/')) {
             alert("Por favor selecciona una imagen válida")
             return
@@ -41,33 +47,33 @@ export const CardProfileDocente = () => {
         setOriginalFile(file)
         const reader = new FileReader()
         reader.onload = () => {
-            setImageToCrop(reader.result)
+            const imageUrl = reader.result
+            setImageToCrop(imageUrl)
+            setOriginalImageUrl(imageUrl) // ✅ Guardar imagen COMPLETA
             setShowCropModal(true)
         }
         reader.readAsDataURL(file)
     }
 
-    // ✅ MODIFICADO: Guardar imagen ORIGINAL + coordenadas de recorte
+    // ✅ Cuando termina de recortar, subir la imagen
     const handleCropComplete = async (croppedAreaPixels) => {
         try {
             setShowCropModal(false)
             setLoading(true)
 
+            const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels)
+            const croppedFile = new File([croppedBlob], originalFile.name, {
+                type: 'image/jpeg'
+            })
+
             const formData = new FormData()
-            // ✅ Subir imagen ORIGINAL completa
-            formData.append('avatarDocente', originalFile)
-            // ✅ Guardar coordenadas del recorte
-            formData.append('cropData', JSON.stringify(croppedAreaPixels))
+            formData.append('avatarDocente', croppedFile)
 
             await updateProfile(formData, userId)
-
-            // Preview local temporal
-            setPreview(URL.createObjectURL(originalFile))
-            setPreviewCropData(croppedAreaPixels)
-
+            setPreview(URL.createObjectURL(croppedFile))
             window.location.reload()
         } catch (error) {
-            console.error('Error al actualizar imagen:', error)
+            console.error('Error al recortar imagen:', error)
             alert("Error al procesar la imagen. Por favor intenta nuevamente.")
             setLoading(false)
         }
@@ -91,6 +97,7 @@ export const CardProfileDocente = () => {
 
         try {
             await updateProfile(data, userId)
+            setOriginalImageUrl(null)
             window.location.reload()
         } catch (error) {
             alert("Error al eliminar la imagen")
@@ -98,15 +105,15 @@ export const CardProfileDocente = () => {
         }
     }
 
-    // ✅ Imagen completa original
+    // ✅ URL para mostrar en el círculo
     const avatarUrl =
         preview ||
         userData?.avatarDocente ||
         userData?.avatar ||
         "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
-    // ✅ Coordenadas de recorte para el círculo
-    const cropData = previewCropData || userData?.cropData || null;
+    // ✅ URL para mostrar en el modal (completa)
+    const fullImageUrl = originalImageUrl || avatarUrl;
 
     const tieneAvatarPersonalizado =
         (userData?.avatarDocente &&
@@ -116,49 +123,19 @@ export const CardProfileDocente = () => {
             userData.avatar !== "https://cdn-icons-png.flaticon.com/512/4715/4715329.png" &&
             userData.avatar !== null);
 
-    // ✅ CORREGIR: Calcular estilos para el recorte visual
-    const getAvatarStyle = () => {
-        if (!cropData) {
-            return {
-                objectFit: 'cover',
-                objectPosition: 'center'
-            };
-        }
-
-        // ✅ NUEVA FÓRMULA: Simular exactamente el comportamiento del modal de crop
-        const { x, y, width, height, zoom = 1 } = cropData;
-
-        // Calcular la escala total (zoom del usuario)
-        const scale = zoom;
-
-        // Calcular el offset para centrar el área recortada
-        const offsetX = -((x + width / 2 - 128 / 2) / scale);
-        const offsetY = -((y + height / 2 - 128 / 2) / scale);
-
-        return {
-            width: `${100 * scale}%`,
-            height: `${100 * scale}%`,
-            objectFit: 'cover',
-            transform: `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`,
-            transformOrigin: 'center center'
-        };
-    };
-
     return (
         <>
             <div className="bg-gray-200 border border-black h-auto p-4 flex flex-col items-center justify-between shadow-xl rounded-lg">
                 <div className="relative">
-                    {/* ✅ Círculo con recorte visual usando CSS */}
-                    <div className="w-32 h-32 rounded-full border-2 border-gray-300 overflow-hidden mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                    {/* ✅ Click en imagen abre modal con imagen COMPLETA */}
+                    <img
+                        src={avatarUrl + `?t=${Date.now()}`}
+                        alt="avatar"
+                        className="w-32 h-32 max-w-full max-h-40 rounded-full border-2 border-gray-300 object-cover mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                        style={{ aspectRatio: '1/1' }}
                         onClick={() => setShowViewModal(true)}
-                        title="Click para ver imagen completa">
-                        <img
-                            src={avatarUrl + `?t=${Date.now()}`}
-                            alt="avatar"
-                            className="w-full h-full"
-                            style={getAvatarStyle()}
-                        />
-                    </div>
+                        title="Click para ver imagen completa"
+                    />
 
                     {/* 📷 Botón para cambiar foto */}
                     <label className="absolute bottom-0 right-0 bg-blue-400 text-white rounded-full p-2 cursor-pointer hover:bg-emerald-400 transition-colors">
@@ -217,6 +194,7 @@ export const CardProfileDocente = () => {
                 )}
             </div>
 
+            {/* ✅ Modales */}
             <ModalCropImage
                 imageSrc={imageToCrop}
                 isOpen={showCropModal}
@@ -228,9 +206,9 @@ export const CardProfileDocente = () => {
                 onCropComplete={handleCropComplete}
             />
 
-            {/* ✅ Modal SIEMPRE muestra imagen completa original */}
+            {/* ✅ Modal muestra imagen COMPLETA */}
             <ModalViewImage
-                imageSrc={avatarUrl}
+                imageSrc={fullImageUrl}
                 isOpen={showViewModal}
                 onClose={() => setShowViewModal(false)}
                 userName={`${userData?.nombreDocente || ''} ${userData?.apellidoDocente || ''}`}

@@ -45,9 +45,15 @@ const Chat = () => {
         })
             .then(res => res.json())
             .then(data => {
-                const contactList = userType === "docente" ? (data ? [data] : []) : data;
-                setContacts(contactList);
-                setFilteredContacts(contactList);
+                const contactList = userType === "docente" ? (data ? [data] : []) : (Array.isArray(data) ? data : []);
+                // ✅ Normalizar: siempre tener recortada y original
+                const normalized = contactList.map(c => ({
+                    ...c,
+                    avatarCropped: c.avatarDocente || c.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png",
+                    avatarFull: c.avatarDocenteOriginal || c.avatarOriginal || c.avatarDocente || c.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
+                }));
+                setContacts(normalized);
+                setFilteredContacts(normalized);
             });
     }, [token, userType]);
 
@@ -236,7 +242,7 @@ const Chat = () => {
                     </div>
                 </div>
 
-                {/* Lista de contactos - SCROLL SOLO AQUI */}
+                {/* Lista de contactos - SCROLL SOLO AHI */}
                 <div className="flex-1 overflow-y-auto">
                     {filteredContacts.length === 0 ? (
                         <div className="p-4 text-center text-gray-500">
@@ -255,22 +261,15 @@ const Chat = () => {
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        {/* ✅ Avatar clickeable - MOSTRAR RECORTADA en círculo */}
+                                        {/* ✅ Círculo: SIEMPRE recortada */}
                                         <img
-                                            src={
-                                                userType === "docente"
-                                                    ? (contact.avatar || contact.avatarOriginal || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                                    : (contact.avatarDocente || contact.avatarDocenteOriginal || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                            }
+                                            src={contact.avatarCropped}
                                             alt="avatar"
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                // ✅ CORRECCIÓN: Modal muestra ORIGINAL
-                                                const imageUrl = userType === "docente"
-                                                    ? (contact.avatarOriginal || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                                    : (contact.avatarDocenteOriginal || contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
-                                                handleOpenImage(imageUrl);
+                                                // ✅ Modal: SIEMPRE original
+                                                handleOpenImage(contact.avatarFull);
                                             }}
                                             title="Click para ver imagen"
                                         />
@@ -307,21 +306,14 @@ const Chat = () => {
                 <div className="flex-1 flex flex-col h-full overflow-hidden">
                     {/* HEADER DEL CHAT */}
                     <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 flex-shrink-0">
-                        {/* ✅ Avatar clickeable del header - MOSTRAR RECORTADA en círculo */}
+                        {/* ✅ Círculo: recortada */}
                         <img
-                            src={
-                                userType === "docente"
-                                    ? (selectedContact.avatar || selectedContact.avatarOriginal || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                    : (selectedContact.avatarDocente || selectedContact.avatarDocenteOriginal || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                            }
+                            src={selectedContact.avatarCropped}
                             alt="avatar"
                             className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                             onClick={() => {
-                                // ✅ CORRECCIÓN: Modal muestra ORIGINAL
-                                const imageUrl = userType === "docente"
-                                    ? (selectedContact.avatarOriginal || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                    : (selectedContact.avatarDocenteOriginal || selectedContact.avatarDocente || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
-                                handleOpenImage(imageUrl);
+                                // ✅ Modal: original
+                                handleOpenImage(selectedContact.avatarFull);
                             }}
                             title="Click para ver imagen"
                         />
@@ -344,13 +336,9 @@ const Chat = () => {
                         {responses.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
                                 <div className="text-center">
-                                    {/* ✅ Imagen del centro cuando no hay mensajes - RECORTADA */}
+                                    {/* ✅ Centro: recortada */}
                                     <img
-                                        src={
-                                            userType === "docente"
-                                                ? (selectedContact.avatar || selectedContact.avatarOriginal || selectedContact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                                : (selectedContact.avatarDocente || selectedContact.avatarDocenteOriginal || selectedContact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                        }
+                                        src={selectedContact.avatarCropped}
                                         alt="avatar"
                                         className="w-20 h-20 rounded-full mx-auto mb-4 opacity-30"
                                     />

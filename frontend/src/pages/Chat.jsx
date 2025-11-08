@@ -19,6 +19,7 @@ const Chat = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false); // ✅ NUEVO
     const [selectedImageUrl, setSelectedImageUrl] = useState(""); // ✅ NUEVO
+    const [originalCache, setOriginalCache] = useState({}) // ✅ NUEVO: cache de originales
     const token = storeAuth((state) => state.token);
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const [userType, setUserType] = useState("");
@@ -179,6 +180,68 @@ const Chat = () => {
         setShowViewModal(true);
     };
 
+    // ✅ NUEVO: obtener URL original bajo demanda
+    const fetchOriginalForContact = async (contact) => {
+        // Si ya cacheado
+        if (originalCache[contact._id]) return originalCache[contact._id]
+
+        // Si ya vino en el objeto normalizado
+        let originalUrl = contact.avatarFull
+        const hasOriginal =
+            originalUrl &&
+            (originalUrl.includes('/originals/') || // Cloudinary folder original
+                originalUrl === contact.avatarDocenteOriginal ||
+                originalUrl === contact.avatarOriginal)
+
+        if (hasOriginal) {
+            setOriginalCache(prev => ({ ...prev, [contact._id]: originalUrl }))
+            return originalUrl
+        }
+
+        try {
+            let endpoint
+            if (userType === 'admin') {
+                // Admin viendo docente
+                endpoint = `/administrador/detailsDocente/${contact._id}`
+            } else {
+                // Docente viendo admin (solo hay un admin en chat)
+                endpoint = `/chat/admin` // ya devuelve el admin actual
+            }
+
+            const res = await fetch(`${BACKEND_URL}${endpoint}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            const data = await res.json()
+
+            if (userType === 'admin') {
+                const d = data.docentes || {}
+                originalUrl =
+                    d.avatarDocenteOriginal ||
+                    d.avatarDocente ||
+                    contact.avatarFull ||
+                    contact.avatarCropped
+            } else {
+                // docente -> admin
+                originalUrl =
+                    data.avatarOriginal ||
+                    data.avatar ||
+                    contact.avatarFull ||
+                    contact.avatarCropped
+            }
+        } catch (e) {
+            originalUrl = contact.avatarFull || contact.avatarCropped
+        }
+
+        setOriginalCache(prev => ({ ...prev, [contact._id]: originalUrl }))
+        return originalUrl
+    }
+
+    // ✅ NUEVO: abre modal garantizando original
+    const openOriginalModal = async (contact) => {
+        const url = await fetchOriginalForContact(contact)
+        handleOpenImage(url)
+    }
+
     // Renderizar mensaje de transferencia
     const renderMensajeTransferencia = (msg) => {
         const { transferencia } = msg;
@@ -250,28 +313,26 @@ const Chat = () => {
                         </div>
                     ) : (
                         filteredContacts.map(contact => {
-                            const lastMsg = getLastMessageInfo(contact._id);
+                            const lastMsg = getLastMessageInfo(contact._id)
                             return (
                                 <div
                                     key={contact._id}
                                     onClick={() => setSelectedContact(contact)}
                                     className={`p-3 md:p-4 border-b border-gray-200 cursor-pointer transition-colors ${selectedContact?._id === contact._id
-                                        ? "bg-blue-50 border-l-4 border-l-blue-500"
-                                        : "hover:bg-gray-50"
+                                            ? "bg-blue-50 border-l-4 border-l-blue-500"
+                                            : "hover:bg-gray-50"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        {/* ✅ Círculo: SIEMPRE recortada */}
                                         <img
                                             src={contact.avatarCropped}
                                             alt="avatar"
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                // ✅ Modal: SIEMPRE original
-                                                handleOpenImage(contact.avatarFull);
+                                            onClick={async (e) => {
+                                                e.stopPropagation()
+                                                await openOriginalModal(contact) // ✅ CAMBIO
                                             }}
-                                            title="Click para ver imagen"
+                                            title="Click para ver imagen completa"
                                         />
 
                                         {/* Info */}
@@ -295,7 +356,7 @@ const Chat = () => {
                                         </div>
                                     </div>
                                 </div>
-                            );
+                            )
                         })
                     )}
                 </div>
@@ -311,11 +372,10 @@ const Chat = () => {
                             src={selectedContact.avatarCropped}
                             alt="avatar"
                             className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => {
-                                // ✅ Modal: original
-                                handleOpenImage(selectedContact.avatarFull);
+                            onClick={async () => {
+                                await openOriginalModal(selectedContact) // ✅ CAMBIO
                             }}
-                            title="Click para ver imagen"
+                            title="Click para ver imagen completa"
                         />
 
                         {/* Nombre e info */}
@@ -340,7 +400,11 @@ const Chat = () => {
                                     <img
                                         src={selectedContact.avatarCropped}
                                         alt="avatar"
-                                        className="w-20 h-20 rounded-full mx-auto mb-4 opacity-30"
+                                        className="w-20 h-20 rounded-full mx-auto mb-4 opacity-30 cursor-pointer"
+                                        onClick={async () => {
+                                            await openOriginalModal(selectedContact) // ✅ OPCIONAL
+                                        }}
+                                        title="Click para ver imagen completa"
                                     />
                                     <p className="text-gray-500 text-sm">Inicia la conversación</p>
                                 </div>

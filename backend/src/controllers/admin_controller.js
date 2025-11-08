@@ -169,7 +169,7 @@ const actualizarPerfil = async (req, res) => {
     try {
         const { id } = req.params;
         const data = req.validated || req.body;
-        
+
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
         }
@@ -181,7 +181,6 @@ const actualizarPerfil = async (req, res) => {
 
         // Si cambian email, iniciar flujo de verificación
         if (data.email && data.email !== adminEmailBDD.email) {
-            // VERIFICAR EN AMBAS COLECCIONES
             const adminExistente = await admin.findOne({ email: data.email });
             const docenteExistente = await docente.findOne({ emailDocente: data.email });
 
@@ -207,13 +206,33 @@ const actualizarPerfil = async (req, res) => {
         if (data.apellido) adminEmailBDD.apellido = data.apellido;
         if (data.celular) adminEmailBDD.celular = data.celular;
 
-        // ✅ NUEVO: Verificar si se debe eliminar el avatar
+        // ✅ ELIMINAR AVATARES
         if (data.removeAvatar === true || data.removeAvatar === 'true') {
-            console.log("🗑️ ELIMINANDO AVATAR - ENTRANDO AL IF");
+            console.log("🗑️ ELIMINANDO AVATARES - ENTRANDO AL IF");
+
+            // Eliminar de Cloudinary si existen
+            if (adminEmailBDD.avatar) {
+                try {
+                    const publicId = adminEmailBDD.avatar.split('/').pop().split('.')[0];
+                    await cloudinary.uploader.destroy(`Admins/${publicId}`);
+                } catch (err) {
+                    console.warn("No se pudo eliminar avatar de Cloudinary:", err);
+                }
+            }
+            if (adminEmailBDD.avatarOriginal) {
+                try {
+                    const publicId = adminEmailBDD.avatarOriginal.split('/').pop().split('.')[0];
+                    await cloudinary.uploader.destroy(`Admins/originals/${publicId}`);
+                } catch (err) {
+                    console.warn("No se pudo eliminar avatarOriginal de Cloudinary:", err);
+                }
+            }
+
             adminEmailBDD.avatar = null;
-            //adminEmailBDD.cropData = null;
+            adminEmailBDD.avatarOriginal = null;
             await adminEmailBDD.save();
-            console.log("✅ Avatar eliminado, valor en DB:", adminEmailBDD.avatar);
+
+            console.log("✅ Avatares eliminados");
             return res.status(200).json({
                 msg: "Foto de perfil eliminada correctamente",
                 admin: {
@@ -222,54 +241,84 @@ const actualizarPerfil = async (req, res) => {
                     apellido: adminEmailBDD.apellido,
                     email: adminEmailBDD.email,
                     celular: adminEmailBDD.celular,
-                    avatar: null
+                    avatar: null,
+                    avatarOriginal: null
                 }
             });
         }
 
-        // ✅ LÓGICA ORIGINAL: Manejo de avatar (si llega file)
-        if (req.files?.avatar) {
-            console.log("📤 SUBIENDO IMAGEN - ENTRANDO AL IF");
+        // ✅ SUBIR IMAGEN RECORTADA + ORIGINAL
+        if (req.files?.avatar || req.files?.avatarOriginal) {
+            console.log("📤 SUBIENDO IMÁGENES - ENTRANDO AL IF");
+
             try {
-                const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: 'Admins' },
-                    async (error, result) => {
-                        if (error) return res.status(500).json({ msg: 'Error al subir imagen', error });
-                        adminEmailBDD.avatar = result.secure_url;
-                        // ✅ NUEVO: Guardar coordenadas de recorte si vienen
-                        // if (data.cropData || req.body.cropData) {
-                        //     try {
-                        //         adminEmailBDD.cropData = JSON.parse(data.cropData || req.body.cropData);
-                        //     } catch (e) {
-                        //         console.warn("Error al parsear cropData:", e);
-                        //     }
-                        // }
-                        await adminEmailBDD.save();
-                        console.log("✅ Avatar actualizado:", adminEmailBDD.avatar);
-                        //console.log("✅ CropData guardado:", adminEmailBDD.cropData);
-                        return res.status(200).json({
-                            msg: "Foto de perfil actualizada correctamente",
-                            admin: {
-                                _id: adminEmailBDD._id,
-                                nombre: adminEmailBDD.nombre,
-                                apellido: adminEmailBDD.apellido,
-                                email: adminEmailBDD.email,
-                                celular: adminEmailBDD.celular,
-                                avatar: adminEmailBDD.avatar,
-                                //cropData: adminEmailBDD.cropData
+                // ✅ Subir imagen RECORTADA (para el círculo)
+                if (req.files?.avatar) {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        { folder: 'Admins' },
+                        async (error, result) => {
+                            if (error) {
+                                console.error("❌ Error al subir avatar recortado:", error);
+                                return res.status(500).json({ msg: 'Error al subir imagen recortada', error });
                             }
-                        });
-                    }
-                );
-                uploadStream.end(req.files.avatar.data);
-                return;
+                            adminEmailBDD.avatar = result.secure_url;
+                            console.log("✅ Avatar recortado subido:", result.secure_url);
+
+                            // ✅ Subir imagen ORIGINAL (para el modal)
+                            if (req.files?.avatarOriginal) {
+                                const uploadStreamOriginal = cloudinary.uploader.upload_stream(
+                                    { folder: 'Admins/originals' },
+                                    async (errorOriginal, resultOriginal) => {
+                                        if (errorOriginal) {
+                                            console.error("❌ Error al subir avatar original:", errorOriginal);
+                                            return res.status(500).json({ msg: 'Error al subir imagen original', errorOriginal });
+                                        }
+                                        adminEmailBDD.avatarOriginal = resultOriginal.secure_url;
+                                        console.log("✅ Avatar original subido:", resultOriginal.secure_url);
+
+                                        await adminEmailBDD.save();
+                                        return res.status(200).json({
+                                            msg: "Fotos de perfil actualizadas correctamente",
+                                            admin: {
+                                                _id: adminEmailBDD._id,
+                                                nombre: adminEmailBDD.nombre,
+                                                apellido: adminEmailBDD.apellido,
+                                                email: adminEmailBDD.email,
+                                                celular: adminEmailBDD.celular,
+                                                avatar: adminEmailBDD.avatar,
+                                                avatarOriginal: adminEmailBDD.avatarOriginal
+                                            }
+                                        });
+                                    }
+                                );
+                                uploadStreamOriginal.end(req.files.avatarOriginal.data);
+                            } else {
+                                await adminEmailBDD.save();
+                                return res.status(200).json({
+                                    msg: "Foto de perfil actualizada correctamente",
+                                    admin: {
+                                        _id: adminEmailBDD._id,
+                                        nombre: adminEmailBDD.nombre,
+                                        apellido: adminEmailBDD.apellido,
+                                        email: adminEmailBDD.email,
+                                        celular: adminEmailBDD.celular,
+                                        avatar: adminEmailBDD.avatar,
+                                        avatarOriginal: adminEmailBDD.avatarOriginal
+                                    }
+                                });
+                            }
+                        }
+                    );
+                    uploadStream.end(req.files.avatar.data);
+                    return;
+                }
             } catch (err) {
-                return res.status(500).json({ msg: 'Error al procesar imagen', err });
+                console.error("❌ Error al procesar imágenes:", err);
+                return res.status(500).json({ msg: 'Error al procesar imágenes', err });
             }
         }
-        
+
         console.log("📝 ACTUALIZANDO SOLO OTROS CAMPOS");
-        // Si solo se actualizan otros campos (sin avatar)
         await adminEmailBDD.save();
         return res.status(200).json({
             msg: "Perfil actualizado correctamente",
@@ -279,7 +328,8 @@ const actualizarPerfil = async (req, res) => {
                 apellido: adminEmailBDD.apellido,
                 email: adminEmailBDD.email,
                 celular: adminEmailBDD.celular,
-                avatar: adminEmailBDD.avatar
+                avatar: adminEmailBDD.avatar,
+                avatarOriginal: adminEmailBDD.avatarOriginal
             }
         });
     } catch (error) {
@@ -516,10 +566,6 @@ const detalleDocente = async (req, res) => {
 export {
     registro,
     confirmarMail,
-    // recuperarPassword,
-    // comprobarTokenPassword,
-    // crearNuevoPassword,
-    //login,
     perfil,
     actualizarPerfil,
     actualizarPassword,

@@ -9,31 +9,24 @@ export const CardProfile = () => {
     const [preview, setPreview] = useState(null)
     const fileInputRef = useRef(null)
     const [loading, setLoading] = useState(false)
-    
-    // ✅ Estados para modales
+
     const [showCropModal, setShowCropModal] = useState(false)
     const [showViewModal, setShowViewModal] = useState(false)
     const [imageToCrop, setImageToCrop] = useState(null)
     const [originalFile, setOriginalFile] = useState(null)
-    const [originalImageUrl, setOriginalImageUrl] = useState(null) // ✅ NUEVO: Guardar URL original
 
     const userData = user?._doc || user || {}
     const userId = user?._doc?._id || user?._id
 
     useEffect(() => {
         setPreview(null)
-        // ✅ Actualizar URL original cuando cambia el usuario
-        if (userData?.avatar) {
-            setOriginalImageUrl(userData.avatar)
-        }
-    }, [user, userData?.avatar])
+    }, [user])
 
-    // ✅ Cuando selecciona una imagen, abrir modal de recorte
     const handleImageSelect = (e) => {
         const file = e.target.files[0]
-        
+
         if (!file) return
-        
+
         if (!file.type.startsWith('image/')) {
             alert("Por favor selecciona una imagen válida")
             return
@@ -47,41 +40,39 @@ export const CardProfile = () => {
         setOriginalFile(file)
         const reader = new FileReader()
         reader.onload = () => {
-            const imageUrl = reader.result
-            setImageToCrop(imageUrl)
-            setOriginalImageUrl(imageUrl) // ✅ Guardar la imagen COMPLETA
+            setImageToCrop(reader.result)
             setShowCropModal(true)
         }
         reader.readAsDataURL(file)
     }
 
-    // ✅ Cuando termina de recortar, subir la imagen
+    // ✅ NUEVO: Subir imagen RECORTADA + ORIGINAL al servidor
     const handleCropComplete = async (croppedAreaPixels) => {
         try {
             setShowCropModal(false)
             setLoading(true)
 
-            // Crear blob de la imagen recortada
+            // ✅ Crear imagen recortada
             const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels)
-            
-            // Crear archivo desde el blob
             const croppedFile = new File([croppedBlob], originalFile.name, {
                 type: 'image/jpeg'
             })
 
+            // ✅ Enviar AMBAS imágenes al servidor
             const formData = new FormData()
-            formData.append('avatar', croppedFile)
+            formData.append('avatar', croppedFile) // ✅ Recortada para el círculo
+            formData.append('avatarOriginal', originalFile) // ✅ Original para el modal
             formData.append('nombre', userData.nombre || '')
             formData.append('apellido', userData.apellido || '')
             formData.append('celular', userData.celular || '')
             formData.append('email', userData.email || '')
 
             await updateProfile(formData, userId)
+
             setPreview(URL.createObjectURL(croppedFile))
-            // ✅ NO actualizar originalImageUrl aquí, mantener la completa
             window.location.reload()
         } catch (error) {
-            console.error('Error al recortar imagen:', error)
+            console.error('Error al procesar imagen:', error)
             alert("Error al procesar la imagen. Por favor intenta nuevamente.")
             setLoading(false)
         }
@@ -109,7 +100,6 @@ export const CardProfile = () => {
 
         try {
             await updateProfile(data, userId)
-            setOriginalImageUrl(null) // ✅ Limpiar imagen original
             window.location.reload()
         } catch (error) {
             alert("Error al eliminar la imagen")
@@ -118,16 +108,16 @@ export const CardProfile = () => {
         }
     }
 
-    // ✅ URL para mostrar en el círculo (puede ser recortada)
+    // ✅ URL para mostrar en el círculo (recortada)
     const avatarUrl =
         preview ||
         userData?.avatar ||
         "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
-    // ✅ URL para mostrar en el modal (siempre la original completa)
-    const fullImageUrl = originalImageUrl || avatarUrl;
+    // ✅ URL para mostrar en el modal (original completa)
+    const fullImageUrl = userData?.avatarOriginal || avatarUrl;
 
-    const tieneAvatarPersonalizado = userData?.avatar && 
+    const tieneAvatarPersonalizado = userData?.avatar &&
         userData.avatar !== "https://cdn-icons-png.flaticon.com/512/4715/4715329.png" &&
         userData.avatar !== null;
 
@@ -135,7 +125,6 @@ export const CardProfile = () => {
         <>
             <div className="bg-gray-200 border border-black h-auto p-4 flex flex-col items-center justify-between shadow-xl rounded-lg">
                 <div className="relative">
-                    {/* ✅ Click en imagen abre modal con imagen COMPLETA */}
                     <img
                         src={avatarUrl + `?t=${Date.now()}`}
                         alt="avatar"
@@ -145,7 +134,6 @@ export const CardProfile = () => {
                         title="Click para ver imagen completa"
                     />
 
-                    {/* 📷 Botón para cambiar foto */}
                     <label className="absolute bottom-0 right-0 bg-blue-400 text-white rounded-full p-2 cursor-pointer hover:bg-emerald-400 transition-colors">
                         {loading ? '⏳' : '📷'}
                         <input
@@ -158,7 +146,6 @@ export const CardProfile = () => {
                         />
                     </label>
 
-                    {/* 🗑️ Botón para eliminar foto */}
                     {tieneAvatarPersonalizado && !loading && (
                         <button
                             onClick={handleRemoveAvatar}
@@ -190,7 +177,6 @@ export const CardProfile = () => {
                 )}
             </div>
 
-            {/* ✅ Modales */}
             <ModalCropImage
                 imageSrc={imageToCrop}
                 isOpen={showCropModal}
@@ -202,7 +188,6 @@ export const CardProfile = () => {
                 onCropComplete={handleCropComplete}
             />
 
-            {/* ✅ Modal muestra imagen COMPLETA, no recortada */}
             <ModalViewImage
                 imageSrc={fullImageUrl}
                 isOpen={showViewModal}

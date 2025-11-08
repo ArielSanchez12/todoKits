@@ -39,6 +39,10 @@ const adminSchema = new Schema({
         type: String,
         default: null
     },
+     avatarOriginal: { // ✅ NUEVO: Imagen original completa
+        type: String,
+        default: null
+    },
     status: {
         type: Boolean,
         default: true

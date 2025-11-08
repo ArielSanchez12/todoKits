@@ -22,6 +22,10 @@ const docenteSchema = new Schema({
         type: String,
         default: null
     },
+    avatarDocenteOriginal: { // ✅ NUEVO: Imagen original completa
+        type: String,
+        default: null
+    },
     emailDocente: {
         type: String,
         require: true,

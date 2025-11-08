@@ -221,10 +221,8 @@ const confirmarMailDocente = async (req, res) => {
 const actualizarPerfilDocente = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // ✅ Si hay archivo, no validar con Zod (req.files tiene la imagen)
     const data = req.files ? {} : (req.validated || req.body);
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ msg: `Lo sentimos, debe ser un id válido` });
     }
@@ -234,54 +232,120 @@ const actualizarPerfilDocente = async (req, res) => {
       return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
     }
 
-    // ✅ Manejo de avatar (si llega file) - ESTO VA PRIMERO
-    if (req.files?.avatarDocente) {
-      console.log("📤 SUBIENDO IMAGEN DOCENTE - ENTRANDO AL IF");
+    // ✅ ELIMINAR AVATARES
+    if (data.removeAvatar === true || data.removeAvatar === 'true') {
+      console.log("🗑️ ELIMINANDO AVATARES DOCENTE - ENTRANDO AL IF");
+
+      // Eliminar de Cloudinary si existen
+      if (docenteBDD.avatarDocente) {
+        try {
+          const publicId = docenteBDD.avatarDocente.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(`Docentes/${publicId}`);
+        } catch (err) {
+          console.warn("No se pudo eliminar avatarDocente de Cloudinary:", err);
+        }
+      }
+      if (docenteBDD.avatarDocenteOriginal) {
+        try {
+          const publicId = docenteBDD.avatarDocenteOriginal.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(`Docentes/originals/${publicId}`);
+        } catch (err) {
+          console.warn("No se pudo eliminar avatarDocenteOriginal de Cloudinary:", err);
+        }
+      }
+
+      docenteBDD.avatarDocente = null;
+      docenteBDD.avatarDocenteOriginal = null;
+      await docenteBDD.save();
+
+      console.log("✅ Avatares docente eliminados");
+      return res.status(200).json({
+        msg: "Foto de perfil eliminada correctamente",
+        docente: {
+          _id: docenteBDD._id,
+          nombreDocente: docenteBDD.nombreDocente,
+          apellidoDocente: docenteBDD.apellidoDocente,
+          emailDocente: docenteBDD.emailDocente,
+          celularDocente: docenteBDD.celularDocente,
+          avatarDocente: null,
+          avatarDocenteOriginal: null
+        }
+      });
+    }
+
+    // ✅ SUBIR IMAGEN RECORTADA + ORIGINAL
+    if (req.files?.avatarDocente || req.files?.avatarDocenteOriginal) {
+      console.log("📤 SUBIENDO IMÁGENES DOCENTE - ENTRANDO AL IF");
+
       try {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: 'Docentes' },
-          async (error, result) => {
-            if (error) {
-              console.error("❌ Error al subir a Cloudinary:", error);
-              return res.status(500).json({ msg: 'Error al subir imagen', error });
-            }
-            docenteBDD.avatarDocente = result.secure_url;
-            // ✅ NUEVO: Guardar coordenadas de recorte si vienen
-            // if (req.body.cropData) {
-            //   try {
-            //     docenteBDD.cropDataDocente = JSON.parse(req.body.cropData);
-            //   } catch (e) {
-            //     console.warn("Error al parsear cropData:", e);
-            //   }
-            // }
-            await docenteBDD.save();
-            console.log("✅ Avatar docente actualizado:", docenteBDD.avatarDocente);
-            //console.log("✅ CropData docente guardado:", docenteBDD.cropDataDocente);
-            return res.status(200).json({
-              msg: "Foto de perfil actualizada correctamente",
-              docente: {
-                _id: docenteBDD._id,
-                nombreDocente: docenteBDD.nombreDocente,
-                apellidoDocente: docenteBDD.apellidoDocente,
-                emailDocente: docenteBDD.emailDocente,
-                celularDocente: docenteBDD.celularDocente,
-                avatarDocente: docenteBDD.avatarDocente,
-                //cropDataDocente: docenteBDD.cropDataDocente
+        // ✅ Subir imagen RECORTADA (para el círculo)
+        if (req.files?.avatarDocente) {
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: 'Docentes' },
+            async (error, result) => {
+              if (error) {
+                console.error("❌ Error al subir avatarDocente recortado:", error);
+                return res.status(500).json({ msg: 'Error al subir imagen recortada', error });
               }
-            });
-          }
-        );
-        uploadStream.end(req.files.avatarDocente.data);
-        return;
+              docenteBDD.avatarDocente = result.secure_url;
+              console.log("✅ AvatarDocente recortado subido:", result.secure_url);
+
+              // ✅ Subir imagen ORIGINAL (para el modal)
+              if (req.files?.avatarDocenteOriginal) {
+                const uploadStreamOriginal = cloudinary.uploader.upload_stream(
+                  { folder: 'Docentes/originals' },
+                  async (errorOriginal, resultOriginal) => {
+                    if (errorOriginal) {
+                      console.error("❌ Error al subir avatarDocente original:", errorOriginal);
+                      return res.status(500).json({ msg: 'Error al subir imagen original', errorOriginal });
+                    }
+                    docenteBDD.avatarDocenteOriginal = resultOriginal.secure_url;
+                    console.log("✅ AvatarDocente original subido:", resultOriginal.secure_url);
+
+                    await docenteBDD.save();
+                    return res.status(200).json({
+                      msg: "Fotos de perfil actualizadas correctamente",
+                      docente: {
+                        _id: docenteBDD._id,
+                        nombreDocente: docenteBDD.nombreDocente,
+                        apellidoDocente: docenteBDD.apellidoDocente,
+                        emailDocente: docenteBDD.emailDocente,
+                        celularDocente: docenteBDD.celularDocente,
+                        avatarDocente: docenteBDD.avatarDocente,
+                        avatarDocenteOriginal: docenteBDD.avatarDocenteOriginal
+                      }
+                    });
+                  }
+                );
+                uploadStreamOriginal.end(req.files.avatarDocenteOriginal.data);
+              } else {
+                await docenteBDD.save();
+                return res.status(200).json({
+                  msg: "Foto de perfil actualizada correctamente",
+                  docente: {
+                    _id: docenteBDD._id,
+                    nombreDocente: docenteBDD.nombreDocente,
+                    apellidoDocente: docenteBDD.apellidoDocente,
+                    emailDocente: docenteBDD.emailDocente,
+                    celularDocente: docenteBDD.celularDocente,
+                    avatarDocente: docenteBDD.avatarDocente,
+                    avatarDocenteOriginal: docenteBDD.avatarDocenteOriginal
+                  }
+                });
+              }
+            }
+          );
+          uploadStream.end(req.files.avatarDocente.data);
+          return;
+        }
       } catch (err) {
-        console.error("❌ Error al procesar imagen:", err);
-        return res.status(500).json({ msg: 'Error al procesar imagen', err });
+        console.error("❌ Error al procesar imágenes:", err);
+        return res.status(500).json({ msg: 'Error al procesar imágenes', err });
       }
     }
 
-    // ✅ Si cambian email, iniciar flujo de verificación
+    // Si cambian email, iniciar flujo de verificación
     if (data.emailDocente && data.emailDocente !== docenteBDD.emailDocente) {
-      // Verificar en ambas colecciones
       const docenteExistente = await docente.findOne({ emailDocente: data.emailDocente });
       const adminExistente = await admin.findOne({ email: data.emailDocente });
 
@@ -295,32 +359,11 @@ const actualizarPerfilDocente = async (req, res) => {
 
       await docenteBDD.save();
       await sendMailToChangeEmailDocente(data.emailDocente, token);
-      return res.status(200).json({ 
-        msg: "Se envió un correo de confirmación al nuevo email. El cambio se aplicará cuando lo confirmes." 
+      return res.status(200).json({
+        msg: "Se envió un correo de confirmación al nuevo email. El cambio se aplicará cuando lo confirmes."
       });
     }
 
-    // ✅ Verificar si se debe eliminar el avatar
-    if (data.removeAvatar === true || data.removeAvatar === 'true') {
-      console.log("🗑️ ELIMINANDO AVATAR DOCENTE - ENTRANDO AL IF");
-      docenteBDD.avatarDocente = null;
-      //docenteBDD.cropDataDocente = null;
-      await docenteBDD.save();
-      console.log("✅ Avatar docente eliminado, valor en DB:", docenteBDD.avatarDocente);
-      return res.status(200).json({
-        msg: "Foto de perfil eliminada correctamente",
-        docente: {
-          _id: docenteBDD._id,
-          nombreDocente: docenteBDD.nombreDocente,
-          apellidoDocente: docenteBDD.apellidoDocente,
-          emailDocente: docenteBDD.emailDocente,
-          celularDocente: docenteBDD.celularDocente,
-          avatarDocente: null,
-          //cropDataDocente: null
-        }
-      });
-    }
-    
     console.log("⚠️ No se realizó ningún cambio");
     return res.status(400).json({ msg: "No se proporcionaron datos para actualizar" });
   } catch (error) {

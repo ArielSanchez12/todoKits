@@ -319,156 +319,81 @@ const Chat = () => {
         );
     };
 
-    // Hook long press simple
-    const useLongPress = (callback, ms = 450) => {
-        const tRef = useRef();
-        const start = (e) => {
+    // ✅ Componente interno para cada burbuja (maneja long press / context menu)
+    const MessageBubble = ({
+        msg,
+        user,
+        highlightedId,
+        jumpToMessage,
+        openContextMenu
+    }) => {
+        const timeoutRef = useRef(null);
+
+        // Handlers long press (móvil) y context menu (desktop)
+        const startPress = (e) => {
             e.preventDefault();
-            tRef.current = setTimeout(() => callback(e), ms);
+            timeoutRef.current = setTimeout(() => {
+                openContextMenu(e, msg);
+            }, 450);
         };
-        const clear = () => tRef.current && clearTimeout(tRef.current);
-        return {
-            onTouchStart: start,
-            onTouchEnd: clear,
-            onTouchMove: clear,
-            onContextMenu: (e) => { e.preventDefault(); callback(e); }
+        const clearPress = () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
         };
-    };
-
-    const [contextMsg, setContextMsg] = useState(null);
-    const [showContext, setShowContext] = useState(false);
-    const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
-    const [multiSelectMode, setMultiSelectMode] = useState(false);
-    const [selectedIds, setSelectedIds] = useState(new Set());
-    const [editingId, setEditingId] = useState(null);
-    const [editText, setEditText] = useState("");
-
-    // Agregar listeners Pusher nuevos
-    useEffect(() => {
-        if (!channelRef.current) return;
-        const ch = channelRef.current;
-
-        const onEdited = data => {
-            setResponses(prev => prev.map(m => m._id === data._id ? { ...m, texto: data.texto, editedAt: data.editedAt } : m));
-        };
-        const onDeleted = ({ _id }) => {
-            setResponses(prev => prev.map(m => m._id === _id ? { ...m, texto: "Mensaje eliminado", softDeleted: true } : m));
-        };
-        const onDeletedMany = ({ ids }) => {
-            setResponses(prev => prev.map(m => ids.includes(m._id) ? { ...m, texto: "Mensaje eliminado", softDeleted: true } : m));
-        };
-        const onRead = (arr) => {
-            setResponses(prev => prev.map(m => {
-                const found = arr.find(x => x._id === m._id);
-                return found ? { ...m, estado: "read" } : m;
-            }));
-        };
-        const onHidden = ({ _id, userId }) => {
-            // Solo ocultar si el evento es para este usuario
-            if (userId !== user._id) return;
-            setResponses(prev => prev.filter(m => m._id !== _id));
-        };
-        const onHiddenMany = ({ ids, userId }) => {
-            if (userId !== user._id) return;
-            setResponses(prev => prev.filter(m => !ids.includes(m._id)));
+        const handleContext = (e) => {
+            e.preventDefault();
+            openContextMenu(e, msg);
         };
 
-        ch.bind("mensaje-editado", onEdited);
-        ch.bind("mensaje-eliminado", onDeleted);
-        ch.bind("mensajes-eliminados", onDeletedMany);
-        ch.bind("mensajes-leidos", onRead);
-        ch.bind("mensaje-oculto", onHidden);
-        ch.bind("mensajes-ocultos", onHiddenMany);
+        return (
+            <div className="max-w-xs md:max-w-sm lg:max-w-md">
+                <div
+                    className={`px-4 py-3 rounded-2xl ${msg.de === user._id
+                            ? "bg-blue-500 text-white rounded-br-none"
+                            : "bg-gray-300 text-gray-900 rounded-bl-none"
+                        } ${highlightedId === msg._id ? "ring-2 ring-amber-300" : ""}`}
+                    style={{ wordBreak: "break-word" }}
+                    onTouchStart={startPress}
+                    onTouchEnd={clearPress}
+                    onTouchMove={clearPress}
+                    onContextMenu={handleContext}
+                >
+                    {msg.replyTo && !msg.softDeleted && (
+                        <div
+                            className={`mb-2 px-3 py-2 rounded ${msg.de === user._id ? "bg-blue-600/40" : "bg-white/60"
+                                } text-xs italic border-l-4 ${msg.de === user._id ? "border-blue-200" : "border-gray-400"
+                                } cursor-pointer hover:opacity-90`}
+                            title="Ir al mensaje original"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                jumpToMessage(msg.replyTo._id);
+                            }}
+                        >
+                            {msg.replyTo.texto?.slice(0, 120) || "Mensaje"}
+                            {msg.replyTo.texto && msg.replyTo.texto.length > 120 ? "…" : ""}
+                        </div>
+                    )}
 
-        return () => {
-            ch.unbind("mensaje-editado", onEdited);
-            ch.unbind("mensaje-eliminado", onDeleted);
-            ch.unbind("mensajes-eliminados", onDeletedMany);
-            ch.unbind("mensajes-leidos", onRead);
-            ch.unbind("mensaje-oculto", onHidden);
-            ch.unbind("mensajes-ocultos", onHiddenMany);
-        }
-    }, [channelRef.current, user._id]);
+                    <p className="text-sm md:text-base">
+                        {msg.texto}
+                        {msg.editedAt && !msg.softDeleted && <span className="ml-2 text-[10px] opacity-70">(editado)</span>}
+                    </p>
 
-    // Abrir menú
-    const openContextMenu = (e, msg) => {
-        const own = msg.de === user._id;
-        if (!own) return; // solo propios
-        if (msg.softDeleted) return;
-        setContextMsg(msg);
-        setContextPos({ x: e.clientX || 0, y: e.clientY || 0 });
-        setShowContext(true);
-    };
-
-    // Cerrar al click global
-    useEffect(() => {
-        const h = () => setShowContext(false);
-        window.addEventListener('click', h);
-        return () => window.removeEventListener('click', h);
-    }, []);
-
-    // Acciones
-    const canEdit = (msg) => {
-        if (msg.tipo === "transferencia") return false;
-        if (msg.softDeleted) return false;
-        if (msg.de !== user._id) return false;
-        const diffMin = (Date.now() - new Date(msg.createdAt).getTime()) / 60000;
-        return diffMin <= 10;
-    };
-    const startEdit = () => {
-        setEditingId(contextMsg._id);
-        setEditText(contextMsg.texto);
-        setShowContext(false);
-    };
-    const confirmEdit = async () => {
-        const res = await fetch(`${BACKEND_URL}/chat/message/${editingId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ nuevoTexto: editText })
-        });
-        if (res.ok) {
-            setEditingId(null);
-            setEditText("");
-        }
-    };
-    const cancelEdit = () => { setEditingId(null); setEditText(""); };
-
-    const copyMsg = async () => {
-        try { await navigator.clipboard.writeText(contextMsg.texto); } catch { }
-        setShowContext(false);
-    };
-
-    const deleteOne = async () => {
-        if (!window.confirm("Se eliminará para ambos. ¿Continuar?")) return;
-        await fetch(`${BACKEND_URL}/chat/message/${contextMsg._id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        setShowContext(false);
-    };
-
-    const toggleMultiMode = () => {
-        setMultiSelectMode(m => !m);
-        setSelectedIds(new Set());
-        setShowContext(false);
-    };
-    const toggleSelect = (id) => {
-        setSelectedIds(prev => {
-            const n = new Set(prev);
-            n.has(id) ? n.delete(id) : n.add(id);
-            return n;
-        });
-    };
-    const deleteMany = async () => {
-        if (!selectedIds.size) return;
-        if (!window.confirm("Eliminar mensajes seleccionados para ambos usuarios?")) return;
-        await fetch(`${BACKEND_URL}/chat/messages/delete-many`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ ids: Array.from(selectedIds) })
-        });
-        setSelectedIds(new Set());
-        setMultiSelectMode(false);
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className={`text-xs ${msg.de === user._id ? "text-blue-100" : "text-gray-600"}`}>
+                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                        {msg.de === user._id && (
+                            <>
+                                {msg.estado === 'pending' && <IoTimeOutline className="text-blue-100" title="Enviando..." />}
+                                {msg.estado === 'delivered' && <IoCheckmarkDoneSharp className="text-blue-100" title="Entregado" />}
+                                {msg.estado === 'read' && <IoCheckmarkDoneSharp className="text-green-300" title="Leído" />}
+                                {msg.estado === 'error' && <span className="text-red-300 text-xs font-semibold">Error</span>}
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     // Marcar leídos al abrir conversación (simple)
@@ -694,51 +619,13 @@ const Chat = () => {
                                                 {renderMensajeTransferencia(msg)}
                                             </div>
                                         ) : (
-                                            <div className="max-w-xs md:max-w-sm lg:max-w-md">
-                                                <div
-                                                    className={`px-4 py-3 rounded-2xl ${msg.de === user._id
-                                                        ? "bg-blue-500 text-white rounded-br-none"
-                                                        : "bg-gray-300 text-gray-900 rounded-bl-none"
-                                                        } ${highlightedId === msg._id ? "ring-2 ring-amber-300" : ""}`}  // ✅ Resaltado del bubble
-                                                    style={{ wordBreak: "break-word" }}
-                                                    {...useLongPress((e) => openContextMenu(e, msg))}
-                                                    onContextMenu={(e) => openContextMenu(e, msg)}
-                                                >
-                                                    {/* Preview de respuesta clickeable para saltar */}
-                                                    {msg.replyTo && !msg.softDeleted && (
-                                                        <div
-                                                            className={`mb-2 px-3 py-2 rounded ${msg.de === user._id ? "bg-blue-600/40" : "bg-white/60"} text-xs italic border-l-4 ${msg.de === user._id ? "border-blue-200" : "border-gray-400"} cursor-pointer hover:opacity-90`}
-                                                            title="Ir al mensaje original"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                jumpToMessage(msg.replyTo._id);
-                                                            }}
-                                                        >
-                                                            {msg.replyTo.texto?.slice(0, 120) || "Mensaje"}
-                                                            {msg.replyTo.texto && msg.replyTo.texto.length > 120 ? "…" : ""}
-                                                        </div>
-                                                    )}
-
-                                                    <p className="text-sm md:text-base">
-                                                        {msg.texto}
-                                                        {msg.editedAt && !msg.softDeleted && <span className="ml-2 text-[10px] opacity-70">(editado)</span>}
-                                                    </p>
-
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <p className={`text-xs ${msg.de === user._id ? "text-blue-100" : "text-gray-600"}`}>
-                                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </p>
-                                                        {msg.de === user._id && (
-                                                            <>
-                                                                {msg.estado === 'pending' && <IoTimeOutline className="text-blue-100" title="Enviando..." />}
-                                                                {msg.estado === 'delivered' && <IoCheckmarkDoneSharp className="text-blue-100" title="Entregado" />}
-                                                                {msg.estado === 'read' && <IoCheckmarkDoneSharp className="text-green-300" title="Leído" />}
-                                                                {msg.estado === 'error' && <span className="text-red-300 text-xs font-semibold">Error</span>}
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <MessageBubble
+                                                msg={msg}
+                                                user={user}
+                                                highlightedId={highlightedId}
+                                                jumpToMessage={jumpToMessage}
+                                                openContextMenu={openContextMenu}
+                                            />
                                         )}
                                     </div>
                                 ))}

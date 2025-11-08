@@ -789,8 +789,8 @@ const Chat = () => {
                                             {/* <IoInformationCircleOutline className="shrink-0" /> */}
                                             <span>Los primeros mensajes pueden tardar en enviarse unos segundos debido a la activación del servicio</span>
                                         </div>
-                                        <span>💡 A partir del cuarto mensaje se envían rápido, así que envía 3 mensajes cualesquiera para despertar el servidor!</span>
-                                        <span>Ten paciencia...estamos usando un servicio gratis!</span>
+                                        <span>💡 A partir del cuarto mensaje se envían rápido, así que envía 3 mensajes cualesquiera para despertar el servicio!</span>
+                                        <span>Ten paciencia... estamos usando un servicio gratis!</span>
                                     </div>
                                     <button
                                         type="button"

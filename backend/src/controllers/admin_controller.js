@@ -4,7 +4,7 @@ import admin from "../models/admin.js"
 import mongoose from "mongoose"
 import docente from "../models/docente.js"
 import { v2 as cloudinary } from 'cloudinary'
-import Tratamiento from "../models/tratamiento.js"
+
 
 
 const registro = async (req, res) => {
@@ -551,11 +551,8 @@ const detalleDocente = async (req, res) => {
             return res.status(404).json({ msg: "Docente no encontrado" });
         }
 
-        const tratamientos = await Tratamiento.find().where('docente').equals(id);
-
         res.status(200).json({
-            docentes,
-            tratamientos
+            docentes
         });
     } catch (error) {
         console.error("Error al obtener detalle de docente:", error);

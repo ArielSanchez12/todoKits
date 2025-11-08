@@ -135,6 +135,7 @@ const Details = () => {
                             </ul>
                         </ul>
                     </div>
+
                     <div>
                         {/* ✅ Click en imagen abre modal con ORIGINAL */}
                         <img

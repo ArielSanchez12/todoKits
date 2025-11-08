@@ -19,14 +19,15 @@ const pusher = new Pusher({
 // Obtener admin del docente autenticado
 router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
   if (!req.docenteBDD) return res.status(401).json({ msg: "No autorizado" });
-  const admin = await Admin.findById(req.docenteBDD.admin).select("_id nombre apellido direccion celular email rol avatar avatarIA");
+  const admin = await Admin.findById(req.docenteBDD.admin).select("_id nombre apellido direccion celular email rol avatar avatarOriginal");
   if (!admin) return res.status(404).json({ msg: "Admin no encontrado" });
-  // Mapea los campos para el frontend, incluyendo avatar y avatarIA (por compatibilidad)
+  // Mapea los campos para el frontend, incluyendo avatar y avatarOriginal (por compatibilidad)
   res.json({
     _id: admin._id,
     nombre: admin.nombre,
     apellido: admin.apellido,
     avatar: admin.avatar,
+    avatarOriginal: admin.avatarOriginal,
     email: admin.email,
     rol: admin.rol
   });
@@ -36,7 +37,7 @@ router.get("/chat/admin", verificarTokenJWT, async (req, res) => {
 router.get("/chat/docentes", verificarTokenJWT, async (req, res) => {
   if (!req.adminEmailBDD) return res.status(401).json({ msg: "No autorizado" });
   const docentes = await Docente.find({ admin: req.adminEmailBDD._id })
-    .select("_id nombreDocente apellidoDocente avatarDocente avatarDocenteIA avatar avatarIA emailDocente");
+    .select("_id nombreDocente apellidoDocente avatarDocente avatarDocenteOriginal avatar emailDocente");
   res.json(docentes);
 });
 

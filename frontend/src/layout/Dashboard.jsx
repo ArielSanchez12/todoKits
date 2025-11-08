@@ -27,8 +27,11 @@ const Dashboard = () => {
     const esAdministrador = userData?.rol === "Administrador";
     const esDocente = userData?.rol === "docente" || userData?.rolDocente === "Docente";
 
-    // ✅ Mostrar imagen ORIGINAL en sidebar y header
-    const avatarUrl = userData.avatarDocenteOriginal || userData.avatarOriginal || userData.avatarDocente || userData.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+    // ✅ Mostrar imagen RECORTADA en sidebar y header
+    const avatarUrl = userData.avatarDocente || userData.avatar || userData.avatarDocenteOriginal || userData.avatarOriginal || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+
+    // ✅ Mostrar imagen ORIGINAL en modal
+    const avatarOriginalUrl = userData.avatarDocenteOriginal || userData.avatarOriginal || userData.avatarDocente || userData.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
     return (
         <>
@@ -38,7 +41,7 @@ const Dashboard = () => {
 
                     <h2 className='text-5xl font-black text-center text-white font-sans'>LabTRACK</h2>
 
-                    {/* ✅ Avatar del sidebar - clickeable */}
+                    {/* ✅ Avatar del sidebar - clickeable - MUESTRA RECORTADA */}
                     <img
                         src={avatarUrl}
                         alt="img-client"
@@ -64,8 +67,8 @@ const Dashboard = () => {
                                 <Link
                                     to="/dashboard/listar"
                                     className={`${isListarActive
-                                            ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center'
-                                            : 'text-slate-400'
+                                        ? 'text-white bg-blue-600 hover:scale-105 duration-300 px-3 py-2 rounded-md text-center'
+                                        : 'text-slate-400'
                                         } text-xl block mt-2 hover:text-white`}
                                 >
                                     Listar
@@ -129,7 +132,7 @@ const Dashboard = () => {
                             Usuario - {userData.nombre || userData.nombreDocente} {userData.apellido || userData.apellidoDocente}
                         </div>
                         <div>
-                            {/* ✅ Avatar del header - clickeable */}
+                            {/* ✅ Avatar del header - clickeable - MUESTRA RECORTADA */}
                             <img
                                 src={avatarUrl}
                                 alt="img-client"
@@ -150,9 +153,9 @@ const Dashboard = () => {
 
             </div>
 
-            {/* ✅ Modal de vista de imagen */}
+            {/* ✅ Modal de vista de imagen - MUESTRA ORIGINAL */}
             <ModalViewImage
-                imageSrc={avatarUrl}
+                imageSrc={avatarOriginalUrl}
                 isOpen={showViewModal}
                 onClose={() => setShowViewModal(false)}
                 userName={`${userData?.nombre || userData?.nombreDocente || ''} ${userData?.apellido || userData?.apellidoDocente || ''}`}

@@ -84,8 +84,11 @@ const Details = () => {
         listDocente();
     }, []);
 
+    // ✅ URL de la imagen RECORTADA para el círculo
+    const avatarUrl = docente?.avatarDocente || docente?.avatarDocenteOriginal || docente?.avatar || docente?.avatarOriginal || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+
     // ✅ URL de la imagen ORIGINAL para el modal
-    const avatarUrl = docente?.avatarDocenteOriginal || docente?.avatarOriginal || docente?.avatarDocente || docente?.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+    const avatarOriginalUrl = docente?.avatarDocenteOriginal || docente?.avatarOriginal || docente?.avatarDocente || docente?.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
     return (
         <>
@@ -133,7 +136,7 @@ const Details = () => {
                         </ul>
                     </div>
                     <div>
-                        {/* ✅ Click en imagen abre modal */}
+                        {/* ✅ Click en imagen abre modal con ORIGINAL */}
                         <img
                             src={avatarUrl}
                             alt="avatar"
@@ -199,9 +202,9 @@ const Details = () => {
                 />
             )}
 
-            {/* ✅ Modal de vista de imagen */}
+            {/* ✅ Modal de vista de imagen - MUESTRA ORIGINAL */}
             <ModalViewImage
-                imageSrc={avatarUrl}
+                imageSrc={avatarOriginalUrl}
                 isOpen={showViewModal}
                 onClose={() => setShowViewModal(false)}
                 userName={`${docente?.nombreDocente || ''} ${docente?.apellidoDocente || ''}`}

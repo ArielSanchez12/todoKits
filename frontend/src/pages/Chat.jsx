@@ -39,7 +39,7 @@ const Chat = () => {
     const [selectedIds, setSelectedIds] = useState(new Set());
     const canceledClientIdsRef = useRef(new Set()); // ✅ NUEVO: ids de envíos cancelados (clientId)
 
-    
+
     // ✅ FALTABA: función para alternar selección
     const toggleSelect = (id) => {
         if (!id) return;
@@ -66,7 +66,7 @@ const Chat = () => {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ ids: Array.from(selectedIds) })
             });
-        } catch {}
+        } catch { }
         setSelectedIds(new Set());
         setMultiSelectMode(false);
         setShowContext(false);
@@ -81,7 +81,7 @@ const Chat = () => {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ ids: Array.from(selectedIds) })
             });
-        } catch {}
+        } catch { }
         setSelectedIds(new Set());
         setMultiSelectMode(false);
     };
@@ -644,7 +644,7 @@ const Chat = () => {
         setSelectedIds(new Set());
         setShowContext(false);
     };
-    
+
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-gray-100">
@@ -784,12 +784,13 @@ const Chat = () => {
                                 </>
                             ) : (
                                 <>
-                                    <div className="hidden md:flex items-center text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                        <IoInformationCircleOutline className="mr-1" />
-                                        Los primeros 2 o 3 mensajes pueden tardar en enviarse unos segundos debido a la activación del servidor dormido.
-                                        sdasdas
-                                        <span className="font-medium text-gray-700"> Ten paciencia, estamos usando un servicio gratis!</span>
-                                        <span className="font-medium text-gray-700"> Tip: casi siempre a partir del cuarto mensaje se envian rapido todos los demas, asi que envia 3 mensajes cualesquiera para despertar el servidor antes!</span>
+                                    <div className="hidden md:block text-xs text-gray-500 bg-gray-100 px-3 py-2 rounded whitespace-pre-line">
+                                        <div className="flex items-center gap-1">
+                                            <IoInformationCircleOutline className="shrink-0" />
+                                            <span>
+                                                {"Los primeros 2 o 3 mensajes pueden tardar en enviarse unos segundos debido a la activación del servidor dormido.\nTen paciencia, estamos usando un servicio gratis!\n💡 Tip: casi siempre a partir del cuarto mensaje se envían rápido todos los demás, así que envía 3 mensajes cualesquiera para despertar el servidor antes!"}
+                                            </span>
+                                        </div>
                                     </div>
                                     <button
                                         type="button"

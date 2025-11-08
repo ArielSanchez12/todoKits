@@ -36,8 +36,19 @@ const Chat = () => {
     const [contextMsg, setContextMsg] = useState(null);             // ✅ NUEVO
     const [contextPos, setContextPos] = useState({ x: 0, y: 0 });   // ✅ NUEVO
     const [multiSelectMode, setMultiSelectMode] = useState(false);  // ✅ NUEVO
-    const [selectedIds, setSelectedIds] = useState(new Set());      // ya estaba
+    const [selectedIds, setSelectedIds] = useState(new Set());
     const canceledClientIdsRef = useRef(new Set()); // ✅ NUEVO: ids de envíos cancelados (clientId)
+
+    
+    // ✅ FALTABA: función para alternar selección
+    const toggleSelect = (id) => {
+        if (!id) return;
+        setSelectedIds(prev => {
+            const n = new Set(prev);
+            n.has(id) ? n.delete(id) : n.add(id);
+            return n;
+        });
+    };
 
     // Detectar tipo de usuario
     useEffect(() => {

@@ -15,13 +15,18 @@ export const CardProfile = () => {
     const [showViewModal, setShowViewModal] = useState(false)
     const [imageToCrop, setImageToCrop] = useState(null)
     const [originalFile, setOriginalFile] = useState(null)
+    const [originalImageUrl, setOriginalImageUrl] = useState(null) // ✅ NUEVO: Guardar URL original
 
     const userData = user?._doc || user || {}
     const userId = user?._doc?._id || user?._id
 
     useEffect(() => {
         setPreview(null)
-    }, [user])
+        // ✅ Actualizar URL original cuando cambia el usuario
+        if (userData?.avatar) {
+            setOriginalImageUrl(userData.avatar)
+        }
+    }, [user, userData?.avatar])
 
     // ✅ Cuando selecciona una imagen, abrir modal de recorte
     const handleImageSelect = (e) => {
@@ -42,7 +47,9 @@ export const CardProfile = () => {
         setOriginalFile(file)
         const reader = new FileReader()
         reader.onload = () => {
-            setImageToCrop(reader.result)
+            const imageUrl = reader.result
+            setImageToCrop(imageUrl)
+            setOriginalImageUrl(imageUrl) // ✅ Guardar la imagen COMPLETA
             setShowCropModal(true)
         }
         reader.readAsDataURL(file)
@@ -71,6 +78,7 @@ export const CardProfile = () => {
 
             await updateProfile(formData, userId)
             setPreview(URL.createObjectURL(croppedFile))
+            // ✅ NO actualizar originalImageUrl aquí, mantener la completa
             window.location.reload()
         } catch (error) {
             console.error('Error al recortar imagen:', error)
@@ -101,6 +109,7 @@ export const CardProfile = () => {
 
         try {
             await updateProfile(data, userId)
+            setOriginalImageUrl(null) // ✅ Limpiar imagen original
             window.location.reload()
         } catch (error) {
             alert("Error al eliminar la imagen")
@@ -109,12 +118,14 @@ export const CardProfile = () => {
         }
     }
 
+    // ✅ URL para mostrar en el círculo (puede ser recortada)
     const avatarUrl =
-        (userData?.avatarDocente && typeof userData.avatarDocente === 'string' && userData.avatarDocente.startsWith('http'))
-            ? userData.avatarDocente
-            : (preview ||
-                userData?.avatar ||
-                "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
+        preview ||
+        userData?.avatar ||
+        "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+
+    // ✅ URL para mostrar en el modal (siempre la original completa)
+    const fullImageUrl = originalImageUrl || avatarUrl;
 
     const tieneAvatarPersonalizado = userData?.avatar &&
         userData.avatar !== "https://cdn-icons-png.flaticon.com/512/4715/4715329.png" &&
@@ -124,7 +135,7 @@ export const CardProfile = () => {
         <>
             <div className="bg-gray-200 border border-black h-auto p-4 flex flex-col items-center justify-between shadow-xl rounded-lg">
                 <div className="relative">
-                    {/* ✅ Click en imagen abre modal de vista */}
+                    {/* ✅ Click en imagen abre modal con imagen COMPLETA */}
                     <img
                         src={avatarUrl + `?t=${Date.now()}`}
                         alt="avatar"
@@ -160,16 +171,16 @@ export const CardProfile = () => {
                 </div>
 
                 <div className="self-start mt-4">
-                    <b>Nombre:</b><p className="inline-block ml-3">{userData?.nombre || userData?.nombreDocente || 'Sin nombre'}</p>
+                    <b>Nombre:</b><p className="inline-block ml-3">{userData?.nombre || 'Sin nombre'}</p>
                 </div>
                 <div className="self-start">
-                    <b>Apellido:</b><p className="inline-block ml-3">{userData?.apellido || userData?.apellidoDocente || 'Sin apellido'}</p>
+                    <b>Apellido:</b><p className="inline-block ml-3">{userData?.apellido || 'Sin apellido'}</p>
                 </div>
                 <div className="self-start">
-                    <b>Teléfono:</b><p className="inline-block ml-3">{userData?.celular || userData?.celularDocente || 'Sin teléfono'}</p>
+                    <b>Teléfono:</b><p className="inline-block ml-3">{userData?.celular || 'Sin teléfono'}</p>
                 </div>
                 <div className="self-start">
-                    <b>Correo:</b><p className="inline-block ml-3">{userData?.email || userData?.emailDocente || 'Sin correo'}</p>
+                    <b>Correo:</b><p className="inline-block ml-3">{userData?.email || 'Sin correo'}</p>
                 </div>
 
                 {loading && (
@@ -191,8 +202,9 @@ export const CardProfile = () => {
                 onCropComplete={handleCropComplete}
             />
 
+            {/* ✅ Modal muestra imagen COMPLETA, no recortada */}
             <ModalViewImage
-                imageSrc={avatarUrl}
+                imageSrc={fullImageUrl}
                 isOpen={showViewModal}
                 onClose={() => setShowViewModal(false)}
                 userName={`${userData?.nombre || ''} ${userData?.apellido || ''}`}

@@ -15,13 +15,18 @@ export const CardProfileDocente = () => {
     const [showViewModal, setShowViewModal] = useState(false)
     const [imageToCrop, setImageToCrop] = useState(null)
     const [originalFile, setOriginalFile] = useState(null)
+    const [originalImageUrl, setOriginalImageUrl] = useState(null) // ✅ NUEVO
 
     const userData = user?._doc || user || {}
     const userId = user?._doc?._id || user?._id
 
     useEffect(() => {
         setPreview(null)
-    }, [user])
+        // ✅ Actualizar URL original
+        if (userData?.avatarDocente) {
+            setOriginalImageUrl(userData.avatarDocente)
+        }
+    }, [user, userData?.avatarDocente])
 
     // ✅ Cuando selecciona una imagen, abrir modal de recorte
     const handleImageSelect = (e) => {
@@ -42,7 +47,9 @@ export const CardProfileDocente = () => {
         setOriginalFile(file)
         const reader = new FileReader()
         reader.onload = () => {
-            setImageToCrop(reader.result)
+            const imageUrl = reader.result
+            setImageToCrop(imageUrl)
+            setOriginalImageUrl(imageUrl) // ✅ Guardar imagen COMPLETA
             setShowCropModal(true)
         }
         reader.readAsDataURL(file)
@@ -90,6 +97,7 @@ export const CardProfileDocente = () => {
 
         try {
             await updateProfile(data, userId)
+            setOriginalImageUrl(null)
             window.location.reload()
         } catch (error) {
             alert("Error al eliminar la imagen")
@@ -97,11 +105,15 @@ export const CardProfileDocente = () => {
         }
     }
 
+    // ✅ URL para mostrar en el círculo
     const avatarUrl =
         preview ||
         userData?.avatarDocente ||
         userData?.avatar ||
         "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+
+    // ✅ URL para mostrar en el modal (completa)
+    const fullImageUrl = originalImageUrl || avatarUrl;
 
     const tieneAvatarPersonalizado =
         (userData?.avatarDocente &&
@@ -115,7 +127,7 @@ export const CardProfileDocente = () => {
         <>
             <div className="bg-gray-200 border border-black h-auto p-4 flex flex-col items-center justify-between shadow-xl rounded-lg">
                 <div className="relative">
-                    {/* ✅ Click en imagen abre modal de vista */}
+                    {/* ✅ Click en imagen abre modal con imagen COMPLETA */}
                     <img
                         src={avatarUrl + `?t=${Date.now()}`}
                         alt="avatar"
@@ -194,8 +206,9 @@ export const CardProfileDocente = () => {
                 onCropComplete={handleCropComplete}
             />
 
+            {/* ✅ Modal muestra imagen COMPLETA */}
             <ModalViewImage
-                imageSrc={avatarUrl}
+                imageSrc={fullImageUrl}
                 isOpen={showViewModal}
                 onClose={() => setShowViewModal(false)}
                 userName={`${userData?.nombreDocente || ''} ${userData?.apellidoDocente || ''}`}

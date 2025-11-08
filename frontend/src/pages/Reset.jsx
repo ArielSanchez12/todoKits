@@ -29,7 +29,7 @@ const Reset = () => {
                 setTokenValid(true);
             } catch (error) {
                 toast.error("Token inválido o expirado");
-                setTimeout(() => navigate('/forgot'), 2000);
+                setTimeout(() => navigate('/forgot'), 4000);
             }
         };
         verificarToken();
@@ -49,7 +49,7 @@ const Reset = () => {
             reset();
             setTimeout(() => {
                 navigate('/login');
-            }, 2000);
+            }, 4000);
         } catch (error) {
             toast.error(error.response?.data?.msg || "Error al actualizar contraseña");
         } finally {

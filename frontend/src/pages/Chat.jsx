@@ -266,10 +266,10 @@ const Chat = () => {
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                // ✅ Modal muestra ORIGINAL
+                                                // ✅ CORRECCIÓN: Usar 'contact' en lugar de 'selectedContact'
                                                 const imageUrl = userType === "docente"
-                                                    ? (contact.avatarOriginal || contact.avatar || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
-                                                    : (contact.avatarDocenteOriginal || contact.avatarDocente || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
+                                                    ? (contact.avatarOriginal || contact.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png")
+                                                    : (contact.avatarDocenteOriginal || contact.avatarDocente || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png");
                                                 handleOpenImage(imageUrl);
                                             }}
                                             title="Click para ver imagen"

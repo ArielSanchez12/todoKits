@@ -436,7 +436,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                 <span className="text-xs text-gray-600">
                   Confirmación Origen:
                 </span>
-                <p className="font-semibold text-sm">
+                <p className="text-sm">
                   {esEstadoInactivo(transferencia.estado) ? (
                     <span className="text-gray-400">No aplica</span>
                   ) : transferencia.fechaConfirmacionOrigen ? (
@@ -450,7 +450,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                 <span className="text-xs text-gray-600">
                   Confirmación Destino:
                 </span>
-                <p className="font-semibold text-sm">
+                <p className="text-sm">
                   {esEstadoInactivo(transferencia.estado) ? (
                     <span className="text-gray-400">No aplica</span>
                   ) : transferencia.fechaConfirmacionDestino ? (

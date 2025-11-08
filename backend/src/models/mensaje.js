@@ -14,17 +14,33 @@ const mensajeSchema = new mongoose.Schema(
       default: "normal",
     },
     transferencia: {
-      codigo: { type: String }, // Encriptado
-      qrImageUrl: { type: String }, // Encriptado
-      recursos: [{ type: String }], // Cada elemento encriptado
+      codigo: { type: String },        // Encriptado
+      qrImageUrl: { type: String },    // Encriptado
+      recursos: [{ type: String }],    // Cada elemento encriptado
       docenteOrigen: { type: String }, // Encriptado
     },
-    // ✅ NUEVO: Campo para TTL (expira a los 24 horas)
+    // ✅ NUEVO: clientId para reconciliar mensajes optimistas
+    clientId: {
+      type: String,
+      index: true,
+      sparse: true
+    },
+    // ✅ (Opcional) estado persistente si quieres ampliar (delivered, read, error)
+    estado: {
+      type: String,
+      enum: ["delivered", "read"], // mantener (frontend seguirá usando pending interno)
+      default: "delivered"
+    },
+    editedAt: { type: Date, default: null },
+    softDeleted: { type: Boolean, default: false },
     createdAtTTL: {
       type: Date,
       default: Date.now,
-      expires: 36000 // 36000 segundos = 10 horas
-    }
+      expires: 36000 // 10 horas
+    },
+    replyToId: { type: mongoose.Schema.Types.ObjectId, ref: "Mensaje", default: null },
+    replyToTexto: { type: String, default: null }, // Encriptado
+    hiddenFor: [{ type: mongoose.Schema.Types.ObjectId }], // usuarios para quienes está oculto
   },
   {
     timestamps: true,
@@ -33,17 +49,15 @@ const mensajeSchema = new mongoose.Schema(
   }
 );
 
-// ✅ Crear índice TTL (10 horas)
 mensajeSchema.index({ createdAtTTL: 1 }, { expireAfterSeconds: 36000 });
 
-// ✅ HOOK: Encriptar antes de guardar
 mensajeSchema.pre("save", function (next) {
-  // Encriptar texto del mensaje
   if (this.isModified("texto")) {
     this.texto = encrypt(this.texto);
   }
-
-  // Encriptar datos de transferencia si existen
+  if (this.isModified("replyToTexto") && this.replyToTexto) {
+    this.replyToTexto = encrypt(this.replyToTexto);
+  }
   if (this.tipo === "transferencia" && this.transferencia) {
     if (this.isModified("transferencia.codigo")) {
       this.transferencia.codigo = encrypt(this.transferencia.codigo);
@@ -58,11 +72,9 @@ mensajeSchema.pre("save", function (next) {
       this.transferencia.docenteOrigen = encrypt(this.transferencia.docenteOrigen);
     }
   }
-
   next();
 });
 
-// ✅ MÉTODO: Obtener mensaje desencriptado
 mensajeSchema.methods.desencriptar = function () {
   const mensajeDesencriptado = {
     _id: this._id,
@@ -73,10 +85,17 @@ mensajeSchema.methods.desencriptar = function () {
     paraTipo: this.paraTipo,
     tipo: this.tipo,
     createdAt: this.createdAt,
-    updatedAt: this.updatedAt
+    updatedAt: this.updatedAt,
+    clientId: this.clientId,
+    estado: this.estado,
+    editedAt: this.editedAt,
+    softDeleted: this.softDeleted,
+    replyTo: this.replyToId ? { _id: this.replyToId, texto: decrypt(this.replyToTexto) } : null
   };
-
-  // Desencriptar transferencia si existe
+  // Si está softDeleted devolver texto estándar
+  if (this.softDeleted) {
+    mensajeDesencriptado.texto = "Mensaje eliminado";
+  }
   if (this.tipo === "transferencia" && this.transferencia) {
     mensajeDesencriptado.transferencia = {
       codigo: decrypt(this.transferencia.codigo),

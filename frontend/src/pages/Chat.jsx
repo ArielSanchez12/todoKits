@@ -1008,7 +1008,7 @@ const Chat = () => {
                                                 onClick={toggleMultiMode}
                                                 className="w-full text-left px-4 py-2 hover:bg-gray-100"
                                             >
-                                                {multiSelectMode ? "✖ Cancelar múltiple" : "✅ Seleccionar varios"}
+                                                {multiSelectMode ? "Cancelar múltiple" : "Seleccionar varios"}
                                             </button>
                                         </li>
                                         {multiSelectMode && selectedIds.size > 0 && (

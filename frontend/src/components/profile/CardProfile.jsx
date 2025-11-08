@@ -9,7 +9,7 @@ export const CardProfile = () => {
     const [previewCropData, setPreviewCropData] = useState(null) // ✅ NUEVO
     const fileInputRef = useRef(null)
     const [loading, setLoading] = useState(false)
-    
+
     const [showCropModal, setShowCropModal] = useState(false)
     const [showViewModal, setShowViewModal] = useState(false)
     const [imageToCrop, setImageToCrop] = useState(null)
@@ -25,9 +25,9 @@ export const CardProfile = () => {
 
     const handleImageSelect = (e) => {
         const file = e.target.files[0]
-        
+
         if (!file) return
-        
+
         if (!file.type.startsWith('image/')) {
             alert("Por favor selecciona una imagen válida")
             return
@@ -64,11 +64,11 @@ export const CardProfile = () => {
             formData.append('email', userData.email || '')
 
             await updateProfile(formData, userId)
-            
+
             // Preview local temporal
             setPreview(URL.createObjectURL(originalFile))
             setPreviewCropData(croppedAreaPixels)
-            
+
             window.location.reload()
         } catch (error) {
             console.error('Error al actualizar imagen:', error)
@@ -116,11 +116,11 @@ export const CardProfile = () => {
     // ✅ Coordenadas de recorte para el círculo
     const cropData = previewCropData || userData?.cropData || null;
 
-    const tieneAvatarPersonalizado = userData?.avatar && 
+    const tieneAvatarPersonalizado = userData?.avatar &&
         userData.avatar !== "https://cdn-icons-png.flaticon.com/512/4715/4715329.png" &&
         userData.avatar !== null;
 
-    // ✅ Calcular estilos para el recorte visual
+    // ✅ CORREGIR: Calcular estilos para el recorte visual
     const getAvatarStyle = () => {
         if (!cropData) {
             return {
@@ -129,14 +129,22 @@ export const CardProfile = () => {
             };
         }
 
-        // Calcular el porcentaje de posición basado en las coordenadas
-        const xPercent = (cropData.x / (cropData.width * 2)) * 100;
-        const yPercent = (cropData.y / (cropData.height * 2)) * 100;
-        
+        // ✅ NUEVA FÓRMULA: Simular exactamente el comportamiento del modal de crop
+        const { x, y, width, height, zoom = 1 } = cropData;
+
+        // Calcular la escala total (zoom del usuario)
+        const scale = zoom;
+
+        // Calcular el offset para centrar el área recortada
+        const offsetX = -((x + width / 2 - 128 / 2) / scale);
+        const offsetY = -((y + height / 2 - 128 / 2) / scale);
+
         return {
+            width: `${100 * scale}%`,
+            height: `${100 * scale}%`,
             objectFit: 'cover',
-            objectPosition: `${50 - xPercent}% ${50 - yPercent}%`,
-            transform: `scale(${(cropData.zoom || 1) * 1.5})`
+            transform: `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`,
+            transformOrigin: 'center center'
         };
     };
 
@@ -146,8 +154,8 @@ export const CardProfile = () => {
                 <div className="relative">
                     {/* ✅ Círculo con recorte visual usando CSS */}
                     <div className="w-32 h-32 rounded-full border-2 border-gray-300 overflow-hidden mx-auto cursor-pointer hover:opacity-80 transition-opacity"
-                         onClick={() => setShowViewModal(true)}
-                         title="Click para ver imagen completa">
+                        onClick={() => setShowViewModal(true)}
+                        title="Click para ver imagen completa">
                         <img
                             src={avatarUrl + `?t=${Date.now()}`}
                             alt="avatar"

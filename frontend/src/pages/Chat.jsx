@@ -36,7 +36,8 @@ const Chat = () => {
     const [contextMsg, setContextMsg] = useState(null);             // ✅ NUEVO
     const [contextPos, setContextPos] = useState({ x: 0, y: 0 });   // ✅ NUEVO
     const [multiSelectMode, setMultiSelectMode] = useState(false);  // ✅ NUEVO
-    const [selectedIds, setSelectedIds] = useState(new Set());      // ✅ NUEVO
+    const [selectedIds, setSelectedIds] = useState(new Set());      // ya estaba
+    const canceledClientIdsRef = useRef(new Set()); // ✅ NUEVO: ids de envíos cancelados (clientId)
 
     // Detectar tipo de usuario
     useEffect(() => {
@@ -142,46 +143,40 @@ const Chat = () => {
         const channel = channelRef.current;
 
         const handleNewMessage = (data) => {
-            // Solo añade o reconcilia si corresponde a la conversación abierta
+            // ✅ Ignorar mensajes que el cliente canceló (reconciliación por clientId)
+            if (data.clientId && canceledClientIdsRef.current.has(data.clientId)) return;
+
             const isBetween =
                 (data.de === user._id && data.para === selectedContact?._id) ||
                 (data.de === selectedContact?._id && data.para === user._id);
-
             if (!isBetween) return;
 
-            // Si es mío, intenta reconciliar el “pending” por clientId
             if (data.de === user._id) {
                 setResponses(prev => {
-                    // Si el backend envía clientId, úsalo para reemplazar
                     const idx = data.clientId
                         ? prev.findIndex(m => m.estado === 'pending' && m.clientId === data.clientId)
                         : prev.findIndex(m => m.estado === 'pending' && m.de === user._id && m.texto === data.texto && m.para === data.para);
-
                     if (idx >= 0) {
                         const next = [...prev];
                         next[idx] = { ...data, estado: 'delivered' };
                         return next;
                     }
-                    // Si no hay pendiente que coincida, agrega como delivered
                     return [...prev, { ...data, estado: 'delivered' }];
                 });
             } else {
-                // Mensaje del otro usuario
                 setResponses(prev => [...prev, { ...data, estado: 'delivered' }]);
             }
         };
 
         channel.bind("nuevo-mensaje", handleNewMessage);
-        return () => {
-            channel.unbind("nuevo-mensaje", handleNewMessage);
-        };
+        return () => channel.unbind("nuevo-mensaje", handleNewMessage);
     }, [selectedContact, user]);
 
     // ✅ NUEVO estado y refs para bloquear envíos repetidos
     const sendingRef = useRef(false);
     const [allowSend, setAllowSend] = useState(true); // Se reactiva solo cuando el usuario escribe algo
 
-    // Enviar mensaje (optimista) con reply
+    // Enviar mensaje (optimista) with reply
     const handleSend = async (e) => {
         e.preventDefault();
         const contenido = message.trim();
@@ -348,43 +343,56 @@ const Chat = () => {
         user,
         highlightedId,
         jumpToMessage,
-        openContextMenu
+        openContextMenu,
+        multiSelectMode,
+        selectedIds,
+        toggleSelect
     }) => {
         const timeoutRef = useRef(null);
 
-        // Handlers long press (móvil) y context menu (desktop)
+        const isOwn = msg.de === user._id;
+        const selectable = multiSelectMode && isOwn && !msg.softDeleted && msg.estado !== 'pending' && !!msg._id;
+        const isSelected = selectable && selectedIds.has(msg._id);
+
         const startPress = (e) => {
+            if (selectable) return; // en selección múltiple no abrir menú
             e.preventDefault();
-            timeoutRef.current = setTimeout(() => {
-                openContextMenu(e, msg);
-            }, 450);
+            timeoutRef.current = setTimeout(() => openContextMenu(e, msg), 450);
         };
-        const clearPress = () => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        };
+        const clearPress = () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
         const handleContext = (e) => {
+            if (selectable) return; // en selección múltiple no abrir menú
             e.preventDefault();
             openContextMenu(e, msg);
         };
+        const handleClick = (e) => {
+            if (!selectable) return;
+            e.preventDefault();
+            toggleSelect(msg._id);
+        };
 
         return (
-            <div className="max-w-xs md:max-w-sm lg:max-w-md">
+            <div className="max-w-xs md:max-w-sm lg:max-w-md relative">
+                {/* Indicador de selección */}
+                {selectable && (
+                    <div className="absolute -left-6 top-2">
+                        <div className={`w-4 h-4 border rounded-sm ${isSelected ? "bg-blue-500 border-blue-500" : "bg-white border-gray-400"}`} />
+                    </div>
+                )}
                 <div
-                    className={`px-4 py-3 rounded-2xl ${msg.de === user._id
-                        ? "bg-blue-500 text-white rounded-br-none"
-                        : "bg-gray-300 text-gray-900 rounded-bl-none"
-                        } ${highlightedId === msg._id ? "ring-2 ring-amber-300" : ""}`}
+                    className={`px-4 py-3 rounded-2xl ${isOwn ? "bg-blue-500 text-white rounded-br-none" : "bg-gray-300 text-gray-900 rounded-bl-none"}
+                        ${highlightedId === msg._id ? "ring-2 ring-amber-300" : ""}
+                        ${isSelected ? "ring-2 ring-blue-400" : ""}`}
                     style={{ wordBreak: "break-word" }}
                     onTouchStart={startPress}
                     onTouchEnd={clearPress}
                     onTouchMove={clearPress}
                     onContextMenu={handleContext}
+                    onClick={handleClick}
                 >
                     {msg.replyTo && !msg.softDeleted && (
                         <div
-                            className={`mb-2 px-3 py-2 rounded ${msg.de === user._id ? "bg-blue-600/40" : "bg-white/60"
-                                } text-xs italic border-l-4 ${msg.de === user._id ? "border-blue-200" : "border-gray-400"
-                                } cursor-pointer hover:opacity-90`}
+                            className={`mb-2 px-3 py-2 rounded ${isOwn ? "bg-blue-600/40" : "bg-white/60"} text-xs italic border-l-4 ${isOwn ? "border-blue-200" : "border-gray-400"} cursor-pointer hover:opacity-90`}
                             title="Ir al mensaje original"
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -402,10 +410,10 @@ const Chat = () => {
                     </p>
 
                     <div className="flex items-center gap-2 mt-1">
-                        <p className={`text-xs ${msg.de === user._id ? "text-blue-100" : "text-gray-600"}`}>
+                        <p className={`text-xs ${isOwn ? "text-blue-100" : "text-gray-600"}`}>
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
-                        {msg.de === user._id && (
+                        {isOwn && (
                             <>
                                 {msg.estado === 'pending' && <IoTimeOutline className="text-blue-100" title="Enviando..." />}
                                 {msg.estado === 'delivered' && <IoCheckmarkDoneSharp className="text-blue-100" title="Entregado" />}
@@ -504,15 +512,23 @@ const Chat = () => {
         highlightTimerRef.current = setTimeout(() => setHighlightedId(null), 1600);
     };
 
-    // ✅ Abrir menú contextual (desktop y móvil)
+    // ✅ Cancelar envío (solo mensajes 'pending' míos)
+    const cancelSend = () => {
+        if (!contextMsg || contextMsg.de !== user._id || contextMsg.estado !== 'pending') return;
+        const key = contextMsg.clientId || contextMsg._id;
+        canceledClientIdsRef.current.add(key);
+        setResponses(prev => prev.filter(m => (m.clientId || m._id) !== key));
+        setShowContext(false);
+    };
+
+    // ✅ Abrir menú contextual (ajustado para pending)
     const openContextMenu = (e, msg) => {
         e.preventDefault();
         const clickX = e?.clientX ?? e?.touches?.[0]?.clientX ?? window.innerWidth / 2;
         const clickY = e?.clientY ?? e?.touches?.[0]?.clientY ?? window.innerHeight / 2;
-        const MENU_W = 200;
-        const MENU_H = 220; // aproximado
-        let x = clickX;
-        let y = clickY;
+        const MENU_W = 220;
+        const MENU_H = 260;
+        let x = clickX, y = clickY;
         if (x + MENU_W > window.innerWidth - 8) x = window.innerWidth - MENU_W - 8;
         if (y + MENU_H > window.innerHeight - 8) y = window.innerHeight - MENU_H - 8;
         if (x < 8) x = 8;
@@ -739,6 +755,9 @@ const Chat = () => {
                                                 highlightedId={highlightedId}
                                                 jumpToMessage={jumpToMessage}
                                                 openContextMenu={openContextMenu}
+                                                multiSelectMode={multiSelectMode}
+                                                selectedIds={selectedIds}
+                                                toggleSelect={toggleSelect}
                                             />
                                         )}
                                     </div>
@@ -819,82 +838,120 @@ const Chat = () => {
             {showContext && contextMsg && (
                 <div
                     style={{ top: contextPos.y, left: contextPos.x }}
-                    className="fixed z-[9999] bg-white shadow-xl border border-gray-200 rounded-lg w-52 overflow-hidden text-sm animate-fade-in"
+                    className="fixed z-[9999] bg-white shadow-xl border border-gray-200 rounded-lg w-56 overflow-hidden text-sm"
                 >
                     <ul className="flex flex-col">
-                        <li>
-                            <button
-                                onClick={startReply}
-                                className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
-                            >
-                                <span className="text-blue-500">↩</span> Responder
-                            </button>
-                        </li>
-                        {canEdit(contextMsg) && (
-                            <li className="border-t border-gray-200">
-                                <button
-                                    onClick={startEdit}
-                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
-                                >
-                                    ✏️ Editar
-                                </button>
-                            </li>
-                        )}
-                        <li className="border-t border-gray-200">
-                            <button
-                                onClick={copyMsg}
-                                className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
-                            >
-                                📋 Copiar
-                            </button>
-                        </li>
-                        {contextMsg.de === user._id ? (
+                        {/* Si es PENDING: solo cancelar envío (si es mío) o cerrar */}
+                        {contextMsg.estado === 'pending' ? (
                             <>
-                                <li className="border-t border-gray-200">
-                                    <button
-                                        onClick={deleteOne}
-                                        className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
-                                    >
-                                        🗑 Eliminar (ambos)
-                                    </button>
-                                </li>
-                                <li className="border-t border-gray-200">
-                                    <button
-                                        onClick={toggleMultiMode}
-                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
-                                    >
-                                        {multiSelectMode ? "✖ Cancelar múltiple" : "✅ Seleccionar varios"}
-                                    </button>
-                                </li>
-                                {multiSelectMode && selectedIds.size > 0 && (
-                                    <li className="border-t border-gray-200">
+                                {contextMsg.de === user._id && (
+                                    <li>
                                         <button
-                                            onClick={deleteMany}
-                                            className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
+                                            onClick={cancelSend}
+                                            className="w-full text-left px-4 py-2 hover:bg-gray-100"
                                         >
-                                            🗑 Eliminar ({selectedIds.size})
+                                            Cancelar envío
                                         </button>
                                     </li>
                                 )}
+                                <li className="border-t border-gray-200">
+                                    <button
+                                        onClick={() => setShowContext(false)}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                    >
+                                        Cerrar
+                                    </button>
+                                </li>
                             </>
                         ) : (
-                            <li className="border-t border-gray-200">
-                                <button
-                                    onClick={hideForMe}
-                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
-                                >
-                                    🙈 Eliminar para mí
-                                </button>
-                            </li>
+                            <>
+                                <li>
+                                    <button
+                                        onClick={startReply}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                                    >
+                                        <span className="text-blue-500">↩</span> Responder
+                                    </button>
+                                </li>
+                                {canEdit(contextMsg) && (
+                                    <li className="border-t border-gray-200">
+                                        <button
+                                            onClick={startEdit}
+                                            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                                        >
+                                            ✏️ Editar
+                                        </button>
+                                    </li>
+                                )}
+                                <li className="border-t border-gray-200">
+                                    <button
+                                        onClick={copyMsg}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                                    >
+                                        📋 Copiar
+                                    </button>
+                                </li>
+
+                                {/* Mis mensajes: eliminar para ambos + eliminar para mí */}
+                                {contextMsg.de === user._id ? (
+                                    <>
+                                        <li className="border-t border-gray-200">
+                                            <button
+                                                onClick={deleteOne}
+                                                className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
+                                            >
+                                                🗑 Eliminar (para ambos)
+                                            </button>
+                                        </li>
+                                        <li className="border-t border-gray-200">
+                                            <button
+                                                onClick={hideForMe}
+                                                className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                            >
+                                                🙈 Eliminar para mí
+                                            </button>
+                                        </li>
+                                        <li className="border-t border-gray-200">
+                                            <button
+                                                onClick={toggleMultiMode}
+                                                className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                            >
+                                                {multiSelectMode ? "✖ Cancelar múltiple" : "✅ Seleccionar varios"}
+                                            </button>
+                                        </li>
+                                        {multiSelectMode && selectedIds.size > 0 && (
+                                            <li className="border-t border-gray-200">
+                                                <button
+                                                    onClick={deleteMany}
+                                                    className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
+                                                >
+                                                    🗑 Eliminar seleccionados ({selectedIds.size})
+                                                </button>
+                                            </li>
+                                        )}
+                                    </>
+                                ) : (
+                                    // Mensajes del otro: solo eliminar para mí
+                                    <li className="border-t border-gray-200">
+                                        <button
+                                            onClick={hideForMe}
+                                            className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                        >
+                                            🙈 Eliminar para mí
+                                        </button>
+                                    </li>
+                                )}
+
+                                <li className="border-t border-gray-200">
+                                    <button
+                                        onClick={() => setShowContext(false)}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                    >
+                                        ✕ Cerrar
+                                    </button>
+                                </li>
+                            </>
                         )}
-                        <li className="border-t border-gray-200">
-                            <button
-                                onClick={() => setShowContext(false)}
-                                className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
-                            >
-                                ✕ Cerrar
-                            </button>
-                        </li>
                     </ul>
                 </div>
             )}

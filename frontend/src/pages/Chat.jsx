@@ -3,7 +3,7 @@ import Pusher from "pusher-js";
 import storeAuth from "../context/storeAuth";
 import ModalViewImage from "../components/profile/ModalViewImage" // ✅ NUEVO
 import { MdQrCode, MdSearch } from "react-icons/md";
-import { IoSend, IoCheckmarkDoneSharp, IoTimeOutline } from "react-icons/io5";
+import { IoSend, IoCheckmarkDoneSharp, IoTimeOutline, IoEllipsisVertical, IoInformationCircleOutline, IoTrashOutline } from "react-icons/io5";
 import { FiCheck } from "react-icons/fi"; // simple check para 'delivered' si quieres diferenciación
 
 const PUSHER_KEY = import.meta.env.VITE_PUSHER_KEY;
@@ -48,6 +48,41 @@ const Chat = () => {
             n.has(id) ? n.delete(id) : n.add(id);
             return n;
         });
+    };
+
+    // Derivados de la selección (para habilitar/inhabilitar acciones en header)
+    const selectedList = responses.filter(m => m._id && selectedIds.has(m._id));
+    const anySelected = selectedList.length > 0;
+    const hasOthersSelected = selectedList.some(m => m.de !== user._id);
+    const canDeleteBoth = anySelected && !hasOthersSelected; // solo si todos son tuyos
+
+    // Eliminar múltiple "para ambos" (solo aplicará a los tuyos en backend; en UI ya lo deshabilitamos si hay ajenos)
+    const deleteMany = async () => {
+        if (!anySelected) return;
+        if (!window.confirm("Eliminar mensajes seleccionados para ambos usuarios?")) return;
+        try {
+            await fetch(`${BACKEND_URL}/chat/messages/delete-many`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ ids: Array.from(selectedIds) })
+            });
+        } catch {}
+        setSelectedIds(new Set());
+        setMultiSelectMode(false);
+    };
+
+    // Eliminar múltiple "para mí" (ocultar)
+    const deleteManyForMe = async () => {
+        if (!anySelected) return;
+        try {
+            await fetch(`${BACKEND_URL}/chat/messages/hide-many`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ ids: Array.from(selectedIds) })
+            });
+        } catch {}
+        setSelectedIds(new Set());
+        setMultiSelectMode(false);
     };
 
     // Detectar tipo de usuario
@@ -362,7 +397,8 @@ const Chat = () => {
         const timeoutRef = useRef(null);
 
         const isOwn = msg.de === user._id;
-        const selectable = multiSelectMode && isOwn && !msg.softDeleted && msg.estado !== 'pending' && !!msg._id;
+        // Seleccionable si hay selección múltiple y el mensaje tiene _id (excluye pendientes temporales)
+        const selectable = multiSelectMode && !!msg._id;
         const isSelected = selectable && selectedIds.has(msg._id);
 
         const startPress = (e) => {
@@ -372,7 +408,7 @@ const Chat = () => {
         };
         const clearPress = () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
         const handleContext = (e) => {
-            if (selectable) return; // en selección múltiple no abrir menú
+            if (selectable) return;
             e.preventDefault();
             openContextMenu(e, msg);
         };
@@ -415,7 +451,7 @@ const Chat = () => {
                         </div>
                     )}
 
-                    <p className="text-sm md:text-base">
+                    <p className={`text-sm md:text-base ${msg.softDeleted ? "italic opacity-70" : ""}`}>
                         {msg.texto}
                         {msg.editedAt && !msg.softDeleted && <span className="ml-2 text-[10px] opacity-70">(editado)</span>}
                     </p>
@@ -608,7 +644,7 @@ const Chat = () => {
         setShowContext(false);
     };
     const deleteMany = async () => {
-        if (!selectedIds.size) return;
+        if (!anySelected) return;
         if (!window.confirm("Eliminar mensajes seleccionados para ambos usuarios?")) return;
         try {
             await fetch(`${BACKEND_URL}/chat/messages/delete-many`, {
@@ -726,10 +762,63 @@ const Chat = () => {
                                 {selectedContact.emailDocente || selectedContact.email || "Sin email"}
                             </p>
                         </div>
+
+                        {/* Acciones a la derecha del header */}
+                        <div className="ml-auto flex items-center gap-2">
+                            {multiSelectMode ? (
+                                <>
+                                    <span className="text-xs text-gray-600 mr-2">{selectedIds.size} seleccionados</span>
+                                    <button
+                                        type="button"
+                                        disabled={!anySelected}
+                                        onClick={deleteManyForMe}
+                                        className={`px-3 py-1 rounded text-xs border ${anySelected ? "border-gray-300 hover:bg-gray-100" : "border-gray-200 text-gray-300 cursor-not-allowed"}`}
+                                        title="Ocultar para mí"
+                                    >
+                                        Eliminar para mí
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={!canDeleteBoth}
+                                        onClick={deleteMany}
+                                        className={`px-3 py-1 rounded text-xs border ${canDeleteBoth ? "border-red-300 text-red-600 hover:bg-red-50" : "border-gray-200 text-gray-300 cursor-not-allowed"}`}
+                                        title={hasOthersSelected ? "Solo puedes eliminar para ambos tus mensajes" : "Eliminar para ambos"}
+                                    >
+                                        Eliminar (ambos)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setMultiSelectMode(false); setSelectedIds(new Set()); }}
+                                        className="px-3 py-1 rounded text-xs border border-gray-300 hover:bg-gray-100"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="hidden md:flex items-center text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                        <IoInformationCircleOutline className="mr-1" />
+                                        Los mensajes pueden tardar unos segundos en enviarse
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setMultiSelectMode(true)}
+                                        className="p-2 hover:bg-gray-100 rounded"
+                                        title="Seleccionar varios"
+                                    >
+                                        <IoEllipsisVertical size={18} />
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
 
-                    {/* AREA DE MENSAJES - SCROLL SOLO AQUI */}
-                    <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 min-h-0" ref={messagesContainerRef}>
+                    {/* AREA DE MENSAJES */}
+                    <div
+                        className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 min-h-0"
+                        ref={messagesContainerRef}
+                        onContextMenu={(e) => { if (multiSelectMode) e.preventDefault(); }} // bloquear menú navegador en selección múltiple
+                    >
                         {responses.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
                                 <div className="text-center">

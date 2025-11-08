@@ -9,7 +9,7 @@ export const CardProfileDocente = () => {
     const [preview, setPreview] = useState(null)
     const fileInputRef = useRef(null)
     const [loading, setLoading] = useState(false)
-
+    
     // ✅ Estados para modales
     const [showCropModal, setShowCropModal] = useState(false)
     const [showViewModal, setShowViewModal] = useState(false)
@@ -31,9 +31,9 @@ export const CardProfileDocente = () => {
     // ✅ Cuando selecciona una imagen, abrir modal de recorte
     const handleImageSelect = (e) => {
         const file = e.target.files[0]
-
+        
         if (!file) return
-
+        
         if (!file.type.startsWith('image/')) {
             alert("Por favor selecciona una imagen válida")
             return

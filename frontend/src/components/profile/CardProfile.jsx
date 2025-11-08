@@ -9,7 +9,7 @@ export const CardProfile = () => {
     const [preview, setPreview] = useState(null)
     const fileInputRef = useRef(null)
     const [loading, setLoading] = useState(false)
-
+    
     // ✅ Estados para modales
     const [showCropModal, setShowCropModal] = useState(false)
     const [showViewModal, setShowViewModal] = useState(false)
@@ -31,9 +31,9 @@ export const CardProfile = () => {
     // ✅ Cuando selecciona una imagen, abrir modal de recorte
     const handleImageSelect = (e) => {
         const file = e.target.files[0]
-
+        
         if (!file) return
-
+        
         if (!file.type.startsWith('image/')) {
             alert("Por favor selecciona una imagen válida")
             return
@@ -63,7 +63,7 @@ export const CardProfile = () => {
 
             // Crear blob de la imagen recortada
             const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels)
-
+            
             // Crear archivo desde el blob
             const croppedFile = new File([croppedBlob], originalFile.name, {
                 type: 'image/jpeg'
@@ -127,7 +127,7 @@ export const CardProfile = () => {
     // ✅ URL para mostrar en el modal (siempre la original completa)
     const fullImageUrl = originalImageUrl || avatarUrl;
 
-    const tieneAvatarPersonalizado = userData?.avatar &&
+    const tieneAvatarPersonalizado = userData?.avatar && 
         userData.avatar !== "https://cdn-icons-png.flaticon.com/512/4715/4715329.png" &&
         userData.avatar !== null;
 

@@ -22,6 +22,10 @@ const docenteSchema = new Schema({
         type: String,
         default: null
     },
+    cropDataDocente: { // ✅ NUEVO: Coordenadas de recorte para avatarDocente
+        type: Object,
+        default: null
+    },
     emailDocente: {
         type: String,
         require: true,

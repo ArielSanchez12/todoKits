@@ -3,7 +3,6 @@ import { sendMailToRecoveryPasswordDocente } from "../config/nodemailer.js"
 import { v2 as cloudinary } from 'cloudinary'
 import fs from "fs-extra"
 import mongoose from "mongoose"
-import Tratamiento from "../models/tratamiento.js"
 import { crearTokenJWT } from "../middlewares/jwt.js"
 
 

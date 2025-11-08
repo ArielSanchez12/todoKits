@@ -7,6 +7,7 @@ import storeRecursos from "../context/storeRecursos";
 import { ToastContainer, toast } from "react-toastify";
 import { MdAssignment } from "react-icons/md";
 import ModalPrestarRecurso from "../components/prestamos/ModalPrestarRecurso";
+import ModalViewImage from "../components/profile/ModalViewImage" // ✅ NUEVO
 import TablaHistorialDocente from "../components/prestamos/TablaHistorialDocente";
 
 const Details = () => {
@@ -17,6 +18,7 @@ const Details = () => {
     const { fetchDataBackend } = useFetch();
     const { rol } = storeAuth();
     const [showModalPrestamo, setShowModalPrestamo] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false); // ✅ NUEVO
     const { fetchRecursos } = storeRecursos();
 
     const listDocente = async () => {
@@ -82,6 +84,9 @@ const Details = () => {
         listDocente();
     }, []);
 
+    // ✅ URL de la imagen para el modal
+    const avatarUrl = docente?.avatarDocente || docente?.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
+
     return (
         <>
             <ToastContainer />
@@ -128,14 +133,13 @@ const Details = () => {
                         </ul>
                     </div>
                     <div>
+                        {/* ✅ Click en imagen abre modal */}
                         <img
-                            src={
-                                docente?.avatarDocente ||
-                                docente?.avatar ||
-                                "https://cdn-icons-png.flaticon.com/512/4715/4715329.png"
-                            }
+                            src={avatarUrl}
                             alt="avatar"
-                            className="h-70 w-70 rounded-full object-cover"
+                            className="h-70 w-70 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => setShowViewModal(true)}
+                            title="Click para ver imagen completa"
                         />
                     </div>
                 </div>
@@ -194,6 +198,14 @@ const Details = () => {
                     }}
                 />
             )}
+
+            {/* ✅ Modal de vista de imagen */}
+            <ModalViewImage
+                imageSrc={avatarUrl}
+                isOpen={showViewModal}
+                onClose={() => setShowViewModal(false)}
+                userName={`${docente?.nombreDocente || ''} ${docente?.apellidoDocente || ''}`}
+            />
         </>
     );
 };

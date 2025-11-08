@@ -71,7 +71,7 @@ const Chat = () => {
         setMultiSelectMode(false);
         setShowContext(false);
     };
-    
+
     // Eliminar múltiple "para mí" (ocultar)
     const deleteManyForMe = async () => {
         if (!anySelected) return;
@@ -786,7 +786,10 @@ const Chat = () => {
                                 <>
                                     <div className="hidden md:flex items-center text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                                         <IoInformationCircleOutline className="mr-1" />
-                                        Los mensajes pueden tardar unos segundos en enviarse
+                                        Los primeros 2 o 3 mensajes pueden tardar en enviarse unos segundos debido a la activación del servidor dormido.
+                                        sdasdas
+                                        <span className="font-medium text-gray-700"> Ten paciencia, estamos usando un servicio gratis!</span>
+                                        <span className="font-medium text-gray-700"> Tip: casi siempre a partir del cuarto mensaje se envian rapido todos los demas, asi que envia 3 mensajes cualesquiera para despertar el servidor antes!</span>
                                     </div>
                                     <button
                                         type="button"
@@ -967,7 +970,7 @@ const Chat = () => {
                                             onClick={startEdit}
                                             className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
                                         >
-                                            ✏️ Editar
+                                            Editar
                                         </button>
                                     </li>
                                 )}
@@ -976,7 +979,7 @@ const Chat = () => {
                                         onClick={copyMsg}
                                         className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
                                     >
-                                        📋 Copiar
+                                        Copiar
                                     </button>
                                 </li>
 
@@ -988,7 +991,7 @@ const Chat = () => {
                                                 onClick={deleteOne}
                                                 className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
                                             >
-                                                🗑 Eliminar (para ambos)
+                                                Eliminar (para ambos)
                                             </button>
                                         </li>
                                         <li className="border-t border-gray-200">
@@ -996,7 +999,7 @@ const Chat = () => {
                                                 onClick={hideForMe}
                                                 className="w-full text-left px-4 py-2 hover:bg-gray-100"
                                             >
-                                                🙈 Eliminar para mí
+                                                Eliminar para mí
                                             </button>
                                         </li>
                                         <li className="border-t border-gray-200">
@@ -1013,7 +1016,7 @@ const Chat = () => {
                                                     onClick={deleteMany}
                                                     className="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600"
                                                 >
-                                                    🗑 Eliminar seleccionados ({selectedIds.size})
+                                                    Eliminar seleccionados ({selectedIds.size})
                                                 </button>
                                             </li>
                                         )}
@@ -1025,7 +1028,7 @@ const Chat = () => {
                                             onClick={hideForMe}
                                             className="w-full text-left px-4 py-2 hover:bg-gray-100"
                                         >
-                                            🙈 Eliminar para mí
+                                            Eliminar para mí
                                         </button>
                                     </li>
                                 )}

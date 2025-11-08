@@ -784,13 +784,13 @@ const Chat = () => {
                                 </>
                             ) : (
                                 <>
-                                    <div className="hidden md:block text-xs text-gray-500 bg-gray-100 px-3 py-2 rounded whitespace-pre-line">
+                                    <div className="hidden md:flex text-xs text-gray-500 bg-gray-100 px-3 py-2 rounded flex-col">
                                         <div className="flex items-center gap-1">
-                                            <IoInformationCircleOutline className="shrink-0" />
-                                            <span>
-                                                {"Los primeros 2 o 3 mensajes pueden tardar en enviarse unos segundos debido a la activación del servidor dormido.\nTen paciencia, estamos usando un servicio gratis!\n💡 Tip: casi siempre a partir del cuarto mensaje se envían rápido todos los demás, así que envía 3 mensajes cualesquiera para despertar el servidor antes!"}
-                                            </span>
+                                            {/* <IoInformationCircleOutline className="shrink-0" /> */}
+                                            <span>Los primeros mensajes pueden tardar en enviarse unos segundos debido a la activación del servicio</span>
                                         </div>
+                                        <span>💡 A partir del cuarto mensaje se envían rápido, así que envía 3 mensajes cualesquiera para despertar el servidor!</span>
+                                        <span>Ten paciencia...estamos usando un servicio gratis!</span>
                                     </div>
                                     <button
                                         type="button"

@@ -361,10 +361,12 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                         prestamo.recursosAdicionales?.length > 0) && (
                         <div
                           ref={tooltipRef}
-                          className="fixed z-50 bg-gray-800 text-white p-3 rounded-lg shadow-2xl w-80 max-w-md max-h-[60vh] overflow-y-auto"
+                          className="fixed z-50 bg-gray-800 text-white p-3 rounded-lg shadow-2xl w-80 max-w-md max-h-[60vh] overflow-y-auto break-words"
                           style={{
                             top: `${tooltipPosition.top}px`,
                             left: `${tooltipPosition.left}px`,
+                            wordWrap: "break-word",
+                            overflowWrap: "break-word",
                           }}
                         >
                           {prestamo.observaciones && (
@@ -372,7 +374,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                               <p className="font-semibold mb-2 border-b border-gray-600 pb-1">
                                 Observaciones completas:
                               </p>
-                              <p className="text-sm mb-3 whitespace-pre-line">
+                              <p className="text-sm mb-3 whitespace-pre-wrap break-words">
                                 {prestamo.observaciones}
                               </p>
                             </>
@@ -385,9 +387,9 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                               </p>
                               <ul className="text-sm space-y-1">
                                 {prestamo.recursosAdicionales.map((rec) => (
-                                  <li key={rec._id} className="flex items-start gap-2">
-                                    <span>•</span>
-                                    <span>
+                                  <li key={rec._id} className="flex items-start gap-2 break-words">
+                                    <span className="flex-shrink-0">•</span>
+                                    <span className="break-words">
                                       {rec.nombre} {rec.tipo ? `(${rec.tipo.toUpperCase()})` : ""}
                                     </span>
                                   </li>

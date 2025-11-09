@@ -34,7 +34,7 @@ const loginUniversal = async (req, res) => {
 
         // ✅ PASO 3: Si no existe en ninguna colección
         if (!usuario) {
-            return res.status(404).json({ msg: "Lo sentimos, el usuario no se encuentra registrado" });
+            return res.status(404).json({ msg: "Credenciales incorrectas o usuario no registrado" });
         }
 
         // ✅ PASO 4: Verificar confirmación de email (solo para admin)
@@ -42,10 +42,14 @@ const loginUniversal = async (req, res) => {
             return res.status(401).json({ msg: "Lo sentimos, debes verificar tu cuenta antes de iniciar sesión" });
         }
 
+        if (tipoUsuario === 'docente' && usuario.confirmEmailDocente === false) {
+            return res.status(401).json({ msg: "Lo sentimos, debes verificar tu cuenta antes de iniciar sesión" });
+        }
+
         // ✅ PASO 5: Verificar contraseña
         const verificarPassword = await usuario.matchPassword(password);
         if (!verificarPassword) {
-            return res.status(401).json({ msg: "Usuario o contraseña incorrectos" });
+            return res.status(401).json({ msg: "Credenciales incorrectas o usuario no registrado" });
         }
 
         // ✅ PASO 6: Generar token JWT
@@ -122,7 +126,7 @@ const recuperarPasswordUniversal = async (req, res) => {
 
         // Si no existe en ninguna colección
         if (!usuario) {
-            return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" });
+            return res.status(404).json({ msg: "Correo incorrecto o usuario no registrado" });
         }
 
         // Crear token

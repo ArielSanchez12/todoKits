@@ -82,7 +82,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
       activo: "bg-green-100 text-green-800",
       finalizado: "bg-blue-100 text-blue-800",
       rechazado: "bg-red-100 text-red-800",
-      cancelado: "bg-gray-100 text-gray-800",
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
   };
@@ -189,7 +188,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
     pendiente: prestamosLocal?.filter((p) => p.estado === "pendiente").length || 0,
     finalizado: prestamosLocal?.filter((p) => p.estado === "finalizado").length || 0,
     rechazado: prestamosLocal?.filter((p) => p.estado === "rechazado").length || 0,
-    cancelado: prestamosLocal?.filter((p) => p.estado === "cancelado").length || 0,
     todos: prestamosLocal?.length || 0,
   };
 
@@ -250,7 +248,6 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
           { key: "pendiente", label: "Pendientes" },
           { key: "finalizado", label: "Finalizados" },
           { key: "rechazado", label: "Rechazados" },
-          { key: "cancelado", label: "Cancelados" },
         ].map((tipo) => (
           <button
             key={tipo.key}

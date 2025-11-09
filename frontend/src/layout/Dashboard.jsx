@@ -39,9 +39,9 @@ const Dashboard = () => {
 
                 <div className='md:w-1/6 bg-black px-8 py-6'>
 
-                    <h2 className="font-black text-2xl sm:text-3xl md:text-3xl lg:text-4xl text-white font-sans leading-none w-full break-words flex items-start justify-center md:justify-start mb-2">
+                    <h2 className="font-black text-2xl sm:text-3xl md:text-3xl lg:text-4xl text-white font-sans leading-tight w-full text-center md:text-left mb-2">
                         <span className="select-none">LabTRACK</span>
-                        <sup className="text-[8px] sm:text-[9px] md:text-[10px] font-bold tracking-wider px-1 py-0.5 rounded bg-blue-500/20 text-blue-300 ml-0.5">ESFOT</sup>
+                        <sup className="text-[8px] sm:text-[9px] md:text-[10px] font-bold tracking-wider px-1 py-1 rounded bg-blue-500/20 text-blue-300 ml-0.5 align-super">ESFOT</sup>
                     </h2>
 
                     {/* ✅ Avatar del sidebar - clickeable - MUESTRA RECORTADA */}

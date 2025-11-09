@@ -180,8 +180,8 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     onClick={handleDescargarQR}
                     disabled={esTransferenciaCaducada()}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors font-semibold ${esTransferenciaCaducada()
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-gray-600 text-white hover:bg-gray-700'
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-gray-600 text-white hover:bg-gray-700'
                       }`}
                     title={esTransferenciaCaducada() ? "QR caducado" : "Descargar QR"}
                   >
@@ -192,10 +192,10 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     onClick={handleEnviarPorChat}
                     disabled={loading || !puedeEnviarPorChat}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors font-semibold ${!puedeEnviarPorChat
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : loading
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-green-600 text-white hover:bg-green-700'
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : loading
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-green-600 text-white hover:bg-green-700'
                       }`}
                     title={!puedeEnviarPorChat ? "Transferencia caducada" : "Enviar por chat"}
                   >
@@ -217,17 +217,17 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                       readOnly
                       value={urlQR}
                       disabled={esTransferenciaCaducada()}
-                      className={`flex-1 text-xs px-3 py-2 rounded border font-mono ${esTransferenciaCaducada()
-                          ? 'bg-gray-100 text-gray-400 border-gray-200'
-                          : 'bg-white border-gray-300'
+                      className={`flex-1 text-xs px-3 py-2 rounded border font-mono break-all ${esTransferenciaCaducada()
+                        ? 'bg-gray-100 text-gray-400 border-gray-200'
+                        : 'bg-white border-gray-300'
                         }`}
                     />
                     <button
                       onClick={handleCopiarURL}
                       disabled={esTransferenciaCaducada()}
-                      className={`p-2 rounded transition-colors ${esTransferenciaCaducada()
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-gray-600 text-white hover:bg-gray-700'
+                      className={`p-2 rounded transition-colors flex-shrink-0 ${esTransferenciaCaducada()
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-gray-600 text-white hover:bg-gray-700'
                         }`}
                       title={esTransferenciaCaducada() ? "URL caducada" : "Copiar URL"}
                     >
@@ -246,9 +246,9 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                       readOnly
                       value={qrImageUrl}
                       disabled={esTransferenciaCaducada()}
-                      className={`flex-1 text-xs px-3 py-2 rounded border font-mono ${esTransferenciaCaducada()
-                          ? 'bg-gray-100 text-gray-400 border-gray-200'
-                          : 'bg-white border-gray-300'
+                      className={`flex-1 text-xs px-3 py-2 rounded border font-mono break-all ${esTransferenciaCaducada()
+                        ? 'bg-gray-100 text-gray-400 border-gray-200'
+                        : 'bg-white border-gray-300'
                         }`}
                     />
                     <button
@@ -257,9 +257,9 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                         toast.success("URL del QR copiada");
                       }}
                       disabled={esTransferenciaCaducada()}
-                      className={`p-2 rounded transition-colors ${esTransferenciaCaducada()
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-gray-600 text-white hover:bg-gray-700'
+                      className={`p-2 rounded transition-colors flex-shrink-0 ${esTransferenciaCaducada()
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-gray-600 text-white hover:bg-gray-700'
                         }`}
                       title={esTransferenciaCaducada() ? "URL caducada" : "Copiar URL del QR"}
                     >
@@ -269,8 +269,8 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                 </div>
 
                 <div className={`p-3 rounded border ${esTransferenciaCaducada()
-                    ? 'bg-red-50 border-red-200'
-                    : 'bg-yellow-50 border-yellow-200'
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-yellow-50 border-yellow-200'
                   }`}>
                   <p className={`text-xs ${esTransferenciaCaducada() ? 'text-red-800' : 'text-yellow-800'}`}>
                     <strong>💡 Instrucciones:</strong>{" "}
@@ -293,26 +293,26 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <span className="text-xs text-gray-600">Nombre:</span>
-                  <p className="font-semibold">
+                  <p className="font-semibold break-words">
                     {transferencia.docenteOrigen?.nombreDocente}{" "}
                     {transferencia.docenteOrigen?.apellidoDocente}
                   </p>
                 </div>
                 <div>
                   <span className="text-xs text-gray-600">Email:</span>
-                  <p className="font-semibold">{transferencia.docenteOrigen?.emailDocente}</p>
+                  <p className="font-semibold break-all text-xs">{transferencia.docenteOrigen?.emailDocente}</p>
                 </div>
                 {transferencia.docenteOrigen?.celularDocente && (
                   <div>
                     <span className="text-xs text-gray-600">Celular:</span>
-                    <p className="font-semibold">{transferencia.docenteOrigen.celularDocente}</p>
+                    <p className="font-semibold break-words">{transferencia.docenteOrigen.celularDocente}</p>
                   </div>
                 )}
                 {transferencia.firmaOrigen && (
                   <div>
                     <span className="text-xs text-gray-600">Firma Digital:</span>
-                    <p className="font-mono text-xs bg-white px-2 py-1 rounded border">
-                      {transferencia.firmaOrigen.substring(0, 20)}...
+                    <p className="font-mono text-xs bg-white px-2 py-1 rounded border break-all overflow-hidden max-h-12">
+                      {transferencia.firmaOrigen}
                     </p>
                   </div>
                 )}
@@ -327,26 +327,26 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <span className="text-xs text-gray-600">Nombre:</span>
-                  <p className="font-semibold">
+                  <p className="font-semibold break-words">
                     {transferencia.docenteDestino?.nombreDocente}{" "}
                     {transferencia.docenteDestino?.apellidoDocente}
                   </p>
                 </div>
                 <div>
                   <span className="text-xs text-gray-600">Email:</span>
-                  <p className="font-semibold">{transferencia.docenteDestino?.emailDocente}</p>
+                  <p className="font-semibold break-all text-xs">{transferencia.docenteDestino?.emailDocente}</p>
                 </div>
                 {transferencia.docenteDestino?.celularDocente && (
                   <div>
                     <span className="text-xs text-gray-600">Celular:</span>
-                    <p className="font-semibold">{transferencia.docenteDestino.celularDocente}</p>
+                    <p className="font-semibold break-words">{transferencia.docenteDestino.celularDocente}</p>
                   </div>
                 )}
                 {transferencia.firmaDestino && (
                   <div>
                     <span className="text-xs text-gray-600">Firma Digital:</span>
-                    <p className="font-mono text-xs bg-white px-2 py-1 rounded border">
-                      {transferencia.firmaDestino.substring(0, 20)}...
+                    <p className="font-mono text-xs bg-white px-2 py-1 rounded border break-all overflow-hidden max-h-12">
+                      {transferencia.firmaDestino}
                     </p>
                   </div>
                 )}
@@ -369,7 +369,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <span className="text-xs text-gray-600">Nombre:</span>
-                        <p className="font-semibold">{rec.nombre || "N/A"}</p>
+                        <p className="font-semibold break-words">{rec.nombre || "N/A"}</p>
                       </div>
                       <div>
                         <span className="text-xs text-gray-600">Tipo:</span>
@@ -381,11 +381,11 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                         <>
                           <div>
                             <span className="text-xs text-gray-600">Laboratorio:</span>
-                            <p className="font-semibold">{rec.laboratorio}</p>
+                            <p className="font-semibold break-words">{rec.laboratorio}</p>
                           </div>
                           <div>
                             <span className="text-xs text-gray-600">Aula:</span>
-                            <p className="font-semibold">{rec.aula}</p>
+                            <p className="font-semibold break-words">{rec.aula}</p>
                           </div>
                         </>
                       )}
@@ -394,7 +394,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                           <span className="text-xs text-gray-600">Contenido:</span>
                           <ul className="list-disc pl-5 mt-1">
                             {rec.contenido.map((item, i) => (
-                              <li key={i} className="text-sm">
+                              <li key={i} className="text-sm break-words">
                                 {item}
                               </li>
                             ))}
@@ -426,7 +426,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <span className="text-xs text-gray-600">Nombre:</span>
-                          <p className="font-semibold">{rec.nombre}</p>
+                          <p className="font-semibold break-words">{rec.nombre}</p>
                         </div>
                         <div>
                           <span className="text-xs text-gray-600">Tipo:</span>
@@ -440,11 +440,11 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                               <span className="text-xs text-gray-600">
                                 Laboratorio:
                               </span>
-                              <p className="font-semibold">{rec.laboratorio}</p>
+                              <p className="font-semibold break-words">{rec.laboratorio}</p>
                             </div>
                             <div>
                               <span className="text-xs text-gray-600">Aula:</span>
-                              <p className="font-semibold">{rec.aula}</p>
+                              <p className="font-semibold break-words">{rec.aula}</p>
                             </div>
                           </>
                         )}
@@ -455,7 +455,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                             </span>
                             <ul className="list-disc pl-5 mt-1">
                               {rec.contenido.map((item, i) => (
-                                <li key={i} className="text-sm">
+                                <li key={i} className="text-sm break-words">
                                   {item}
                                 </li>
                               ))}
@@ -477,7 +477,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <span className="text-xs text-gray-600">Fecha Solicitud:</span>
-                <p className="font-semibold text-sm">
+                <p className="font-semibold text-sm break-words">
                   {formatFecha(transferencia.fechaSolicitud)}
                 </p>
               </div>
@@ -485,7 +485,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                 <span className="text-xs text-gray-600">
                   Confirmación Origen:
                 </span>
-                <p className="text-sm">
+                <p className="text-sm break-words">
                   {esEstadoInactivo(transferencia.estado) ? (
                     <span className="text-gray-400">No aplica</span>
                   ) : transferencia.fechaConfirmacionOrigen ? (
@@ -499,7 +499,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                 <span className="text-xs text-gray-600">
                   Confirmación Destino:
                 </span>
-                <p className="text-sm">
+                <p className="text-sm break-words">
                   {esEstadoInactivo(transferencia.estado) ? (
                     <span className="text-gray-400">No aplica</span>
                   ) : transferencia.fechaConfirmacionDestino ? (
@@ -524,7 +524,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     <span className="text-xs font-semibold text-gray-600">
                       Origen:
                     </span>
-                    <p className="text-sm text-gray-700 whitespace-pre-line">
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
                       {transferencia.observacionesOrigen}
                     </p>
                   </div>
@@ -534,7 +534,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                     <span className="text-xs font-semibold text-gray-600">
                       Destino:
                     </span>
-                    <p className="text-sm text-gray-700 whitespace-pre-line">
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
                       {transferencia.observacionesDestino}
                     </p>
                   </div>

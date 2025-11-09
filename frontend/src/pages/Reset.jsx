@@ -66,33 +66,40 @@ const Reset = () => {
     }
 
     return (
-        <div className="h-screen md:flex">
+        <div className="flex flex-col sm:flex-row h-screen overflow-hidden">
             <ToastContainer />
-            <div className="relative overflow-hidden md:flex w-1/2 justify-around items-center hidden">
+
+            {/* Imagen - Oculta en móvil */}
+            <div className="hidden sm:flex sm:w-1/2 h-screen bg-cover bg-center relative overflow-hidden">
                 <img
                     src={logoEPN}
                     alt="EPN Logo"
                     className="w-full h-full object-cover"
                 />
             </div>
-            <div className="flex w-full md:w-1/2 justify-center items-center bg-white">
+
+            {/* Formulario */}
+            <div className="w-full sm:w-1/2 flex flex-col justify-center items-center px-8 py-12 sm:py-0 overflow-y-auto bg-white">
                 <div className="w-full max-w-md">
-                    <h1 className="text-3xl font-bold text-gray-700 mb-4">Nueva Contraseña</h1>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-700 mb-2 sm:mb-4">Nueva Contraseña</h1>
+                    <p className="text-gray-500 text-sm sm:text-base mb-6">Crea una nueva contraseña para tu cuenta</p>
+
                     <form onSubmit={handleSubmit(crearNuevaContraseña)}>
+                        {/* Campo Contraseña */}
                         <div className="mb-4 relative">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
+                            <label className="block text-gray-700 text-sm sm:text-base font-bold mb-2">
                                 Contraseña
                             </label>
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Ingresa tu nueva contraseña"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 pr-10"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 pr-10 text-sm sm:text-base"
                                 {...register("password")}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                                className="absolute right-3 top-1/2 translate-y-1/2 text-gray-500 hover:text-gray-700 mt-1"
                             >
                                 {showPassword ? (
                                     <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,24 +112,25 @@ const Reset = () => {
                                 )}
                             </button>
                             {errors.password && (
-                                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                                <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.password.message}</p>
                             )}
                         </div>
 
+                        {/* Campo Confirmar Contraseña */}
                         <div className="mb-6 relative">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
+                            <label className="block text-gray-700 text-sm sm:text-base font-bold mb-2">
                                 Confirmar Contraseña
                             </label>
                             <input
                                 type={showConfirmPassword ? "text" : "password"}
                                 placeholder="Confirma tu contraseña"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 pr-10"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 pr-10 text-sm sm:text-base"
                                 {...register("confirmPassword")}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                className="absolute right-3 top-9 text-gray-500 hover:text-gray-700"
+                                className="absolute right-3 top-1/2 translate-y-1/2 text-gray-500 hover:text-gray-700 mt-1"
                             >
                                 {showConfirmPassword ? (
                                     <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,14 +143,15 @@ const Reset = () => {
                                 )}
                             </button>
                             {errors.confirmPassword && (
-                                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
+                                <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.confirmPassword.message}</p>
                             )}
                         </div>
 
+                        {/* Botón Enviar */}
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                            className={`w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 text-sm sm:text-base ${loading ? 'opacity-70 cursor-not-allowed' : ''
                                 }`}
                         >
                             {loading ? 'Actualizando...' : 'Crear Nueva Contraseña'}

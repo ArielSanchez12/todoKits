@@ -51,7 +51,7 @@ export const Forgot = () => {
                     <form onSubmit={handleSubmit(sendMail)}>
 
                         <div className="mb-1">
-                            <small className="text-gray-400 block my-4 text-sm sm:text-base">¡No te preocupes, te ayudaremos a recuperarla!</small>
+                            <small className="text-gray-400 block my-4 text-sm sm:text-base">¡No te preocupes, te ayudaremos a recuperar el acceso a tu cuenta!</small>
                             <label className="mb-2 block text-sm sm:text-base font-semibold">Correo electrónico</label>
                             <input type="email" placeholder="Ingresa un correo electrónico válido" className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-2 px-2 text-gray-500 text-sm sm:text-base"
                                 {...register("email", { required: "Este campo es obligatorio!" })}

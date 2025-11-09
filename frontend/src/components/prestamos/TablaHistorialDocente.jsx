@@ -231,8 +231,8 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
   };
 
   // ✅ FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
-  const prestamosMostrados = mostrarTodos 
-    ? prestamosPorEstado 
+  const prestamosMostrados = mostrarTodos
+    ? prestamosPorEstado
     : prestamosPorEstado?.slice(0, REGISTROS_INICIALES);
 
   // ✅ VERIFICAR SI HAY MÁS REGISTROS
@@ -242,31 +242,34 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
     <>
       {/* ✅ FILTROS DE ESTADO */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {[
-          { key: "todos", label: "Todos" },
-          { key: "activo", label: "Activos" },
-          { key: "pendiente", label: "Pendientes" },
-          { key: "finalizado", label: "Finalizados" },
-          { key: "rechazado", label: "Rechazados" },
+        {{
+          key: "todos", label: "Todos"
+        },
+          ...(esDocente ? [] : [ //Solo mostrar activo/pendiente si NO es docente
+        {key: "activo", label: "Activos" },
+        {key: "pendiente", label: "Pendientes" },
+        ]),
+        {key: "finalizado", label: "Finalizados" },
+        {key: "rechazado", label: "Rechazados" },
         ].map((tipo) => (
-          <button
-            key={tipo.key}
-            onClick={() => setFiltro(tipo.key)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${filtro === tipo.key
-              ? "bg-blue-600 text-white"
-              : "bg-white text-gray-700 border hover:bg-gray-50"
+        <button
+          key={tipo.key}
+          onClick={() => setFiltro(tipo.key)}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${filtro === tipo.key
+            ? "bg-blue-600 text-white"
+            : "bg-white text-gray-700 border hover:bg-gray-50"
+            }`}
+        >
+          {tipo.label}
+          <span
+            className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filtro === tipo.key
+              ? "bg-white text-blue-600"
+              : "bg-gray-200 text-gray-700"
               }`}
           >
-            {tipo.label}
-            <span
-              className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filtro === tipo.key
-                ? "bg-white text-blue-600"
-                : "bg-gray-200 text-gray-700"
-                }`}
-            >
-              {contadores[tipo.key]}
-            </span>
-          </button>
+            {contadores[tipo.key]}
+          </span>
+        </button>
         ))}
       </div>
 
@@ -483,9 +486,9 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
                 <td colSpan={8} className="p-4 text-center text-gray-500">
                   {prestamosPorEstado?.length === 0 && (fechaDesde || fechaHasta)
                     ? "No hay préstamos en el rango de fechas seleccionado"
-                    : esDocente 
-                    ? "No tienes préstamos finalizados"
-                    : "No hay préstamos en esta categoría"}
+                    : esDocente
+                      ? "No tienes préstamos finalizados"
+                      : "No hay préstamos en esta categoría"}
                 </td>
               </tr>
             )}

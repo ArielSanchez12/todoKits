@@ -225,7 +225,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
                           recurso.estado.slice(1)}
                       </span>
                     </td>
-                    <td className="p-2 text-left">
+                    <td className="p-2 text-center">
                       {renderContenido(recurso)}
                     </td>
                     <td className="p-2 flex justify-center gap-2">

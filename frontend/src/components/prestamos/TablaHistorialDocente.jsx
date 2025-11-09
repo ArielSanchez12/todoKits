@@ -242,7 +242,8 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
     <>
       {/* ✅ FILTROS DE ESTADO */}
       <div className="flex flex-wrap gap-2 mb-4">
-        {{
+        {[
+        {
           key: "todos", label: "Todos"
         },
           ...(esDocente ? [] : [ //Solo mostrar activo/pendiente si NO es docente

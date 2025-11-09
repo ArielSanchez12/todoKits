@@ -44,7 +44,7 @@ const crearTransferencia = async (req, res) => {
     // Generar código único para QR
     const codigoQR = uuidv4();
 
-    // ✅ NUEVO: Cancelar transferencias anteriores del mismo préstamo que estén pendientes
+    // ✅ CORRECCIÓN: Concatenar string en lugar de $push
     await Transferencia.updateMany(
       {
         prestamoOriginal: prestamoId,
@@ -52,7 +52,7 @@ const crearTransferencia = async (req, res) => {
       },
       {
         estado: "cancelado",
-        $push: {
+        $set: {
           observacionesOrigen: "\n[AUTO-CANCELADO] Nueva transferencia solicitada para este préstamo"
         }
       }
@@ -88,14 +88,15 @@ const crearTransferencia = async (req, res) => {
       para: prestamo.docente._id.toString(),
     });
 
+    const transferenciaPopulada = await Transferencia.findById(transferencia._id)
+      .populate("docenteOrigen", "nombreDocente apellidoDocente emailDocente")
+      .populate("docenteDestino", "nombreDocente apellidoDocente emailDocente")
+      .populate("recursos", "nombre tipo laboratorio aula contenido")
+      .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido");
+
     res.status(201).json({
       msg: "Solicitud de transferencia creada exitosamente",
-      transferencia: await transferencia.populate([
-        "docenteOrigen",
-        "docenteDestino",
-        "recursos",
-        "recursosAdicionales",
-      ]),
+      transferencia: transferenciaPopulada,
       qrImage,
       urlQR,
     });

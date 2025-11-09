@@ -18,12 +18,10 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
       ? recursos
       : recursos?.filter((r) => r.tipo === filtro);
 
-  // ✅ FUNCIÓN PARA OBTENER RECURSOS A MOSTRAR
   const recursosMostrados = mostrarTodos 
     ? recursosFiltrados 
     : recursosFiltrados?.slice(0, REGISTROS_INICIALES);
 
-  // ✅ VERIFICAR SI HAY MÁS REGISTROS
   const hayMasRegistros = recursosFiltrados?.length > REGISTROS_INICIALES;
 
   const handleDelete = async (id, recurso) => {
@@ -101,11 +99,11 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
     return (
       <div
         ref={recurso._id === hoveredContenido ? cellRef : null}
-        className="relative"
+        className="relative flex justify-center" // 👈 ajuste de alineación
         onMouseEnter={() => handleMouseEnter(recurso._id)}
         onMouseLeave={() => setHoveredContenido(null)}
       >
-        <ul className="list-disc pl-4 text-sm">
+        <ul className="list-disc text-sm text-left inline-block"> {/* 👈 ajuste: centrado con inline-block */}
           {primerosItems.map((c, i) => (
             <li key={i}>{c}</li>
           ))}
@@ -182,7 +180,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
               <th className="p-2">Laboratorio</th>
               <th className="p-2">Aula</th>
               <th className="p-2">Estado</th>
-              <th className="p-2">Contenido</th>
+              <th className="p-2 text-center">Contenido</th> {/* 👈 asegura que el header quede centrado */}
               <th className="p-2">Acciones</th>
             </tr>
           </thead>
@@ -225,7 +223,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
                           recurso.estado.slice(1)}
                       </span>
                     </td>
-                    <td className="p-2 text-left">
+                    <td className="p-2 text-center align-middle"> {/* 👈 alineado al centro */}
                       {renderContenido(recurso)}
                     </td>
                     <td className="p-2 flex justify-center gap-2">

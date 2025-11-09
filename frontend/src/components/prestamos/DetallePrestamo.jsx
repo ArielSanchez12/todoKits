@@ -18,7 +18,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
       activo: "bg-green-100 text-green-800",
       finalizado: "bg-blue-100 text-blue-800",
       rechazado: "bg-red-100 text-red-800",
-      cancelado: "bg-gray-100 text-gray-800", // ✅ Agregado
+      cancelado: "bg-gray-100 text-gray-800",
     };
     return colors[estado] || "bg-gray-100 text-gray-800";
   };
@@ -67,7 +67,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <span className="text-xs text-gray-600">Nombre:</span>
-                <p className="font-semibold">{prestamo.recurso?.nombre || "N/A"}</p>
+                <p className="font-semibold break-words">{prestamo.recurso?.nombre || "N/A"}</p>
               </div>
               <div>
                 <span className="text-xs text-gray-600">Tipo:</span>
@@ -79,11 +79,11 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                 <>
                   <div>
                     <span className="text-xs text-gray-600">Laboratorio:</span>
-                    <p className="font-semibold">{prestamo.recurso.laboratorio}</p>
+                    <p className="font-semibold break-words">{prestamo.recurso.laboratorio}</p>
                   </div>
                   <div>
                     <span className="text-xs text-gray-600">Aula:</span>
-                    <p className="font-semibold">{prestamo.recurso.aula}</p>
+                    <p className="font-semibold break-words">{prestamo.recurso.aula}</p>
                   </div>
                 </>
               )}
@@ -93,7 +93,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                     <span className="text-xs text-gray-600">Contenido:</span>
                     <ul className="list-disc pl-5 mt-1">
                       {prestamo.recurso.contenido.map((item, i) => (
-                        <li key={i} className="text-sm">
+                        <li key={i} className="text-sm break-words">
                           {item}
                         </li>
                       ))}
@@ -111,26 +111,26 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <span className="text-xs text-gray-600">Nombre:</span>
-                <p className="font-semibold">
+                <p className="font-semibold break-words">
                   {prestamo.docente?.nombreDocente}{" "}
                   {prestamo.docente?.apellidoDocente}
                 </p>
               </div>
               <div>
                 <span className="text-xs text-gray-600">Email:</span>
-                <p className="font-semibold">{prestamo.docente?.emailDocente}</p>
+                <p className="font-semibold break-all text-xs">{prestamo.docente?.emailDocente}</p>
               </div>
               {prestamo.docente?.celularDocente && (
                 <div>
                   <span className="text-xs text-gray-600">Celular:</span>
-                  <p className="font-semibold">{prestamo.docente.celularDocente}</p>
+                  <p className="font-semibold break-words">{prestamo.docente.celularDocente}</p>
                 </div>
               )}
               {prestamo.firmaDocente && (
                 <div>
                   <span className="text-xs text-gray-600">Firma Digital:</span>
-                  <p className="font-mono text-xs bg-white px-2 py-1 rounded border">
-                    {prestamo.firmaDocente.substring(0, 20)}...
+                  <p className="font-mono text-xs bg-white px-2 py-1 rounded border break-all overflow-hidden max-h-12">
+                    {prestamo.firmaDocente}
                   </p>
                 </div>
               )}
@@ -142,9 +142,9 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
             <p className="text-sm font-semibold text-gray-700 mb-2">
               📝 Motivo del Préstamo
             </p>
-            <p className="font-semibold text-lg">{prestamo.motivo?.tipo}</p>
+            <p className="font-semibold text-lg break-words">{prestamo.motivo?.tipo}</p>
             {prestamo.motivo?.descripcion && (
-              <p className="text-sm text-gray-600 mt-2">
+              <p className="text-sm text-gray-600 mt-2 break-words whitespace-normal">
                 {prestamo.motivo.descripcion}
               </p>
             )}
@@ -158,13 +158,13 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <span className="text-xs text-gray-600">Fecha de Préstamo:</span>
-                <p className="font-semibold text-sm">
+                <p className="font-semibold text-sm break-words">
                   {formatFecha(prestamo.fechaPrestamo)}
                 </p>
               </div>
               <div>
                 <span className="text-xs text-gray-600">Hora de Confirmación:</span>
-                <p className="text-sm">
+                <p className="text-sm break-words">
                   {esEstadoInactivo(prestamo.estado) ? (
                     <span className="text-gray-400">No aplica</span>
                   ) : prestamo.horaConfirmacion ? (
@@ -176,7 +176,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
               </div>
               <div>
                 <span className="text-xs text-gray-600">Hora de Devolución:</span>
-                <p className="text-sm">
+                <p className="text-sm break-words">
                   {esEstadoInactivo(prestamo.estado) ? (
                     <span className="text-gray-400">No aplica</span>
                   ) : prestamo.horaDevolucion ? (
@@ -205,11 +205,11 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <span className="text-xs text-gray-600">Nombre:</span>
-                          <p className="font-semibold">{rec.nombre}</p>
+                          <p className="font-semibold break-words">{rec.nombre}</p>
                         </div>
                         <div>
                           <span className="text-xs text-gray-600">Tipo:</span>
-                          <p className="font-semibold">
+                          <p className="font-semibold break-words">
                             {rec.tipo?.toUpperCase() || "N/A"}
                           </p>
                         </div>
@@ -219,11 +219,11 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                               <span className="text-xs text-gray-600">
                                 Laboratorio:
                               </span>
-                              <p className="font-semibold">{rec.laboratorio}</p>
+                              <p className="font-semibold break-words">{rec.laboratorio}</p>
                             </div>
                             <div>
                               <span className="text-xs text-gray-600">Aula:</span>
-                              <p className="font-semibold">{rec.aula}</p>
+                              <p className="font-semibold break-words">{rec.aula}</p>
                             </div>
                           </>
                         )}
@@ -234,7 +234,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
                             </span>
                             <ul className="list-disc pl-5 mt-1">
                               {rec.contenido.map((item, i) => (
-                                <li key={i} className="text-xs">
+                                <li key={i} className="text-xs break-words">
                                   {item}
                                 </li>
                               ))}
@@ -254,7 +254,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
               <p className="text-sm font-semibold text-gray-700 mb-2">
                 💬 Observaciones
               </p>
-              <p className="text-sm text-gray-700 whitespace-pre-line">
+              <p className="text-sm text-gray-700 whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
                 {prestamo.observaciones}
               </p>
             </div>

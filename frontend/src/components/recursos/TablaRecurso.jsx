@@ -106,15 +106,15 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         onMouseLeave={() => setHoveredContenido(null)}
       >
         {/* ✅ CENTRADO CON FLEXBOX */}
-        <ul className="text-sm flex flex-col items-center">
+        <ul className="text-sm flex flex-col items-start">
           {primerosItems.map((c, i) => (
-            <li key={i} className="flex items-center">
+            <li key={i} className="flex items-start">
               <span className="mr-2">•</span>
               <span>{c}</span>
             </li>
           ))}
           {hayMas && (
-            <li className="flex items-center text-blue-600 cursor-pointer font-semibold">
+            <li className="flex items-start text-blue-600 cursor-pointer font-semibold">
               <span className="mr-2">•</span>
               <span>+{recurso.contenido.length - 2} más...</span>
             </li>

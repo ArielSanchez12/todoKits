@@ -80,8 +80,7 @@ const ModalCancelarTransferencia = ({ transferencia, onClose, onSuccess }) => {
             </p>
             <ul className="list-disc pl-5 mt-2 text-sm text-yellow-700 space-y-1">
               <li>El código QR quedará inhabilitado</li>
-              <li>El docente destino será notificado</li>
-              <li>El préstamo original permanecerá activo contigo</li>
+              <li>El préstamo original permanecerá activo</li>
               <li>Esta acción no se puede deshacer</li>
             </ul>
           </div>

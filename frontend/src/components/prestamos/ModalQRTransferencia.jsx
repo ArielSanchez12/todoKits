@@ -35,7 +35,7 @@ const ModalQRTransferencia = ({ transferencia, qrImage, onClose }) => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("✅ Transferencia enviada por chat al docente destino");
+        toast.success("Transferencia enviada por chat al docente destino");
         onClose(); // Cerrar el modal
       } else {
         toast.error(data.msg || "Error al enviar por chat");
@@ -79,10 +79,11 @@ const ModalQRTransferencia = ({ transferencia, qrImage, onClose }) => {
               📋 Instrucciones
             </p>
             <ol className="text-sm text-gray-700 list-decimal pl-5 space-y-1">
-              <li>Envía este QR al docente por chat</li>
-              <li>El docente debe escanearlo desde su dispositivo</li>
-              <li>Confirmar la transferencia de recursos</li>
-              <li>El docente destino recibirá la notificación</li>
+              <li>Envía este QR al docente destino por chat</li>
+              <li>El docente destino deberá mostrarle el QR al docente origen</li>
+              <li>El docente origen debe escanearlo desde su dispositivo y confirmar la transferencia de recursos</li>
+              <li>Si el docente origen confirma la transferencia de recursos, entonces:</li>
+              <li>El docente destino recibirá una solicitud de prestamo con motivo Transferencia</li>
             </ol>
           </div>
 

@@ -3,14 +3,14 @@ import { IoClose } from "react-icons/io5";
 import { MdCheckCircle, MdCancel } from "react-icons/md";
 import { toast } from "react-toastify";
 import storeTransferencias from "../../context/storeTransferencias";
-import storePrestamos from "../../context/storePrestamos"; // ✅ AGREGAR
+import storePrestamos from "../../context/storePrestamos";
 import storeProfile from "../../context/storeProfile";
 
 const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
   const [observaciones, setObservaciones] = useState("");
   const [loading, setLoading] = useState(false);
   const { responderTransferenciaDestino } = storeTransferencias();
-  const { confirmarPrestamo } = storePrestamos(); // ✅ AGREGAR
+  const { confirmarPrestamo } = storePrestamos();
   const { user } = storeProfile();
 
   const firmaDigital = user?._doc?._id || user?._id;
@@ -20,10 +20,10 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
   const prestamoId = transferencia._id;
 
   // ✅ Extraer datos según el tipo
-  const recursos = esPrestamoTransferencia 
-    ? [transferencia.recurso] 
+  const recursos = esPrestamoTransferencia
+    ? [transferencia.recurso]
     : transferencia.recursos;
-    
+
   const recursosAdicionales = esPrestamoTransferencia
     ? (transferencia.recursosAdicionales || [])
     : (transferencia.recursosAdicionales || []);
@@ -104,12 +104,12 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
             <div className="space-y-2 text-sm">
               <p>
                 <span className="font-semibold">Nombre:</span>{" "}
-                {nombreDocenteOrigen}
+                <span className="break-words">{nombreDocenteOrigen}</span>
               </p>
               {emailDocenteOrigen && (
                 <p>
                   <span className="font-semibold">Email:</span>{" "}
-                  {emailDocenteOrigen}
+                  <span className="break-all">{emailDocenteOrigen}</span>
                 </p>
               )}
             </div>
@@ -127,23 +127,23 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
                   key={recurso._id}
                   className="p-3 bg-white rounded-lg border border-green-200"
                 >
-                  <p className="font-semibold text-sm mb-1">
+                  <p className="font-semibold text-sm mb-1 break-words">
                     {recurso.nombre}
                   </p>
                   <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
                     <p>
                       <span className="font-semibold">Tipo:</span>{" "}
-                      {recurso.tipo?.toUpperCase()}
+                      <span className="break-words">{recurso.tipo?.toUpperCase()}</span>
                     </p>
                     {recurso.laboratorio && (
                       <>
                         <p>
                           <span className="font-semibold">Lab:</span>{" "}
-                          {recurso.laboratorio}
+                          <span className="break-words">{recurso.laboratorio}</span>
                         </p>
                         <p>
                           <span className="font-semibold">Aula:</span>{" "}
-                          {recurso.aula}
+                          <span className="break-words">{recurso.aula}</span>
                         </p>
                       </>
                     )}
@@ -155,7 +155,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
                       </p>
                       <ul className="list-disc pl-5 text-xs text-gray-600">
                         {recurso.contenido.map((item, i) => (
-                          <li key={i}>{item}</li>
+                          <li key={i} className="break-words">{item}</li>
                         ))}
                       </ul>
                     </div>
@@ -174,23 +174,23 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
                       key={recurso._id}
                       className="p-3 bg-white rounded-lg border border-yellow-200"
                     >
-                      <p className="font-semibold text-sm mb-1">
+                      <p className="font-semibold text-sm mb-1 break-words">
                         {recurso.nombre}
                       </p>
                       <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
                         <p>
                           <span className="font-semibold">Tipo:</span>{" "}
-                          {recurso.tipo?.toUpperCase()}
+                          <span className="break-words">{recurso.tipo?.toUpperCase()}</span>
                         </p>
                         {recurso.laboratorio && (
                           <>
                             <p>
                               <span className="font-semibold">Lab:</span>{" "}
-                              {recurso.laboratorio}
+                              <span className="break-words">{recurso.laboratorio}</span>
                             </p>
                             <p>
                               <span className="font-semibold">Aula:</span>{" "}
-                              {recurso.aula}
+                              <span className="break-words">{recurso.aula}</span>
                             </p>
                           </>
                         )}
@@ -202,7 +202,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
                           </p>
                           <ul className="list-disc pl-5 text-xs text-gray-600">
                             {recurso.contenido.map((item, i) => (
-                              <li key={i}>{item}</li>
+                              <li key={i} className="break-words">{item}</li>
                             ))}
                           </ul>
                         </div>
@@ -220,7 +220,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
               <p className="text-sm font-semibold text-gray-700 mb-2">
                 💬 Información de la Transferencia
               </p>
-              <p className="text-sm text-gray-700 whitespace-pre-line">
+              <p className="text-sm text-gray-700 whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
                 {observacionesOrigen}
               </p>
             </div>
@@ -244,7 +244,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               ✍️ Firma Digital (Tu ID)
             </label>
-            <div className="font-mono text-sm bg-white p-2 rounded border border-gray-300 break-all">
+            <div className="font-mono text-sm bg-white p-2 rounded border border-gray-300 break-all overflow-hidden max-h-12">
               {firmaDigital}
             </div>
           </div>

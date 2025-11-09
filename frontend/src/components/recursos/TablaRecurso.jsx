@@ -107,7 +107,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
       >
         <ul className="list-disc pl-4 text-sm">
           {primerosItems.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li className="align-center" key={i}>{c}</li>
           ))}
           {hayMas && (
             <li className="text-blue-600 cursor-pointer font-semibold">

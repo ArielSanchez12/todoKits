@@ -5,7 +5,7 @@ import { useState, useRef } from "react";
 const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
   const { deleteRecurso } = storeRecursos();
   const [hoveredContenido, setHoveredContenido] = useState(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0, direction: 'right' });
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0, direction: "right" });
   const tooltipRef = useRef(null);
   const cellRef = useRef(null);
 
@@ -14,12 +14,10 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
   const REGISTROS_INICIALES = 5;
 
   const recursosFiltrados =
-    filtro === "todos"
-      ? recursos
-      : recursos?.filter((r) => r.tipo === filtro);
+    filtro === "todos" ? recursos : recursos?.filter((r) => r.tipo === filtro);
 
-  const recursosMostrados = mostrarTodos 
-    ? recursosFiltrados 
+  const recursosMostrados = mostrarTodos
+    ? recursosFiltrados
     : recursosFiltrados?.slice(0, REGISTROS_INICIALES);
 
   const hayMasRegistros = recursosFiltrados?.length > REGISTROS_INICIALES;
@@ -59,12 +57,12 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
 
-        let direction = 'right';
+        let direction = "right";
         let top = cellRect.top;
         let left = cellRect.right + 10;
 
         if (left + tooltipRect.width > windowWidth - 20) {
-          direction = 'left';
+          direction = "left";
           left = cellRect.left - tooltipRect.width - 10;
         }
 
@@ -73,12 +71,12 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         }
 
         if (left < 20) {
-          direction = 'bottom';
+          direction = "bottom";
           left = cellRect.left;
           top = cellRect.bottom + 10;
 
           if (top + tooltipRect.height > windowHeight - 20) {
-            direction = 'top';
+            direction = "top";
             top = cellRect.top - tooltipRect.height - 10;
           }
         }
@@ -90,7 +88,11 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
 
   const renderContenido = (recurso) => {
     if (!recurso.contenido || recurso.contenido.length === 0) {
-      return <span className="text-gray-400">No aplica</span>;
+      return (
+        <div className="flex justify-center">
+          <span className="text-gray-400">No aplica</span>
+        </div>
+      );
     }
 
     const primerosItems = recurso.contenido.slice(0, 2);
@@ -99,11 +101,11 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
     return (
       <div
         ref={recurso._id === hoveredContenido ? cellRef : null}
-        className="relative flex justify-center" // 👈 ajuste de alineación
+        className="relative flex justify-center" // centro horizontal con respecto a la cabecera
         onMouseEnter={() => handleMouseEnter(recurso._id)}
         onMouseLeave={() => setHoveredContenido(null)}
       >
-        <ul className="list-disc text-sm text-left inline-block"> {/* 👈 ajuste: centrado con inline-block */}
+        <ul className="list-disc list-inside text-sm text-left space-y-1 inline-block"> {/* izquierda pero centrado global */}
           {primerosItems.map((c, i) => (
             <li key={i}>{c}</li>
           ))}
@@ -132,16 +134,16 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
               ))}
             </ul>
 
-            {tooltipPosition.direction === 'right' && (
+            {tooltipPosition.direction === "right" && (
               <div className="absolute top-3 -left-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-gray-800"></div>
             )}
-            {tooltipPosition.direction === 'left' && (
+            {tooltipPosition.direction === "left" && (
               <div className="absolute top-3 -right-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-gray-800"></div>
             )}
-            {tooltipPosition.direction === 'bottom' && (
+            {tooltipPosition.direction === "bottom" && (
               <div className="absolute -top-2 left-3 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-gray-800"></div>
             )}
-            {tooltipPosition.direction === 'top' && (
+            {tooltipPosition.direction === "top" && (
               <div className="absolute -bottom-2 left-3 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-gray-800"></div>
             )}
           </div>
@@ -157,7 +159,8 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         <div>
           <h2 className="text-xl font-bold">🔧 Gestión de Recursos</h2>
           <p className="text-xs text-gray-300 mt-1">
-            Mostrando {recursosMostrados?.length || 0} de {recursosFiltrados?.length || 0} recursos
+            Mostrando {recursosMostrados?.length || 0} de{" "}
+            {recursosFiltrados?.length || 0} recursos
           </p>
         </div>
         <button
@@ -169,7 +172,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         </button>
       </div>
 
-      {/* ✅ TABLA PEGADA CON shadow-lg */}
+      {/* ✅ TABLA */}
       <div className="overflow-x-auto shadow-lg">
         <table className="w-full table-auto bg-white">
           <thead className="bg-black text-white">
@@ -180,22 +183,22 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
               <th className="p-2">Laboratorio</th>
               <th className="p-2">Aula</th>
               <th className="p-2">Estado</th>
-              <th className="p-2 text-center">Contenido</th> {/* 👈 asegura que el header quede centrado */}
+              <th className="p-2 text-center">Contenido</th>
               <th className="p-2">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {recursosMostrados && recursosMostrados.length > 0 ? (
               recursosMostrados.map((recurso, index) => {
-                const estaBloqueado = recurso.estado === "activo" || recurso.estado === "prestado";
+                const estaBloqueado =
+                  recurso.estado === "activo" || recurso.estado === "prestado";
 
                 return (
                   <tr
                     key={recurso._id}
-                    className={`text-center ${estaBloqueado
-                      ? "bg-gray-100"
-                      : "hover:bg-gray-300"
-                      }`}
+                    className={`text-center ${
+                      estaBloqueado ? "bg-gray-100" : "hover:bg-gray-300"
+                    }`}
                   >
                     <td className="p-2">{index + 1}</td>
                     <td className="p-2 font-semibold">
@@ -208,10 +211,14 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
                     </td>
                     <td className="p-2">{recurso.nombre}</td>
                     <td className="p-2">
-                      {recurso.laboratorio || <span className="text-gray-400">No aplica</span>}
+                      {recurso.laboratorio || (
+                        <span className="text-gray-400">No aplica</span>
+                      )}
                     </td>
                     <td className="p-2">
-                      {recurso.aula || <span className="text-gray-400">No aplica</span>}
+                      {recurso.aula || (
+                        <span className="text-gray-400">No aplica</span>
+                      )}
                     </td>
                     <td className="p-2">
                       <span
@@ -223,30 +230,43 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
                           recurso.estado.slice(1)}
                       </span>
                     </td>
-                    <td className="p-2 text-left align-middle"> {/* 👈 alineado al centro */}
+                    {/* 👇 Celda Contenido centrada pero alineada interna a la izquierda */}
+                    <td className="p-2 text-center align-top">
                       {renderContenido(recurso)}
                     </td>
                     <td className="p-2 flex justify-center gap-2">
                       <MdPublishedWithChanges
-                        className={`h-6 w-6 ${estaBloqueado
-                          ? "text-gray-400 cursor-not-allowed"
-                          : "text-blue-600 cursor-pointer hover:text-blue-800"
-                          }`}
-                        title={estaBloqueado ? "No se puede editar (en préstamo)" : "Editar"}
+                        className={`h-6 w-6 ${
+                          estaBloqueado
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-blue-600 cursor-pointer hover:text-blue-800"
+                        }`}
+                        title={
+                          estaBloqueado
+                            ? "No se puede editar (en préstamo)"
+                            : "Editar"
+                        }
                         onClick={() => {
                           if (estaBloqueado) {
-                            alert("No se puede editar un recurso que está en préstamo activo");
+                            alert(
+                              "No se puede editar un recurso que está en préstamo activo"
+                            );
                           } else {
                             onEdit(recurso);
                           }
                         }}
                       />
                       <MdDeleteForever
-                        className={`h-6 w-6 ${estaBloqueado
-                          ? "text-gray-400 cursor-not-allowed"
-                          : "text-red-600 cursor-pointer hover:text-red-800"
-                          }`}
-                        title={estaBloqueado ? "No se puede eliminar (en préstamo)" : "Eliminar"}
+                        className={`h-6 w-6 ${
+                          estaBloqueado
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-red-600 cursor-pointer hover:text-red-800"
+                        }`}
+                        title={
+                          estaBloqueado
+                            ? "No se puede eliminar (en préstamo)"
+                            : "Eliminar"
+                        }
                         onClick={() => handleDelete(recurso._id, recurso)}
                       />
                     </td>

@@ -149,7 +149,7 @@ const Dashboard = () => {
                             bg-red-700 px-7 py-1 rounded-lg hover:scale-115 duration-300" onClick={() => clearToken()}>Salir</button>
                         </div>
                     </div>
-                    <div className='overflow-y-scroll p-8'>
+                    <div className='flex-1 overflow-y-auto p-8 w-full'>
                         <Outlet />
                     </div>
                 </div>

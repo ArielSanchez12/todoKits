@@ -97,7 +97,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("✅ Transferencia enviada por chat al docente destino");
+        toast.success("Transferencia enviada por chat al docente destino");
       } else {
         toast.error(data.msg || "Error al enviar por chat");
       }
@@ -157,7 +157,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             {esTransferenciaCaducada() && (
               <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-700 font-semibold">
-                  ⚠️ Esta transferencia ya no está activa ({transferencia.estado})
+                  Esta transferencia ya no está activa ({transferencia.estado})
                 </p>
                 <p className="text-xs text-red-600 mt-1">
                   El código QR y los enlaces asociados ya no son válidos.
@@ -275,7 +275,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                   <p className={`text-xs ${esTransferenciaCaducada() ? 'text-red-800' : 'text-yellow-800'}`}>
                     <strong>💡 Instrucciones:</strong>{" "}
                     {esTransferenciaCaducada()
-                      ? "Esta transferencia ya no está activa y no puede ser escaneada."
+                      ? "Esta transferencia ya no está activa y no puede ser procesada."
                       : "El docente origen debe escanear este QR para confirmar la transferencia. Puedes reenviar el mensaje por chat si es necesario."}
                   </p>
                 </div>

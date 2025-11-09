@@ -377,130 +377,132 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
       )}
 
       {modalConfirmar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
-            <h3 className="text-xl font-bold mb-4">Confirmar Préstamo</h3>
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-4">Confirmar Préstamo</h3>
 
-            {/* Recurso principal completo */}
-            <div className="bg-blue-50 p-4 rounded-lg mb-4">
-              <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="text-xs text-gray-600">Nombre:</span>
-                  <p className="font-semibold">{modalConfirmar.recurso?.nombre || "N/A"}</p>
-                </div>
-                <div>
-                  <span className="text-xs text-gray-600">Tipo:</span>
-                  <p className="font-semibold">{modalConfirmar.recurso?.tipo?.toUpperCase() || "N/A"}</p>
-                </div>
-                {modalConfirmar.recurso?.laboratorio && (
-                  <>
-                    <div>
-                      <span className="text-xs text-gray-600">Laboratorio:</span>
-                      <p className="font-semibold">{modalConfirmar.recurso.laboratorio}</p>
-                    </div>
-                    <div>
-                      <span className="text-xs text-gray-600">Aula:</span>
-                      <p className="font-semibold">{modalConfirmar.recurso.aula}</p>
-                    </div>
-                  </>
-                )}
-                {Array.isArray(modalConfirmar.recurso?.contenido) &&
-                  modalConfirmar.recurso.contenido.length > 0 && (
-                    <div className="col-span-2">
-                      <span className="text-xs text-gray-600">Contenido:</span>
-                      <ul className="list-disc pl-5 mt-1 space-y-1">
-                        {modalConfirmar.recurso.contenido.map((item, i) => (
-                          <li key={i} className="text-xs">{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-              </div>
-            </div>
-
-            {/* Recursos adicionales completos */}
-            {Array.isArray(modalConfirmar.recursosAdicionales) &&
-              modalConfirmar.recursosAdicionales.length > 0 && (
-                <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
-                  <div className="space-y-3">
-                    {modalConfirmar.recursosAdicionales.map((rec) => (
-                      <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
-                        <div className="grid grid-cols-2 gap-3 text-xs">
-                          <div>
-                            <span className="text-[11px] text-gray-600">Nombre:</span>
-                            <p className="font-semibold">{rec.nombre}</p>
-                          </div>
-                          <div>
-                            <span className="text-[11px] text-gray-600">Tipo:</span>
-                            <p className="font-semibold">{rec.tipo?.toUpperCase() || "N/A"}</p>
-                          </div>
-                          {rec.laboratorio && (
-                            <>
-                              <div>
-                                <span className="text-[11px] text-gray-600">Laboratorio:</span>
-                                <p className="font-semibold">{rec.laboratorio}</p>
-                              </div>
-                              <div>
-                                <span className="text-[11px] text-gray-600">Aula:</span>
-                                <p className="font-semibold">{rec.aula}</p>
-                              </div>
-                            </>
-                          )}
-                          {Array.isArray(rec.contenido) && rec.contenido.length > 0 && (
-                            <div className="col-span-2">
-                              <span className="text-[11px] text-gray-600">Contenido:</span>
-                              <ul className="list-disc pl-5 mt-1 space-y-0.5">
-                                {rec.contenido.map((c, idx) => (
-                                  <li key={idx} className="text-[11px]">{c}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+              {/* Recurso principal completo */}
+              <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-xs text-gray-600">Nombre:</span>
+                    <p className="font-semibold">{modalConfirmar.recurso?.nombre || "N/A"}</p>
                   </div>
+                  <div>
+                    <span className="text-xs text-gray-600">Tipo:</span>
+                    <p className="font-semibold">{modalConfirmar.recurso?.tipo?.toUpperCase() || "N/A"}</p>
+                  </div>
+                  {modalConfirmar.recurso?.laboratorio && (
+                    <>
+                      <div>
+                        <span className="text-xs text-gray-600">Laboratorio:</span>
+                        <p className="font-semibold">{modalConfirmar.recurso.laboratorio}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-600">Aula:</span>
+                        <p className="font-semibold">{modalConfirmar.recurso.aula}</p>
+                      </div>
+                    </>
+                  )}
+                  {Array.isArray(modalConfirmar.recurso?.contenido) &&
+                    modalConfirmar.recurso.contenido.length > 0 && (
+                      <div className="col-span-2">
+                        <span className="text-xs text-gray-600">Contenido:</span>
+                        <ul className="list-disc pl-5 mt-1 space-y-1">
+                          {modalConfirmar.recurso.contenido.map((item, i) => (
+                            <li key={i} className="text-xs">{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                 </div>
-              )}
+              </div>
 
-            <p className="mb-4 text-sm text-gray-700">
-              ¿Deseas confirmar este préstamo? Se registrará la hora actual de confirmación.
-            </p>
+              {/* Recursos adicionales completos */}
+              {Array.isArray(modalConfirmar.recursosAdicionales) &&
+                modalConfirmar.recursosAdicionales.length > 0 && (
+                  <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                    <div className="space-y-3">
+                      {modalConfirmar.recursosAdicionales.map((rec) => (
+                        <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <span className="text-[11px] text-gray-600">Nombre:</span>
+                              <p className="font-semibold">{rec.nombre}</p>
+                            </div>
+                            <div>
+                              <span className="text-[11px] text-gray-600">Tipo:</span>
+                              <p className="font-semibold">{rec.tipo?.toUpperCase() || "N/A"}</p>
+                            </div>
+                            {rec.laboratorio && (
+                              <>
+                                <div>
+                                  <span className="text-[11px] text-gray-600">Laboratorio:</span>
+                                  <p className="font-semibold">{rec.laboratorio}</p>
+                                </div>
+                                <div>
+                                  <span className="text-[11px] text-gray-600">Aula:</span>
+                                  <p className="font-semibold">{rec.aula}</p>
+                                </div>
+                              </>
+                            )}
+                            {Array.isArray(rec.contenido) && rec.contenido.length > 0 && (
+                              <div className="col-span-2">
+                                <span className="text-[11px] text-gray-600">Contenido:</span>
+                                <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                                  {rec.contenido.map((c, idx) => (
+                                    <li key={idx} className="text-[11px]">{c}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">O rechazar el préstamo:</label>
-              <textarea
-                value={motivoRechazo}
-                onChange={(e) => setMotivoRechazo(e.target.value)}
-                placeholder="Motivo del rechazo (obligatorio si rechaza)"
-                className="w-full p-2 border rounded-lg text-sm"
-                rows={3}
-              />
-            </div>
+              <p className="mb-4 text-sm text-gray-700">
+                ¿Deseas confirmar este préstamo? Se registrará la hora actual de confirmación.
+              </p>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleConfirmar(modalConfirmar._id)}
-                disabled={loading}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
-              >
-                {loading ? "Procesando..." : "Confirmar"}
-              </button>
-              <button
-                onClick={() => handleRechazar(modalConfirmar._id)}
-                disabled={loading || !motivoRechazo.trim()}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
-              >
-                Rechazar
-              </button>
-              <button
-                onClick={() => { setModalConfirmar(null); setMotivoRechazo(""); }}
-                className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
-              >
-                Cancelar
-              </button>
+              <div className="mb-4">
+                <label className="block text-sm font-semibold mb-2">O rechazar el préstamo:</label>
+                <textarea
+                  value={motivoRechazo}
+                  onChange={(e) => setMotivoRechazo(e.target.value)}
+                  placeholder="Motivo del rechazo (obligatorio si rechaza)"
+                  className="w-full p-2 border rounded-lg text-sm"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleConfirmar(modalConfirmar._id)}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+                >
+                  {loading ? "Procesando..." : "Confirmar"}
+                </button>
+                <button
+                  onClick={() => handleRechazar(modalConfirmar._id)}
+                  disabled={loading || !motivoRechazo.trim()}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
+                >
+                  Rechazar
+                </button>
+                <button
+                  onClick={() => { setModalConfirmar(null); setMotivoRechazo(""); }}
+                  className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -508,52 +510,129 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
       {modalDevolver && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
-            <h3 className="text-xl font-bold mb-4">Devolver Recurso</h3>
-            <div className="mb-4 bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Recurso:</p>
-              <p className="font-semibold">{modalDevolver.recurso?.nombre}</p>
-              <p className="text-xs text-gray-600 mt-1">
-                Confirmado: {formatFecha(modalDevolver.horaConfirmacion)} a las{" "}
-                {formatHora(modalDevolver.horaConfirmacion)}
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-4">Devolver Recurso</h3>
+
+              {/* Recurso principal completo */}
+              <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-xs text-gray-600">Nombre:</span>
+                    <p className="font-semibold">{modalDevolver.recurso?.nombre || "N/A"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-600">Tipo:</span>
+                    <p className="font-semibold">{modalDevolver.recurso?.tipo?.toUpperCase() || "N/A"}</p>
+                  </div>
+                  {modalDevolver.recurso?.laboratorio && (
+                    <>
+                      <div>
+                        <span className="text-xs text-gray-600">Laboratorio:</span>
+                        <p className="font-semibold">{modalDevolver.recurso.laboratorio}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-600">Aula:</span>
+                        <p className="font-semibold">{modalDevolver.recurso.aula}</p>
+                      </div>
+                    </>
+                  )}
+                  {Array.isArray(modalDevolver.recurso?.contenido) &&
+                    modalDevolver.recurso.contenido.length > 0 && (
+                      <div className="col-span-2">
+                        <span className="text-xs text-gray-600">Contenido:</span>
+                        <ul className="list-disc pl-5 mt-1 space-y-1">
+                          {modalDevolver.recurso.contenido.map((item, i) => (
+                            <li key={i} className="text-xs">{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                </div>
+                <p className="text-xs text-gray-600 mt-3">
+                  Confirmado: {formatFecha(modalDevolver.horaConfirmacion)} a las {formatHora(modalDevolver.horaConfirmacion)}
+                </p>
+              </div>
+
+              {/* Recursos adicionales completos */}
+              {Array.isArray(modalDevolver.recursosAdicionales) &&
+                modalDevolver.recursosAdicionales.length > 0 && (
+                  <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                    <div className="space-y-3">
+                      {modalDevolver.recursosAdicionales.map((rec) => (
+                        <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <span className="text-[11px] text-gray-600">Nombre:</span>
+                              <p className="font-semibold">{rec.nombre}</p>
+                            </div>
+                            <div>
+                              <span className="text-[11px] text-gray-600">Tipo:</span>
+                              <p className="font-semibold">{rec.tipo?.toUpperCase() || "N/A"}</p>
+                            </div>
+                            {rec.laboratorio && (
+                              <>
+                                <div>
+                                  <span className="text-[11px] text-gray-600">Laboratorio:</span>
+                                  <p className="font-semibold">{rec.laboratorio}</p>
+                                </div>
+                                <div>
+                                  <span className="text-[11px] text-gray-600">Aula:</span>
+                                  <p className="font-semibold">{rec.aula}</p>
+                                </div>
+                              </>
+                            )}
+                            {Array.isArray(rec.contenido) && rec.contenido.length > 0 && (
+                              <div className="col-span-2">
+                                <span className="text-[11px] text-gray-600">Contenido:</span>
+                                <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                                  {rec.contenido.map((c, idx) => (
+                                    <li key={idx} className="text-[11px]">{c}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold mb-2">
+                  Observaciones de devolución (opcional):
+                </label>
+                <textarea
+                  value={observacionesDevolucion}
+                  onChange={(e) => setObservacionesDevolucion(e.target.value)}
+                  placeholder="Ej: Todo en orden, sin novedades"
+                  className="w-full p-2 border rounded-lg text-sm"
+                  rows={3}
+                />
+              </div>
+
+              <p className="text-sm text-gray-600 mb-4">
+                ⏰ Se registrará la hora actual de devolución y el recurso quedará disponible nuevamente.
               </p>
-            </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">
-                Observaciones de devolución (opcional):
-              </label>
-              <textarea
-                value={observacionesDevolucion}
-                onChange={(e) => setObservacionesDevolucion(e.target.value)}
-                placeholder="Ej: Todo en orden, sin novedades"
-                className="w-full p-2 border rounded-lg text-sm"
-                rows={3}
-              />
-            </div>
-
-            <p className="text-sm text-gray-600 mb-4">
-              ⏰ Se registrará la hora actual de devolución y el recurso quedará
-              disponible nuevamente.
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleDevolver(modalDevolver._id)}
-                disabled={loading}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-              >
-                {loading ? "Procesando..." : "Confirmar Devolución"}
-              </button>
-              <button
-                onClick={() => {
-                  setModalDevolver(null);
-                  setObservacionesDevolucion("");
-                }}
-                className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
-              >
-                Cancelar
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleDevolver(modalDevolver._id)}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                >
+                  {loading ? "Procesando..." : "Confirmar Devolución"}
+                </button>
+                <button
+                  onClick={() => { setModalDevolver(null); setObservacionesDevolucion(""); }}
+                  className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
         </div>

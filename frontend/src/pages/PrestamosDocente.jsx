@@ -158,7 +158,10 @@ const PrestamosDocente = () => {
       ) : (
         <div className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
           <p className="text-sm text-gray-700">
-            <strong>Historial de Préstamos:</strong> Aquí se muestran todos los préstamos que has finalizado.
+            <strong>Historial de Préstamos</strong> 
+            Aquí se muestran todos los préstamos que has finalizado.
+            En acciones podrás ver los detalles completos de cada préstamo.
+            Para obtener los últimos registros asegurate de actualizar la tabla.
           </p>
         </div>
       )}

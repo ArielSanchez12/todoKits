@@ -293,9 +293,15 @@ const confirmarPrestamo = async (req, res) => {
       }
 
       await prestamoExistente.save();
+
+      const prestamoPopulado = await prestamo
+        .findById(prestamoExistente._id)
+        .populate("recurso", "nombre tipo laboratorio aula contenido")
+        .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido");
+
       res.status(200).json({
         msg: "Préstamo confirmado exitosamente",
-        prestamo: prestamoExistente
+        prestamo: prestamoPopulado
       });
     } else {
       // RECHAZAR PRÉSTAMO
@@ -317,7 +323,13 @@ const confirmarPrestamo = async (req, res) => {
       }
 
       await prestamoExistente.save();
-      res.status(200).json({ msg: "Préstamo rechazado", prestamo: prestamoExistente });
+
+      const prestamoPopulado = await prestamo
+        .findById(prestamoExistente._id)
+        .populate("recurso", "nombre tipo laboratorio aula contenido")
+        .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido");
+
+      res.status(200).json({ msg: "Préstamo rechazado", prestamo: prestamoPopulado });
     }
   } catch (error) {
     console.error("Error al confirmar préstamo:", error);

@@ -152,8 +152,8 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const prestamosFiltrados = prestamosFiltradosPorFecha();
 
   // ✅ FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
-  const prestamosMostrados = mostrarTodos 
-    ? prestamosFiltrados 
+  const prestamosMostrados = mostrarTodos
+    ? prestamosFiltrados
     : prestamosFiltrados?.slice(0, REGISTROS_INICIALES);
 
   // ✅ VERIFICAR SI HAY MÁS REGISTROS
@@ -380,24 +380,97 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
             <h3 className="text-xl font-bold mb-4">Confirmar Préstamo</h3>
-            <div className="mb-4 bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Recurso:</p>
-              <p className="font-semibold">{modalConfirmar.recurso?.nombre}</p>
-              <p className="text-xs text-gray-600 mt-2">
-                {modalConfirmar.recurso?.laboratorio &&
-                  `${modalConfirmar.recurso.laboratorio} - ${modalConfirmar.recurso.aula}`}
-              </p>
+
+            {/* Recurso principal completo */}
+            <div className="bg-blue-50 p-4 rounded-lg mb-4">
+              <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-xs text-gray-600">Nombre:</span>
+                  <p className="font-semibold">{modalConfirmar.recurso?.nombre || "N/A"}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-gray-600">Tipo:</span>
+                  <p className="font-semibold">{modalConfirmar.recurso?.tipo?.toUpperCase() || "N/A"}</p>
+                </div>
+                {modalConfirmar.recurso?.laboratorio && (
+                  <>
+                    <div>
+                      <span className="text-xs text-gray-600">Laboratorio:</span>
+                      <p className="font-semibold">{modalConfirmar.recurso.laboratorio}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-600">Aula:</span>
+                      <p className="font-semibold">{modalConfirmar.recurso.aula}</p>
+                    </div>
+                  </>
+                )}
+                {Array.isArray(modalConfirmar.recurso?.contenido) &&
+                  modalConfirmar.recurso.contenido.length > 0 && (
+                    <div className="col-span-2">
+                      <span className="text-xs text-gray-600">Contenido:</span>
+                      <ul className="list-disc pl-5 mt-1 space-y-1">
+                        {modalConfirmar.recurso.contenido.map((item, i) => (
+                          <li key={i} className="text-xs">{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+              </div>
             </div>
 
+            {/* Recursos adicionales completos */}
+            {Array.isArray(modalConfirmar.recursosAdicionales) &&
+              modalConfirmar.recursosAdicionales.length > 0 && (
+                <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                  <div className="space-y-3">
+                    {modalConfirmar.recursosAdicionales.map((rec) => (
+                      <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div>
+                            <span className="text-[11px] text-gray-600">Nombre:</span>
+                            <p className="font-semibold">{rec.nombre}</p>
+                          </div>
+                          <div>
+                            <span className="text-[11px] text-gray-600">Tipo:</span>
+                            <p className="font-semibold">{rec.tipo?.toUpperCase() || "N/A"}</p>
+                          </div>
+                          {rec.laboratorio && (
+                            <>
+                              <div>
+                                <span className="text-[11px] text-gray-600">Laboratorio:</span>
+                                <p className="font-semibold">{rec.laboratorio}</p>
+                              </div>
+                              <div>
+                                <span className="text-[11px] text-gray-600">Aula:</span>
+                                <p className="font-semibold">{rec.aula}</p>
+                              </div>
+                            </>
+                          )}
+                          {Array.isArray(rec.contenido) && rec.contenido.length > 0 && (
+                            <div className="col-span-2">
+                              <span className="text-[11px] text-gray-600">Contenido:</span>
+                              <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                                {rec.contenido.map((c, idx) => (
+                                  <li key={idx} className="text-[11px]">{c}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
             <p className="mb-4 text-sm text-gray-700">
-              ¿Deseas confirmar este préstamo? Se registrará la hora actual de
-              confirmación.
+              ¿Deseas confirmar este préstamo? Se registrará la hora actual de confirmación.
             </p>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">
-                O rechazar el préstamo:
-              </label>
+              <label className="block text-sm font-semibold mb-2">O rechazar el préstamo:</label>
               <textarea
                 value={motivoRechazo}
                 onChange={(e) => setMotivoRechazo(e.target.value)}
@@ -423,10 +496,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                 Rechazar
               </button>
               <button
-                onClick={() => {
-                  setModalConfirmar(null);
-                  setMotivoRechazo("");
-                }}
+                onClick={() => { setModalConfirmar(null); setMotivoRechazo(""); }}
                 className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
               >
                 Cancelar
@@ -437,7 +507,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
       )}
 
       {modalDevolver && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
             <h3 className="text-xl font-bold mb-4">Devolver Recurso</h3>
             <div className="mb-4 bg-gray-50 p-4 rounded-lg">

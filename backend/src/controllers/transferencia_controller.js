@@ -44,6 +44,20 @@ const crearTransferencia = async (req, res) => {
     // Generar código único para QR
     const codigoQR = uuidv4();
 
+    // ✅ NUEVO: Cancelar transferencias anteriores del mismo préstamo que estén pendientes
+    await Transferencia.updateMany(
+      {
+        prestamoOriginal: prestamoId,
+        estado: { $in: ["pendiente_origen", "confirmado_origen"] }
+      },
+      {
+        estado: "cancelado",
+        $push: {
+          observacionesOrigen: "\n[AUTO-CANCELADO] Nueva transferencia solicitada para este préstamo"
+        }
+      }
+    );
+
     // Crear transferencia
     const transferencia = await Transferencia.create({
       prestamoOriginal: prestamoId,
@@ -105,6 +119,33 @@ const obtenerTransferenciaPorQR = async (req, res) => {
 
     if (!transferencia) {
       return res.status(404).json({ msg: "Transferencia no encontrada" });
+    }
+
+    // ✅ NUEVO: Validar si la transferencia está caducada
+    const estadosInvalidos = ["cancelado", "rechazado", "finalizado"];
+    if (estadosInvalidos.includes(transferencia.estado)) {
+      return res.status(410).json({
+        msg: "Transferencia caducada",
+        estado: transferencia.estado,
+        caducada: true
+      });
+    }
+
+    // ✅ NUEVO: Validar si hay una transferencia más reciente del mismo préstamo
+    if (transferencia.prestamoOriginal) {
+      const transferenciaMasReciente = await Transferencia.findOne({
+        prestamoOriginal: transferencia.prestamoOriginal._id,
+        createdAt: { $gt: transferencia.createdAt },
+        estado: { $nin: ["cancelado", "rechazado"] }
+      });
+
+      if (transferenciaMasReciente) {
+        return res.status(410).json({
+          msg: "Transferencia caducada - Existe una solicitud más reciente",
+          caducada: true,
+          transferenciaNueva: transferenciaMasReciente.codigoQR
+        });
+      }
     }
 
     res.json(transferencia);
@@ -427,7 +468,7 @@ const cancelarTransferencia = async (req, res) => {
     if (!["pendiente_origen", "confirmado_origen"].includes(transferencia.estado)) {
       return res.status(400).json({
         msg: "Esta transferencia no puede ser cancelada",
-        detalle: transferencia.estado === "finalizado" 
+        detalle: transferencia.estado === "finalizado"
           ? "La transferencia ya fue completada"
           : "La transferencia ya fue procesada",
         estadoActual: transferencia.estado
@@ -437,7 +478,7 @@ const cancelarTransferencia = async (req, res) => {
     // Si ya había un préstamo pendiente creado para el destino, eliminarlo
     if (transferencia.estado === "confirmado_origen") {
       console.log("🗑️ Buscando préstamo pendiente generado para el docente destino...");
-      
+
       // Buscar el préstamo pendiente que se creó al confirmar origen
       const prestamoPendiente = await Prestamo.findOne({
         docente: transferencia.docenteDestino._id,
@@ -448,7 +489,7 @@ const cancelarTransferencia = async (req, res) => {
 
       if (prestamoPendiente) {
         console.log("✅ Préstamo pendiente encontrado:", prestamoPendiente._id);
-        
+
         // Eliminar el préstamo pendiente
         await Prestamo.findByIdAndDelete(prestamoPendiente._id);
         console.log("🗑️ Préstamo pendiente eliminado");

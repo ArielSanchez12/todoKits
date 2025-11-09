@@ -13,8 +13,7 @@ const ConfirmarTransferencia = () => {
   const [loading, setLoading] = useState(true);
   const [confirmando, setConfirmando] = useState(false);
   const [error, setError] = useState(null);
-  
-  // ✅ AGREGAR: Estados para el formulario
+
   const [observaciones, setObservaciones] = useState("");
   const [firma, setFirma] = useState("");
 
@@ -40,22 +39,38 @@ const ConfirmarTransferencia = () => {
       if (!data) {
         setError("Transferencia no encontrada");
         toast.error("La transferencia no existe o ha expirado");
+        // ✅ NUEVO: Redirigir a NotFound
+        navigate("/notfound", { replace: true });
+        return;
+      }
+
+      // ✅ NUEVO: Validar si está caducada (backend devuelve 410)
+      if (data.caducada) {
+        toast.error(data.msg || "Esta transferencia ya no está activa");
+        navigate("/notfound", { replace: true });
         return;
       }
 
       setTransferencia(data);
-      // ✅ Pre-llenar firma con nombre del docente
       setFirma(nombreCompleto);
     } catch (err) {
       console.error("❌ Error al cargar transferencia:", err);
+
+      // ✅ NUEVO: Detectar error 410 (caducada)
+      if (err.status === 410 || err.message?.includes("caducada")) {
+        toast.error("Transferencia caducada o cancelada");
+        navigate("/notfound", { replace: true });
+        return;
+      }
+
       setError(err.message || "Error al cargar la transferencia");
       toast.error("Error al cargar la transferencia");
+      navigate("/notfound", { replace: true });
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ AGREGAR: Manejar el formulario
   const handleConfirmarTransferencia = async (e) => {
     e.preventDefault();
 
@@ -69,7 +84,6 @@ const ConfirmarTransferencia = () => {
       return;
     }
 
-    // ✅ Validar que sea el docente origen
     if (transferencia.docenteOrigen._id !== docenteId) {
       toast.error("No tienes permisos para confirmar esta transferencia");
       return;
@@ -144,7 +158,6 @@ const ConfirmarTransferencia = () => {
           </p>
         </div>
 
-        {/* ✅ CAMBIO: Usar form en lugar de div */}
         <form onSubmit={handleConfirmarTransferencia}>
           <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
             {/* Estado */}
@@ -227,7 +240,6 @@ const ConfirmarTransferencia = () => {
               </div>
             </div>
 
-            {/* ✅ AGREGAR: Observaciones */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Observaciones del Estado de los Recursos
@@ -240,7 +252,6 @@ const ConfirmarTransferencia = () => {
               />
             </div>
 
-            {/* ✅ AGREGAR: Firma */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Firma Digital *
@@ -255,7 +266,6 @@ const ConfirmarTransferencia = () => {
               />
             </div>
 
-            {/* Advertencia */}
             <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
               <p className="text-sm text-amber-800">
                 <span className="font-semibold">⚠️ Importante:</span> Al confirmar,
@@ -263,7 +273,6 @@ const ConfirmarTransferencia = () => {
               </p>
             </div>
 
-            {/* ✅ CAMBIO: Actualizar botones */}
             <div className="flex gap-4 pt-6 border-t">
               <button
                 type="button"
@@ -276,11 +285,10 @@ const ConfirmarTransferencia = () => {
               <button
                 type="submit"
                 disabled={confirmando || transferencia.estado !== "pendiente_origen"}
-                className={`flex-1 px-6 py-3 rounded-lg transition-colors font-semibold text-white ${
-                  transferencia.estado !== "pendiente_origen"
+                className={`flex-1 px-6 py-3 rounded-lg transition-colors font-semibold text-white ${transferencia.estado !== "pendiente_origen"
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-green-600 hover:bg-green-700"
-                } disabled:opacity-50`}
+                  } disabled:opacity-50`}
               >
                 {confirmando ? "Confirmando..." : "✅ Confirmar Transferencia"}
               </button>

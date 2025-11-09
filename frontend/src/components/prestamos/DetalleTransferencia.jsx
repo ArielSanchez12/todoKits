@@ -8,7 +8,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
 
   // ✅ URL quemada como solicitaste
   const urlQR = `https://kitsfrontend-zeta.vercel.app/dashboard/transferencia/${transferencia.codigoQR}`;
-  
+
   // ✅ Usar API de QR Server para generar imagen
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
 
@@ -109,6 +109,14 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
     }
   };
 
+  // ✅ NUEVO: Validar si la transferencia está caducada
+  const esTransferenciaCaducada = () => {
+    const estadosInvalidos = ["cancelado", "rechazado", "finalizado"];
+    return estadosInvalidos.includes(transferencia.estado);
+  };
+
+  const puedeEnviarPorChat = !esTransferenciaCaducada();
+
   return (
     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -144,29 +152,52 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             <p className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               📱 Código QR de Transferencia
             </p>
+
+            {/* ✅ NUEVO: Alerta si está caducada */}
+            {esTransferenciaCaducada() && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-700 font-semibold">
+                  ⚠️ Esta transferencia ya no está activa ({transferencia.estado})
+                </p>
+                <p className="text-xs text-red-600 mt-1">
+                  El código QR y los enlaces asociados ya no son válidos.
+                </p>
+              </div>
+            )}
+
             <div className="grid md:grid-cols-2 gap-6">
               {/* Imagen QR */}
               <div className="flex flex-col items-center">
-                <div className="border-4 border-white rounded-lg shadow-lg bg-white p-2">
+                <div className={`border-4 border-white rounded-lg shadow-lg bg-white p-2 ${esTransferenciaCaducada() ? 'opacity-40 grayscale' : ''}`}>
                   <img
                     src={qrImageUrl}
                     alt="QR Transferencia"
                     className="w-64 h-64"
                   />
                 </div>
-                {/* ✅ BOTONES MEJORADOS: Descargar y Enviar por Chat lado a lado */}
                 <div className="mt-4 flex gap-2 w-full max-w-xs">
                   <button
                     onClick={handleDescargarQR}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                    disabled={esTransferenciaCaducada()}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors font-semibold ${esTransferenciaCaducada()
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-gray-600 text-white hover:bg-gray-700'
+                      }`}
+                    title={esTransferenciaCaducada() ? "QR caducado" : "Descargar QR"}
                   >
                     <MdDownload size={20} />
                     Descargar
                   </button>
                   <button
                     onClick={handleEnviarPorChat}
-                    disabled={loading}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    disabled={loading || !puedeEnviarPorChat}
+                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors font-semibold ${!puedeEnviarPorChat
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : loading
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
+                    title={!puedeEnviarPorChat ? "Transferencia caducada" : "Enviar por chat"}
                   >
                     <MdChat size={20} />
                     {loading ? "Enviando..." : "Enviar"}
@@ -176,7 +207,6 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
 
               {/* URLs */}
               <div className="flex flex-col justify-center space-y-4">
-                {/* ✅ URL DE TRANSFERENCIA (original) */}
                 <div>
                   <label className="text-xs font-semibold text-gray-600 mb-1 block">
                     🔗 URL de Transferencia
@@ -186,19 +216,26 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                       type="text"
                       readOnly
                       value={urlQR}
-                      className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
+                      disabled={esTransferenciaCaducada()}
+                      className={`flex-1 text-xs px-3 py-2 rounded border font-mono ${esTransferenciaCaducada()
+                          ? 'bg-gray-100 text-gray-400 border-gray-200'
+                          : 'bg-white border-gray-300'
+                        }`}
                     />
                     <button
                       onClick={handleCopiarURL}
-                      className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
-                      title="Copiar URL"
+                      disabled={esTransferenciaCaducada()}
+                      className={`p-2 rounded transition-colors ${esTransferenciaCaducada()
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-gray-600 text-white hover:bg-gray-700'
+                        }`}
+                      title={esTransferenciaCaducada() ? "URL caducada" : "Copiar URL"}
                     >
                       <MdContentCopy size={18} />
                     </button>
                   </div>
                 </div>
 
-                {/* ✅ NUEVA: URL DEL CÓDIGO QR */}
                 <div>
                   <label className="text-xs font-semibold text-gray-600 mb-1 block">
                     🖼️ URL del Código QR
@@ -208,26 +245,38 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                       type="text"
                       readOnly
                       value={qrImageUrl}
-                      className="flex-1 text-xs bg-white px-3 py-2 rounded border border-gray-300 font-mono"
+                      disabled={esTransferenciaCaducada()}
+                      className={`flex-1 text-xs px-3 py-2 rounded border font-mono ${esTransferenciaCaducada()
+                          ? 'bg-gray-100 text-gray-400 border-gray-200'
+                          : 'bg-white border-gray-300'
+                        }`}
                     />
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(qrImageUrl);
                         toast.success("URL del QR copiada");
                       }}
-                      className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
-                      title="Copiar URL del QR"
+                      disabled={esTransferenciaCaducada()}
+                      className={`p-2 rounded transition-colors ${esTransferenciaCaducada()
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-gray-600 text-white hover:bg-gray-700'
+                        }`}
+                      title={esTransferenciaCaducada() ? "URL caducada" : "Copiar URL del QR"}
                     >
                       <MdContentCopy size={18} />
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
-                  <p className="text-xs text-yellow-800">
-                    <strong>💡 Instrucciones:</strong> El docente origen debe
-                    escanear este QR para confirmar la transferencia. Puedes reenviar
-                    el mensaje por chat si es necesario.
+                <div className={`p-3 rounded border ${esTransferenciaCaducada()
+                    ? 'bg-red-50 border-red-200'
+                    : 'bg-yellow-50 border-yellow-200'
+                  }`}>
+                  <p className={`text-xs ${esTransferenciaCaducada() ? 'text-red-800' : 'text-yellow-800'}`}>
+                    <strong>💡 Instrucciones:</strong>{" "}
+                    {esTransferenciaCaducada()
+                      ? "Esta transferencia ya no está activa y no puede ser escaneada."
+                      : "El docente origen debe escanear este QR para confirmar la transferencia. Puedes reenviar el mensaje por chat si es necesario."}
                   </p>
                 </div>
               </div>
@@ -466,32 +515,32 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
           {/* Observaciones */}
           {(transferencia.observacionesOrigen ||
             transferencia.observacionesDestino) && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm font-semibold text-gray-700 mb-2">
-                💬 Observaciones
-              </p>
-              {transferencia.observacionesOrigen && (
-                <div className="mb-3">
-                  <span className="text-xs font-semibold text-gray-600">
-                    Origen:
-                  </span>
-                  <p className="text-sm text-gray-700 whitespace-pre-line">
-                    {transferencia.observacionesOrigen}
-                  </p>
-                </div>
-              )}
-              {transferencia.observacionesDestino && (
-                <div>
-                  <span className="text-xs font-semibold text-gray-600">
-                    Destino:
-                  </span>
-                  <p className="text-sm text-gray-700 whitespace-pre-line">
-                    {transferencia.observacionesDestino}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm font-semibold text-gray-700 mb-2">
+                  💬 Observaciones
+                </p>
+                {transferencia.observacionesOrigen && (
+                  <div className="mb-3">
+                    <span className="text-xs font-semibold text-gray-600">
+                      Origen:
+                    </span>
+                    <p className="text-sm text-gray-700 whitespace-pre-line">
+                      {transferencia.observacionesOrigen}
+                    </p>
+                  </div>
+                )}
+                {transferencia.observacionesDestino && (
+                  <div>
+                    <span className="text-xs font-semibold text-gray-600">
+                      Destino:
+                    </span>
+                    <p className="text-sm text-gray-700 whitespace-pre-line">
+                      {transferencia.observacionesDestino}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
           {/* Botón Cerrar */}
           <div className="pt-4 border-t">

@@ -58,6 +58,20 @@ const storeTransferencias = create(
           const response = await fetch(
             `${import.meta.env.VITE_BACKEND_URL}/transferencia/${codigoQR}`
           );
+
+          // ✅ NUEVO: Manejar error 410 (transferencia caducada)
+          if (response.status === 410) {
+            const data = await response.json();
+            const error = new Error(data.msg || "Transferencia caducada");
+            error.status = 410;
+            error.caducada = true;
+            throw error;
+          }
+
+          if (!response.ok) {
+            throw new Error("Error al obtener la transferencia");
+          }
+
           const data = await response.json();
           set({ transferenciaActual: data });
           return data;
@@ -129,14 +143,14 @@ const storeTransferencias = create(
             }
           );
           const data = await response.json();
-          
+
           if (!response.ok) {
             throw new Error(data.msg || "Error al cancelar transferencia");
           }
-          
+
           // Actualizar lista de transferencias
           await get().fetchTransferencias();
-          
+
           return data;
         } catch (error) {
           console.error("Error al cancelar transferencia:", error);

@@ -649,7 +649,7 @@ const Chat = () => {
     return (
         <div className="flex h-screen w-full overflow-hidden bg-gray-100">
             {/* SIDEBAR - Contactos */}
-            <div className="w-full md:w-80 bg-white border-r border-gray-300 flex flex-col h-full overflow-hidden">
+            <div className={`${selectedContact ? 'hidden md:flex' : 'flex'} w-full md:w-80 bg-white border-r border-gray-300 flex-col h-full overflow-hidden`}>
                 {/* Header del Sidebar */}
                 <div className="p-4 border-b border-gray-200 flex-shrink-0">
                     <h1 className="text-2xl font-bold text-gray-800 mb-4">
@@ -693,25 +693,25 @@ const Chat = () => {
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                handleOpenImage(contact.avatarFull) // ✅ DIRECTO
+                                                handleOpenImage(contact.avatarFull)
                                             }}
                                             title="Click para ver imagen completa"
                                         />
 
                                         {/* Info */}
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-start">
-                                                <h3 className="font-semibold text-gray-800 truncate">
+                                            <div className="flex justify-between items-start gap-2">
+                                                <h3 className="font-semibold text-gray-800 truncate text-sm md:text-base">
                                                     {contact.nombreDocente
                                                         ? `${contact.nombreDocente} ${contact.apellidoDocente}`
                                                         : `${contact.nombre} ${contact.apellido}`}
                                                 </h3>
-                                                <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                                                <span className="text-xs text-gray-500 flex-shrink-0">
                                                     {formatLastMessageDate(lastMsg.createdAt)}
                                                 </span>
                                             </div>
                                             {lastMsg.texto && (
-                                                <p className={`text-sm truncate ${lastMsg.esMio ? "font-semibold" : "text-gray-600"}`}>
+                                                <p className={`text-xs md:text-sm truncate ${lastMsg.esMio ? "font-semibold" : "text-gray-600"}`}>
                                                     {lastMsg.esMio && "Tú: "}
                                                     {lastMsg.texto}
                                                 </p>
@@ -727,75 +727,80 @@ const Chat = () => {
 
             {/* AREA DE CHAT PRINCIPAL */}
             {selectedContact ? (
-                <div className="flex-1 flex flex-col h-full overflow-hidden">
+                <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
                     {/* HEADER DEL CHAT */}
-                    <div className="bg-white border-b border-gray-300 px-4 md:px-6 py-3 md:py-4 flex items-center gap-3 flex-shrink-0">
+                    <div className="bg-white border-b border-gray-300 px-3 md:px-6 py-2 md:py-4 flex items-center gap-2 md:gap-3 flex-shrink-0">
+                        {/* ✅ Botón de volver en mobile */}
+                        <button
+                            onClick={() => setSelectedContact(null)}
+                            className="md:hidden p-2 hover:bg-gray-100 rounded text-gray-600"
+                            title="Volver"
+                        >
+                            ←
+                        </button>
+
                         {/* ✅ Círculo: recortada */}
                         <img
                             src={selectedContact.avatarCropped}
                             alt="avatar"
                             className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => handleOpenImage(selectedContact.avatarFull)} // ✅ DIRECTO
+                            onClick={() => handleOpenImage(selectedContact.avatarFull)}
                             title="Click para ver imagen completa"
                         />
 
                         {/* Nombre e info */}
-                        <div>
-                            <h2 className="font-bold text-gray-800 text-sm md:text-base">
+                        <div className="flex-1 min-w-0">
+                            <h2 className="font-bold text-gray-800 text-sm md:text-base truncate">
                                 {selectedContact.nombreDocente
                                     ? `${selectedContact.nombreDocente} ${selectedContact.apellidoDocente}`
                                     : `${selectedContact.nombre} ${selectedContact.apellido}`}
                             </h2>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 truncate">
                                 {selectedContact.emailDocente || selectedContact.email || "Sin email"}
                             </p>
                         </div>
 
                         {/* Acciones a la derecha del header */}
-                        <div className="ml-auto flex items-center gap-2">
+                        <div className="ml-auto flex items-center gap-1 md:gap-2 flex-shrink-0">
                             {multiSelectMode ? (
                                 <>
-                                    <span className="text-xs text-gray-600 mr-2">{selectedIds.size} seleccionados</span>
+                                    <span className="text-xs text-gray-600 mr-1">{selectedIds.size}</span>
                                     <button
                                         type="button"
                                         disabled={!anySelected}
                                         onClick={deleteManyForMe}
-                                        className={`px-3 py-1 rounded text-xs border ${anySelected ? "border-gray-300 hover:bg-gray-100" : "border-gray-200 text-gray-300 cursor-not-allowed"}`}
+                                        className={`px-2 md:px-3 py-1 rounded text-xs border ${anySelected ? "border-gray-300 hover:bg-gray-100" : "border-gray-200 text-gray-300 cursor-not-allowed"}`}
                                         title="Ocultar para mí"
                                     >
-                                        Eliminar para mí
+                                        Mí
                                     </button>
                                     <button
                                         type="button"
                                         disabled={!canDeleteBoth}
                                         onClick={deleteMany}
-                                        className={`px-3 py-1 rounded text-xs border ${canDeleteBoth ? "border-red-300 text-red-600 hover:bg-red-50" : "border-gray-200 text-gray-300 cursor-not-allowed"}`}
+                                        className={`px-2 md:px-3 py-1 rounded text-xs border ${canDeleteBoth ? "border-red-300 text-red-600 hover:bg-red-50" : "border-gray-200 text-gray-300 cursor-not-allowed"}`}
                                         title={hasOthersSelected ? "Solo puedes eliminar para ambos tus mensajes" : "Eliminar para ambos"}
                                     >
-                                        Eliminar (ambos)
+                                        Ambos
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => { setMultiSelectMode(false); setSelectedIds(new Set()); }}
-                                        className="px-3 py-1 rounded text-xs border border-gray-300 hover:bg-gray-100"
+                                        className="px-2 md:px-3 py-1 rounded text-xs border border-gray-300 hover:bg-gray-100"
                                     >
-                                        Cancelar
+                                        ✕
                                     </button>
                                 </>
                             ) : (
                                 <>
-                                    <div className="hidden md:flex text-xs text-gray-500 bg-gray-100 px-3 py-2 rounded flex-col">
-                                        <div className="flex items-center gap-1">
-                                            {/* <IoInformationCircleOutline className="shrink-0" /> */}
-                                            <span>Los primeros mensajes pueden tardar en enviarse unos segundos debido a la activación del servicio</span>
-                                        </div>
-                                        <span>💡 A partir del cuarto mensaje se envían rápido, así que envía 3 mensajes cualesquiera para despertar el servicio!</span>
-                                        <span>Ten paciencia... estamos usando un servicio gratis!</span>
+                                    <div className="hidden lg:flex text-xs text-gray-500 bg-gray-100 px-2 md:px-3 py-1 md:py-2 rounded flex-col max-w-xs">
+                                        <span>Los primeros mensajes pueden tardar unos segundos</span>
+                                        <span>💡 Envía 3 mensajes para despertar el servicio</span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => setMultiSelectMode(true)}
-                                        className="p-2 hover:bg-gray-100 rounded"
+                                        className="p-2 hover:bg-gray-100 rounded flex-shrink-0"
                                         title="Seleccionar varios"
                                     >
                                         <IoEllipsisVertical size={18} />
@@ -807,18 +812,17 @@ const Chat = () => {
 
                     {/* AREA DE MENSAJES */}
                     <div
-                        className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 min-h-0"
+                        className="flex-1 overflow-y-auto p-3 md:p-6 bg-gray-50 min-h-0"
                         ref={messagesContainerRef}
-                        onContextMenu={(e) => { if (multiSelectMode) e.preventDefault(); }} // bloquear menú navegador en selección múltiple
+                        onContextMenu={(e) => { if (multiSelectMode) e.preventDefault(); }}
                     >
                         {responses.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
                                 <div className="text-center">
-                                    {/* Centro: recortada */}
                                     <img
                                         src={selectedContact.avatarCropped}
                                         alt="avatar"
-                                        className="w-20 h-20 rounded-full mx-auto mb-4 opacity-30 cursor-pointer"
+                                        className="w-16 h-16 md:w-20 md:h-20 rounded-full mx-auto mb-4 opacity-30 cursor-pointer"
                                         onClick={() => handleOpenImage(selectedContact.avatarFull)}
                                         title="Click para ver imagen completa"
                                     />
@@ -830,13 +834,12 @@ const Chat = () => {
                                 {responses.map((msg, idx) => (
                                     <div
                                         key={msg._id || idx}
-                                        className={`mb-4 flex ${msg.de === user._id ? "justify-end" : "justify-start"}`}
+                                        className={`mb-3 md:mb-4 flex ${msg.de === user._id ? "justify-end" : "justify-start"}`}
                                         data-mid={msg._id}
                                         data-from={msg.de}
                                         data-estado={msg.estado || "delivered"}
                                     >
                                         {msg.tipo === "transferencia" ? (
-                                            // ✅ Añadir resaltado si es el objetivo
                                             <div className={`max-w-xs md:max-w-sm ${highlightedId === msg._id ? "ring-2 ring-amber-300 rounded-2xl" : ""}`}>
                                                 {renderMensajeTransferencia(msg)}
                                             </div>
@@ -873,47 +876,46 @@ const Chat = () => {
                     </div>
 
                     {/* AREA DE ENTRADA */}
-                    <form onSubmit={handleSend} className="bg-white border-t border-gray-300 p-4 md:p-6 flex-shrink-0">
+                    <form onSubmit={handleSend} className="bg-white border-t border-gray-300 p-3 md:p-6 flex-shrink-0">
                         {/* Reply preview */}
                         {replyTarget && (
-                            <div className="mb-2 flex items-start gap-2 bg-blue-50 border-l-4 border-blue-400 rounded px-3 py-2">
-                                <div className="flex-1 text-xs text-gray-700">
-                                    Respondiendo a: {replyTarget.texto.slice(0, 140)}{replyTarget.texto.length > 140 ? "…" : ""}
+                            <div className="mb-2 flex items-start gap-2 bg-blue-50 border-l-4 border-blue-400 rounded px-2 md:px-3 py-2 text-xs md:text-sm">
+                                <div className="flex-1 text-gray-700 truncate">
+                                    Respondiendo a: {replyTarget.texto.slice(0, 80)}{replyTarget.texto.length > 80 ? "…" : ""}
                                 </div>
-                                <button type="button" onClick={() => setReplyTarget(null)} className="text-xs text-blue-700 hover:underline">Cancelar</button>
+                                <button type="button" onClick={() => setReplyTarget(null)} className="text-blue-700 hover:underline flex-shrink-0">✕</button>
                             </div>
                         )}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 md:gap-3">
                             <input
                                 type="text"
                                 value={message}
                                 onChange={e => {
                                     const val = e.target.value;
                                     setMessage(val);
-                                    // Al escribir algo distinto de solo espacios vuelves a permitir un envío
                                     if (val.trim().length > 0) {
                                         allowSend === false && setAllowSend(true);
                                     }
                                 }}
                                 placeholder="Escribe un mensaje..."
-                                className="flex-1 bg-gray-100 px-4 py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 bg-gray-100 px-3 md:px-4 py-2 md:py-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             <button
                                 type="submit"
                                 disabled={!message.trim()}
                                 className="p-2 hover:bg-blue-100 rounded-full transition-colors text-blue-500 disabled:text-gray-300 disabled:hover:bg-transparent flex-shrink-0"
                             >
-                                <IoSend size={24} />
+                                <IoSend size={20} className="md:w-6 md:h-6" />
                             </button>
                         </div>
                     </form>
                 </div>
             ) : (
                 <div className="hidden md:flex flex-1 items-center justify-center bg-gradient-to-b from-blue-50 to-gray-50 h-full">
-                    <div className="text-center">
+                    <div className="text-center px-4">
                         <div className="text-6xl mb-4">💬</div>
                         <h2 className="text-2xl font-bold text-gray-800 mb-2">Selecciona un chat</h2>
-                        <p className="text-gray-500">Elige un contacto para comenzar a chatear</p>
+                        <p className="text-gray-500 text-sm">Elige un contacto para comenzar a chatear</p>
                     </div>
                 </div>
             )}
@@ -930,7 +932,7 @@ const Chat = () => {
             {showContext && contextMsg && (
                 <div
                     style={{ top: contextPos.y, left: contextPos.x }}
-                    className="fixed z-[9999] bg-white shadow-xl border border-gray-200 rounded-lg w-56 overflow-hidden text-sm"
+                    className="fixed z-[9999] bg-white shadow-xl border border-gray-200 rounded-lg w-56 overflow-hidden text-sm max-h-screen"
                 >
                     <ul className="flex flex-col">
                         {/* Si es PENDING: solo cancelar envío (si es mío) o cerrar */}

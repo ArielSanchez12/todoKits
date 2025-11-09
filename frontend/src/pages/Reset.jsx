@@ -81,7 +81,7 @@ const Reset = () => {
             {/* Formulario */}
             <div className="w-full sm:w-1/2 flex flex-col justify-center items-center px-8 py-12 sm:py-0 overflow-y-auto bg-white">
                 <div className="w-full max-w-md">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-700 mb-2 sm:mb-4">Nueva Contraseña</h1>
+                    <h1 className="text-3xl sm:text-4xl font-semibold mb-2 text-center uppercase text-black">Nueva Contraseña</h1>
                     <p className="text-gray-500 text-sm sm:text-base mb-6">Crea una nueva contraseña para tu cuenta</p>
 
                     <form onSubmit={handleSubmit(crearNuevaContraseña)}>

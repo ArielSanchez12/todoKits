@@ -316,7 +316,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                       </span>
                     )}
                   </td>
-                  {/* ✅ Observaciones con truncado a 25 y tooltip con todo */}
+                  {/* ✅ Observaciones con truncado a 15 y tooltip con todo */}
                   <td
                     className="p-2 text-left text-sm relative"
                     ref={prestamo._id === hoveredObservacion ? cellRef : null}
@@ -324,7 +324,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                       const textoCompleto = prestamo.observaciones || "";
                       const tieneRecursosAdicionales =
                         prestamo.recursosAdicionales?.length > 0;
-                      if (textoCompleto.length > 25 || tieneRecursosAdicionales) {
+                      if (textoCompleto.length > 15 || tieneRecursosAdicionales) {
                         handleMouseEnter(prestamo._id);
                       }
                     }}

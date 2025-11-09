@@ -461,9 +461,15 @@ const cancelarPrestamo = async (req, res) => {
       );
     }
 
+    // ✅ NUEVO: Populate para enviar datos completos
+    const prestamoPopulado = await prestamo
+      .findById(prestamoEncontrado._id)
+      .populate("recurso", "nombre tipo laboratorio aula contenido")
+      .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido");
+
     res.status(200).json({
       msg: "Préstamo cancelado exitosamente",
-      prestamo: prestamoEncontrado,
+      prestamo: prestamoPopulado,
     });
   } catch (error) {
     console.error("Error al cancelar préstamo:", error);
@@ -522,9 +528,15 @@ const finalizarPrestamoAdmin = async (req, res) => {
       );
     }
 
+    // ✅ NUEVO: Populate para enviar datos completos
+    const prestamoPopulado = await prestamo
+      .findById(prestamoEncontrado._id)
+      .populate("recurso", "nombre tipo laboratorio aula contenido")
+      .populate("recursosAdicionales", "nombre tipo laboratorio aula contenido");
+
     res.status(200).json({
       msg: "Préstamo finalizado exitosamente por el administrador",
-      prestamo: prestamoEncontrado,
+      prestamo: prestamoPopulado,
     });
   } catch (error) {
     console.error("Error al finalizar préstamo:", error);

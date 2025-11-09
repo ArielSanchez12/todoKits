@@ -243,34 +243,34 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
       {/* ✅ FILTROS DE ESTADO */}
       <div className="flex flex-wrap gap-2 mb-4">
         {[
-        {
-          key: "todos", label: "Todos"
-        },
+          {
+            key: "todos", label: "Todos"
+          },
           ...(esDocente ? [] : [ //Solo mostrar activo/pendiente si NO es docente
-        {key: "activo", label: "Activos" },
-        {key: "pendiente", label: "Pendientes" },
-        ]),
-        {key: "finalizado", label: "Finalizados" },
-        {key: "rechazado", label: "Rechazados" },
+            { key: "activo", label: "Activos" },
+            { key: "pendiente", label: "Pendientes" },
+          ]),
+          { key: "finalizado", label: "Finalizados" },
+          { key: "rechazado", label: "Rechazados" },
         ].map((tipo) => (
-        <button
-          key={tipo.key}
-          onClick={() => setFiltro(tipo.key)}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${filtro === tipo.key
-            ? "bg-blue-600 text-white"
-            : "bg-white text-gray-700 border hover:bg-gray-50"
-            }`}
-        >
-          {tipo.label}
-          <span
-            className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filtro === tipo.key
-              ? "bg-white text-blue-600"
-              : "bg-gray-200 text-gray-700"
+          <button
+            key={tipo.key}
+            onClick={() => setFiltro(tipo.key)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm ${filtro === tipo.key
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-700 border hover:bg-gray-50"
               }`}
           >
-            {contadores[tipo.key]}
-          </span>
-        </button>
+            {tipo.label}
+            <span
+              className={`ml-2 px-2 py-0.5 rounded-full text-xs ${filtro === tipo.key
+                ? "bg-white text-blue-600"
+                : "bg-gray-200 text-gray-700"
+                }`}
+            >
+              {contadores[tipo.key]}
+            </span>
+          </button>
         ))}
       </div>
 
@@ -533,43 +533,125 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
       {modalCancelar && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
-            <h3 className="text-xl font-bold mb-4 text-red-600">Cancelar Solicitud</h3>
-            <div className="mb-4 bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Recurso:</p>
-              <p className="font-semibold">{modalCancelar.recurso?.nombre}</p>
-            </div>
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-4 text-red-600">Cancelar Solicitud</h3>
 
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">
-                Motivo de cancelación <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                value={motivoCancelacion}
-                onChange={(e) => setMotivoCancelacion(e.target.value)}
-                placeholder="Ej: El docente solicitó cancelar la reserva"
-                className="w-full p-2 border rounded-lg text-sm"
-                rows={3}
-              />
-            </div>
+              {/* Recurso principal completo */}
+              <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-xs text-gray-600">Nombre:</span>
+                    <p className="font-semibold">{modalCancelar.recurso?.nombre || "N/A"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-600">Tipo:</span>
+                    <p className="font-semibold">{modalCancelar.recurso?.tipo?.toUpperCase() || "N/A"}</p>
+                  </div>
+                  {modalCancelar.recurso?.laboratorio && (
+                    <>
+                      <div>
+                        <span className="text-xs text-gray-600">Laboratorio:</span>
+                        <p className="font-semibold">{modalCancelar.recurso.laboratorio}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-600">Aula:</span>
+                        <p className="font-semibold">{modalCancelar.recurso.aula}</p>
+                      </div>
+                    </>
+                  )}
+                  {Array.isArray(modalCancelar.recurso?.contenido) &&
+                    modalCancelar.recurso.contenido.length > 0 && (
+                      <div className="col-span-2">
+                        <span className="text-xs text-gray-600">Contenido:</span>
+                        <ul className="list-disc pl-5 mt-1 space-y-1">
+                          {modalCancelar.recurso.contenido.map((item, i) => (
+                            <li key={i} className="text-xs">{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                </div>
+              </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={handleCancelar}
-                disabled={loading || !motivoCancelacion.trim()}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
-              >
-                {loading ? "Cancelando..." : "Confirmar Cancelación"}
-              </button>
-              <button
-                onClick={() => {
-                  setModalCancelar(null);
-                  setMotivoCancelacion("");
-                }}
-                className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
-              >
-                Cerrar
-              </button>
+              {/* Recursos adicionales completos */}
+              {Array.isArray(modalCancelar.recursosAdicionales) &&
+                modalCancelar.recursosAdicionales.length > 0 && (
+                  <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                    <div className="space-y-3">
+                      {modalCancelar.recursosAdicionales.map((rec) => (
+                        <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <span className="text-[11px] text-gray-600">Nombre:</span>
+                              <p className="font-semibold">{rec.nombre}</p>
+                            </div>
+                            <div>
+                              <span className="text-[11px] text-gray-600">Tipo:</span>
+                              <p className="font-semibold">{rec.tipo?.toUpperCase() || "N/A"}</p>
+                            </div>
+                            {rec.laboratorio && (
+                              <>
+                                <div>
+                                  <span className="text-[11px] text-gray-600">Laboratorio:</span>
+                                  <p className="font-semibold">{rec.laboratorio}</p>
+                                </div>
+                                <div>
+                                  <span className="text-[11px] text-gray-600">Aula:</span>
+                                  <p className="font-semibold">{rec.aula}</p>
+                                </div>
+                              </>
+                            )}
+                            {Array.isArray(rec.contenido) && rec.contenido.length > 0 && (
+                              <div className="col-span-2">
+                                <span className="text-[11px] text-gray-600">Contenido:</span>
+                                <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                                  {rec.contenido.map((c, idx) => (
+                                    <li key={idx} className="text-[11px]">{c}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-semibold mb-2">
+                  Motivo de cancelación <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={motivoCancelacion}
+                  onChange={(e) => setMotivoCancelacion(e.target.value)}
+                  placeholder="Ej: El docente solicitó cancelar la reserva"
+                  className="w-full p-2 border rounded-lg text-sm"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancelar}
+                  disabled={loading || !motivoCancelacion.trim()}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
+                >
+                  {loading ? "Cancelando..." : "Confirmar Cancelación"}
+                </button>
+                <button
+                  onClick={() => {
+                    setModalCancelar(null);
+                    setMotivoCancelacion("");
+                  }}
+                  className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -577,47 +659,134 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
       {modalFinalizar && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
-            <h3 className="text-xl font-bold mb-4 text-green-600">Finalizar Préstamo</h3>
-            <div className="mb-4 bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600">Recurso:</p>
-              <p className="font-semibold">{modalFinalizar.recurso?.nombre}</p>
-            </div>
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md md:max-w-lg lg:max-w-xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-4 text-green-600">Finalizar Préstamo</h3>
 
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2">
-                Observaciones de devolución (opcional):
-              </label>
-              <textarea
-                value={observacionesDevolucion}
-                onChange={(e) => setObservacionesDevolucion(e.target.value)}
-                placeholder="Ej: Recurso devuelto por el administrador"
-                className="w-full p-2 border rounded-lg text-sm"
-                rows={3}
-              />
-            </div>
+              {/* Recurso principal completo */}
+              <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-xs text-gray-600">Nombre:</span>
+                    <p className="font-semibold">{modalFinalizar.recurso?.nombre || "N/A"}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-600">Tipo:</span>
+                    <p className="font-semibold">{modalFinalizar.recurso?.tipo?.toUpperCase() || "N/A"}</p>
+                  </div>
+                  {modalFinalizar.recurso?.laboratorio && (
+                    <>
+                      <div>
+                        <span className="text-xs text-gray-600">Laboratorio:</span>
+                        <p className="font-semibold">{modalFinalizar.recurso.laboratorio}</p>
+                      </div>
+                      <div>
+                        <span className="text-xs text-gray-600">Aula:</span>
+                        <p className="font-semibold">{modalFinalizar.recurso.aula}</p>
+                      </div>
+                    </>
+                  )}
+                  {Array.isArray(modalFinalizar.recurso?.contenido) &&
+                    modalFinalizar.recurso.contenido.length > 0 && (
+                      <div className="col-span-2">
+                        <span className="text-xs text-gray-600">Contenido:</span>
+                        <ul className="list-disc pl-5 mt-1 space-y-1">
+                          {modalFinalizar.recurso.contenido.map((item, i) => (
+                            <li key={i} className="text-xs">{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                </div>
+                {modalFinalizar.horaConfirmacion && (
+                  <p className="text-xs text-gray-600 mt-3">
+                    Confirmado: {formatFecha(modalFinalizar.horaConfirmacion)} a las {formatHora(modalFinalizar.horaConfirmacion)}
+                  </p>
+                )}
+              </div>
 
-            <p className="text-sm text-gray-600 mb-4">
-              ⏰ Se registrará la hora actual de devolución y el recurso quedará disponible.
-            </p>
+              {/* Recursos adicionales completos */}
+              {Array.isArray(modalFinalizar.recursosAdicionales) &&
+                modalFinalizar.recursosAdicionales.length > 0 && (
+                  <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                    <div className="space-y-3">
+                      {modalFinalizar.recursosAdicionales.map((rec) => (
+                        <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <span className="text-[11px] text-gray-600">Nombre:</span>
+                              <p className="font-semibold">{rec.nombre}</p>
+                            </div>
+                            <div>
+                              <span className="text-[11px] text-gray-600">Tipo:</span>
+                              <p className="font-semibold">{rec.tipo?.toUpperCase() || "N/A"}</p>
+                            </div>
+                            {rec.laboratorio && (
+                              <>
+                                <div>
+                                  <span className="text-[11px] text-gray-600">Laboratorio:</span>
+                                  <p className="font-semibold">{rec.laboratorio}</p>
+                                </div>
+                                <div>
+                                  <span className="text-[11px] text-gray-600">Aula:</span>
+                                  <p className="font-semibold">{rec.aula}</p>
+                                </div>
+                              </>
+                            )}
+                            {Array.isArray(rec.contenido) && rec.contenido.length > 0 && (
+                              <div className="col-span-2">
+                                <span className="text-[11px] text-gray-600">Contenido:</span>
+                                <ul className="list-disc pl-5 mt-1 space-y-0.5">
+                                  {rec.contenido.map((c, idx) => (
+                                    <li key={idx} className="text-[11px]">{c}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            <div className="flex gap-3">
-              <button
-                onClick={handleFinalizar}
-                disabled={loading}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
-              >
-                {loading ? "Procesando..." : "Confirmar Devolución"}
-              </button>
-              <button
-                onClick={() => {
-                  setModalFinalizar(null);
-                  setObservacionesDevolucion("");
-                }}
-                className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
-              >
-                Cerrar
-              </button>
+              <div className="mb-4">
+                <label className="block text-sm font-semibold mb-2">
+                  Observaciones de devolución (opcional):
+                </label>
+                <textarea
+                  value={observacionesDevolucion}
+                  onChange={(e) => setObservacionesDevolucion(e.target.value)}
+                  placeholder="Ej: Recurso devuelto por el administrador"
+                  className="w-full p-2 border rounded-lg text-sm"
+                  rows={3}
+                />
+              </div>
+
+              <p className="text-sm text-gray-600 mb-4">
+                ⏰ Se registrará la hora actual de devolución y el recurso quedará disponible.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleFinalizar}
+                  disabled={loading}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400"
+                >
+                  {loading ? "Procesando..." : "Confirmar Devolución"}
+                </button>
+                <button
+                  onClick={() => {
+                    setModalFinalizar(null);
+                    setObservacionesDevolucion("");
+                  }}
+                  className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
           </div>
         </div>

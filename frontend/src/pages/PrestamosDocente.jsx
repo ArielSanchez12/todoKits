@@ -7,7 +7,6 @@ import { MdHistory, MdAssignment } from "react-icons/md";
 import "react-toastify/dist/ReactToastify.css";
 import EscanerQR from "../components/prestamos/EscanerQR";
 import ModalConfirmarTransferencia from "../components/prestamos/ModalConfirmarTransferencia";
-import NotificacionesTransferencias from "../components/prestamos/NotificacionesTransferencias";
 import { MdQrCodeScanner } from "react-icons/md";
 import storeProfile from "../context/storeProfile";
 import storeTransferencias from "../context/storeTransferencias";

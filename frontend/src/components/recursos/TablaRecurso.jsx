@@ -107,10 +107,10 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
       >
         <ul className="list-disc pl-4 text-sm">
           {primerosItems.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li className="text-center" key={i}>{c}</li>
           ))}
           {hayMas && (
-            <li className="text-blue-600 cursor-pointer font-semibold">
+            <li className="text-blue-600 cursor-pointer font-semibold text-center">
               +{recurso.contenido.length - 2} más...
             </li>
           )}
@@ -225,7 +225,8 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
                           recurso.estado.slice(1)}
                       </span>
                     </td>
-                    <td className="p-2 text-center">
+                    {/* Esto de aqui abajo que dice text-center es el contenido, pero NO los puntitos, solo el contenido se alinea al centro mientras que los puntitos se siguen quedando a la izquierda */}
+                    <td className="p-2 text-center"> 
                       {renderContenido(recurso)}
                     </td>
                     <td className="p-2 flex justify-center gap-2">

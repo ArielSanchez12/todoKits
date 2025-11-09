@@ -10,7 +10,6 @@ import ModalConfirmarTransferencia from "../components/prestamos/ModalConfirmarT
 import { MdQrCodeScanner } from "react-icons/md";
 import storeProfile from "../context/storeProfile";
 import storeTransferencias from "../context/storeTransferencias";
-import DetallePrestamo from "../components/prestamos/DetallePrestamo";
 
 const PrestamosDocente = () => {
   const {
@@ -22,7 +21,7 @@ const PrestamosDocente = () => {
     loading,
   } = storePrestamos();
 
-  const [vista, setVista] = useState("activos"); // "activos" o "historial"
+  const [vista, setVista] = useState("activos");
   const [mostrarEscaner, setMostrarEscaner] = useState(false);
   const [transferenciaEscaneada, setTransferenciaEscaneada] = useState(null);
   const [mostrarModalConfirmacion, setMostrarModalConfirmacion] = useState(false);
@@ -91,10 +90,6 @@ const PrestamosDocente = () => {
         Gestiona tus préstamos activos y consulta tu historial
       </p>
 
-      {/* Notificaciones de transferencias */}
-      {docenteId && <NotificacionesTransferencias docenteId={docenteId} />}
-
-      {/* Navegación entre vistas */}
       <div className="flex gap-4 mb-6">
         <button
           onClick={() => setVista("activos")}
@@ -130,7 +125,6 @@ const PrestamosDocente = () => {
         </button>
       </div>
 
-      {/* Información según la vista */}
       {vista === "activos" ? (
         <>
           <div className="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-200">
@@ -142,7 +136,6 @@ const PrestamosDocente = () => {
             </p>
           </div>
 
-          {/* Estadísticas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
               <p className="text-sm text-yellow-800 font-semibold">
@@ -170,7 +163,6 @@ const PrestamosDocente = () => {
         </div>
       )}
 
-      {/* Tabla según vista */}
       {loading ? (
         <div className="text-center py-8">
           <p className="text-gray-600">Cargando préstamos...</p>
@@ -181,7 +173,6 @@ const PrestamosDocente = () => {
           onRefresh={handleRefresh}
         />
       ) : (
-        // ✅ USAR TablaHistorialDocente para el historial
         <TablaHistorialDocente
           prestamos={historialDocente}
           onRefresh={handleRefresh}
@@ -190,7 +181,6 @@ const PrestamosDocente = () => {
         />
       )}
 
-      {/* Botón para abrir escáner */}
       <div className="flex justify-center mb-4 mt-6">
         <button
           onClick={() => setMostrarEscaner(true)}
@@ -201,7 +191,6 @@ const PrestamosDocente = () => {
         </button>
       </div>
 
-      {/* Modales */}
       {mostrarEscaner && (
         <EscanerQR
           onScanSuccess={handleScanSuccess}

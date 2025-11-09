@@ -359,7 +359,7 @@ const finalizarPrestamo = async (req, res) => {
     }
 
     if (prestamoExistente.estado !== "activo") {
-      return res.status(400).json({ msg: "Este préstamo no está activo" });
+      return res.status(400).json({ msg: "Préstamo no activo o finalizado por el Administrador. Actualiza la tabla." });
     }
 
     // Finalizar préstamo

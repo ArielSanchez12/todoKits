@@ -93,11 +93,10 @@ const PrestamosDocente = () => {
       <div className="flex gap-4 mb-6">
         <button
           onClick={() => setVista("activos")}
-          className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
-            vista === "activos"
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${vista === "activos"
               ? "bg-blue-600 text-white"
               : "bg-white text-gray-700 border hover:bg-gray-50"
-          }`}
+            }`}
         >
           <MdAssignment size={20} />
           Préstamos Activos
@@ -109,11 +108,10 @@ const PrestamosDocente = () => {
         </button>
         <button
           onClick={() => setVista("historial")}
-          className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
-            vista === "historial"
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${vista === "historial"
               ? "bg-blue-600 text-white"
               : "bg-white text-gray-700 border hover:bg-gray-50"
-          }`}
+            }`}
         >
           <MdHistory size={20} />
           Historial
@@ -158,9 +156,15 @@ const PrestamosDocente = () => {
       ) : (
         <div className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
           <p className="text-sm text-gray-700">
-            <strong>Historial de Préstamos</strong> 
+            <strong>Historial de Préstamos</strong>
+          </p>
+          <p className="text-sm text-gray-700">
             Aquí se muestran todos los préstamos que has finalizado.
+          </p>
+          <p className="text-sm text-gray-700">
             En acciones podrás ver los detalles completos de cada préstamo.
+          </p>
+          <p className="text-sm text-gray-700">
             Para obtener los últimos registros asegurate de actualizar la tabla.
           </p>
         </div>

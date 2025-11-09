@@ -105,14 +105,18 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         onMouseEnter={() => handleMouseEnter(recurso._id)}
         onMouseLeave={() => setHoveredContenido(null)}
       >
-        {/* Okey para que los bullets (asi se llaman los puntitos) esten pegados al contenido deben llevar list-inside en lugar de pl-4 */}
-        <ul className="list-disc list-inside text-sm text-center">
+        {/* ✅ CENTRADO CON FLEXBOX */}
+        <ul className="text-sm flex flex-col items-center">
           {primerosItems.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i} className="flex items-center">
+              <span className="mr-2">•</span>
+              <span>{c}</span>
+            </li>
           ))}
           {hayMas && (
-            <li className="text-blue-600 cursor-pointer font-semibold">
-              +{recurso.contenido.length - 2} más...
+            <li className="flex items-center text-blue-600 cursor-pointer font-semibold">
+              <span className="mr-2">•</span>
+              <span>+{recurso.contenido.length - 2} más...</span>
             </li>
           )}
         </ul>
@@ -227,7 +231,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
                       </span>
                     </td>
                     {/* Esto de aqui abajo que dice text-center es el contenido, pero NO los puntitos, solo el contenido se alinea al centro mientras que los puntitos se siguen quedando a la izquierda */}
-                    <td className="p-2 text-left"> 
+                    <td className="p-2"> 
                       {renderContenido(recurso)}
                     </td>
                     <td className="p-2 flex justify-center gap-2">

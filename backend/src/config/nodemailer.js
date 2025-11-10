@@ -93,6 +93,7 @@ export const sendMailToDocente = async (userMail, password, token) => {
         <div style="background-color:#f0f0f0;padding:20px;border-radius:8px;margin:20px 0;text-align:center;">
             <p style="font-size:12px;color:#666;margin:0 0 10px 0;text-transform:uppercase;letter-spacing:1px;">Tu contraseña temporal es:</p>
             <p style="font-size:28px;font-weight:bold;color:#222;margin:0;letter-spacing:4px;font-family:'Courier New',monospace;">${password}</p>
+            <p style="font-size:12px;color:#666;margin:0 0 10px 0;text-transform:uppercase;letter-spacing:1px;">Te recomendamos cambiarla luego de iniciar sesión</p>
         </div>`,
         buttonUrl: `${process.env.URL_FRONTEND}confirm-docente/${token}`,
         buttonText: "CONFIRMAR CUENTA",

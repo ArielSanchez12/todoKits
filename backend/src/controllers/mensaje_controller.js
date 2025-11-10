@@ -82,8 +82,35 @@ const enviarMensaje = async (req, res) => {
   }
 };
 
+// Obtener historial de chat
+const obtenerHistorial = async (req, res) => {
+  try {
+    const miId = req.docenteBDD?._id || req.adminEmailBDD?._id;
+    const contactId = req.params.contactId;
+
+    const mensajesEncriptados = await Mensaje.find({
+      $and: [
+        {
+          $or: [
+            { de: miId, para: contactId },
+            { de: contactId, para: miId }
+          ]
+        },
+        { hiddenFor: { $ne: miId } }
+      ]
+    }).sort({ createdAt: 1 });
+
+    const mensajesDesencriptados = mensajesEncriptados.map(msg => msg.desencriptar());
+    res.json(mensajesDesencriptados);
+  } catch (error) {
+    console.error("Error al obtener historial:", error);
+    res.status(500).json({ msg: "Error al obtener historial", error: error.message });
+  }
+};
+
 export {
   obtenerAdmin,
   obtenerDocentes,
   enviarMensaje,
+  obtenerHistorial,
 };

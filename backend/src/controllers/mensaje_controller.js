@@ -132,10 +132,38 @@ const ocultarMensaje = async (req, res) => {
   }
 };
 
+// Ocultar múltiples mensajes para mí (seleccion multiple)
+const ocultarMultiples = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || !ids.length) {
+      return res.status(400).json({ msg: "Sin ids" });
+    }
+
+    const miId = (req.docenteBDD?._id || req.adminEmailBDD?._id)?.toString();
+
+    await Mensaje.updateMany(
+      { _id: { $in: ids } },
+      { $addToSet: { hiddenFor: miId } }
+    );
+
+    pusher.trigger("chat", "mensajes-ocultos", { ids, userId: miId });
+    res.json({ msg: "Ocultados", ids });
+  } catch (error) {
+    console.error("Error al ocultar múltiples:", error);
+    res.status(500).json({ msg: "Error al ocultar múltiples" });
+  }
+};
+
+
+
+
 export {
   obtenerAdmin,
   obtenerDocentes,
   enviarMensaje,
   obtenerHistorial,
-  ocultarMensaje
+  ocultarMensaje,
+  ocultarMultiples
 };

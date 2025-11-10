@@ -263,6 +263,49 @@ const marcarLeidos = async (req, res) => {
   }
 };
 
+// Editar mensaje
+const editarMensaje = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nuevoTexto } = req.body;
+
+    if (!nuevoTexto || !nuevoTexto.trim()) {
+      return res.status(400).json({ msg: "Texto vacío" });
+    }
+
+    const msg = await Mensaje.findById(id);
+    if (!msg) {
+      return res.status(404).json({ msg: "Mensaje no encontrado" });
+    }
+
+    const userId = req.docenteBDD?._id || req.adminEmailBDD?._id;
+    if (msg.de.toString() !== userId.toString()) {
+      return res.status(403).json({ msg: "Sin permiso para editar" });
+    }
+
+    if (msg.tipo === "transferencia") {
+      return res.status(400).json({ msg: "No se puede editar transferencia" });
+    }
+
+    const diffMin = (Date.now() - msg.createdAt.getTime()) / 60000;
+    if (diffMin > 10) {
+      return res.status(400).json({ msg: "Tiempo de edición expirado" });
+    }
+
+    msg.texto = nuevoTexto;
+    msg.editedAt = new Date();
+    await msg.save();
+
+    const dec = msg.desencriptar();
+    pusher.trigger("chat", "mensaje-editado", dec);
+
+    res.json(dec);
+  } catch (error) {
+    console.error("Error al editar mensaje:", error);
+    res.status(500).json({ msg: "Error al editar mensaje" });
+  }
+};
+
 export {
   obtenerAdmin,
   obtenerDocentes,
@@ -272,5 +315,6 @@ export {
   ocultarMultiples,
   obtenerTodosMensajes,
   enviarTransferencia,
-  marcarLeidos
+  marcarLeidos,
+  editarMensaje
 };

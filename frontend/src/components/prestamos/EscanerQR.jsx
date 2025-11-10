@@ -10,6 +10,41 @@ const EscanerQR = ({ onScanSuccess, onClose }) => {
   const scannerRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Función para traducir el label de la cámara
+  const translateCameraLabel = (label) => {
+    // Normalizar a minúsculas para comparar
+    const lowerLabel = label.toLowerCase();
+
+    // Detectar si es trasera
+    const isBack = lowerLabel.includes("back") ||
+      lowerLabel.includes("rear") ||
+      lowerLabel.includes("trasera");
+
+    // Detectar si es frontal
+    const isFront = lowerLabel.includes("front") ||
+      lowerLabel.includes("frontal");
+
+    // Extraer número de cámara si existe
+    const cameraNumber = label.match(/\d+/)?.[0];
+
+    // Construir traducción correcta
+    if (isBack) {
+      return cameraNumber ? `Cámara ${cameraNumber} (trasera)` : "Cámara trasera";
+    }
+
+    if (isFront) {
+      return cameraNumber ? `Cámara ${cameraNumber} (frontal)` : "Cámara frontal";
+    }
+
+    // Si tiene número pero no especifica tipo
+    if (cameraNumber) {
+      return `Cámara ${cameraNumber}`;
+    }
+
+    // Fallback: traducir "camera" a "Cámara"
+    return label.replace(/camera/gi, "Cámara");
+  };
+
   useEffect(() => {
     // Obtener cámaras disponibles
     Html5Qrcode.getCameras()
@@ -17,9 +52,10 @@ const EscanerQR = ({ onScanSuccess, onClose }) => {
         if (devices && devices.length) {
           setCameras(devices);
           // Seleccionar cámara trasera por defecto (si existe)
-          const backCamera = devices.find((d) => 
-            d.label.toLowerCase().includes("back") || 
-            d.label.toLowerCase().includes("trasera")
+          const backCamera = devices.find((d) =>
+            d.label.toLowerCase().includes("back") ||
+            d.label.toLowerCase().includes("trasera") ||
+            d.label.toLowerCase().includes("rear")
           );
           setSelectedCamera(backCamera?.id || devices[0].id);
         } else {
@@ -133,7 +169,7 @@ const EscanerQR = ({ onScanSuccess, onClose }) => {
               >
                 {cameras.map((camera) => (
                   <option key={camera.id} value={camera.id}>
-                    {camera.label || `Cámara ${camera.id}`}
+                    {translateCameraLabel(camera.label) || `Cámara ${camera.id}`}
                   </option>
                 ))}
               </select>

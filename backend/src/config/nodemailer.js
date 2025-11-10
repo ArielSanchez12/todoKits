@@ -81,22 +81,28 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 }
 
+// registrar docentes (desde el administrador)
 export const sendMailToDocente = async (userMail, password, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
+    let html = getEmailTemplate({
+        title: "Bienvenida a LabTRACK - ESFOT",
+        message: `Hola ${userMail},<br><br>Has sido registrado en el sistema LabTRACK - ESFOT.<br><br>
+        <div style="background-color:#f0f0f0;padding:20px;border-radius:8px;margin:20px 0;text-align:center;">
+            <p style="font-size:12px;color:#666;margin:0 0 10px 0;text-transform:uppercase;letter-spacing:1px;">Tu contraseña temporal es:</p>
+            <p style="font-size:28px;font-weight:bold;color:#222;margin:0;letter-spacing:4px;font-family:'Courier New',monospace;">${password}</p>
+        </div>
+        <br>Para confirmar tu cuenta, haz clic en el botón a continuación.`,
+        buttonUrl: `${process.env.URL_FRONTEND}confirm-docente/${token}`,
+        buttonText: "CONFIRMAR CUENTA",
+        footer: "Equipo de LabTRACK - ESFOT<br>Si no solicitaste esta cuenta, ignora este correo<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
+    });
     let info = await transporter.sendMail({
         priority: 'high',
-        from: 'admin@kits.com',
+        from: 'admin@labtrackesfot.com',
         to: userMail,
-        subject: "KITS - Bienvenido al sistema",
-        text: "Has sido registrado en el sistema KITS",
-        html: `
-            <p>Hola, has sido registrado en el sistema KITS.</p>
-            <p>Tu contraseña temporal es: <strong>${password}</strong></p>
-            <p>Para confirmar tu cuenta, haz clic en el siguiente enlace:</p>
-            <a href="${process.env.URL_FRONTEND}confirm-docente/${token}">Confirmar cuenta</a>
-            <p>Si no solicitaste esta cuenta, puedes ignorar este mensaje.</p>
-        `
+        subject: "Bienvenida a LabTRACK - ESFOT",
+        html
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);

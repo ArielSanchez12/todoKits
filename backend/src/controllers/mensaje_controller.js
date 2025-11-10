@@ -52,7 +52,38 @@ const obtenerDocentes = async (req, res) => {
   }
 };
 
+// Enviar mensaje con encriptación automática
+const enviarMensaje = async (req, res) => {
+  try {
+    const { texto, de, deNombre, para, paraNombre, deTipo, paraTipo, clientId, replyToId, replyToTexto } = req.body;
+    const finalClientId = clientId || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const mensaje = await Mensaje.create({
+      texto,
+      de,
+      deNombre,
+      para,
+      paraNombre,
+      deTipo,
+      paraTipo,
+      clientId: finalClientId,
+      estado: "delivered",
+      replyToId: replyToId || null,
+      replyToTexto: replyToTexto || null
+    });
+
+    const mensajeDesencriptado = mensaje.desencriptar();
+    pusher.trigger("chat", "nuevo-mensaje", mensajeDesencriptado);
+
+    res.json(mensajeDesencriptado);
+  } catch (error) {
+    console.error("Error al enviar mensaje:", error);
+    res.status(500).json({ msg: "Error al enviar mensaje", error: error.message });
+  }
+};
+
 export {
   obtenerAdmin,
   obtenerDocentes,
+  enviarMensaje,
 };

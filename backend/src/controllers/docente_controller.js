@@ -358,7 +358,7 @@ const actualizarPerfilDocente = async (req, res) => {
       docenteBDD.tokenDocente = token;
 
       await docenteBDD.save();
-      await sendMailToChangeEmailDocente(data.emailDocente, token);
+      await sendMailToChangeEmail(data.emailDocente, token);
       return res.status(200).json({
         msg: "Se envió un correo electrónico de confirmación al nuevo correo. El cambio se aplicará cuando lo confirmes."
       });
@@ -400,7 +400,7 @@ export {
   //loginDocente,
   perfilDocente,
   // actualizarPasswordDocente,
-  confirmarNuevoEmailDocente,
+  // confirmarNuevoEmailDocente,
   // recuperarPasswordDocente,
   // comprobarTokenPasswordDocente,
   // crearNuevoPasswordDocente,

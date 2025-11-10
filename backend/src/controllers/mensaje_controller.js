@@ -238,6 +238,31 @@ const enviarTransferencia = async (req, res) => {
   }
 };
 
+// Marcar mensajes como leídos
+const marcarLeidos = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || !ids.length) {
+      return res.status(400).json({ msg: "Sin ids" });
+    }
+
+    await Mensaje.updateMany(
+      { _id: { $in: ids }, softDeleted: { $ne: true } },
+      { $set: { estado: "read" } }
+    );
+
+    const updated = await Mensaje.find({ _id: { $in: ids } });
+    const payload = updated.map(m => m.desencriptar());
+
+    pusher.trigger("chat", "mensajes-leidos", payload);
+    res.json({ msg: "Leídos", mensajes: payload });
+  } catch (error) {
+    console.error("Error al marcar leídos:", error);
+    res.status(500).json({ msg: "Error al marcar leídos" });
+  }
+};
+
 export {
   obtenerAdmin,
   obtenerDocentes,
@@ -246,5 +271,6 @@ export {
   ocultarMensaje,
   ocultarMultiples,
   obtenerTodosMensajes,
-  enviarTransferencia
+  enviarTransferencia,
+  marcarLeidos
 };

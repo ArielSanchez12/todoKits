@@ -152,6 +152,7 @@ export const sendMailToChangeEmailDocente = async (userMail, token) => {
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 };
 
+
 export const sendMailToRecoveryPasswordDocente = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();

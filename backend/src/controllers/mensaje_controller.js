@@ -245,5 +245,6 @@ export {
   obtenerHistorial,
   ocultarMensaje,
   ocultarMultiples,
-  obtenerTodosMensajes
+  obtenerTodosMensajes,
+  enviarTransferencia
 };

@@ -40,6 +40,7 @@ function getEmailTemplate({
     `;
 }
 
+//se envia el correo al registrarme desde la pagina de register, SI SIRVE
 const sendMailToRegister = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
@@ -53,7 +54,7 @@ const sendMailToRegister = async (userMail, token) => {
         priority: 'high',
         from: 'admin@labtrackesfot.com',
         to: userMail,
-        subject: "Confirmar cuenta en LabTRACK - ESOFT",
+        subject: "LabTRACK - ESOFT",
         html
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);

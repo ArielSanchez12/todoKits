@@ -83,18 +83,17 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 }
 
-// registrar docentes (desde el administrador)
+// registrar docentes (desde el administrador en el sidebar CREAR) SI SIRVE
 export const sendMailToDocente = async (userMail, password, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
     let html = getEmailTemplate({
-        title: "Bienvenida a LabTRACK - ESFOT",
-        message: `Hola ${userMail},<br><br>Has sido registrado en el sistema LabTRACK - ESFOT.<br><br>
+        title: "BIENVENIDO A LabTRACK - ESFOT",
+        message: `Hola ${userMail},<br><br>Has sido registrado en el sistema de LabTRACK - ESFOT como docente. Para confirmar tu cuenta, pulsa en el boton y usa tu contraseña temporal para iniciar sesión.
         <div style="background-color:#f0f0f0;padding:20px;border-radius:8px;margin:20px 0;text-align:center;">
             <p style="font-size:12px;color:#666;margin:0 0 10px 0;text-transform:uppercase;letter-spacing:1px;">Tu contraseña temporal es:</p>
             <p style="font-size:28px;font-weight:bold;color:#222;margin:0;letter-spacing:4px;font-family:'Courier New',monospace;">${password}</p>
-        </div>
-        <br>Para confirmar tu cuenta, haz clic en el botón a continuación.`,
+        </div>`,
         buttonUrl: `${process.env.URL_FRONTEND}confirm-docente/${token}`,
         buttonText: "CONFIRMAR CUENTA",
         footer: "Equipo de LabTRACK - ESFOT<br>Si no solicitaste esta cuenta, ignora este correo<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
@@ -103,7 +102,7 @@ export const sendMailToDocente = async (userMail, password, token) => {
         priority: 'high',
         from: 'admin@labtrackesfot.com',
         to: userMail,
-        subject: "Bienvenida a LabTRACK - ESFOT",
+        subject: "LabTRACK - ESFOT",
         html
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);

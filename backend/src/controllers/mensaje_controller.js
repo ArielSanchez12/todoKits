@@ -33,3 +33,7 @@ const obtenerAdmin = async (req, res) => {
     res.status(500).json({ msg: "Error al obtener admin", error: error.message });
   }
 };
+
+export {
+  obtenerAdmin
+};

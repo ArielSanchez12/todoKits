@@ -44,6 +44,7 @@ const sendMailToRegister = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
     let html = getEmailTemplate({
+        title: "CONFIRMAR CUENTA",
         message: `Hola ${userMail},<br> <br>Tu cuenta acaba de ser creada. Haz clic en el boton para confirmar tu correo electrónico e iniciar sesión.`,
         buttonUrl: `${process.env.URL_FRONTEND}confirm/${token}`,
         buttonText: "CONFIRMAR CUENTA",
@@ -64,7 +65,7 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
     let html = getEmailTemplate({
-        title: "Recupera tu Contraseña",
+        title: "Recupera tu contraseña",
         message: `Hola ${userMail},<br> <br>Has solicitado recuperar la contraseña de tu cuenta. Haz clic en el botón a continuación para crear una nueva contraseñaXXX2222.`,
         buttonUrl: `${process.env.URL_FRONTEND}reset/${token}`,
         buttonText: "RESTABLECER CONTRASEÑA",
@@ -74,7 +75,7 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
         priority: 'high',
         from: 'admin@labtrackesfot.com',
         to: userMail,
-        subject: "Recupera tu contraseña en LabTRACK",
+        subject: "Recupera tu contraseña en LabTRACK - ESFOT",
         html
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);

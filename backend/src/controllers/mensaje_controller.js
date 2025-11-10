@@ -108,9 +108,34 @@ const obtenerHistorial = async (req, res) => {
   }
 };
 
+// Ocultar mensaje para mí (eliminar para mí)
+const ocultarMensaje = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const miId = (req.docenteBDD?._id || req.adminEmailBDD?._id)?.toString();
+    const msg = await Mensaje.findById(id);
+
+    if (!msg) {
+      return res.status(404).json({ msg: "Mensaje no encontrado" });
+    }
+
+    if (!msg.hiddenFor.map(x => x.toString()).includes(miId)) {
+      msg.hiddenFor.push(miId);
+      await msg.save();
+    }
+
+    pusher.trigger("chat", "mensaje-oculto", { _id: msg._id, userId: miId });
+    res.json({ msg: "Ocultado", _id: msg._id });
+  } catch (error) {
+    console.error("Error al ocultar mensaje:", error);
+    res.status(500).json({ msg: "Error al ocultar mensaje" });
+  }
+};
+
 export {
   obtenerAdmin,
   obtenerDocentes,
   enviarMensaje,
   obtenerHistorial,
+  ocultarMensaje
 };

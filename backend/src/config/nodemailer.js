@@ -108,19 +108,23 @@ export const sendMailToDocente = async (userMail, password, token) => {
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 };
 
+// cambio de correo para el administrador
 export const sendMailToChangeEmail = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
+    let html = getEmailTemplate({
+        title: "Confirma tu nuevo correo electrónico",
+        message: `Hola ${userMail},<br> <br>Has solicitado cambiar tu correo electrónico en LabTRACK - ESFOT. Haz clic en el botón para confirmar este cambioOOOO.`,
+        buttonUrl: `${process.env.URL_FRONTEND}confirm-email/${token}`,
+        buttonText: "CONFIRMAR CAMBIO DE CORREO",
+        footer: "Si no solicitaste este cambio, ignora este correo.<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
+    });
     let info = await transporter.sendMail({
         priority: 'high',
-        from: 'admin@kits.com',
+        from: 'admin@labtrackesfot.com',
         to: userMail,
-        subject: "KITS - Confirma tu nuevo correo electrónico",
-        text: "Confirma tu nuevo correo para KITS",
-        html: `<p>Hola, has solicitado cambiar tu correo electrónico</p>
-            <p>Para confirmar este cambio, haz clic en el siguiente enlace:</p>
-            <a href="${process.env.URL_FRONTEND}confirm-email/${token}">Confirmar cambio de correo</a>
-            <p>Si no solicitaste este cambio, por favor ignora este mensaje.</p>`
+        subject: "Confirma tu nuevo correo en LabTRACK - ESFOT",
+        html
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);

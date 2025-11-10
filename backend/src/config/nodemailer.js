@@ -59,21 +59,23 @@ const sendMailToRegister = async (userMail, token) => {
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 }
 
+// recuperar contraseña (admin-docente (olvidaste tu contraseña))
 const sendMailToRecoveryPassword = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
+    let html = getEmailTemplate({
+        title: "Recupera tu Contraseña",
+        message: `Hola ${userMail},<br> <br>Has solicitado recuperar la contraseña de tu cuenta. Haz clic en el botón a continuación para crear una nueva contraseñaXXX2222.`,
+        buttonUrl: `${process.env.URL_FRONTEND}reset/${token}`,
+        buttonText: "RESTABLECER CONTRASEÑA",
+        footer: "Si no solicitaste este cambio, ignora este correo.<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
+    });
     let info = await transporter.sendMail({
         priority: 'high',
-        from: 'admin@kits.com',
+        from: 'admin@labtrackesfot.com',
         to: userMail,
-        subject: "Correo para reestablecer tu contraseña",
-        html: `
-    <h1>KITSLABORATORIO-���</h1>
-    <hr>
-    <a href=${process.env.URL_FRONTEND}reset/${token}>Clic para reestablecer tu contraseña</a>
-    <hr>
-    <footer>El equipo de la ESFOT te da la más cordial bienvenida.</footer>
-    `
+        subject: "Recupera tu contraseña en LabTRACK",
+        html
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);

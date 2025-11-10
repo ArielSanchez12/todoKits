@@ -1,7 +1,6 @@
 import { Router } from 'express'
 import { 
   perfilDocente, 
-  confirmarNuevoEmailDocente, 
   confirmarMailDocente,
   actualizarPerfilDocente,
   actualizarPasswordDocente

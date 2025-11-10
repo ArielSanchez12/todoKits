@@ -120,7 +120,7 @@ const confirmarNuevoEmailDocente = async (req, res) => {
 
     await docenteBDD.save();
 
-    res.status(200).json({ msg: "Email confirmado y actualizado correctamente" });
+    res.status(200).json({ msg: "Correo confirmado y actualizado correctamente" });
   } catch (error) {
     console.error("confirmarNuevoEmailDocente error:", error);
     res.status(500).json({ msg: "Error en el servidor" });
@@ -208,7 +208,7 @@ const confirmarMailDocente = async (req, res) => {
     docenteBDD.tokenDocente = null;
     await docenteBDD.save();
 
-    res.status(200).json({ msg: "Email confirmado correctamente, ya puedes iniciar sesión" });
+    res.status(200).json({ msg: "Correo confirmado correctamente, ya puedes iniciar sesión" });
   } catch (error) {
     console.error("confirmarMailDocente error:", error);
     res.status(500).json({ msg: "Error en el servidor" });
@@ -349,7 +349,7 @@ const actualizarPerfilDocente = async (req, res) => {
       const adminExistente = await admin.findOne({ email: data.emailDocente });
 
       if (docenteExistente || adminExistente) {
-        return res.status(400).json({ msg: "El email ya está registrado en el sistema" });
+        return res.status(400).json({ msg: "El correo ya está registrado en el sistema" });
       }
 
       const token = docenteBDD.createToken();
@@ -359,7 +359,7 @@ const actualizarPerfilDocente = async (req, res) => {
       await docenteBDD.save();
       await sendMailToChangeEmailDocente(data.emailDocente, token);
       return res.status(200).json({
-        msg: "Se envió un correo de confirmación al nuevo email. El cambio se aplicará cuando lo confirmes."
+        msg: "Se envió un correo electrónico de confirmación al nuevo correo. El cambio se aplicará cuando lo confirmes."
       });
     }
 

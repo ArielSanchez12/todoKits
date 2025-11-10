@@ -16,7 +16,7 @@ const registro = async (req, res) => {
         const adminExistente = await admin.findOne({ email });
         const docenteExistente = await docente.findOne({ emailDocente: email });
         if (adminExistente || docenteExistente) {
-            return res.status(400).json({ msg: "El email ya está registrado en el sistema" });
+            return res.status(400).json({ msg: "El correo ya está registrado en el sistema" });
         }
 
         const nuevoAdmin = new admin({ nombre, apellido, celular, email });
@@ -158,7 +158,7 @@ const confirmarNuevoEmail = async (req, res) => {
         adminEmailBDD.confirmEmail = true;
         await adminEmailBDD.save();
 
-        return res.status(200).json({ msg: "Email confirmado y actualizado correctamente" });
+        return res.status(200).json({ msg: "Correo confirmado y actualizado correctamente" });
     } catch (error) {
         console.error("confirmarNuevoEmail error:", error);
         return res.status(500).json({ msg: "Error en el servidor" });
@@ -185,7 +185,7 @@ const actualizarPerfil = async (req, res) => {
             const docenteExistente = await docente.findOne({ emailDocente: data.email });
 
             if (adminExistente || docenteExistente) {
-                return res.status(400).json({ msg: "El email ya está registrado en el sistema" });
+                return res.status(400).json({ msg: "El correo ya está registrado en el sistema" });
             }
 
             const token = adminEmailBDD.createToken();
@@ -198,7 +198,7 @@ const actualizarPerfil = async (req, res) => {
 
             await adminEmailBDD.save();
             await sendMailToChangeEmail(data.email, token);
-            return res.status(200).json({ msg: "Se envió un correo de confirmación al nuevo email. El cambio se aplicará cuando lo confirmes." });
+            return res.status(200).json({ msg: "Se envió un correo electrónico de confirmación al nuevo correo. El cambio se aplicará cuando lo confirmes." });
         }
 
         // Actualizar campos básicos
@@ -370,7 +370,7 @@ const registrarDocente = async (req, res) => {
         const docenteExistente = await docente.findOne({ emailDocente });
         const adminExistente = await admin.findOne({ email: emailDocente });
         if (docenteExistente || adminExistente) {
-            return res.status(400).json({ msg: "El email ya está registrado en el sistema" });
+            return res.status(400).json({ msg: "El correo ya está registrado en el sistema" });
         }
 
         const password = Math.random().toString(36).toUpperCase().slice(2, 5);

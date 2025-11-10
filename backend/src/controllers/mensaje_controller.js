@@ -173,6 +173,70 @@ const obtenerTodosMensajes = async (req, res) => {
   }
 };
 
+// Enviar transferencia por chat
+const enviarTransferencia = async (req, res) => {
+  try {
+    const { codigoTransferencia, docenteDestinoId, clientId } = req.body;
+
+    if (!req.adminEmailBDD) {
+      return res.status(403).json({ msg: "Solo administradores pueden enviar transferencias" });
+    }
+
+    const transferencia = await Transferencia.findOne({ codigoQR: codigoTransferencia })
+      .populate("prestamoOriginal")
+      .populate("recursos", "nombre") //No hago populate de más campos para optimizar la consulta, ademas que cuando escanea el qr
+      .populate("recursosAdicionales", "nombre") //se abre el modal de confirmar/rechazar transferencia y ahi se muestran los detalles
+      .populate("docenteOrigen", "nombreDocente apellidoDocente") //asi que no jodas
+      .populate("docenteDestino", "nombreDocente apellidoDocente");
+
+    if (!transferencia) {
+      return res.status(404).json({ msg: "Transferencia no encontrada" });
+    }
+
+    if (transferencia.docenteDestino._id.toString() !== docenteDestinoId) {
+      return res.status(400).json({ msg: "El docente destino no coincide" });
+    }
+
+    const urlQR = `${process.env.URL_FRONTEND}dashboard/transferencia/${transferencia.codigoQR}`;
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
+
+    const nombresRecursos = [
+      ...transferencia.recursos.map(r => r.nombre),
+      ...transferencia.recursosAdicionales.map(r => r.nombre)
+    ];
+    const nombreDocenteOrigen = `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
+
+    const finalClientId = clientId || `tx-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const mensaje = await Mensaje.create({
+      texto: `� Nueva transferencia de recursos`,
+      de: req.adminEmailBDD._id,
+      deTipo: "admin",
+      para: docenteDestinoId,
+      paraTipo: "docente",
+      tipo: "transferencia",
+      transferencia: {
+        codigo: transferencia.codigoQR,
+        qrImageUrl,
+        recursos: nombresRecursos,
+        docenteOrigen: nombreDocenteOrigen
+      },
+      clientId: finalClientId,
+      estado: "delivered"
+    });
+
+    const mensajeDesencriptado = mensaje.desencriptar();
+    pusher.trigger("chat", "nuevo-mensaje", mensajeDesencriptado);
+
+    res.json({
+      msg: "Transferencia enviada por chat exitosamente",
+      mensaje: mensajeDesencriptado
+    });
+  } catch (error) {
+    console.error("Error al enviar transferencia por chat:", error);
+    res.status(500).json({ msg: "Error al enviar transferencia por chat", error: error.message });
+  }
+};
 
 export {
   obtenerAdmin,

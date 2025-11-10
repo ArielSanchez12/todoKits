@@ -306,6 +306,35 @@ const editarMensaje = async (req, res) => {
   }
 };
 
+// Eliminar mensaje para ambos
+const eliminarMensaje = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const msg = await Mensaje.findById(id);
+
+    if (!msg) {
+      return res.status(404).json({ msg: "Mensaje no encontrado" });
+    }
+
+    const userId = req.docenteBDD?._id || req.adminEmailBDD?._id;
+    if (msg.de.toString() !== userId.toString()) {
+      return res.status(403).json({ msg: "Sin permiso para eliminar" });
+    }
+
+    msg.softDeleted = true;
+    msg.texto = " ";
+    await msg.save();
+
+    const dec = msg.desencriptar();
+    pusher.trigger("chat", "mensaje-eliminado", { _id: dec._id });
+
+    res.json({ msg: "Eliminado", _id: dec._id });
+  } catch (error) {
+    console.error("Error al eliminar mensaje:", error);
+    res.status(500).json({ msg: "Error al eliminar mensaje" });
+  }
+};
+
 export {
   obtenerAdmin,
   obtenerDocentes,
@@ -316,5 +345,6 @@ export {
   obtenerTodosMensajes,
   enviarTransferencia,
   marcarLeidos,
-  editarMensaje
+  editarMensaje,
+  eliminarMensaje
 };

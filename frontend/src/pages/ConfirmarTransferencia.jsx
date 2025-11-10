@@ -32,19 +32,19 @@ const ConfirmarTransferencia = () => {
         const data = await obtenerTransferenciaPorQR(codigoQR);
         if (!data) {
           setError("Transferencia no encontrada");
-          toast.error("La transferencia no existe o ha expirado");
+          toast.error("La transferencia fue cancelada o ha expirado");
           navigate("/notfound", { replace: true });
           return;
         }
         if (data.caducada) {
-            toast.error(data.msg || "Esta transferencia ya no está activa");
-            navigate("/notfound", { replace: true });
-            return;
+          toast.error(data.msg || "Esta transferencia ya no está activa");
+          navigate("/notfound", { replace: true });
+          return;
         }
         setTransferencia(data);
       } catch (e) {
-        setError("Error al cargar la transferencia");
-        toast.error("Error al cargar la transferencia");
+        setError("Error al procesar la transferencia: ha expirado o fue cancelada");
+        toast.error("Error al procesar la transferencia: ha expirado o fue cancelada");
         navigate("/notfound", { replace: true });
       } finally {
         setLoading(false);
@@ -69,7 +69,7 @@ const ConfirmarTransferencia = () => {
       toast.success("Transferencia confirmada correctamente");
       setTimeout(() => navigate("/dashboard/prestamos-docente"), 1200);
     } catch (e) {
-      toast.error(e.message || "Error al confirmar");
+      toast.error(e.message || "Error al confirmar la transferencia, verifica que no haya sido cancelada o esté expirada");
     } finally {
       setConfirmando(false);
     }
@@ -135,7 +135,7 @@ const ConfirmarTransferencia = () => {
           {/* Destino */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              � Detalles de la Transferencia
+              📋 Detalles de la Transferencia
             </p>
             <div className="space-y-2 text-sm">
               <p>
@@ -150,73 +150,73 @@ const ConfirmarTransferencia = () => {
             </div>
           </div>
 
-            {/* Recursos (mantener cuadro morado separado) */}
-            <div className="bg-purple-50 p-4 rounded-lg border border-purple-300 space-y-4">
-              <p className="text-sm font-semibold text-purple-800">
-                � Recursos a Transferir
+          {/* Recursos (mantener cuadro morado separado) */}
+          <div className="bg-purple-50 p-4 rounded-lg border border-purple-300 space-y-4">
+            <p className="text-sm font-semibold text-purple-800">
+              � Recursos a Transferir
+            </p>
+
+            {/* Principales */}
+            <div>
+              <p className="text-xs font-semibold text-purple-700 mb-2">
+                📦 Recursos Principales
               </p>
-
-              {/* Principales */}
-              <div>
-                <p className="text-xs font-semibold text-purple-700 mb-2">
-                  Recursos Principales
-                </p>
-                {transferencia.recursos && transferencia.recursos.length > 0 ? (
-                  <div className="space-y-2">
-                    {transferencia.recursos.map((recurso) => (
-                      <div
-                        key={recurso._id}
-                        className="bg-white p-3 rounded border border-purple-100 flex items-center justify-between"
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-sm">
-                            {recurso.nombre}
-                          </span>
-                          <span className="text-xs text-gray-600">
-                            {recurso.tipo?.toUpperCase()}
-                          </span>
-                        </div>
+              {transferencia.recursos && transferencia.recursos.length > 0 ? (
+                <div className="space-y-2">
+                  {transferencia.recursos.map((recurso) => (
+                    <div
+                      key={recurso._id}
+                      className="bg-white p-3 rounded border border-purple-100 flex items-center justify-between"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm">
+                          {recurso.nombre}
+                        </span>
+                        <span className="text-xs text-gray-600">
+                          {recurso.tipo?.toUpperCase()}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-500">
-                    No hay recursos principales
-                  </p>
-                )}
-              </div>
-
-              {/* Adicionales */}
-              <div>
-                <p className="text-xs font-semibold text-purple-700 mb-2">
-                  Recursos Adicionales
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">
+                  No hay recursos principales
                 </p>
-                {transferencia.recursosAdicionales &&
-                transferencia.recursosAdicionales.length > 0 ? (
-                  <div className="space-y-2">
-                    {transferencia.recursosAdicionales.map((recurso) => (
-                      <div
-                        key={recurso._id}
-                        className="bg-white p-3 rounded border border-purple-100 flex items-center justify-between"
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-sm">
-                            {recurso.nombre}
-                          </span>
-                          <span className="text-xs text-gray-600">
-                            {recurso.tipo?.toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-gray-500">
-                    No hay recursos adicionales
-                  </p>
-                )}
-              </div>
+              )}
             </div>
+
+            {/* Adicionales */}
+            <div>
+              <p className="text-xs font-semibold text-purple-700 mb-2">
+                📦 Recursos Adicionales
+              </p>
+              {transferencia.recursosAdicionales &&
+                transferencia.recursosAdicionales.length > 0 ? (
+                <div className="space-y-2">
+                  {transferencia.recursosAdicionales.map((recurso) => (
+                    <div
+                      key={recurso._id}
+                      className="bg-white p-3 rounded border border-purple-100 flex items-center justify-between"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-sm">
+                          {recurso.nombre}
+                        </span>
+                        <span className="text-xs text-gray-600">
+                          {recurso.tipo?.toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">
+                  No hay recursos adicionales
+                </p>
+              )}
+            </div>
+          </div>
 
           {/* Observaciones */}
           <div>
@@ -250,11 +250,11 @@ const ConfirmarTransferencia = () => {
           </div>
 
           {/* Botones */}
-          <div className="flex gap-3 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
             <button
               type="button"
               onClick={() => navigate("/dashboard/prestamos-docente")}
-              className="flex-1 px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-semibold"
+              className="w-full px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-semibold"
               disabled={confirmando}
             >
               Cancelar
@@ -262,7 +262,7 @@ const ConfirmarTransferencia = () => {
             <button
               type="submit"
               disabled={confirmando}
-              className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold disabled:opacity-50"
+              className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold disabled:opacity-50"
             >
               {confirmando ? "Confirmando..." : "Confirmar Transferencia"}
             </button>

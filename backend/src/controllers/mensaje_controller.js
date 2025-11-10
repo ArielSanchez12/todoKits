@@ -156,7 +156,22 @@ const ocultarMultiples = async (req, res) => {
   }
 };
 
+// Obtener todos los mensajes de un usuario (obtener el historial de chat completo pero de cada docente que tenga un administrador)
+const obtenerTodosMensajes = async (req, res) => {
+  try {
+    const { userId } = req.params;
 
+    const mensajesEncriptados = await Mensaje.find({
+      $or: [{ de: userId }, { para: userId }]
+    }).sort({ createdAt: 1 });
+
+    const mensajesDesencriptados = mensajesEncriptados.map(msg => msg.desencriptar());
+    res.json(mensajesDesencriptados);
+  } catch (error) {
+    console.error("Error al obtener mensajes:", error);
+    res.status(500).json({ msg: "Error al obtener mensajes", error: error.message });
+  }
+};
 
 
 export {
@@ -165,5 +180,6 @@ export {
   enviarMensaje,
   obtenerHistorial,
   ocultarMensaje,
-  ocultarMultiples
+  ocultarMultiples,
+  obtenerTodosMensajes
 };

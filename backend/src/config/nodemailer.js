@@ -132,26 +132,26 @@ export const sendMailToChangeEmail = async (userMail, token) => {
 };
 
 // cambio de correo para el docente (tanto desde el administrador como desde su propio perfil)
-export const sendMailToChangeEmailDocente = async (userMail, token) => {
-    console.log("Enviando email a:", userMail);
-    const startTime = Date.now();
-    let html = getEmailTemplate({
-        title: "Confirma tu nuevo correo electrónico",
-        message: `Hola ${userMail},<br> <br>Has solicitado cambiar tu correo electrónico en LabTRACK - ESFOT. Haz clic en el botón para confirmar este cambioXXXX.`,
-        buttonUrl: `${process.env.URL_FRONTEND}confirm-email-docente/${token}`,
-        buttonText: "CONFIRMAR CAMBIO DE CORREO",
-        footer: "Si no solicitaste este cambio, ignora este correo.<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
-    });
-    let info = await transporter.sendMail({
-        priority: 'high',
-        from: 'admin@labtrackesfot.com',
-        to: userMail,
-        subject: "Confirma tu nuevo correo en LabTRACK - ESFOT",
-        html
-    });
-    console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
-    console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
-};
+// export const sendMailToChangeEmailDocente = async (userMail, token) => {
+//     console.log("Enviando email a:", userMail);
+//     const startTime = Date.now();
+//     let html = getEmailTemplate({
+//         title: "Confirma tu nuevo correo electrónico",
+//         message: `Hola ${userMail},<br> <br>Has solicitado cambiar tu correo electrónico en LabTRACK - ESFOT. Haz clic en el botón para confirmar este cambioXXXX.`,
+//         buttonUrl: `${process.env.URL_FRONTEND}confirm-email-change/${token}`,
+//         buttonText: "CONFIRMAR CAMBIO DE CORREO",
+//         footer: "Si no solicitaste este cambio, ignora este correo.<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
+//     });
+//     let info = await transporter.sendMail({
+//         priority: 'high',
+//         from: 'admin@labtrackesfot.com',
+//         to: userMail,
+//         subject: "Confirma tu nuevo correo en LabTRACK - ESFOT",
+//         html
+//     });
+//     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+//     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
+// };
 
 // recuperar contraseña (docente olvidaste tu contraseña)
 export const sendMailToRecoveryPasswordDocente = async (userMail, token) => {

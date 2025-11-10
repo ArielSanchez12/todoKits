@@ -495,8 +495,8 @@ const actualizarDocente = async (req, res) => {
             docenteActual.token = token;
             await docenteActual.save();
 
-            // Enviar email de confirmación
-            await sendMailToChangeEmailDocente(nuevoCorreo, token);
+            // Enviar email de confirmación CON LA FUNCION UNIVERSAL DE auth_controller/routes o nodemailer
+            await sendMailToChangeEmail(nuevoCorreo, token);
 
             // Quitar el email de los datos a actualizar para evitar que se cambie directamente
             delete datosDocente.emailDocente;
@@ -566,7 +566,6 @@ export {
     perfil,
     actualizarPerfil,
     actualizarPassword,
-    confirmarNuevoEmail,
     registrarDocente,
     listarDocentes,
     eliminarDocente,

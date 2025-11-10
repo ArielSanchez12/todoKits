@@ -11,26 +11,53 @@ let transporter = nodemailer.createTransport({
     }
 });
 
+// Esta es la plantilla
+function getEmailTemplate({
+    logo = "https://res.cloudinary.com/dpax93l6a/image/upload/v1760893675/ChatGPT_Image_19_oct_2025_12_07_46_p.m._tueqmu.png",
+    title = "",
+    message = "",
+    buttonUrl = "#",
+    buttonText = "CONFIRMAR CORREO ELECTRÓNICO",
+    footer = "El equipo de la LabTRACK - ESFOT te da la más cordial bienvenida.<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
+}) {
+    return `
+    <div style="font-family:Arial,sans-serif;max-width:500px;margin:auto;border:1px solid #eee;padding:32px;background:#fff;">
+        <div style="text-align:center;">
+            <img src="${logo}" alt="Logo" style="width:210px;margin-bottom:20px;background:#fff;" draggable="false" />
+        </div>
+        <div style="text-align:center;">
+            <h2 style="color:#222;margin-bottom:16px;">${title}</h2>
+        </div>
+        <p style="font-size:16px;color:#333;">${message}</p>
+        <div style="text-align:center;margin:32px 0;">
+            <a href="${buttonUrl}" style="background:#007bff;color:#fff;padding:14px 28px;text-decoration:none;font-weight:bold;border-radius:6px;display:inline-block;font-size:16px;">
+                ${buttonText}
+            </a>
+        </div>
+        <hr>
+        <footer style="font-size:13px;color:#888;text-align:center;">${footer}</footer>
+    </div>
+    `;
+}
+
 const sendMailToRegister = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
+    let html = getEmailTemplate({
+        message: `Hola ${userMail},<br> <br>Tu cuenta acaba de ser creada. Haz clic en el boton para confirmar tu correo electrónico e iniciar sesión.`,
+        buttonUrl: `${process.env.URL_FRONTEND}confirm/${token}`,
+        buttonText: "CONFIRMAR CUENTA",
+    });
     let info = await transporter.sendMail({
         priority: 'high',
-        from: 'admin@kits.com',
+        from: 'admin@labtrackesfot.com',
         to: userMail,
-        subject: "Registro de cuenta en KITSLABORATORIO",
-        html: `
-    <h1>KITSLABORATORIO-🐒🏇🏿</h1>
-    <hr>
-    <p>Hola, haz clic <a href="${process.env.URL_FRONTEND}confirm/${token}">aquí</a> para confirmar tu cuenta.</p>
-    <hr>
-    <footer>El equipo de la ESFOT te da la más cordial bienvenida.</footer>
-    `
+        subject: "Confirmar cuenta en LabTRACK - ESOFT",
+        html
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 }
-
 
 const sendMailToRecoveryPassword = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
@@ -41,7 +68,7 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
         to: userMail,
         subject: "Correo para reestablecer tu contraseña",
         html: `
-    <h1>KITSLABORATORIO-🐒🏇🏿</h1>
+    <h1>KITSLABORATORIO-���</h1>
     <hr>
     <a href=${process.env.URL_FRONTEND}reset/${token}>Clic para reestablecer tu contraseña</a>
     <hr>

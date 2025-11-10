@@ -219,7 +219,7 @@ const EscanerQR = ({ onScanSuccess, onClose }) => {
           {/* Instrucciones */}
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <p className="text-sm text-blue-800 font-medium mb-2">
-              � Instrucciones:
+              ⛶ Instrucciones:
             </p>
             <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
               <li>Coloca el código QR frente a la cámara</li>

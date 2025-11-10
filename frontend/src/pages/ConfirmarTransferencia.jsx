@@ -153,13 +153,13 @@ const ConfirmarTransferencia = () => {
           {/* Recursos (mantener cuadro morado separado) */}
           <div className="bg-purple-50 p-4 rounded-lg border border-purple-300 space-y-4">
             <p className="text-sm font-semibold text-purple-800">
-              � Recursos a Transferir
+              📦 Recursos a Transferir
             </p>
 
             {/* Principales */}
             <div>
               <p className="text-xs font-semibold text-purple-700 mb-2">
-                📦 Recursos Principales
+                Recursos Principales
               </p>
               {transferencia.recursos && transferencia.recursos.length > 0 ? (
                 <div className="space-y-2">
@@ -189,7 +189,7 @@ const ConfirmarTransferencia = () => {
             {/* Adicionales */}
             <div>
               <p className="text-xs font-semibold text-purple-700 mb-2">
-                📦 Recursos Adicionales
+                Recursos Adicionales
               </p>
               {transferencia.recursosAdicionales &&
                 transferencia.recursosAdicionales.length > 0 ? (

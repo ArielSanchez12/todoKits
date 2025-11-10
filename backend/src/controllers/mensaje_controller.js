@@ -335,6 +335,33 @@ const eliminarMensaje = async (req, res) => {
   }
 };
 
+// Eliminar múltiples mensajes
+const eliminarMultiples = async (req, res) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || !ids.length) {
+      return res.status(400).json({ msg: "Sin ids" });
+    }
+
+    const userId = req.docenteBDD?._id || req.adminEmailBDD?._id;
+    const msgs = await Mensaje.find({ _id: { $in: ids } });
+    const permitidos = msgs.filter(m => m.de.toString() === userId.toString());
+
+    await Mensaje.updateMany(
+      { _id: { $in: permitidos.map(m => m._id) } },
+      { $set: { softDeleted: true, texto: " " } }
+    );
+
+    pusher.trigger("chat", "mensajes-eliminados", { ids: permitidos.map(m => m._id) });
+
+    res.json({ msg: "Eliminados", ids: permitidos.map(m => m._id) });
+  } catch (error) {
+    console.error("Error al eliminar múltiples:", error);
+    res.status(500).json({ msg: "Error al eliminar múltiples" });
+  }
+};
+
 export {
   obtenerAdmin,
   obtenerDocentes,
@@ -346,5 +373,6 @@ export {
   enviarTransferencia,
   marcarLeidos,
   editarMensaje,
-  eliminarMensaje
+  eliminarMensaje,
+  eliminarMultiples
 };

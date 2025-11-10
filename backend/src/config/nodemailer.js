@@ -109,22 +109,22 @@ export const sendMailToDocente = async (userMail, password, token) => {
     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
 };
 
-// cambio de correo para el administrador
+// cambio de correo para el administrador desde el formProfile, SI SIRVE (TANTO PARA ADMIN Y DOCENTE EN TODOS LOS FORMS Y FORMAS DE CAMBIAR EL EMAIL PORQUE USAN LA LOGICA UNIVERSAL DE AUTH)
 export const sendMailToChangeEmail = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
     let html = getEmailTemplate({
-        title: "Confirma tu nuevo correo electrónico",
-        message: `Hola ${userMail},<br> <br>Has solicitado cambiar tu correo electrónico en LabTRACK - ESFOT. Haz clic en el botón para confirmar este cambioOOOO.`,
+        title: "CONFIRMAR CAMBIO DE CORREO ELECTRÓNICO",
+        message: `Hola ${userMail},<br> <br>Has solicitado cambiar tu correo electrónico en LabTRACK - ESFOT. Haz clic en el botón para confirmar este cambio.`,
         buttonUrl: `${process.env.URL_FRONTEND}confirm-email/${token}`,
-        buttonText: "CONFIRMAR CAMBIO DE CORREO",
+        buttonText: "CONFIRMAR CAMBIO",
         footer: "Si no solicitaste este cambio, ignora este correo.<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
     });
     let info = await transporter.sendMail({
         priority: 'high',
         from: 'admin@labtrackesfot.com',
         to: userMail,
-        subject: "Confirma tu nuevo correo en LabTRACK - ESFOT",
+        subject: "LabTRACK - ESFOT",
         html
     });
     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);

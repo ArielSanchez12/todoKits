@@ -1,14 +1,11 @@
-// Requerir los módulos
 import express from 'express' //Framework que vamos a usar
 import dotenv from 'dotenv'   //Este framework es para trabajar con variables globales, se definen en el archivo .env y luego se las usa donde querramos
 import cors from 'cors';      //Este funciona cuando trabajamos con distintos sitios de despliegue, por ejemplo el front lo subo a github y el server a otra pagina y con cors se pueden comunicar sin dar problemas
-import routerAdmin from './routers/admin_routes.js'; //Renombrar cada router para cada modelo, luego copia y pega abajo en app.use para que se ponga en azul
-import routerDocente from './routers/docente_routes.js';
 import cloudinary from 'cloudinary'
 import fileUpload from "express-fileupload"
-//IMPORTACIONES NUEVAS PARA GOOGLE LOGIN
-import session from 'express-session'
-import passport from 'passport'
+
+import routerAdmin from './routers/admin_routes.js'; //Renombrar cada router para cada modelo, luego copia y pega abajo en app.use para que se ponga en azul
+import routerDocente from './routers/docente_routes.js';
 import routerAuth from './routers/auth_routes.js'
 import routerChat from './routers/mensaje_routes.js';
 import routerRecurso from './routers/recurso_routes.js';
@@ -39,8 +36,6 @@ app.use(cors()) //Para usar el framework cors, cada que veas 'estancia'.use('alg
 
 
 // Middlewares
-// Middleware para sesiones y passport
-app.use(passport.initialize());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Rutas 

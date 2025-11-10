@@ -154,26 +154,26 @@ export const sendMailToChangeEmail = async (userMail, token) => {
 // };
 
 // recuperar contraseña (docente olvidaste tu contraseña)
-export const sendMailToRecoveryPasswordDocente = async (userMail, token) => {
-    console.log("Enviando email a:", userMail);
-    const startTime = Date.now();
-    let html = getEmailTemplate({
-        title: "Recupera tu Contraseña",
-        message: `Hola ${userMail},<br> <br>Has solicitado recuperar tu contraseña en LabTRACK - ESFOT. Haz clic en el botón a continuación para crear una nueva contraseñaXCCC111.`,
-        buttonUrl: `${process.env.URL_FRONTEND}reset/${token}`,
-        buttonText: "RESTABLECER CONTRASEÑA",
-        footer: "Si no solicitaste recuperar tu contraseña, ignora este correo.<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
-    });
-    let info = await transporter.sendMail({
-        priority: 'high',
-        from: 'admin@labtrackesfot.com',
-        to: userMail,
-        subject: "Recupera tu contraseña en LabTRACK - ESFOT",
-        html
-    });
-    console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
-    console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
-};
+// export const sendMailToRecoveryPasswordDocente = async (userMail, token) => {
+//     console.log("Enviando email a:", userMail);
+//     const startTime = Date.now();
+//     let html = getEmailTemplate({
+//         title: "Recupera tu Contraseña",
+//         message: `Hola ${userMail},<br> <br>Has solicitado recuperar tu contraseña en LabTRACK - ESFOT. Haz clic en el botón a continuación para crear una nueva contraseñaXCCC111.`,
+//         buttonUrl: `${process.env.URL_FRONTEND}reset/${token}`,
+//         buttonText: "RESTABLECER CONTRASEÑA",
+//         footer: "Si no solicitaste recuperar tu contraseña, ignora este correo.<br>© 2025 LabTRACK - ESFOT Todos los derechos reservados."
+//     });
+//     let info = await transporter.sendMail({
+//         priority: 'high',
+//         from: 'admin@labtrackesfot.com',
+//         to: userMail,
+//         subject: "Recupera tu contraseña en LabTRACK - ESFOT",
+//         html
+//     });
+//     console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+//     console.log(`Email enviado en ${Date.now() - startTime}ms, ID:`, info.messageId);
+// };
 
 export {
     sendMailToRegister,

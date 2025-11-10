@@ -5,7 +5,6 @@ import {
   perfil, 
   actualizarPerfil, 
   actualizarPassword, 
-  confirmarNuevoEmail, 
   registrarDocente, 
   listarDocentes,
   eliminarDocente,

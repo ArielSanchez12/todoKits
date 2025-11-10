@@ -34,6 +34,25 @@ const obtenerAdmin = async (req, res) => {
   }
 };
 
+// Obtener docentes del admin autenticado
+const obtenerDocentes = async (req, res) => {
+  try {
+    if (!req.adminEmailBDD) {
+      return res.status(401).json({ msg: "No autorizado" });
+    }
+
+    const docentes = await Docente.find({ admin: req.adminEmailBDD._id }).select(
+      "_id nombreDocente apellidoDocente avatarDocente avatarDocenteOriginal avatar emailDocente"
+    );
+
+    res.json(docentes);
+  } catch (error) {
+    console.error("Error al obtener docentes:", error);
+    res.status(500).json({ msg: "Error al obtener docentes", error: error.message });
+  }
+};
+
 export {
-  obtenerAdmin
+  obtenerAdmin,
+  obtenerDocentes,
 };

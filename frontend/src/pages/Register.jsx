@@ -40,12 +40,12 @@ export const Register = () => {
                     {/* Contenedor del formulario */}
 
                     <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-black">BIENVENIDOS</h1>
-                    <small className="text-gray-400 block my-4 text-base">Por favor ingresa tus datos</small>
 
                     <form onSubmit={handleSubmit(registro)}>
 
                         {/* Campo para nombre */}
                         <div className="mb-3">
+                            <small className="text-gray-400 block my-4 text-base">Por favor ingresa tus datos</small>
                             <label className="mb-2 block text-base font-semibold">Nombre</label>
                             <input type="text" placeholder="Ingresa tu nombre" className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500"
                                 {...register("nombre")}

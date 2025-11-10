@@ -1,4 +1,4 @@
-import { sendMailToRegister, sendMailToRecoveryPassword, sendMailToChangeEmail, sendMailToDocente, sendMailToChangeEmailDocente } from "../config/nodemailer.js"
+import { sendMailToRegister, sendMailToChangeEmail, sendMailToDocente } from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
 import mongoose from "mongoose"
@@ -142,28 +142,28 @@ const perfil = (req, res) => {
 }
 
 //Confirmación de nuevo email (token enviado al nuevo correo)
-const confirmarNuevoEmail = async (req, res) => {
-    try {
-        const { token } = req.params;
-        if (!token) return res.status(400).json({ msg: "Token inválido" });
+// const confirmarNuevoEmail = async (req, res) => {
+//     try {
+//         const { token } = req.params;
+//         if (!token) return res.status(400).json({ msg: "Token inválido" });
 
-        const adminEmailBDD = await admin.findOne({ token, pendingEmail: { $exists: true } });
-        if (!adminEmailBDD) return res.status(404).json({ msg: "Token inválido o expirado" });
+//         const adminEmailBDD = await admin.findOne({ token, pendingEmail: { $exists: true } });
+//         if (!adminEmailBDD) return res.status(404).json({ msg: "Token inválido o expirado" });
 
-        // aplicar cambio de email
-        adminEmailBDD.email = adminEmailBDD.pendingEmail;
-        adminEmailBDD.pendingEmail = null;
-        adminEmailBDD.token = null;
-        // opcional: marcar confirmEmail true si deseas
-        adminEmailBDD.confirmEmail = true;
-        await adminEmailBDD.save();
+//         // aplicar cambio de email
+//         adminEmailBDD.email = adminEmailBDD.pendingEmail;
+//         adminEmailBDD.pendingEmail = null;
+//         adminEmailBDD.token = null;
+//         // opcional: marcar confirmEmail true si deseas
+//         adminEmailBDD.confirmEmail = true;
+//         await adminEmailBDD.save();
 
-        return res.status(200).json({ msg: "Correo confirmado y actualizado correctamente" });
-    } catch (error) {
-        console.error("confirmarNuevoEmail error:", error);
-        return res.status(500).json({ msg: "Error en el servidor" });
-    }
-};
+//         return res.status(200).json({ msg: "Correo confirmado y actualizado correctamente" });
+//     } catch (error) {
+//         console.error("confirmarNuevoEmail error:", error);
+//         return res.status(500).json({ msg: "Error en el servidor" });
+//     }
+// };
 
 const actualizarPerfil = async (req, res) => {
     try {

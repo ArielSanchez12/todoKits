@@ -18,8 +18,9 @@ const Chat = () => {
     const [responses, setResponses] = useState([]);
     const [message, setMessage] = useState("");
     const [isTyping, setIsTyping] = useState(false);
-    const [showViewModal, setShowViewModal] = useState(false); // ✅ NUEVO
-    const [selectedImageUrl, setSelectedImageUrl] = useState(""); // ✅ NUEVO
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedImageUrl, setSelectedImageUrl] = useState("");
+    const [imageUserName, setImageUserName] = useState(""); // ✅ NUEVO: nombre para el modal
     const token = storeAuth((state) => state.token);
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const [userType, setUserType] = useState("");
@@ -337,9 +338,10 @@ const Chat = () => {
         }
     }
 
-    // ✅ Función para abrir modal de imagen
-    const handleOpenImage = (imageUrl) => {
+    // ✅ Función para abrir modal de imagen CON NOMBRE
+    const handleOpenImage = (imageUrl, userName) => {
         setSelectedImageUrl(imageUrl);
+        setImageUserName(userName || "");
         setShowViewModal(true);
     };
 
@@ -692,8 +694,12 @@ const Chat = () => {
                                             alt="avatar"
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleOpenImage(contact.avatarFull)
+                                                e.stopPropagation();
+                                                // ✅ PASAR NOMBRE AL MODAL
+                                                handleOpenImage(
+                                                    contact.avatarFull,
+                                                    `${contact.nombreDocente || contact.nombre} ${contact.apellidoDocente || contact.apellido}`
+                                                );
                                             }}
                                             title="Click para ver imagen completa"
                                         />
@@ -744,7 +750,10 @@ const Chat = () => {
                             src={selectedContact.avatarCropped}
                             alt="avatar"
                             className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => handleOpenImage(selectedContact.avatarFull)}
+                            onClick={() => handleOpenImage(
+                                selectedContact.avatarFull,
+                                `${selectedContact.nombreDocente || selectedContact.nombre} ${selectedContact.apellidoDocente || selectedContact.apellido}`
+                            )}
                             title="Click para ver imagen completa"
                         />
 
@@ -925,7 +934,7 @@ const Chat = () => {
                 imageSrc={selectedImageUrl}
                 isOpen={showViewModal}
                 onClose={() => setShowViewModal(false)}
-                userName={selectedContact ? `${selectedContact.nombreDocente || selectedContact.nombre} ${selectedContact.apellidoDocente || selectedContact.apellido}` : ""}
+                userName={imageUserName} // ✅ USAR EL NOMBRE CAPTURADO
             />
 
             {/* Context menu */}

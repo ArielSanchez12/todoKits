@@ -832,7 +832,10 @@ const Chat = () => {
                                         src={selectedContact.avatarCropped}
                                         alt="avatar"
                                         className="w-16 h-16 md:w-20 md:h-20 rounded-full mx-auto mb-4 opacity-30 cursor-pointer"
-                                        onClick={() => handleOpenImage(selectedContact.avatarFull)}
+                                        onClick={() => handleOpenImage(
+                                            selectedContact.avatarFull,
+                                            `${selectedContact.nombreDocente || selectedContact.nombre} ${selectedContact.apellidoDocente || selectedContact.apellido}`
+                                        )}
                                         title="Click para ver imagen completa"
                                     />
                                     <p className="text-gray-500 text-sm">Inicia la conversación</p>

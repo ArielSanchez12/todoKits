@@ -680,7 +680,7 @@ const Chat = () => {
                             return (
                                 <div
                                     key={contact._id}
-                                    onClick={() => setSelectedContact(null)}
+                                    onClick={() => setSelectedContact(contact)}
                                     className={`p-3 md:p-4 border-b border-gray-200 cursor-pointer transition-colors ${selectedContact?._id === contact._id
                                         ? "bg-blue-50 border-l-4 border-l-blue-500"
                                         : "hover:bg-gray-50"
@@ -688,12 +688,12 @@ const Chat = () => {
                                 >
                                     <div className="flex items-center gap-3">
                                         <img
-                                            src={selectedContact.avatarCropped}
+                                            src={contact.avatarCropped}
                                             alt="avatar"
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                handleOpenImage(selectedContact.avatarFull)
+                                                handleOpenImage(contact.avatarFull)
                                             }}
                                             title="Click para ver imagen completa"
                                         />
@@ -702,9 +702,9 @@ const Chat = () => {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start gap-2">
                                                 <h3 className="font-semibold text-gray-800 truncate text-sm md:text-base">
-                                                    {selectedContact.nombreDocente
-                                                        ? `${selectedContact.nombreDocente} ${selectedContact.apellidoDocente}`
-                                                        : `${selectedContact.nombre} ${selectedContact.apellido}`}
+                                                    {contact.nombreDocente
+                                                        ? `${contact.nombreDocente} ${contact.apellidoDocente}`
+                                                        : `${contact.nombre} ${contact.apellido}`}
                                                 </h3>
                                                 <span className="text-xs text-gray-500 flex-shrink-0">
                                                     {formatLastMessageDate(lastMsg.createdAt)}

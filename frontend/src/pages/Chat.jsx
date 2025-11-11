@@ -688,12 +688,12 @@ const Chat = () => {
                                 >
                                     <div className="flex items-center gap-3">
                                         <img
-                                            src={contact.avatarCropped}
+                                            src={selectedContact.avatarCropped}
                                             alt="avatar"
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                handleOpenImage(contact.avatarFull)
+                                                handleOpenImage(selectedContact.avatarFull)
                                             }}
                                             title="Click para ver imagen completa"
                                         />
@@ -702,9 +702,9 @@ const Chat = () => {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start gap-2">
                                                 <h3 className="font-semibold text-gray-800 truncate text-sm md:text-base">
-                                                    {contact.nombreDocente
-                                                        ? `${contact.nombreDocente} ${contact.apellidoDocente}`
-                                                        : `${contact.nombre} ${contact.apellido}`}
+                                                    {selectedContact.nombreDocente
+                                                        ? `${selectedContact.nombreDocente} ${selectedContact.apellidoDocente}`
+                                                        : `${selectedContact.nombre} ${selectedContact.apellido}`}
                                                 </h3>
                                                 <span className="text-xs text-gray-500 flex-shrink-0">
                                                     {formatLastMessageDate(lastMsg.createdAt)}

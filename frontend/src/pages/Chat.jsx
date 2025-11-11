@@ -680,7 +680,7 @@ const Chat = () => {
                             return (
                                 <div
                                     key={contact._id}
-                                    onClick={() => setSelectedContact(contact)}
+                                    onClick={() => setSelectedContact(null)}
                                     className={`p-3 md:p-4 border-b border-gray-200 cursor-pointer transition-colors ${selectedContact?._id === contact._id
                                         ? "bg-blue-50 border-l-4 border-l-blue-500"
                                         : "hover:bg-gray-50"

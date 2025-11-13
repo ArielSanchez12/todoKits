@@ -1,39 +1,32 @@
 import { sendMailToRegister, sendMailToChangeEmail, sendMailToDocente } from "../services/emailService.js"
-import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
 import mongoose from "mongoose"
 import docente from "../models/docente.js"
 import { v2 as cloudinary } from 'cloudinary'
 
-
-
-const registro = async (req, res) => {
+const registro = async (req, res) => {  //este endpoint es para el registro de un nuevo admin desde Register.jsx
     try {
         // ahora usamos req.validated (viene del middleware)
         const { nombre, apellido, celular, email, password } = req.validated || req.body;
-
         // comprobacion de email existente
         const adminExistente = await admin.findOne({ email });
         const docenteExistente = await docente.findOne({ emailDocente: email });
         if (adminExistente || docenteExistente) {
             return res.status(400).json({ msg: "El correo ya está registrado en el sistema" });
         }
-
         const nuevoAdmin = new admin({ nombre, apellido, celular, email });
         nuevoAdmin.password = await nuevoAdmin.encryptPassword(password);
         const token = nuevoAdmin.createToken();
-
         await nuevoAdmin.save();
         await sendMailToRegister(email, token);
         res.status(200).json({ msg: "Revisa tu correo electrónico" });
     } catch (error) {
-        console.error("registro error:", error);
         if (error?.name === "ValidationError") return res.status(400).json({ msg: error.message });
         res.status(500).json({ msg: "Error en el servidor" });
     }
 }
 
-const confirmarMail = async (req, res) => {
+const confirmarMail = async (req, res) => { //Una vez se hace click en el link del mail, se confirma el token y su confirmEmail pasa a true y con esto ya confirma la cuenta el administrador
     if (!(req.params.token)) return res.status(400).json({ msg: "Lo sentimos, no se puede validar la cuenta" })
     const adminEmailBDD = await admin.findOne({ token: req.params.token })
     if (!adminEmailBDD?.token) return res.status(404).json({ msg: "La cuenta ya ha sido confirmada" })
@@ -43,129 +36,12 @@ const confirmarMail = async (req, res) => {
     res.status(200).json({ msg: "Token confirmado, ya puedes iniciar sesión" });
 }
 
-//Etapa 1
-// const recuperarPassword = async (req, res) => {
-//     try {
-//         // Datos ya validados por Zod (req.validated)
-//         const { email } = req.validated || req.body;
-
-//         const adminEmailBDD = await admin.findOne({ email });
-//         if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" });
-
-//         const token = adminEmailBDD.createToken();
-//         adminEmailBDD.token = token;
-//         await adminEmailBDD.save();
-
-//         // Enviar el correo con el token
-//         await sendMailToRecoveryPassword(email, token);
-
-//         res.status(200).json({ msg: "Revisa tu correo para restablecer tu contraseña" });
-//     } catch (error) {
-//         console.error("recuperarPassword error:", error);
-//         res.status(500).json({ msg: "Error en el servidor" });
-//     }
-// }
-
-// //Etapa 2
-// const comprobarTokenPassword = async (req, res) => {
-//     const { token } = req.params
-//     const adminEmailBDD = await admin.findOne({ token })
-//     if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" })
-
-//     await adminEmailBDD.save()
-
-//     res.status(200).json({ msg: "Token confirmado, ya puedes crear tu nuevo password" })
-// }
-
-// //Etapa 3
-// const crearNuevoPassword = async (req, res) => {
-//     try {
-//         // Datos ya validados por Zod (incluye validación de coincidencia)
-//         const { password, confirmpassword } = req.validated || req.body;
-//         const { token } = req.params;
-
-//         if (!token) return res.status(400).json({ msg: "Token inválido" });
-
-//         const adminEmailBDD = await admin.findOne({ token });
-//         if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, no se puede validar la cuenta" });
-//         if (adminEmailBDD.token !== token) return res.status(404).json({ msg: "Lo sentimos, token inválido o expirado" });
-
-//         adminEmailBDD.token = null;
-//         adminEmailBDD.password = await adminEmailBDD.encryptPassword(password);
-//         await adminEmailBDD.save();
-
-//         res.status(200).json({ msg: "Felicitaciones, ya puedes iniciar sesión con tu nuevo password" });
-//     } catch (error) {
-//         console.error("crearNuevoPassword error:", error);
-//         res.status(500).json({ msg: "Error en el servidor" });
-//     }
-// }
-
-// const login = async (req, res) => {
-//     //Obtencion de datos
-//     const { email, password } = req.body
-
-//     //Validacion de datos
-//     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Todos los campos son obligatorios" })
-
-//     //Comprobacion de email/password
-//     const adminEmailBDD = await admin.findOne({ email }).select("-status -__v -token -createdAt -updatedAt")
-//     if (adminEmailBDD?.confirmEmail === false) return res.status(401).json({ msg: "Lo sentimos, debes verificar tu cuenta antes de iniciar sesión" })
-//     if (!adminEmailBDD) return res.status(404).json({ msg: "Lo sentimos, el usuario no existe" })
-
-//     const verificarPassword = await adminEmailBDD.matchPassword(password)
-//     if (!verificarPassword) return res.status(401).json({ msg: "Lo sentimos, el password es incorrecto" })
-
-//     //Desestructurar solo los campos permitidos (sin 'direccion')
-//     const { nombre, apellido, celular, _id, rol, email: emailAd } = adminEmailBDD;
-//     const tokenJWT = crearTokenJWT(adminEmailBDD._id, adminEmailBDD.rol)
-
-//     //Aca mandamos el objeto que desestructuramos arriba
-//     res.status(200).json({
-//         token: tokenJWT,
-//         rol,
-//         usuario: {
-//             _id,
-//             nombre,
-//             apellido,
-//             celular,
-//             emailAd,
-//             rol,
-//             avatar: adminEmailBDD.avatar || null
-//         }
-//     });
-// }
-
-const perfil = (req, res) => {
+const perfil = (req, res) => { //devuele el perfil del admin que hizo la petición (req.adminEmailBDD viene del middleware que verifica el JWT)
     const { token, confirmEmail, createdAt, updatedAt, __v, ...datosPerfil } = req.adminEmailBDD //Quita todo lo que esta antes de ... y lo demas lo guarda en datosPerfil para almacenarlos en la respuesta req.admin
     res.status(200).json(datosPerfil)
 }
 
-//Confirmación de nuevo email (token enviado al nuevo correo)
-// const confirmarNuevoEmail = async (req, res) => {
-//     try {
-//         const { token } = req.params;
-//         if (!token) return res.status(400).json({ msg: "Token inválido" });
-
-//         const adminEmailBDD = await admin.findOne({ token, pendingEmail: { $exists: true } });
-//         if (!adminEmailBDD) return res.status(404).json({ msg: "Token inválido o expirado" });
-
-//         // aplicar cambio de email
-//         adminEmailBDD.email = adminEmailBDD.pendingEmail;
-//         adminEmailBDD.pendingEmail = null;
-//         adminEmailBDD.token = null;
-//         // opcional: marcar confirmEmail true si deseas
-//         adminEmailBDD.confirmEmail = true;
-//         await adminEmailBDD.save();
-
-//         return res.status(200).json({ msg: "Correo confirmado y actualizado correctamente" });
-//     } catch (error) {
-//         console.error("confirmarNuevoEmail error:", error);
-//         return res.status(500).json({ msg: "Error en el servidor" });
-//     }
-// };
-
-const actualizarPerfil = async (req, res) => {
+const actualizarPerfil = async (req, res) => { //actualiza el perfil del admin desde FormProfile.jsx para cambiar nombre, apellido, celular e email, para la foto usa el modal CardProfile.jsx 
     try {
         const { id } = req.params;
         const data = req.validated || req.body;
@@ -206,9 +82,8 @@ const actualizarPerfil = async (req, res) => {
         if (data.apellido) adminEmailBDD.apellido = data.apellido;
         if (data.celular) adminEmailBDD.celular = data.celular;
 
-        // ✅ ELIMINAR AVATARES
+        //Eliminar las imágenes de Cloudinary
         if (data.removeAvatar === true || data.removeAvatar === 'true') {
-            console.log("🗑️ ELIMINANDO AVATARES - ENTRANDO AL IF");
 
             // Eliminar de Cloudinary si existen
             if (adminEmailBDD.avatar) {
@@ -216,7 +91,7 @@ const actualizarPerfil = async (req, res) => {
                     const publicId = adminEmailBDD.avatar.split('/').pop().split('.')[0];
                     await cloudinary.uploader.destroy(`Admins/${publicId}`);
                 } catch (err) {
-                    console.warn("No se pudo eliminar avatar de Cloudinary:", err);
+                    console.warn("No se pudo eliminar avatar de Cloudinary:", err); //Estos console.warns y console.errors son para saber que tipo de error hubo en vercel, no los quites (no son lo mismo que console.log)
                 }
             }
             if (adminEmailBDD.avatarOriginal) {
@@ -231,8 +106,6 @@ const actualizarPerfil = async (req, res) => {
             adminEmailBDD.avatar = null;
             adminEmailBDD.avatarOriginal = null;
             await adminEmailBDD.save();
-
-            console.log("✅ Avatares eliminados");
             return res.status(200).json({
                 msg: "Foto de perfil eliminada correctamente",
                 admin: {
@@ -247,35 +120,29 @@ const actualizarPerfil = async (req, res) => {
             });
         }
 
-        // ✅ SUBIR IMAGEN RECORTADA + ORIGINAL
+        // Subir imagen recortada + original
         if (req.files?.avatar || req.files?.avatarOriginal) {
-            console.log("📤 SUBIENDO IMÁGENES - ENTRANDO AL IF");
 
             try {
-                // ✅ Subir imagen RECORTADA (para el círculo)
+                // Subir imagen RECORTADA (para el círculo)
                 if (req.files?.avatar) {
                     const uploadStream = cloudinary.uploader.upload_stream(
                         { folder: 'Admins' },
                         async (error, result) => {
                             if (error) {
-                                console.error("❌ Error al subir avatar recortado:", error);
                                 return res.status(500).json({ msg: 'Error al subir imagen recortada', error });
                             }
                             adminEmailBDD.avatar = result.secure_url;
-                            console.log("✅ Avatar recortado subido:", result.secure_url);
-
-                            // ✅ Subir imagen ORIGINAL (para el modal)
+                            // Subir imagen ORIGINAL (para el modal que muestra la foto completa al hacer click)
                             if (req.files?.avatarOriginal) {
                                 const uploadStreamOriginal = cloudinary.uploader.upload_stream(
                                     { folder: 'Admins/originals' },
                                     async (errorOriginal, resultOriginal) => {
                                         if (errorOriginal) {
-                                            console.error("❌ Error al subir avatar original:", errorOriginal);
+                                            console.error("Error al subir avatar original:", errorOriginal);
                                             return res.status(500).json({ msg: 'Error al subir imagen original', errorOriginal });
                                         }
                                         adminEmailBDD.avatarOriginal = resultOriginal.secure_url;
-                                        console.log("✅ Avatar original subido:", resultOriginal.secure_url);
-
                                         await adminEmailBDD.save();
                                         return res.status(200).json({
                                             msg: "Fotos de perfil actualizadas correctamente",
@@ -313,12 +180,11 @@ const actualizarPerfil = async (req, res) => {
                     return;
                 }
             } catch (err) {
-                console.error("❌ Error al procesar imágenes:", err);
+                console.error("Error al procesar imágenes:", err);
                 return res.status(500).json({ msg: 'Error al procesar imágenes', err });
             }
         }
 
-        console.log("📝 ACTUALIZANDO SOLO OTROS CAMPOS");
         await adminEmailBDD.save();
         return res.status(200).json({
             msg: "Perfil actualizado correctamente",
@@ -338,9 +204,9 @@ const actualizarPerfil = async (req, res) => {
     }
 };
 
-const actualizarPassword = async (req, res) => {
+const actualizarPassword = async (req, res) => { //actualiza la contraseña del admin desde CardPassword.jsx
     try {
-        // Datos validados por Zod (incluye confirmpassword y que password sea diferente)
+        // Datos validados por Zod (incluye confirmpassword(opcional) y que password sea diferente)
         const { passwordactual, passwordnuevo, confirmpassword } = req.validated || {};
 
         // Verificar token JWT y obtener admin
@@ -361,7 +227,7 @@ const actualizarPassword = async (req, res) => {
     }
 };
 
-const registrarDocente = async (req, res) => {
+const registrarDocente = async (req, res) => { //registra un nuevo docente asociado al admin, usa el formulario create/Form.jsx
     try {
         // Datos ya validados por Zod
         const datos = req.validated || req.body;
@@ -377,8 +243,8 @@ const registrarDocente = async (req, res) => {
 
         const nuevoDocente = new docente({
             ...datos, // Usar los datos validados con las transformaciones
-            passwordDocente: await docente.prototype.encryptPassword("KITS" + password),
-            admin: req.adminEmailBDD._id
+            passwordDocente: await docente.prototype.encryptPassword("KITS" + password), // esta verificacion que veriifcaba si la contraseña del usuario tipo 'docente'
+            admin: req.adminEmailBDD._id //el zod ahora se la salta porque estaba dando muchos errores al validar el objeto completo
         });
 
         // Generar token para confirmación de email
@@ -400,15 +266,15 @@ const registrarDocente = async (req, res) => {
         }
 
         await nuevoDocente.save();
-        await sendMailToDocente(emailDocente, "KITS" + password, token);
-        res.status(201).json({ msg: "Registro exitoso del docente" });
+        await sendMailToDocente(emailDocente, "KITS" + password, token); //de todas formas aca le envia la contraseña temporal con KITS al correo del docente pero el login ya no valida que lleve ese prefijo
+        res.status(201).json({ msg: "Registro exitoso del docente" }); //solo valida que sea la correcta
     } catch (error) {
         console.error("Error al registrar docente:", error);
         res.status(500).json({ msg: "Error en el servidor" });
     }
 };
 
-const listarDocentes = async (req, res) => {
+const listarDocentes = async (req, res) => { //lista los doccentes asociados al administrador (solo lista a aquellos que hayan confiramado su correo y tengan estado activo)
     try {
         if (req.docenteBDD?.rolDocente === "Docente") {
             // Si es un docente consultando su propio perfil
@@ -438,7 +304,7 @@ const listarDocentes = async (req, res) => {
     }
 };
 
-const eliminarDocente = async (req, res) => {
+const eliminarDocente = async (req, res) => { //eliminacion permanente de un docente
     try {
         const { id } = req.params;
         if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -457,7 +323,7 @@ const eliminarDocente = async (req, res) => {
     }
 };
 
-const actualizarDocente = async (req, res) => {
+const actualizarDocente = async (req, res) => { //actualiza los datos del docente desde create/Form.jsx (si se entra desde listar y luego editar, saldra 'Actualizar' en el modal en lugar de 'Crear')
     try {
         const { id } = req.params;
         // Datos ya validados por Zod
@@ -536,7 +402,7 @@ const actualizarDocente = async (req, res) => {
     }
 };
 
-const detalleDocente = async (req, res) => {
+const detalleDocente = async (req, res) => { //muestra el detalle de un docente en particular, sus datos y su historial (Details.jsx)
     try {
         const { id } = req.params;
         if (!mongoose.Types.ObjectId.isValid(id)) {

@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import { encrypt, decrypt, encryptArray, decryptArray } from "../helpers/encryption.js";
 
 const mensajeSchema = new Schema(
@@ -40,7 +40,7 @@ const mensajeSchema = new Schema(
     },
     replyToId: { type: Schema.Types.ObjectId, ref: "Mensaje", default: null },
     replyToTexto: { type: String, default: null }, // Encriptado
-    hiddenFor: [{ type: Schema.Types.ObjectId }], // usuarios para quienes está oculto
+    hiddenFor: [{ type: Schema.Types.ObjectId }], // usuarios para quienes está oculto (cuando se hace el eliminar para mi)
   },
   {
     timestamps: true,
@@ -49,7 +49,7 @@ const mensajeSchema = new Schema(
   }
 );
 
-// Índice TTL para expiración automática
+// Índice TTL para expiración automática (para que los mensajes se eliminen de la bdd después de 10 horas automáticamente)
 mensajeSchema.index({ createdAtTTL: 1 }, { expireAfterSeconds: 36000 });
 
 // Pre-hook: encriptar datos antes de guardar

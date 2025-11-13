@@ -1,4 +1,4 @@
-import transporter from "../config/nodemailer";
+import transporter from "../config/nodemailer.js";
 
 
 // Esta es la plantilla

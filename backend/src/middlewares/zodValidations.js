@@ -1,5 +1,3 @@
-import { ZodError } from "zod";
-
 export const validate = (schema) => {
   if (!schema || typeof schema.safeParse !== "function") {
     throw new Error("validate middleware: se debe pasar un esquema Zod válido");

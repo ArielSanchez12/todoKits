@@ -4,7 +4,7 @@ import docente from "../models/docente.js";
 import Transferencia from "../models/transferencia.js";
 import mongoose from "mongoose";
 
-// Crear solicitud de préstamo (Admin)
+// Crear solicitud de préstamo (admin crea las solicitudes que les llegan a los docentes para que las confirmen)
 const crearPrestamo = async (req, res) => {
   try {
     const datosPrestamo = req.validated || req.body;
@@ -182,17 +182,14 @@ const confirmarPrestamo = async (req, res) => {
       // Confirmar préstamo
       prestamoExistente.estado = "activo";
       prestamoExistente.horaConfirmacion = new Date();
-      // ✅ CAMBIO: Firma = _id del docente (no string)
+      //Firma = _id del docente (no string, no editable)
       prestamoExistente.firmaDocente = docenteId.toString();
 
-      // ✅ DETECTAR SI ES TRANSFERENCIA
+      //DETECTAR SI ES TRANSFERENCIA
       const esTransferencia = prestamoExistente.motivo?.tipo === "Transferencia" ||
         prestamoExistente.observaciones?.includes("Transferido por");
 
       if (esTransferencia) {
-        console.log("🔄 Detectada transferencia en préstamo:", id);
-
-        // ✅ CORRECCIÓN: Declarar una sola vez
         let codigoQR = null;
         let transferencia = null;
 
@@ -200,33 +197,26 @@ const confirmarPrestamo = async (req, res) => {
         if (prestamoExistente.observaciones) {
           const codigoMatch = prestamoExistente.observaciones.match(/Código de transferencia: ([a-f0-9\-]+)/);
           if (codigoMatch && codigoMatch[1]) {
-            codigoQR = codigoMatch[1]; // ✅ Asignar sin redeclarar
-            console.log("🔍 Código QR extraído:", codigoQR);
-
+            codigoQR = codigoMatch[1];
             transferencia = await Transferencia.findOne({ codigoQR })
               .populate("prestamoOriginal")
               .populate("recursos")
               .populate("recursosAdicionales");
-
-            console.log("✅ Transferencia encontrada:", transferencia?._id);
           }
         }
 
         if (transferencia && transferencia.prestamoOriginal) {
-          console.log("📤 Finalizando préstamo original del docente origen");
-          
-          // ✅ AGREGAR: Guardar firma del docente destino
+          //Guardar firma del docente destino
           transferencia.firmaDestino = docenteId.toString();
           transferencia.estado = "finalizado";
           transferencia.fechaConfirmacionDestino = new Date();
           await transferencia.save();
-          console.log("✅ Firma destino guardada:", docenteId.toString());
 
           // Obtener el préstamo original
           const prestamoOriginal = await prestamo.findById(transferencia.prestamoOriginal._id);
 
           if (prestamoOriginal && prestamoOriginal.estado === "activo") {
-            // ✅ NUEVO: Calcular recursos que NO fueron seleccionados
+            // Calcular recursos que NO fueron seleccionados
             const recursosTransferidos = transferencia.recursos.map(r => r._id.toString());
             const recursosAdicionalesTransferidos = transferencia.recursosAdicionales.map(r => r._id.toString());
             const todosRecursosTransferidos = [...recursosTransferidos, ...recursosAdicionalesTransferidos];
@@ -243,9 +233,6 @@ const confirmarPrestamo = async (req, res) => {
               });
             }
 
-            console.log("📦 Recursos transferidos:", todosRecursosTransferidos);
-            console.log("📦 Recursos NO transferidos (a devolver):", recursosNoTransferidos);
-
             // Liberar recursos que NO se transfieren
             if (recursosNoTransferidos.length > 0) {
               await recurso.updateMany(
@@ -255,7 +242,6 @@ const confirmarPrestamo = async (req, res) => {
                   asignadoA: null
                 }
               );
-              console.log("✅ Recursos liberados:", recursosNoTransferidos.length);
             }
 
             // Finalizar préstamo original
@@ -268,9 +254,6 @@ const confirmarPrestamo = async (req, res) => {
             }
 
             await prestamoOriginal.save();
-
-            console.log("✅ Préstamo original finalizado correctamente");
-
             // Actualizar transferencia
             transferencia.estado = "finalizado";
             transferencia.fechaConfirmacionDestino = new Date();
@@ -337,7 +320,7 @@ const confirmarPrestamo = async (req, res) => {
   }
 };
 
-// Finalizar préstamo - Devolución (Docente)
+// Finalizar préstamo - Devolución (docente devuelve los recursos)
 const finalizarPrestamo = async (req, res) => {
   try {
     const { id } = req.params;
@@ -418,7 +401,7 @@ const obtenerPrestamo = async (req, res) => {
   }
 };
 
-// Cancelar préstamo pendiente (Admin)
+// Cancelar préstamo pendiente (admin cancela la solicitud de prestamo pendiente enviada a algun docente)
 const cancelarPrestamo = async (req, res) => {
   try {
     const { id } = req.params;
@@ -461,7 +444,7 @@ const cancelarPrestamo = async (req, res) => {
       );
     }
 
-    // ✅ NUEVO: Populate para enviar datos completos
+    //Populate para enviar datos completos
     const prestamoPopulado = await prestamo
       .findById(prestamoEncontrado._id)
       .populate("recurso", "nombre tipo laboratorio aula contenido")
@@ -477,7 +460,7 @@ const cancelarPrestamo = async (req, res) => {
   }
 };
 
-// Finalizar préstamo (Admin)
+// Finalizar préstamo (admin finaliza el prestamo activo de un docente en caso de que el docente se haya olvidado)
 const finalizarPrestamoAdmin = async (req, res) => {
   try {
     const { id } = req.params;
@@ -517,7 +500,7 @@ const finalizarPrestamoAdmin = async (req, res) => {
       await recursoEncontrado.save();
     }
 
-    //Liberar recursos adicionales (CRÍTICO)
+    //Liberar recursos adicionales
     if (prestamoEncontrado.recursosAdicionales && prestamoEncontrado.recursosAdicionales.length > 0) {
       await recurso.updateMany(
         { _id: { $in: prestamoEncontrado.recursosAdicionales } },
@@ -528,7 +511,6 @@ const finalizarPrestamoAdmin = async (req, res) => {
       );
     }
 
-    // ✅ NUEVO: Populate para enviar datos completos
     const prestamoPopulado = await prestamo
       .findById(prestamoEncontrado._id)
       .populate("recurso", "nombre tipo laboratorio aula contenido")

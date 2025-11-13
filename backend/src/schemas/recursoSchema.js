@@ -33,7 +33,7 @@ export const updateRecursoSchema = z.object({
   asignadoA: z.string().optional(),
 });
 
-// NUEVO: Schema para actualización completa (edición)
+// Schema para actualización completa (edición)
 export const updateRecursoCompletoSchema = z.object({
   // Para KIT
   laboratorio: z.string().optional(),

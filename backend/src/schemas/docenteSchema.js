@@ -87,7 +87,7 @@ export const updateDocenteSchema = z.object({
   avatarDocente: z.string().optional()
 });
 
-// ✅ NUEVO: Esquema para que el docente actualice solo su perfil (solo email y foto)
+// Esquema para que el docente actualice solo su perfil (solo email y foto)
 export const updateDocenteProfileSchema = z
   .object({
     emailDocente: z
@@ -99,16 +99,16 @@ export const updateDocenteProfileSchema = z
       .optional(),
     removeAvatar: z.boolean().optional()
   })
-  .partial() // ✅ Hace que todos los campos sean opcionales
+  .partial() // Hace que todos los campos sean opcionales
   .refine(
     (data) => {
-      // ✅ Permitir que el objeto esté vacío si es FormData (se valida en el controlador)
+      // Permitir que el objeto esté vacío si es FormData (se valida en el controlador)
       return Object.keys(data).length >= 0;
     },
     { message: "Datos inválidos" }
   );
 
-// ✅ NUEVO: Esquema para actualizar contraseña del docente
+// Esquema para actualizar contraseña del docente
 export const updateDocentePasswordSchema = z
   .object({
     currentPasswordDocente: z.string().min(1, "La contraseña actual es requerida"),

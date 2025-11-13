@@ -70,10 +70,11 @@ const prestamoSchema = new Schema(
       default: null,
     },
     
-    // Firma del docente (su _id convertido a string)
+    // Firma del docente (su _id convertido a string pero no editable)
     firmaDocente: {
       type: String,
       default: null,
+      immutable: true, // No se puede modificar después de asignarse
     },
     
     // Recursos adicionales mencionados en observaciones (parseados automáticamente)

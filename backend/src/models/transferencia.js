@@ -6,21 +6,25 @@ const transferenciaSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "prestamo",
       required: true,
+      immutable: true,
     },
     docenteOrigen: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "docente",
       required: true,
+      immutable: true,
     },
     docenteDestino: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "docente",
       required: true,
+      immutable: true,
     },
     admin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "admin",
       required: true,
+      immutable: true,
     },
     recursos: [
       {
@@ -38,6 +42,7 @@ const transferenciaSchema = new Schema(
       type: String,
       required: true,
       unique: true,
+      immutable: true,
     },
     estado: {
       type: String,
@@ -55,14 +60,17 @@ const transferenciaSchema = new Schema(
     firmaOrigen: {
       type: String,
       default: "",
+      immutable: true,
     },
     firmaDestino: {
       type: String,
       default: "",
+      immutable: true,
     },
     fechaSolicitud: {
       type: Date,
       default: Date.now,
+      immutable: true,
     },
     fechaConfirmacionOrigen: {
       type: Date,

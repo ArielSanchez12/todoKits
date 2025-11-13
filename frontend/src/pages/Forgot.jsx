@@ -28,7 +28,7 @@ export const Forgot = () => {
             reset();
             setTimeout(() => {
                 navigate('/login');
-            }, 2000);
+            }, 4000);
         } catch (error) {
             toast.error(error.response?.data?.msg || "Error al recuperar contraseña");
         } finally {

@@ -1,6 +1,4 @@
 import nodemailer from "nodemailer"
-import dotenv from 'dotenv'
-dotenv.config()
 
 
 let transporter = nodemailer.createTransport({
@@ -10,6 +8,8 @@ let transporter = nodemailer.createTransport({
         pass: process.env.PASS_MAILTRAP,
     }
 });
+
+export default transporter;
 
 // Esta es la plantilla
 function getEmailTemplate({
@@ -44,6 +44,7 @@ function getEmailTemplate({
 const sendMailToRegister = async (userMail, token) => {
     console.log("Enviando email a:", userMail);
     const startTime = Date.now();
+    
     let html = getEmailTemplate({
         title: "CONFIRMAR CUENTA",
         message: `Hola ${userMail},<br> <br>Tu cuenta acaba de ser creada. Haz clic en el boton para confirmar tu correo electrónico e iniciar sesión.`,

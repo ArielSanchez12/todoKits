@@ -1,5 +1,5 @@
 import mongoose, { Schema, model } from 'mongoose'; //Librerias para generar el schema/modelo de nuestra BDD
-import bcrypt, { genSaltSync } from 'bcryptjs'
+import bcrypt  from 'bcryptjs'
 
 //Y aqui es donde se definen las cosas que van en la tabla
 const docenteSchema = new Schema({
@@ -22,7 +22,7 @@ const docenteSchema = new Schema({
         type: String,
         default: null
     },
-    avatarDocenteOriginal: { // ✅ NUEVO: Imagen original completa
+    avatarDocenteOriginal: { //Imagen original completa para el modal de ver imagen completa al hacer click
         type: String,
         default: null
     },

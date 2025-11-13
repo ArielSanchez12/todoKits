@@ -1,7 +1,5 @@
 import recurso from "../models/recurso.js";
 import mongoose from "mongoose";
-import admin from "../models/admin.js";
-import docente from "../models/docente.js";
 
 
 // Obtener siguiente número para nombre autogenerado

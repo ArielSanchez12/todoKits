@@ -27,10 +27,4 @@ router.put('/docente/actualizarperfil/:id', verificarTokenJWT, conditionalValida
 // Actualizar contraseña del docente
 router.put('/docente/actualizarpassword/:id', verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)
 
-// Confirmar cambio de email
-// router.get("/docente/confirm-new-email/:token", confirmarNuevoEmailDocente)
-
-// Actualizar contraseña del docente (protegido)
-//router.put("/docente/actualizarpassword/:id", verificarTokenJWT, validate(updateDocentePasswordSchema), actualizarPasswordDocente)
-
 export default router

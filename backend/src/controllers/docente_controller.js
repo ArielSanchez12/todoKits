@@ -1,7 +1,7 @@
 import docente from "../models/docente.js"
 import admin from "../models/admin.js"
 import { v2 as cloudinary } from 'cloudinary'
-import { sendMailToChangeEmail} from "../config/nodemailer.js"
+import { sendMailToChangeEmail} from "../services/emailService.js"
 import fs from "fs-extra"
 import mongoose from "mongoose"
 import { crearTokenJWT } from "../middlewares/jwt.js"

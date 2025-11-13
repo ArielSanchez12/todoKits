@@ -1,4 +1,4 @@
-import { sendMailToRegister, sendMailToChangeEmail, sendMailToDocente } from "../config/nodemailer.js"
+import { sendMailToRegister, sendMailToChangeEmail, sendMailToDocente } from "../services/emailService.js"
 import { crearTokenJWT } from "../middlewares/jwt.js"
 import admin from "../models/admin.js"
 import mongoose from "mongoose"

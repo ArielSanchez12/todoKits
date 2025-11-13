@@ -1,6 +1,6 @@
 import admin from "../models/admin.js";
 import docente from "../models/docente.js";
-import { sendMailToRecoveryPassword } from "../config/nodemailer.js";
+import { sendMailToRecoveryPassword } from "../services/emailService.js";
 import { crearTokenJWT } from "../middlewares/jwt.js";
 
 // ✅ NUEVO: Login unificado para admin y docente

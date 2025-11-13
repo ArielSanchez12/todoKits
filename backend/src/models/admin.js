@@ -39,7 +39,7 @@ const adminSchema = new Schema({
         type: String,
         default: null
     },
-     avatarOriginal: { // ✅ NUEVO: Imagen original completa
+     avatarOriginal: { //Imagen original completa para el modal de ver imagen completa al hacer click
         type: String,
         default: null
     },
@@ -63,7 +63,7 @@ const adminSchema = new Schema({
         default: "Administrador"
     },
 
-    pendingEmail: { // nuevo campo
+    pendingEmail: { // nuevo campo para email pendiente de confirmacion cuandon se cambia el email
         type: String,
         default: null
     }
@@ -72,7 +72,7 @@ const adminSchema = new Schema({
     timestamps: true //Para guardar en automatico las fechas de cuando se creo y actualizo el registro
 })
 
-// Método para cifrar el password del veterinario
+// Método para cifrar la contraseña del administrador
 adminSchema.methods.encryptPassword = async function (password) {
     const salt = await bcrypt.genSalt(10)
     const passwordEncrypt = await bcrypt.hash(password, salt)

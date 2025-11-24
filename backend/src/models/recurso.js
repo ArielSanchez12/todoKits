@@ -10,7 +10,7 @@ const recursoSchema = new Schema(
     nombre: {
       type: String,
       required: true,
-      unique: true,
+      //unique: true, quitamos unique para permitir nombres repetidos en la base pero cada admin seguira teniendo sus propios recursos con nombres unicos (kit #1, llave #2, etc)
     },
     // Solo para KIT y LLAVE
     laboratorio: {

@@ -25,3 +25,4 @@ describe('Tratamiento Model Test', () => {
     expect(error.errors.precio).toBeDefined();
   });
 });
+//sprint 3

@@ -1,4 +1,5 @@
 export default {
   testEnvironment: 'node',
-  verbose: true
+  verbose: true,
+  testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
 };

@@ -108,7 +108,7 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
       docenteDestinoToken = response.body.token;
     });
 
-    it('debe crear recurso para préstamo', async () => {
+    it('admin debe poder crear recurso para préstamo', async () => {
       const response = await request(app)
         .post('/api/recurso')
         .set('Authorization', `Bearer ${adminToken}`)
@@ -160,7 +160,7 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
           docenteOrigen: docenteOrigenId,
           docenteDestino: docenteDestinoId,
           recursos: [recursoId],
-          //observaciones: 'Transferencia' las transferencias no llevan observaciones al crearlas o si?
+          //observaciones: 'Transferencia' las transferencias no llevan observaciones al crearlas
         });
 
       expect(response.status).toBe(201);
@@ -252,7 +252,7 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
   });
 
   // PASO 4: DOCENTE DESTINO RESPONDE TRANSFERENCIA
-  describe('PASO 4: Docente Destino Responde Transferencia', () => {
+  describe('PASO 4: Docente destino responde transferencia', () => {
     let prestamoDestinoId;
 
     beforeAll(async () => {
@@ -330,140 +330,4 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
       expect(prestamoFinalizado).toBeDefined();
     });
   });
-
-  // // BONUS: PRUEBA DE RECHAZO DE TRANSFERENCIA
-  // describe('BONUS: Docente Destino Rechaza Transferencia', () => {
-  //   let adminToken2;
-  //   let docenteOrigen2Token;
-  //   let docenteDestino2Token;
-  //   let docenteOrigen2Id;
-  //   let docenteDestino2Id;
-  //   let recurso2Id;
-  //   let prestamoOrigen2Id;
-  //   let codigoQR2;
-
-  //   beforeAll(async () => {
-  //     // Setup para segunda transferencia
-  //     const adminRes = await request(app)
-  //       .post('/api/register')
-  //       .send({
-  //         nombre: 'Pedro',
-  //         apellido: 'García',
-  //         email: 'admin2@gmail.com',
-  //         password: 'Admin123!',
-  //         //confirmPassword: 'Admin123!'
-  //       });
-  //     adminToken2 = adminRes.body.token;
-
-  //     const docOrig = await request(app)
-  //       .post('/api/administrador/registerDocente')
-  //       .set('Authorization', `Bearer ${adminToken2}`)
-  //       .send({
-  //         nombreDocente: 'Ana',
-  //         apellidoDocente: 'Morales',
-  //         celularDocente: '0998765432',
-  //         emailDocente: 'ana@gmail.com',
-  //         passwordDocente: 'Docente123!',
-  //         //confirmPasswordDocente: 'Docente123!'
-  //       });
-  //     docenteOrigen2Id = docOrig.body.docente._id;
-
-  //     const docDest = await request(app)
-  //       .post('/api/administrador/registerDocente')
-  //       .set('Authorization', `Bearer ${adminToken2}`)
-  //       .send({
-  //         nombreDocente: 'Diego',
-  //         apellidoDocente: 'Herrera',
-  //         celularDocente: '0987654321',
-  //         emailDocente: 'diego@gmail.com',
-  //         passwordDocente: 'Docente123!',
-  //         //confirmPasswordDocente: 'Docente123!'
-  //       });
-  //     docenteDestino2Id = docDest.body.docente._id;
-
-  //     const docOrigLogin = await request(app)
-  //       .post('/api/auth/login')
-  //       .send({
-  //         email: 'ana@gmail.com',
-  //         password: 'Docente123!'
-  //       });
-  //     docenteOrigen2Token = docOrigLogin.body.token;
-
-  //     const docDestLogin = await request(app)
-  //       .post('/api/auth/login')
-  //       .send({
-  //         email: 'diego@gmail.com',
-  //         password: 'Docente123!'
-  //       });
-  //     docenteDestino2Token = docDestLogin.body.token;
-
-  //     // Crear recurso y préstamo
-  //     const recursoRes = await request(app)
-  //       .post('/api/recurso')
-  //       .set('Authorization', `Bearer ${adminToken2}`)
-  //       .send({
-  //         tipo: 'llave',
-  //         laboratorio: 'Laboratorio de Sistemas',
-  //         aula: 'Aula 101',
-  //         contenido: []
-  //       });
-  //     recurso2Id = recursoRes.body.recurso._id;
-
-  //     const prestamoRes = await request(app)
-  //       .post('/api/prestamo/crear')
-  //       .set('Authorization', `Bearer ${adminToken2}`)
-  //       .send({
-  //         recurso: recurso2Id,
-  //         docente: docenteOrigen2Id,
-  //         motivo: { tipo: 'Clase', descripcion: '' }
-  //       });
-  //     prestamoOrigen2Id = prestamoRes.body.prestamo._id;
-
-  //     await request(app)
-  //       .patch(`/api/docente/prestamo/${prestamoOrigen2Id}/confirmar`)
-  //       .set('Authorization', `Bearer ${docenteOrigen2Token}`)
-  //       .send({ confirmar: true });
-
-  //     // Crear transferencia
-  //     const transferRes = await request(app)
-  //       .post('/api/transferencia/crear')
-  //       .set('Authorization', `Bearer ${adminToken2}`)
-  //       .send({
-  //         prestamoOrigen: prestamoOrigen2Id,
-  //         docenteOrigen: docenteOrigen2Id,
-  //         docenteDestino: docenteDestino2Id,
-  //         recursos: [recurso2Id]
-  //       });
-  //     codigoQR2 = transferRes.body.transferencia.codigoQR;
-
-  //     // Confirmar origen
-  //     await request(app)
-  //       .patch(`/api/docente/transferencia/${codigoQR2}/confirmar`)
-  //       .set('Authorization', `Bearer ${docenteOrigen2Token}`)
-  //       .send({});
-  //   });
-
-  //   it('docente destino debe poder rechazar transferencia', async () => {
-  //     const response = await request(app)
-  //       .patch(`/api/docente/transferencia/${codigoQR2}/responder`)
-  //       .set('Authorization', `Bearer ${docenteDestino2Token}`)
-  //       .send({
-  //         aceptar: false,
-  //         observaciones: 'No necesito estos recursos ahora',
-  //         firma: 'Diego Herrera'
-  //       });
-
-  //     expect(response.status).toBe(200);
-  //     expect(response.body.transferencia.estado).toBe('rechazado');
-  //   });
-
-  //   it('recurso debe volver con docente origen después del rechazo', async () => {
-  //     const response = await request(app)
-  //       .get(`/api/recurso/${recurso2Id}`)
-  //       .set('Authorization', `Bearer ${docenteOrigen2Token}`);
-
-  //     expect(response.status).toBe(200);
-  //     expect(response.body.asignadoA).toBe(docenteOrigen2Id);
-  //   });
-  // });
 });

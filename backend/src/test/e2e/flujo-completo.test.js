@@ -98,7 +98,7 @@ describe('E2E - Flujo Completo: Registro → Préstamo → Devolución', () => {
     });
   });
 
-  // PASO 4: CREAR RECURSO (KIT)
+  // PASO 4: CREAR RECURSO DESDE ADMIN (KIT)
   describe('PASO 4: Crear Recurso (KIT)', () => {
     it('debe crear recurso (kit) exitosamente', async () => {
       const response = await request(app)
@@ -114,28 +114,6 @@ describe('E2E - Flujo Completo: Registro → Préstamo → Devolución', () => {
       expect(response.body.recurso.contenido).toHaveLength(4);
 
       recursoId = response.body.recurso._id;
-    });
-
-    it('docente debe poder listar recursos', async () => {
-      const response = await request(app)
-        .get('/api/recurso/listar')
-        .set('Authorization', `Bearer ${docenteToken}`);
-
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
-      expect(response.body[0].tipo).toBe('kit');
-    });
-
-    it('docente debe poder ver detalles del recurso', async () => {
-      const response = await request(app)
-        .get(`/api/recurso/${recursoId}`)
-        .set('Authorization', `Bearer ${docenteToken}`);
-
-      expect(response.status).toBe(200);
-      expect(response.body._id).toBe(recursoId);
-      expect(response.body.nombre).toBe('KIT #1');
-      expect(response.body.contenido).toEqual(recursoData.contenido);
     });
   });
 

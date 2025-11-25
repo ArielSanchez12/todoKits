@@ -13,15 +13,10 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const { crearTransferencia } = storeTransferencias();
 
-  // ✅ VALIDACIÓN MEJORADA: Filtrar docentes disponibles
+  // Filtrar docentes disponibles
   const docentesDisponibles = Array.isArray(docentes)
     ? docentes.filter((d) => d._id !== prestamo.docente._id)
     : [];
-
-  console.log("🔍 Debug Modal:");
-  console.log("- Docentes recibidos:", docentes);
-  console.log("- Docentes disponibles:", docentesDisponibles);
-  console.log("- Préstamo actual:", prestamo);
 
   const handleToggleRecursoAdicional = (recursoId) => {
     setRecursosSeleccionados((prev) => ({
@@ -65,14 +60,14 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
     }
   };
 
-  // ✅ VALIDACIÓN CORREGIDA: Solo mostrar error si docentes es null/undefined
+  // Solo mostrar error si docentes es null/undefined
   // NO validar por length porque puede ser un array vacío temporalmente
   if (!docentes) {
     return (
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800">⏳ Cargando...</h2>
+            <h2 className="text-xl font-bold text-gray-800">Cargando...</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
               <IoClose size={24} />
             </button>
@@ -92,7 +87,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
     );
   }
 
-  // ✅ VALIDACIÓN: Si no hay docentes disponibles después de filtrar
+  // Si no hay docentes disponibles después de filtrar
   if (docentesDisponibles.length === 0) {
     return (
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -145,7 +140,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
           {/* Información del préstamo actual */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-2">
-              📦 Préstamo Actual
+              � Préstamo Actual
             </p>
             <p className="text-sm">
               <span className="font-semibold">Docente:</span>{" "}
@@ -184,7 +179,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
           {/* Recurso principal (siempre seleccionado) */}
           <div className="bg-green-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              ✅ Recurso Principal (Obligatorio)
+              � Recurso Principal (Obligatorio)
             </p>
             <div className="flex items-center gap-3 p-3 bg-white rounded border border-green-200">
               <MdCheckCircle className="text-green-600" size={24} />
@@ -202,7 +197,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
             prestamo.recursosAdicionales.length > 0 && (
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <p className="text-sm font-semibold text-gray-700 mb-3">
-                  📦 Recursos Adicionales (Opcional)
+                  � Recursos Adicionales (Opcional)
                 </p>
                 <p className="text-xs text-gray-600 mb-3">
                   Selecciona los recursos adicionales que deseas transferir
@@ -239,7 +234,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
           {/* Resumen */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-2">
-              📋 Resumen
+              � Resumen
             </p>
             <ul className="text-sm space-y-1">
               <li>

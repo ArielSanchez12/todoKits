@@ -25,7 +25,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
 
-  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  // ESTADOS PARA PAGINACIÓN
   const [mostrarTodos, setMostrarTodos] = useState(false);
   const REGISTROS_INICIALES = 5;
 
@@ -230,17 +230,17 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
     }, 10);
   };
 
-  // ✅ FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
+  // FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
   const prestamosMostrados = mostrarTodos
     ? prestamosPorEstado
     : prestamosPorEstado?.slice(0, REGISTROS_INICIALES);
 
-  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  // VERIFICAR SI HAY MÁS REGISTROS
   const hayMasRegistros = prestamosPorEstado?.length > REGISTROS_INICIALES;
 
   return (
     <>
-      {/* ✅ FILTROS DE ESTADO */}
+      {/* FILTROS DE ESTADO */}
       <div className="flex flex-wrap gap-2 mb-4">
         {[
           {
@@ -274,19 +274,19 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
         ))}
       </div>
 
-      {/* ✅ HEADER CON CONTADOR */}
+      {/* HEADER CON CONTADOR */}
       <div className="bg-black text-white p-4 rounded-t-lg">
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <div>
             <h2 className="text-xl font-bold">
-              {esDocente ? "📚 Mi Historial" : "📚 Historial del Docente"}
+              {esDocente ? "� Mi Historial" : "� Historial del Docente"}
             </h2>
             <p className="text-xs text-gray-300 mt-1">
               Mostrando {prestamosMostrados?.length || 0} de {prestamosPorEstado?.length || 0} préstamos
             </p>
           </div>
 
-          {/* ✅ DATEPICKERS Y BOTÓN ACTUALIZAR */}
+          {/* DATEPICKERS Y BOTÓN ACTUALIZAR */}
           <div className="flex gap-2 items-center flex-wrap">
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-300">Desde:</span>
@@ -333,14 +333,14 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
         {(fechaDesde || fechaHasta) && (
           <div className="text-xs text-blue-300 mt-2">
-            📅 Filtrando:
+            � Filtrando:
             {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
             {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
           </div>
         )}
       </div>
 
-      {/* ✅ TABLA PEGADA AL HEADER */}
+      {/* TABLA PEGADA AL HEADER */}
       <div className="overflow-x-auto shadow-lg">
         <table className="w-full table-auto bg-white">
           <thead className="bg-black text-white">
@@ -497,7 +497,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
         </table>
       </div>
 
-      {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+      {/* BOTONES DE MOSTRAR MÁS/COLAPSAR */}
       {hayMasRegistros && (
         <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
           {!mostrarTodos ? (
@@ -539,7 +539,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
               {/* Recurso principal completo */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">� Recurso Principal</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-xs text-gray-600">Nombre:</span>
@@ -579,7 +579,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
               {Array.isArray(modalCancelar.recursosAdicionales) &&
                 modalCancelar.recursosAdicionales.length > 0 && (
                   <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">� Recursos Adicionales</p>
                     <div className="space-y-3">
                       {modalCancelar.recursosAdicionales.map((rec) => (
                         <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
@@ -665,7 +665,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
               {/* Recurso principal completo */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">� Recurso Principal</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-xs text-gray-600">Nombre:</span>
@@ -710,7 +710,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
               {Array.isArray(modalFinalizar.recursosAdicionales) &&
                 modalFinalizar.recursosAdicionales.length > 0 && (
                   <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">� Recursos Adicionales</p>
                     <div className="space-y-3">
                       {modalFinalizar.recursosAdicionales.map((rec) => (
                         <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">

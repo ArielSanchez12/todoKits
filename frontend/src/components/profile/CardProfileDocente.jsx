@@ -46,22 +46,22 @@ export const CardProfileDocente = () => {
         reader.readAsDataURL(file)
     }
 
-    // ✅ NUEVO: Subir imagen RECORTADA + ORIGINAL al servidor
+    // Subir imagen RECORTADA + ORIGINAL al servidor
     const handleCropComplete = async (croppedAreaPixels) => {
         try {
             setShowCropModal(false)
             setLoading(true)
 
-            // ✅ Crear imagen recortada
+            // Crear imagen recortada
             const croppedBlob = await createCroppedImage(imageToCrop, croppedAreaPixels)
             const croppedFile = new File([croppedBlob], originalFile.name, {
                 type: 'image/jpeg'
             })
 
-            // ✅ Enviar AMBAS imágenes al servidor
+            // Enviar AMBAS imágenes al servidor
             const formData = new FormData()
-            formData.append('avatarDocente', croppedFile) // ✅ Recortada para el círculo
-            formData.append('avatarDocenteOriginal', originalFile) // ✅ Original para el modal
+            formData.append('avatarDocente', croppedFile) // Recortada para el círculo
+            formData.append('avatarDocenteOriginal', originalFile) // Original para el modal
 
             await updateProfile(formData, userId)
 
@@ -99,14 +99,14 @@ export const CardProfileDocente = () => {
         }
     }
 
-    // ✅ URL para mostrar en el círculo (recortada)
+    // URL para mostrar en el círculo (recortada)
     const avatarUrl =
         preview ||
         userData?.avatarDocente ||
         userData?.avatar ||
         "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
-    // ✅ URL para mostrar en el modal (original completa)
+    // URL para mostrar en el modal (original completa)
     const fullImageUrl = userData?.avatarDocenteOriginal || avatarUrl;
 
     const tieneAvatarPersonalizado =
@@ -131,7 +131,7 @@ export const CardProfileDocente = () => {
                     />
 
                     <label className="absolute bottom-0 right-0 bg-blue-400 text-white rounded-full p-2 cursor-pointer hover:bg-emerald-400 transition-colors">
-                        {loading ? '⏳' : '📷'}
+                        {loading ? '⏳' : '�'}
                         <input
                             type="file"
                             accept="image/*"
@@ -148,27 +148,27 @@ export const CardProfileDocente = () => {
                             className="absolute bottom-0 left-0 bg-red-500 text-white rounded-full p-2 cursor-pointer hover:bg-red-600 transition-colors"
                             title="Eliminar foto de perfil"
                         >
-                            🗑️
+                            �️
                         </button>
                     )}
                 </div>
 
                 <div className="self-start mt-4">
-                    <b>Nombre:</b>
+                    <b>Nombres:</b>
                     <p className="inline-block ml-3">
                         {userData?.nombreDocente || userData?.nombre || 'Sin nombre'}
                     </p>
                 </div>
                 <div className="self-start">
-                    <b>Apellido:</b>
+                    <b>Apellidos:</b>
                     <p className="inline-block ml-3">
                         {userData?.apellidoDocente || userData?.apellido || 'Sin apellido'}
                     </p>
                 </div>
                 <div className="self-start">
-                    <b>Teléfono:</b>
+                    <b>Celular:</b>
                     <p className="inline-block ml-3">
-                        {userData?.celularDocente || userData?.celular || 'Sin teléfono'}
+                        {userData?.celularDocente || userData?.celular || 'Sin celular'}
                     </p>
                 </div>
                 <div className="self-start">

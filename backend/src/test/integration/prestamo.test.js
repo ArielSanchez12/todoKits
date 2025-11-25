@@ -28,7 +28,7 @@ afterEach(async () => {
   await Admin.deleteMany({});
 });
 
-describe('Integration - Gestión de Préstamos', () => {
+describe('Integration - Gestion de préstamos', () => {
   let adminToken;
   let adminId;
   let docenteToken;
@@ -36,18 +36,8 @@ describe('Integration - Gestión de Préstamos', () => {
   let recursoId;
   let recursoAdicionalId;
 
-  // Helper logging
-  const logIfError = (label, res, expected) => {
-    if (res.status !== expected) {
-      // eslint-disable-next-line no-console
-      console.log(`❌ [${label}] status=${res.status}`, res.body);
-    }
-  };
-
   beforeEach(async () => {
-    // ============================
-    // 1) Crear ADMIN directamente en Mongo
-    // ============================
+    // 1) Crear ADMIN 
     const admin = new Admin({
       nombre: 'Gregory',
       apellido: 'Sanchez',
@@ -63,9 +53,7 @@ describe('Integration - Gestión de Préstamos', () => {
     adminId = admin._id.toString();
     adminToken = crearTokenJWT(adminId, admin.rol);
 
-    // ============================
-    // 2) Crear DOCENTE directamente en Mongo
-    // ============================
+    // Crear DOCENTE
     const docente = new Docente({
       nombreDocente: 'María',
       apellidoDocente: 'López',
@@ -81,37 +69,28 @@ describe('Integration - Gestión de Préstamos', () => {
 
     docenteId = docente._id.toString();
 
-    // ============================
-    // 3) Login DOCENTE por API real (/api/login)
-    // ============================
+    // Login DOCENTE
     const loginResponse = await request(app)
       .post('/api/login')
       .send({
         email: 'maria@gmail.com',
         password: 'Docente123!'
       });
-
-    logIfError('Login Docente', loginResponse, 200);
-
     expect(loginResponse.status).toBe(200);
     docenteToken = loginResponse.body.token;
 
-    // ============================
-    // 4) Crear RECURSOS por API real
-    // ============================
-
+    // 4) Crear RECURSOS
     // Recurso principal (KIT)
     const recursoResponse = await request(app)
       .post('/api/administrador/recurso/crear')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         tipo: 'kit',
-        laboratorio: 'Laboratorio de Electrónica',
-        aula: 'Aula 301',
-        contenido: ['Arduino UNO R3', 'Cables Dupont']
+        laboratorio: 'LAB 16',
+        aula: 'E042',
+        contenido: ['CABLE HDMI', 'CABLE VGA', '2 CONTROLES', 'LLAVES']
       });
 
-    logIfError('Crear Recurso Principal', recursoResponse, 201);
     expect(recursoResponse.status).toBe(201);
     recursoId = recursoResponse.body.recurso._id;
 
@@ -121,20 +100,17 @@ describe('Integration - Gestión de Préstamos', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         tipo: 'llave',
-        laboratorio: 'Laboratorio de Redes',
-        aula: 'Aula 205'
-        // llaves no llevan contenido según tu modelo
+        laboratorio: 'LAB 22A',
+        aula: 'E035'
+        // llaves no llevan contenido
       });
 
-    logIfError('Crear Recurso Adicional', recursoAdicionalResponse, 201);
     expect(recursoAdicionalResponse.status).toBe(201);
     recursoAdicionalId = recursoAdicionalResponse.body.recurso._id;
   });
 
-  // ============================================
   // CREACIÓN DE PRÉSTAMOS
-  // ============================================
-  describe('Creación de Préstamos', () => {
+  describe('Creación de préstamos', () => {
     it('debe crear préstamo simple correctamente', async () => {
       const response = await request(app)
         .post('/api/administrador/prestamo/crear')
@@ -144,12 +120,10 @@ describe('Integration - Gestión de Préstamos', () => {
           docente: docenteId,
           motivo: {
             tipo: 'Clase',
-            descripcion: ''
+            descripcion: '' //llenar para tipo de motivo 'Otro'
           },
           observaciones: 'Préstamo para práctica'
         });
-
-      logIfError('Crear Préstamo Simple', response, 201);
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('prestamo');
@@ -164,10 +138,8 @@ describe('Integration - Gestión de Préstamos', () => {
     });
 
     it('debe crear préstamo con recursos adicionales (por observaciones)', async () => {
-      // Tu lógica de recursos adicionales se basa en NOMBRES dentro de observaciones
-      // Ejemplo: "KIT #1, LLAVE #2"
       const recursoPrincipal = await Recurso.findById(recursoId);
-      const recursoAdicional = await Recurso.findById(recursoAdicionalId);
+      const recursoAdicional = await Recurso.findById(recursoAdicionalId); //la llave
 
       const response = await request(app)
         .post('/api/administrador/prestamo/crear')
@@ -178,11 +150,10 @@ describe('Integration - Gestión de Préstamos', () => {
           motivo: {
             tipo: 'Clase',
             descripcion: ''
-          },
-          observaciones: `Préstamo con recursos adicionales: ${recursoAdicional.nombre}`
+          }, // la lógica de recursos adicionales se basa en NOMBRES dentro de observaciones
+          observaciones: `Préstamo con recursos adicionales: ${recursoAdicional.nombre}` // Ejemplo: "KIT #1, LLAVE #2"
         });
 
-      logIfError('Crear Préstamo con Recursos Adicionales', response, 201);
       expect(response.status).toBe(201);
 
       // Verificar que recursosAdicionales tenga 1 elemento
@@ -201,10 +172,12 @@ describe('Integration - Gestión de Préstamos', () => {
         .send({
           recurso: recursoId,
           docente: docenteId,
-          motivo: { tipo: 'Clase', descripcion: '' }
+          motivo: { 
+            tipo: 'Clase', 
+            descripcion: '' 
+          }
         });
 
-      logIfError('Crear Primer Préstamo', primerPrestamo, 201);
       expect(primerPrestamo.status).toBe(201);
 
       // Confirmar préstamo (docente)
@@ -213,10 +186,9 @@ describe('Integration - Gestión de Préstamos', () => {
         .set('Authorization', `Bearer ${docenteToken}`)
         .send({ confirmar: true });
 
-      logIfError('Confirmar Primer Préstamo', confirmar, 200);
       expect(confirmar.status).toBe(200);
 
-      // Intentar crear segundo préstamo con mismo recurso
+      // Intentar crear segundo préstamo con mismo recurso ya prestado
       const response = await request(app)
         .post('/api/administrador/prestamo/crear')
         .set('Authorization', `Bearer ${adminToken}`)
@@ -226,16 +198,13 @@ describe('Integration - Gestión de Préstamos', () => {
           motivo: { tipo: 'Clase', descripcion: '' }
         });
 
-      logIfError('Crear Segundo Préstamo con Recurso Prestado', response, 400);
       expect(response.status).toBe(400);
       expect(response.body.msg).toContain('no está disponible para préstamo');
     });
   });
 
-  // ============================================
   // CONFIRMACIÓN Y RECHAZO DE PRÉSTAMOS
-  // ============================================
-  describe('Confirmación y Rechazo de Préstamos', () => {
+  describe('Confirmación y rechazo de préstamos', () => {
     let prestamoId;
 
     beforeEach(async () => {
@@ -245,11 +214,13 @@ describe('Integration - Gestión de Préstamos', () => {
         .send({
           recurso: recursoId,
           docente: docenteId,
-          motivo: { tipo: 'Clase', descripcion: '' },
+          motivo: { 
+            tipo: 'Clase', 
+            descripcion: '' 
+          },
           observaciones: 'Préstamo de prueba'
         });
 
-      logIfError('Crear Préstamo para Confirmación', response, 201);
       expect(response.status).toBe(201);
       prestamoId = response.body.prestamo._id;
     });
@@ -259,8 +230,6 @@ describe('Integration - Gestión de Préstamos', () => {
         .patch(`/api/docente/prestamo/${prestamoId}/confirmar`)
         .set('Authorization', `Bearer ${docenteToken}`)
         .send({ confirmar: true });
-
-      logIfError('Confirmar Préstamo', response, 200);
 
       expect(response.status).toBe(200);
       expect(response.body.prestamo.estado).toBe('activo');
@@ -274,10 +243,8 @@ describe('Integration - Gestión de Préstamos', () => {
     });
   });
 
-  // ============================================
   // FINALIZACIÓN DE PRÉSTAMOS
-  // ============================================
-  describe('Finalización de Préstamos', () => {
+  describe('Finalización de préstamos', () => {
     let prestamoActivoId;
 
     beforeEach(async () => {
@@ -288,10 +255,12 @@ describe('Integration - Gestión de Préstamos', () => {
         .send({
           recurso: recursoId,
           docente: docenteId,
-          motivo: { tipo: 'Clase', descripcion: '' }
+          motivo: { 
+            tipo: 'Clase', 
+            descripcion: '' 
+          }
         });
 
-      logIfError('Crear Préstamo Activo', prestamoResponse, 201);
       expect(prestamoResponse.status).toBe(201);
       prestamoActivoId = prestamoResponse.body.prestamo._id;
 
@@ -300,7 +269,6 @@ describe('Integration - Gestión de Préstamos', () => {
         .set('Authorization', `Bearer ${docenteToken}`)
         .send({ confirmar: true });
 
-      logIfError('Confirmar Préstamo Activo', confirmar, 200);
       expect(confirmar.status).toBe(200);
     });
 
@@ -311,8 +279,6 @@ describe('Integration - Gestión de Préstamos', () => {
         .send({
           observacionesDevolucion: 'Recursos en perfecto estado'
         });
-
-      logIfError('Finalizar Préstamo', response, 200);
 
       expect(response.status).toBe(200);
       expect(response.body.prestamo.estado).toBe('finalizado');
@@ -325,10 +291,8 @@ describe('Integration - Gestión de Préstamos', () => {
     });
   });
 
-  // ============================================
   // LISTADO Y FILTRADO DE PRÉSTAMOS
-  // ============================================
-  describe('Listado y Filtrado de Préstamos', () => {
+  describe('Listado y filtrado de préstamos', () => {
     beforeEach(async () => {
       // Crear préstamos pendientes
       const response = await request(app)
@@ -341,7 +305,6 @@ describe('Integration - Gestión de Préstamos', () => {
           observaciones: 'Préstamo pendiente'
         });
 
-      logIfError('Crear Préstamo para Listado', response, 201);
       expect(response.status).toBe(201);
     });
 
@@ -349,8 +312,6 @@ describe('Integration - Gestión de Préstamos', () => {
       const response = await request(app)
         .get('/api/docente/prestamos')
         .set('Authorization', `Bearer ${docenteToken}`);
-
-      logIfError('Listar Préstamos Docente', response, 200);
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -369,8 +330,6 @@ describe('Integration - Gestión de Préstamos', () => {
       const response = await request(app)
         .get('/api/docente/prestamos/historial')
         .set('Authorization', `Bearer ${docenteToken}`);
-
-      logIfError('Historial Préstamos Docente', response, 200);
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);

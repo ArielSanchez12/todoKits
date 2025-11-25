@@ -20,11 +20,11 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
 
-  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  // ESTADOS PARA PAGINACIÓN
   const [mostrarTodos, setMostrarTodos] = useState(false);
   const REGISTROS_INICIALES = 5;
 
-  // ✅ Tooltip de Observaciones (refs y estado)
+  // Tooltip de Observaciones (refs y estado)
   const [hoveredObservacion, setHoveredObservacion] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0, direction: "bottom" });
   const tooltipRef = useRef(null);
@@ -119,7 +119,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
     }
   };
 
-  // ✅ Posicionar el tooltip hacia abajo, con scroll si es muy alto
+  // Posicionar el tooltip hacia abajo, con scroll si es muy alto
   const handleMouseEnter = (prestamoId) => {
     setHoveredObservacion(prestamoId);
 
@@ -186,27 +186,27 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
   const prestamosFiltrados = prestamosFiltradosPorFecha();
 
-  // ✅ FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
+  // FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
   const prestamosMostrados = mostrarTodos
     ? prestamosFiltrados
     : prestamosFiltrados?.slice(0, REGISTROS_INICIALES);
 
-  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  // VERIFICAR SI HAY MÁS REGISTROS
   const hayMasRegistros = prestamosFiltrados?.length > REGISTROS_INICIALES;
 
   return (
     <>
-      {/* ✅ HEADER CON DATEPICKERS Y CONTADOR */}
+      {/* HEADER CON DATEPICKERS Y CONTADOR */}
       <div className="bg-black text-white p-4 rounded-t-lg">
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <div>
-            <h2 className="text-xl font-bold">📦 Mis Préstamos Activos</h2>
+            <h2 className="text-xl font-bold">� Mis Préstamos Activos</h2>
             <p className="text-xs text-gray-300 mt-1">
               Mostrando {prestamosMostrados?.length || 0} de {prestamosFiltrados?.length || 0} préstamos
             </p>
           </div>
 
-          {/* ✅ DATEPICKERS EN LÍNEA (COMPACTOS) */}
+          {/* DATEPICKERS EN LÍNEA (COMPACTOS) */}
           <div className="flex gap-2 items-center flex-wrap">
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-300">Desde:</span>
@@ -252,14 +252,14 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
         {(fechaDesde || fechaHasta) && (
           <div className="text-xs text-blue-300 mt-2">
-            📅 Filtrando:
+            � Filtrando:
             {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
             {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
           </div>
         )}
       </div>
 
-      {/* ✅ TABLA PEGADA CON shadow-lg */}
+      {/* TABLA PEGADA CON shadow-lg */}
       <div className="overflow-x-auto shadow-lg">
         <table className="w-full table-auto bg-white">
           <thead className="bg-black text-white">
@@ -316,7 +316,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                       </span>
                     )}
                   </td>
-                  {/* ✅ Observaciones con truncado a 15 y tooltip con todo */}
+                  {/* Observaciones con truncado a 15 y tooltip con todo */}
                   <td
                     className="p-2 text-left text-sm relative"
                     ref={prestamo._id === hoveredObservacion ? cellRef : null}
@@ -355,7 +355,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
                         </div>
                       )}
 
-                    {/* ✅ Tooltip: crece hacia abajo, muestra todo el texto y lista completa */}
+                    {/* Tooltip: crece hacia abajo, muestra todo el texto y lista completa */}
                     {hoveredObservacion === prestamo._id &&
                       (prestamo.observaciones?.length > 25 ||
                         prestamo.recursosAdicionales?.length > 0) && (
@@ -438,7 +438,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
         </table>
       </div>
 
-      {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+      {/* BOTONES DE MOSTRAR MÁS/COLAPSAR */}
       {hayMasRegistros && (
         <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
           {!mostrarTodos ? (
@@ -481,7 +481,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
               {/* Recurso principal completo */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">� Recurso Principal</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-xs text-gray-600">Nombre:</span>
@@ -521,7 +521,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
               {Array.isArray(modalConfirmar.recursosAdicionales) &&
                 modalConfirmar.recursosAdicionales.length > 0 && (
                   <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">� Recursos Adicionales</p>
                     <div className="space-y-3">
                       {modalConfirmar.recursosAdicionales.map((rec) => (
                         <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
@@ -613,7 +613,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
               {/* Recurso principal completo */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">� Recurso Principal</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-xs text-gray-600">Nombre:</span>
@@ -656,7 +656,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
               {Array.isArray(modalDevolver.recursosAdicionales) &&
                 modalDevolver.recursosAdicionales.length > 0 && (
                   <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">� Recursos Adicionales</p>
                     <div className="space-y-3">
                       {modalDevolver.recursosAdicionales.map((rec) => (
                         <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">

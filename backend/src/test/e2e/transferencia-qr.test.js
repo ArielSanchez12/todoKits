@@ -30,7 +30,7 @@ afterEach(async () => {
   await Admin.deleteMany({});
 });
 
-describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
+describe('E2E - Transferencia con QR y mensaje por chat', () => {
   let adminToken;
   let adminId;
   let docenteOrigenToken;
@@ -42,15 +42,9 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
   let transferenciaId;
   let codigoQR;
 
-  const logIfError = (label, res, expected) => {
-    if (res.status !== expected) {
-      // eslint-disable-next-line no-console
-      console.log(`❌ [${label}] status=${res.status}`, res.body);
-    }
-  };
 
   beforeEach(async () => {
-    // 1) ADMIN
+    // crear ADMIN
     const admin = new Admin({
       nombre: 'Admin Prueba',
       apellido: 'Sanchez',
@@ -66,7 +60,7 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
     adminId = admin._id.toString();
     adminToken = crearTokenJWT(adminId, admin.rol);
 
-    // 2) DOCENTE ORIGEN
+    // crear DOCENTE ORIGEN
     const docenteOrigen = new Docente({
       nombreDocente: 'Docente Origen',
       apellidoDocente: 'López Prueba',
@@ -81,7 +75,7 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
     await docenteOrigen.save();
     docenteOrigenId = docenteOrigen._id.toString();
 
-    // 3) DOCENTE DESTINO
+    // crear DOCENTE DESTINO
     const docenteDestino = new Docente({
       nombreDocente: 'Docente Destino',
       apellidoDocente: 'Ramírez Prueba',
@@ -96,37 +90,34 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
     await docenteDestino.save();
     docenteDestinoId = docenteDestino._id.toString();
 
-    // 4) LOGIN DOCENTES
+    // LOGIN DOCENTES
     const loginOrigen = await request(app)
       .post('/api/login')
       .send({ email: 'docenteorigen@gmail.com', password: 'DocenteOrigen123!' });
-    logIfError('Login Docente Origen', loginOrigen, 200);
     expect(loginOrigen.status).toBe(200);
     docenteOrigenToken = loginOrigen.body.token;
 
     const loginDestino = await request(app)
       .post('/api/login')
       .send({ email: 'docentedestino@gmail.com', password: 'DocenteDestino123!' });
-    logIfError('Login Docente Destino', loginDestino, 200);
     expect(loginDestino.status).toBe(200);
     docenteDestinoToken = loginDestino.body.token;
 
-    // 5) RECURSO
+    // RECURSO
     const recursoResponse = await request(app)
       .post('/api/administrador/recurso/crear')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({
         tipo: 'kit',
-        laboratorio: 'LAB 23A',
-        aula: 'E030',
+        laboratorio: 'LAB 22B',
+        aula: 'E034',
         contenido: ['CABLE VGA', 'CONTROL'],
       });
 
-    logIfError('Crear Recurso para Préstamo', recursoResponse, 201);
     expect(recursoResponse.status).toBe(201);
     recursoId = recursoResponse.body.recurso._id;
 
-    // 6) PRÉSTAMO ORIGINAL
+    // PRÉSTAMO ORIGINAL
     const prestamoResponse = await request(app)
       .post('/api/administrador/prestamo/crear')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -137,23 +128,21 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
         observaciones: 'Préstamo inicial',
       });
 
-    logIfError('Crear Préstamo Original', prestamoResponse, 201);
     expect(prestamoResponse.status).toBe(201);
     prestamoOriginalId = prestamoResponse.body.prestamo._id;
 
-    // 7) CONFIRMAR PRÉSTAMO ORIGINAL
+    // CONFIRMAR PRÉSTAMO ORIGINAL
     const confirmar = await request(app)
       .patch(`/api/docente/prestamo/${prestamoOriginalId}/confirmar`)
       .set('Authorization', `Bearer ${docenteOrigenToken}`)
       .send({ confirmar: true });
 
-    logIfError('Confirmar Préstamo Original', confirmar, 200);
     expect(confirmar.status).toBe(200);
     expect(confirmar.body.prestamo.estado).toBe('activo');
   });
 
-  // PASO 1: ADMIN CREA TRANSFERENCIA
-  describe('PASO 1: Administrador crea Transferencia', () => {
+  // ADMIN CREA TRANSFERENCIA
+  describe('PASO 1: Administrador crea transferencia', () => {
     it('debe crear transferencia exitosamente y generar QR', async () => {
       const response = await request(app)
         .post('/api/administrador/transferencia/crear')
@@ -167,7 +156,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           },
         });
 
-      logIfError('Crear Transferencia', response, 201);
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('transferencia');
       expect(response.body.transferencia.estado).toBe('pendiente_origen');
@@ -181,7 +169,7 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
       expect(codigoQR.length).toBeGreaterThan(0);
     });
 
-    // ✅ nuevo test: no permite transferir a sí mismo
+    // no permite transferir a sí mismo
     it('no debe permitir transferencia al mismo docente', async () => {
       const response = await request(app)
         .post('/api/administrador/transferencia/crear')
@@ -200,7 +188,7 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
     });
   });
 
-  // PASO 2: DOCENTE ORIGEN CONFIRMA (ESCANEA QR)
+  // DOCENTE ORIGEN CONFIRMA (ESCANEA QR)
   describe('PASO 2: Docente origen confirma transferencia (Escanea QR)', () => {
     beforeEach(async () => {
       const response = await request(app)
@@ -215,7 +203,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           },
         });
 
-      logIfError('Crear Transferencia (Paso2 setup)', response, 201);
       expect(response.status).toBe(201);
       transferenciaId = response.body.transferencia._id;
       codigoQR = response.body.transferencia.codigoQR;
@@ -224,7 +211,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
     it('debe obtener transferencia por código QR', async () => {
       const response = await request(app).get(`/api/transferencia/${codigoQR}`);
 
-      logIfError('Obtener Transferencia por QR', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.codigoQR).toBe(codigoQR);
       expect(response.body.estado).toBe('pendiente_origen');
@@ -239,7 +225,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           firma: docenteOrigenId,
         });
 
-      logIfError('Confirmar Transferencia Origen', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.transferencia.estado).toBe('confirmado_origen');
       expect(response.body.transferencia).toHaveProperty('fechaConfirmacionOrigen');
@@ -248,11 +233,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
         .get('/api/docente/prestamos')
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
-      logIfError(
-        'Listar Préstamos Docente Destino tras confirmación origen',
-        prestamosDestino,
-        200,
-      );
       expect(prestamosDestino.status).toBe(200);
       const prestamoTransferencia = prestamosDestino.body.find(
         (p) => p.motivo.tipo === 'Transferencia',
@@ -261,7 +241,7 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
       expect(prestamoTransferencia.estado).toBe('pendiente');
     });
 
-    // ✅ nuevo test: otro docente no puede confirmar
+    // otro docente no puede confirmar
     it('debe rechazar confirmación por docente que no es origen', async () => {
       const response = await request(app)
         .patch(`/api/docente/transferencia/${codigoQR}/confirmar`)
@@ -275,8 +255,8 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
     });
   });
 
-  // PASO 3: ENVIAR MENSAJE DE TRANSFERENCIA POR CHAT
-  describe('PASO 3: Enviar Mensaje de Transferencia por Chat', () => {
+  //ENVIAR MENSAJE DE TRANSFERENCIA POR CHAT
+  describe('PASO 3: Enviar mensaje de transferencia por chat', () => {
     beforeEach(async () => {
       const crear = await request(app)
         .post('/api/administrador/transferencia/crear')
@@ -290,7 +270,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           },
         });
 
-      logIfError('Crear Transferencia (Paso3 setup)', crear, 201);
       expect(crear.status).toBe(201);
       transferenciaId = crear.body.transferencia._id;
       codigoQR = crear.body.transferencia.codigoQR;
@@ -303,7 +282,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           firma: docenteOrigenId,
         });
 
-      logIfError('Confirmar Transferencia Origen (Paso3 setup)', confirmar, 200);
       expect(confirmar.status).toBe(200);
     });
 
@@ -316,7 +294,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           docenteDestinoId: docenteDestinoId,
         });
 
-      logIfError('Enviar Transferencia por Chat', response, 200);
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('mensaje');
       expect(response.body.mensaje.tipo).toBe('transferencia');
@@ -332,14 +309,11 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           docenteDestinoId: docenteDestinoId,
         });
 
-      logIfError('Enviar Transferencia por Chat (Paso3 hist)', enviar, 200);
       expect(enviar.status).toBe(200);
-
       const chatHistory = await request(app)
         .get(`/api/chat/chat-history/${adminId}`)
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
-      logIfError('Historial Chat Docente Destino', chatHistory, 200);
       expect(chatHistory.status).toBe(200);
       expect(Array.isArray(chatHistory.body)).toBe(true);
       const msgTransf = chatHistory.body.find((m) => m.tipo === 'transferencia');
@@ -348,7 +322,7 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
     });
   });
 
-  // PASO 4: DOCENTE DESTINO RESPONDE TRANSFERENCIA
+  //DOCENTE DESTINO RESPONDE TRANSFERENCIA
   describe('PASO 4: Docente destino responde transferencia', () => {
     let prestamoDestinoId;
 
@@ -365,7 +339,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           },
         });
 
-      logIfError('Crear Transferencia (Paso4 setup)', crear, 201);
       expect(crear.status).toBe(201);
       codigoQR = crear.body.transferencia.codigoQR;
 
@@ -377,14 +350,12 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           firma: docenteOrigenId,
         });
 
-      logIfError('Confirmar Transferencia Origen (Paso4 setup)', confirmar, 200);
       expect(confirmar.status).toBe(200);
 
       const response = await request(app)
         .get('/api/docente/prestamos')
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
-      logIfError('Listar Préstamos Destino (Paso4 setup)', response, 200);
       expect(response.status).toBe(200);
       const prestamoTransferencia = response.body.find(
         (p) => p.motivo.tipo === 'Transferencia',
@@ -407,7 +378,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           },
         });
 
-      logIfError('Responder Transferencia Destino', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.transferencia.estado).toBe('finalizado');
       expect(response.body.transferencia).toHaveProperty(
@@ -429,18 +399,12 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           },
         });
 
-      logIfError('Responder Transferencia Destino (Paso4 activo)', aceptar, 200);
       expect(aceptar.status).toBe(200);
 
       const response = await request(app)
         .get('/api/docente/prestamos')
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
-      logIfError(
-        'Listar Préstamos Docente Destino tras aceptar',
-        response,
-        200,
-      );
       expect(response.status).toBe(200);
       const prestamoActivo = response.body.find((p) => p.estado === 'activo');
       expect(prestamoActivo).toBeDefined();
@@ -461,18 +425,12 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           },
         });
 
-      logIfError(
-        'Responder Transferencia Destino (Paso4 recurso)',
-        aceptar,
-        200,
-      );
       expect(aceptar.status).toBe(200);
 
       const response = await request(app)
         .get(`/api/administrador/recurso/${recursoId}`)
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
-      logIfError('Recurso tras Transferencia', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.estado).toBe('prestado');
 
@@ -481,7 +439,7 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
       expect(response.body.asignadoA._id.toString()).toBe(docenteDestinoId);
     });
 
-    // ✅ nuevo test: docente destino puede rechazar transferencia
+    // docente destino puede rechazar transferencia
     it('docente destino puede rechazar transferencia', async () => {
       const response = await request(app)
         .patch(`/api/docente/transferencia/${codigoQR}/responder`)
@@ -492,14 +450,13 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           firma: docenteDestinoId,
         });
 
-      logIfError('Rechazar Transferencia Destino', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.transferencia.estado).toBe('rechazado');
     });
   });
 
-  // PASO 5: VALIDAR FINALIZACIÓN
-  describe('PASO 5: Validar Transferencia Finalizada', () => {
+  // VALIDAR FINALIZACIÓN
+  describe('PASO 5: Validar transferencia finalizada', () => {
     beforeEach(async () => {
       const crear = await request(app)
         .post('/api/administrador/transferencia/crear')
@@ -513,7 +470,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           },
         });
 
-      logIfError('Crear Transferencia (Paso5 setup)', crear, 201);
       expect(crear.status).toBe(201);
       codigoQR = crear.body.transferencia.codigoQR;
 
@@ -525,7 +481,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           firma: docenteOrigenId,
         });
 
-      logIfError('Confirmar Transferencia Origen (Paso5 setup)', confirmar, 200);
       expect(confirmar.status).toBe(200);
 
       const aceptar = await request(app)
@@ -538,11 +493,6 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
           nuevoMotivo: { tipo: 'Clase', descripcion: 'Uso para laboratorio' },
         });
 
-      logIfError(
-        'Responder Transferencia Destino (Paso5 setup)',
-        aceptar,
-        200,
-      );
       expect(aceptar.status).toBe(200);
     });
 
@@ -550,11 +500,10 @@ describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
       const response = await request(app).get(`/api/transferencia/${codigoQR}`);
 
       //Puede ser 200 si devuelve decide devolver 'ok' o 410 si esta caducada
-      logIfError('Obtener Transferencia Finalizada', response, 200);
       expect([200, 410]).toContain(response.status);
       expect(response.body.estado).toBe('finalizado'); //lo importante es el estado 'finalizado'
     });
-    // ✅ nuevo test: préstamo original debe estar finalizado
+    // préstamo original debe estar finalizado
     it('préstamo original debe estar finalizado', async () => {
       const prestamo = await Prestamo.findById(prestamoOriginalId);
       expect(prestamo).not.toBeNull();

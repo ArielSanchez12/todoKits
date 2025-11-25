@@ -36,20 +36,20 @@ const FormularioPerfil = () => {
                 <hr className='my-4 border-t-2 border-gray-300' />
             </div>
             <div>
-                <label className="mb-2 block text-base font-semibold">Nombre</label>
+                <label className="mb-2 block text-base font-semibold">Nombres</label>
                 <input
                     type="text"
-                    placeholder="Ingresa tu nombre"
+                    placeholder="Ingresa tus nombres"
                     className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-2"
                     {...register("nombre", { required: "Este campo es obligatorio!" })}
                 />
                 {errors.nombre && <p className="text-red-800 text-base mb-4">{errors.nombre.message}</p>}
             </div>
             <div>
-                <label className="mb-2 block text-base font-semibold">Apellido</label>
+                <label className="mb-2 block text-base font-semibold">Apellidos</label>
                 <input
                     type="text"
-                    placeholder="Ingresa tu apellido"
+                    placeholder="Ingresa tus apellidos"
                     className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-2"
                     {...register("apellido", { required: "Este campo es obligatorio!" })}
                 />
@@ -57,10 +57,10 @@ const FormularioPerfil = () => {
 
             </div>
             <div>
-                <label className="mb-2 block text-base font-semibold">Teléfono</label>
+                <label className="mb-2 block text-base font-semibold">Celular</label>
                 <input
                     type="text"
-                    placeholder="Ingresa tu teléfono"
+                    placeholder="Ingresa tu número celular"
                     className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-2"
                     {...register("celular", { required: "Este campo es obligatorio!" })}
                 />
@@ -92,7 +92,7 @@ const FormularioPerfil = () => {
                 </div>
                 <input
                     type="email"
-                    placeholder="Ingresa tu correo"
+                    placeholder="Ingresa tu correo electrónico"
                     className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-2"
                     {...register("email", { required: "Este campo es obligatorio!" })}
                 />

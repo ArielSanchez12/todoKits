@@ -162,7 +162,7 @@ export const Form = ({ docente }) => {
                 </legend>
 
                 <div>
-                    <label className="mb-2 block text-base font-semibold">Nombre</label>
+                    <label className="mb-2 block text-base font-semibold">Nombres</label>
                     <input
                         type="text"
                         placeholder="Ingresa el nombre"
@@ -173,7 +173,7 @@ export const Form = ({ docente }) => {
                 </div>
 
                 <div>
-                    <label className="mb-2 block text-base font-semibold">Apellido</label>
+                    <label className="mb-2 block text-base font-semibold">Apellidos</label>
                     <input
                         type="text"
                         placeholder="Ingresa el apellido"
@@ -230,7 +230,7 @@ export const Form = ({ docente }) => {
             {/* Imagen del docente */}
             <div className="mt-10">
                 <label className="mb-2 block text-base font-semibold">Imagen del docente (opcional)</label>
-                <p className="text-gray-600 text-sm mb-3">Si no subes una imagen, se utilizará la imagen por defecto.</p>
+                <p className="text-gray-600 text-sm mb-3">Si no subes una imagen, se utilizará la imagen por defecto</p>
 
                 <div className="relative">
                     <input

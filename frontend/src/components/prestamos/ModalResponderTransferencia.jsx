@@ -15,11 +15,11 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
 
   const firmaDigital = user?._doc?._id || user?._id;
 
-  // ✅ DETECTAR si es un préstamo o una transferencia completa
+  // detectar si es un préstamo o una transferencia completa
   const esPrestamoTransferencia = !transferencia.docenteOrigen;
   const prestamoId = transferencia._id;
 
-  // ✅ Extraer datos según el tipo
+  // Extraer datos según el tipo
   const recursos = esPrestamoTransferencia
     ? [transferencia.recurso]
     : transferencia.recursos;
@@ -32,12 +32,12 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
     ? transferencia.observaciones
     : transferencia.observacionesOrigen;
 
-  // ✅ Extraer nombre del docente origen desde observaciones si es préstamo
+  // Extraer nombre del docente origen desde observaciones si es préstamo
   const nombreDocenteOrigen = esPrestamoTransferencia
     ? transferencia.observaciones?.match(/Transferido por: (.+?)(?:\n|Email:|$)/)?.[1]?.trim() || "Docente desconocido"
     : `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
 
-  // ✅ AGREGAR extracción del email desde observaciones
+  // Agregar extracción del email desde observaciones
   const emailDocenteOrigen = esPrestamoTransferencia
     ? transferencia.observaciones?.match(/Email: (.+?)(?:\n|$)/)?.[1]?.trim() || null
     : transferencia.docenteOrigen.emailDocente;
@@ -47,7 +47,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
 
     try {
       if (esPrestamoTransferencia) {
-        // ✅ Si es préstamo-transferencia, usar confirmarPrestamo
+        // Si es préstamo-transferencia, usar confirmarPrestamo
         await confirmarPrestamo(prestamoId, aceptar, aceptar ? "" : "Rechazado por el docente");
         toast.success(
           aceptar
@@ -55,7 +55,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
             : "Transferencia rechazada"
         );
       } else {
-        // ✅ Si es transferencia completa, usar responderTransferenciaDestino
+        // Si es transferencia completa, usar responderTransferenciaDestino
         await responderTransferenciaDestino(transferencia._id, {
           aceptar,
           observaciones,
@@ -99,7 +99,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
           {/* Información del origen */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              👤 Docente que Transfiere
+              � Docente que Transfiere
             </p>
             <div className="space-y-2 text-sm">
               <p>
@@ -118,7 +118,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
           {/* Recursos a recibir */}
           <div className="bg-green-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              📦 Recursos que Recibirás
+              � Recursos que Recibirás
             </p>
             <div className="space-y-3">
               {/* Recurso Principal */}
@@ -218,7 +218,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
           {observacionesOrigen && (
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-gray-700 mb-2">
-                💬 Información de la Transferencia
+                � Información de la Transferencia
               </p>
               <p className="text-sm text-gray-700 whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
                 {observacionesOrigen}

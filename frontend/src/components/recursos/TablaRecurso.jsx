@@ -9,7 +9,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
   const tooltipRef = useRef(null);
   const cellRef = useRef(null);
 
-  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  // ESTADOS PARA PAGINACIÓN
   const [mostrarTodos, setMostrarTodos] = useState(false);
   const REGISTROS_INICIALES = 5;
 
@@ -18,12 +18,12 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
       ? recursos
       : recursos?.filter((r) => r.tipo === filtro);
 
-  // ✅ FUNCIÓN PARA OBTENER RECURSOS A MOSTRAR
+  // FUNCIÓN PARA OBTENER RECURSOS A MOSTRAR
   const recursosMostrados = mostrarTodos 
     ? recursosFiltrados 
     : recursosFiltrados?.slice(0, REGISTROS_INICIALES);
 
-  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  // VERIFICAR SI HAY MÁS REGISTROS
   const hayMasRegistros = recursosFiltrados?.length > REGISTROS_INICIALES;
 
   const handleDelete = async (id, recurso) => {
@@ -154,10 +154,10 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
 
   return (
     <>
-      {/* ✅ HEADER CON CONTADOR */}
+      {/* HEADER CON CONTADOR */}
       <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
         <div>
-          <h2 className="text-xl font-bold">🔧 Gestión de Recursos</h2>
+          <h2 className="text-xl font-bold">� Gestión de Recursos</h2>
           <p className="text-xs text-gray-300 mt-1">
             Mostrando {recursosMostrados?.length || 0} de {recursosFiltrados?.length || 0} recursos
           </p>
@@ -171,7 +171,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         </button>
       </div>
 
-      {/* ✅ TABLA PEGADA CON shadow-lg */}
+      {/* TABLA PEGADA CON shadow-lg */}
       <div className="overflow-x-auto shadow-lg">
         <table className="w-full table-auto bg-white">
           <thead className="bg-black text-white">
@@ -266,7 +266,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
         </table>
       </div>
 
-      {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+      {/* BOTONES DE MOSTRAR MÁS / COLAPSAR */}
       {hayMasRegistros && (
         <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
           {!mostrarTodos ? (

@@ -18,7 +18,7 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
 
-  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  // ESTADOS PARA PAGINACIÓN
   const [mostrarTodos, setMostrarTodos] = useState(false);
   const REGISTROS_INICIALES = 5;
 
@@ -112,27 +112,27 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
 
   const prestamosFiltrados = prestamosFiltradosPorFecha();
 
-  // ✅ FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
+  // FUNCIÓN PARA OBTENER PRÉSTAMOS A MOSTRAR
   const prestamosMostrados = mostrarTodos 
     ? prestamosFiltrados 
     : prestamosFiltrados?.slice(0, REGISTROS_INICIALES);
 
-  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  // VERIFICAR SI HAY MÁS REGISTROS
   const hayMasRegistros = prestamosFiltrados?.length > REGISTROS_INICIALES;
 
   return (
     <>
-      {/* ✅ HEADER CON CONTADOR */}
+      {/* HEADER CON CONTADOR */}
       <div className="bg-black text-white p-4 rounded-t-lg">
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <div>
-            <h2 className="text-xl font-bold">📋 Gestión de Préstamos</h2>
+            <h2 className="text-xl font-bold">� Gestión de Préstamos</h2>
             <p className="text-xs text-gray-300 mt-1">
               Mostrando {prestamosMostrados?.length || 0} de {prestamosFiltrados?.length || 0} préstamos
             </p>
           </div>
           
-          {/* ✅ DATEPICKERS Y BOTÓN ACTUALIZAR */}
+          {/* DATEPICKERS Y BOTÓN ACTUALIZAR */}
           <div className="flex gap-2 items-center flex-wrap">
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-300">Desde:</span>
@@ -178,14 +178,14 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
 
         {(fechaDesde || fechaHasta) && (
           <div className="text-xs text-blue-300 mt-2">
-            📅 Filtrando:
+            � Filtrando:
             {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
             {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
           </div>
         )}
       </div>
 
-      {/* ✅ TABLA PEGADA CON shadow-lg */}
+      {/* TABLA PEGADA CON shadow-lg */}
       <div className="overflow-x-auto shadow-lg">
         <table className="w-full table-auto bg-white">
           <thead className="bg-black text-white">
@@ -301,7 +301,7 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
         </table>
       </div>
 
-      {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+      {/* BOTONES DE MOSTRAR MÁS/COLAPSAR */}
       {hayMasRegistros && (
         <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
           {!mostrarTodos ? (

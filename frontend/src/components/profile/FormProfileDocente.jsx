@@ -7,7 +7,7 @@ import { formProfileDocenteSchema } from "../../schemas/formProfileDocenteSchema
 const FormProfileDocente = () => {
     const { user, updateProfile } = storeProfile()
     const [showEmailWarning, setShowEmailWarning] = useState(false);
-    const [showAdminWarning, setShowAdminWarning] = useState(false); // ✅ NUEVO
+    const [showAdminWarning, setShowAdminWarning] = useState(false); // NUEVO
 
     const userData = user?._doc || user || {};
 
@@ -33,7 +33,7 @@ const FormProfileDocente = () => {
     return (
         <form onSubmit={handleSubmit(updateUser)}>
             <div className='mt-5'>
-                {/* ✅ Título con tooltip de advertencia */}
+                {/* Título con tooltip de advertencia */}
                 <div className="flex items-center gap-2 mt-16">
                     <h1 className='font-black text-2xl text-gray-500'>Actualizar perfil</h1>
                     <div className="relative">
@@ -59,9 +59,9 @@ const FormProfileDocente = () => {
                 <hr className='my-4 border-t-2 border-gray-300' />
             </div>
             
-            {/* 🔒 Campos bloqueados (solo lectura) */}
+            {/* � Campos bloqueados (solo lectura) */}
             <div>
-                <label className="mb-2 block text-base font-semibold text-gray-400">Nombre</label>
+                <label className="mb-2 block text-base font-semibold text-gray-400">Nombres</label>
                 <input
                     type="text"
                     value={userData.nombreDocente || ''}
@@ -71,7 +71,7 @@ const FormProfileDocente = () => {
             </div>
             
             <div>
-                <label className="mb-2 block text-base font-semibold text-gray-400">Apellido</label>
+                <label className="mb-2 block text-base font-semibold text-gray-400">Apellidos</label>
                 <input
                     type="text"
                     value={userData.apellidoDocente || ''}
@@ -81,7 +81,7 @@ const FormProfileDocente = () => {
             </div>
             
             <div>
-                <label className="mb-2 block text-base font-semibold text-gray-400">Teléfono</label>
+                <label className="mb-2 block text-base font-semibold text-gray-400">Celular</label>
                 <input
                     type="text"
                     value={userData.celularDocente || ''}
@@ -90,7 +90,7 @@ const FormProfileDocente = () => {
                 />
             </div>
 
-            {/* ✅ Campo editable: Email */}
+            {/* Campo editable: Email */}
             <div>
                 <div className="flex items-center justify-between mb-2">
                     <label className="block text-base font-semibold">Correo electrónico</label>
@@ -116,7 +116,7 @@ const FormProfileDocente = () => {
                 </div>
                 <input
                     type="email"
-                    placeholder="Ingresa tu correo"
+                    placeholder="Ingresa tu correo electrónico"
                     className="block w-full rounded-md border border-gray-300 py-1 px-2 text-gray-500 mb-2"
                     {...register("emailDocente")}
                 />

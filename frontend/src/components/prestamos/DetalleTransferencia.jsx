@@ -6,10 +6,10 @@ import { useState } from "react";
 const DetalleTransferencia = ({ transferencia, onClose }) => {
   const [loading, setLoading] = useState(false);
 
-  // ✅ URL quemada como solicitaste
+  // URL quemada
   const urlQR = `https://kitsfrontend-zeta.vercel.app/dashboard/transferencia/${transferencia.codigoQR}`;
 
-  // ✅ Usar API de QR Server para generar imagen
+  // API de QR Server para generar imagen
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlQR)}`;
 
   const formatFecha = (fecha) => {
@@ -74,7 +74,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
     toast.success("URL copiada al portapapeles");
   };
 
-  // ✅ NUEVA FUNCIÓN: Enviar por chat (copiada de ModalQRTransferencia)
+  // Enviar por chat (copiada de ModalQRTransferencia)
   const handleEnviarPorChat = async () => {
     setLoading(true);
     try {
@@ -109,7 +109,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
     }
   };
 
-  // ✅ NUEVO: Validar si la transferencia está caducada
+  // Validar si la transferencia está caducada
   const esTransferenciaCaducada = () => {
     const estadosInvalidos = ["cancelado", "rechazado", "finalizado"];
     return estadosInvalidos.includes(transferencia.estado);
@@ -123,7 +123,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
           <h2 className="text-2xl font-bold text-gray-800">
-            🔄 Detalle de Transferencia
+            � Detalle de Transferencia
           </h2>
           <button
             onClick={onClose}
@@ -150,10 +150,10 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
           {/* QR Code */}
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-blue-200">
             <p className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              📱 Código QR de Transferencia
+              � Código QR de Transferencia
             </p>
 
-            {/* ✅ NUEVO: Alerta si está caducada */}
+            {/* Alerta si está caducada */}
             {esTransferenciaCaducada() && (
               <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
                 <p className="text-sm text-red-700 font-semibold">
@@ -209,7 +209,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
               <div className="flex flex-col justify-center space-y-4">
                 <div>
                   <label className="text-xs font-semibold text-gray-600 mb-1 block">
-                    🔗 URL de Transferencia
+                    � URL de Transferencia
                   </label>
                   <div className="flex items-center gap-2">
                     <input
@@ -238,7 +238,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
 
                 <div>
                   <label className="text-xs font-semibold text-gray-600 mb-1 block">
-                    🖼️ URL del Código QR
+                    �️ URL del Código QR
                   </label>
                   <div className="flex items-center gap-2">
                     <input
@@ -273,7 +273,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
                   : 'bg-yellow-50 border-yellow-200'
                   }`}>
                   <p className={`text-xs ${esTransferenciaCaducada() ? 'text-red-800' : 'text-yellow-800'}`}>
-                    <strong>💡 Instrucciones:</strong>{" "}
+                    <strong>� Instrucciones:</strong>{" "}
                     {esTransferenciaCaducada()
                       ? "Esta transferencia ya no está activa y no puede ser procesada."
                       : "El docente origen debe escanear este QR para confirmar la transferencia. Puedes reenviar el mensaje por chat si es necesario."}
@@ -288,7 +288,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             {/* Docente Origen */}
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                👤 Docente Origen
+                � Docente Origen
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -322,7 +322,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             {/* Docente Destino */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                👤 Docente Destino
+                � Docente Destino
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -357,7 +357,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
           {/* Recursos Principales */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              📦 Recursos Principales
+              � Recursos Principales
             </p>
             {transferencia.recursos && transferencia.recursos.length > 0 ? (
               <div className="space-y-3">
@@ -415,7 +415,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             transferencia.recursosAdicionales.length > 0 && (
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <p className="text-sm font-semibold text-gray-700 mb-3">
-                  📦 Recursos Adicionales Detectados
+                  � Recursos Adicionales Detectados
                 </p>
                 <div className="space-y-3">
                   {transferencia.recursosAdicionales.map((rec) => (
@@ -517,7 +517,7 @@ const DetalleTransferencia = ({ transferencia, onClose }) => {
             transferencia.observacionesDestino) && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm font-semibold text-gray-700 mb-2">
-                  💬 Observaciones
+                  � Observaciones
                 </p>
                 {transferencia.observacionesOrigen && (
                   <div className="mb-3">

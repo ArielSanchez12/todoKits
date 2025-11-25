@@ -12,7 +12,7 @@ const Table = () => {
     const [loading, setLoading] = useState(false);
     const { rol } = storeAuth();
 
-    // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+    // ESTADOS PARA PAGINACIÓN
     const [mostrarTodos, setMostrarTodos] = useState(false);
     const REGISTROS_INICIALES = 5;
 
@@ -59,12 +59,12 @@ const Table = () => {
         }
     };
 
-    // ✅ FUNCIÓN PARA OBTENER DOCENTES A MOSTRAR
+    // FUNCIÓN PARA OBTENER DOCENTES A MOSTRAR
     const docentesMostrados = mostrarTodos
         ? docentes
         : docentes.slice(0, REGISTROS_INICIALES);
 
-    // ✅ VERIFICAR SI HAY MÁS REGISTROS
+    // VERIFICAR SI HAY MÁS REGISTROS
     const hayMasRegistros = docentes.length > REGISTROS_INICIALES;
 
     if (docentes.length === 0 && !loading) {
@@ -79,10 +79,10 @@ const Table = () => {
         <>
             <ToastContainer />
 
-            {/* ✅ HEADER CON CONTADOR */}
+            {/* HEADER CON CONTADOR */}
             <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
                 <div>
-                    <h2 className="text-xl font-bold">👥 Lista de Docentes</h2>
+                    <h2 className="text-xl font-bold">� Lista de Docentes</h2>
                     <p className="text-xs text-gray-300 mt-1">
                         Mostrando {docentesMostrados.length} de {docentes.length} registros
                     </p>
@@ -97,7 +97,7 @@ const Table = () => {
                 </button>
             </div>
 
-            {/* ✅ TABLA PEGADA CON shadow-lg */}
+            {/* TABLA PEGADA CON shadow-lg */}
             {loading ? (
                 <div className="flex justify-center items-center p-8 bg-white shadow-lg">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -108,7 +108,7 @@ const Table = () => {
                         <table className="w-full table-auto bg-white">
                             <thead className="bg-black text-white">
                                 <tr>
-                                    {["N°", "Nombre", "Apellido", "Celular", "Email", "Estado", "Acciones"].map((header) => (
+                                    {["N°", "Nombres", "Apellidos", "Celular", "Email", "Estado", "Acciones"].map((header) => (
                                         <th key={header} className="p-2">{header}</th>
                                     ))}
                                 </tr>
@@ -155,7 +155,7 @@ const Table = () => {
                         </table>
                     </div>
 
-                    {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+                    {/* BOTONES DE MOSTRAR MÁS / COLAPSAR */}
                     {hayMasRegistros && (
                         <div className="bg-white p-4 rounded-b-lg shadow-lg border-t border-gray-200 flex justify-center">
                             {!mostrarTodos ? (

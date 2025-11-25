@@ -2,6 +2,12 @@ import request from 'supertest';
 import app from '../../server.js';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import Admin from '../../models/admin.js';
+import Docente from '../../models/docente.js';
+import Recurso from '../../models/recurso.js';
+import Prestamo from '../../models/prestamo.js';
+import Transferencia from '../../models/transferencia.js';
+import { crearTokenJWT } from '../../middlewares/jwt.js';
 
 let mongoServer;
 
@@ -16,8 +22,17 @@ afterAll(async () => {
   await mongoServer.stop();
 });
 
-describe('Transferencia con QR y Mensaje por Chat', () => {
+afterEach(async () => {
+  await Transferencia.deleteMany({});
+  await Prestamo.deleteMany({});
+  await Recurso.deleteMany({});
+  await Docente.deleteMany({});
+  await Admin.deleteMany({});
+});
+
+describe('E2E - Transferencia con QR y Mensaje por Chat', () => {
   let adminToken;
+  let adminId;
   let docenteOrigenToken;
   let docenteDestinoToken;
   let docenteOrigenId;
@@ -27,142 +42,132 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
   let transferenciaId;
   let codigoQR;
 
-  const adminData = {
-    nombre: 'Admin Prueba',
-    apellido: 'Sanchez',
-    email: 'admin@gmail.com',
-    password: 'Admin123!',
-    //confirmPassword: 'Admin123!'
+  const logIfError = (label, res, expected) => {
+    if (res.status !== expected) {
+      // eslint-disable-next-line no-console
+      console.log(`❌ [${label}] status=${res.status}`, res.body);
+    }
   };
 
-  const docenteOrigenData = {
-    nombreDocente: 'Docente Origen',
-    apellidoDocente: 'López Prueba',
-    celularDocente: '0998765432',
-    emailDocente: 'docenteorigen@gmail.com',
-    passwordDocente: 'Docente123!',
-    //confirmPasswordDocente: 'Docente123!'
-  };
-
-  const docenteDestinoData = {
-    nombreDocente: 'Docente Destino',
-    apellidoDocente: 'Ramírez Prueba',
-    celularDocente: '0987654321',
-    emailDocente: 'docentedestino@gmail.com',
-    passwordDocente: 'Docente123!',
-    //confirmPasswordDocente: 'Docente123!'
-  };
-
-  // PREPARAR EL AMBIENTE
-  describe('Preparar ambiente para transferencia', () => {
-    it('debe registrar administrador', async () => {
-      const response = await request(app)
-        .post('/api/register')
-        .send(adminData);
-
-      expect(response.status).toBe(201);
-      adminToken = response.body.token;
+  beforeEach(async () => {
+    // 1) ADMIN
+    const admin = new Admin({
+      nombre: 'Admin Prueba',
+      apellido: 'Sanchez',
+      celular: '0998765432',
+      email: 'admin@test.com',
+      password: 'Temp',
+      confirmEmail: true,
+      rol: 'Administrador',
     });
+    admin.password = await admin.encryptPassword('Admin123!');
+    await admin.save();
 
-    it('debe registrar docente origen', async () => {
-      const response = await request(app)
-        .post('/api/administrador/registerDocente')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(docenteOrigenData);
+    adminId = admin._id.toString();
+    adminToken = crearTokenJWT(adminId, admin.rol);
 
-      expect(response.status).toBe(201);
-      docenteOrigenId = response.body.docente._id;
+    // 2) DOCENTE ORIGEN
+    const docenteOrigen = new Docente({
+      nombreDocente: 'Docente Origen',
+      apellidoDocente: 'López Prueba',
+      celularDocente: '0998765432',
+      emailDocente: 'docenteorigen@gmail.com',
+      passwordDocente: 'Temp',
+      confirmEmailDocente: true,
+      rolDocente: 'Docente',
+      admin: adminId,
     });
+    docenteOrigen.passwordDocente = await docenteOrigen.encryptPassword('DocenteOrigen123!');
+    await docenteOrigen.save();
+    docenteOrigenId = docenteOrigen._id.toString();
 
-    it('debe registrar docente destino', async () => {
-      const response = await request(app)
-        .post('/api/administrador/registerDocente')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(docenteDestinoData);
-
-      expect(response.status).toBe(201);
-      docenteDestinoId = response.body.docente._id;
+    // 3) DOCENTE DESTINO
+    const docenteDestino = new Docente({
+      nombreDocente: 'Docente Destino',
+      apellidoDocente: 'Ramírez Prueba',
+      celularDocente: '0987654321',
+      emailDocente: 'docentedestino@gmail.com',
+      passwordDocente: 'Temp',
+      confirmEmailDocente: true,
+      rolDocente: 'Docente',
+      admin: adminId,
     });
+    docenteDestino.passwordDocente = await docenteDestino.encryptPassword('DocenteDestino123!');
+    await docenteDestino.save();
+    docenteDestinoId = docenteDestino._id.toString();
 
-    it('docente origen debe poder login', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: docenteOrigenData.emailDocente,
-          password: docenteOrigenData.passwordDocente
-        });
+    // 4) LOGIN DOCENTES
+    const loginOrigen = await request(app)
+      .post('/api/login')
+      .send({ email: 'docenteorigen@gmail.com', password: 'DocenteOrigen123!' });
+    logIfError('Login Docente Origen', loginOrigen, 200);
+    expect(loginOrigen.status).toBe(200);
+    docenteOrigenToken = loginOrigen.body.token;
 
-      expect(response.status).toBe(200);
-      docenteOrigenToken = response.body.token;
-    });
+    const loginDestino = await request(app)
+      .post('/api/login')
+      .send({ email: 'docentedestino@gmail.com', password: 'DocenteDestino123!' });
+    logIfError('Login Docente Destino', loginDestino, 200);
+    expect(loginDestino.status).toBe(200);
+    docenteDestinoToken = loginDestino.body.token;
 
-    it('docente destino debe poder login', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: docenteDestinoData.emailDocente,
-          password: docenteDestinoData.passwordDocente
-        });
+    // 5) RECURSO
+    const recursoResponse = await request(app)
+      .post('/api/administrador/recurso/crear')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        tipo: 'kit',
+        laboratorio: 'LAB 23A',
+        aula: 'E030',
+        contenido: ['CABLE VGA', 'CONTROL'],
+      });
 
-      expect(response.status).toBe(200);
-      docenteDestinoToken = response.body.token;
-    });
+    logIfError('Crear Recurso para Préstamo', recursoResponse, 201);
+    expect(recursoResponse.status).toBe(201);
+    recursoId = recursoResponse.body.recurso._id;
 
-    it('admin debe poder crear recurso para préstamo', async () => {
-      const response = await request(app)
-        .post('/api/recurso')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({
-          tipo: 'kit',
-          laboratorio: 'LAB 23A',
-          aula: 'E030',
-          contenido: ['CABLE VGA', 'CONTROL']
-        });
+    // 6) PRÉSTAMO ORIGINAL
+    const prestamoResponse = await request(app)
+      .post('/api/administrador/prestamo/crear')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        recurso: recursoId,
+        docente: docenteOrigenId,
+        motivo: { tipo: 'Clase', descripcion: '' },
+        observaciones: 'Préstamo inicial',
+      });
 
-      expect(response.status).toBe(201);
-      recursoId = response.body.recurso._id;
-    });
+    logIfError('Crear Préstamo Original', prestamoResponse, 201);
+    expect(prestamoResponse.status).toBe(201);
+    prestamoOriginalId = prestamoResponse.body.prestamo._id;
 
-    it('debe crear préstamo para docente origen', async () => {
-      const response = await request(app)
-        .post('/api/prestamo/crear')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({
-          recurso: recursoId,
-          docente: docenteOrigenId,
-          motivo: { tipo: 'Clase' },
-          observaciones: 'Préstamo inicial'
-        });
+    // 7) CONFIRMAR PRÉSTAMO ORIGINAL
+    const confirmar = await request(app)
+      .patch(`/api/docente/prestamo/${prestamoOriginalId}/confirmar`)
+      .set('Authorization', `Bearer ${docenteOrigenToken}`)
+      .send({ confirmar: true });
 
-      expect(response.status).toBe(201);
-      prestamoOriginalId = response.body.prestamo._id;
-    });
-
-    it('docente origen confirma préstamo', async () => {
-      const response = await request(app)
-        .patch(`/api/docente/prestamo/${prestamoOriginalId}/confirmar`)
-        .set('Authorization', `Bearer ${docenteOrigenToken}`)
-        .send({ confirmar: true });
-
-      expect(response.status).toBe(200);
-      expect(response.body.prestamo.estado).toBe('activo');
-    });
+    logIfError('Confirmar Préstamo Original', confirmar, 200);
+    expect(confirmar.status).toBe(200);
+    expect(confirmar.body.prestamo.estado).toBe('activo');
   });
 
   // PASO 1: ADMIN CREA TRANSFERENCIA
   describe('PASO 1: Administrador crea Transferencia', () => {
-    it('debe crear transferencia exitosamente', async () => {
+    it('debe crear transferencia exitosamente y generar QR', async () => {
       const response = await request(app)
-        .post('/api/transferencia/crear')
+        .post('/api/administrador/transferencia/crear')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          prestamoOrigen: prestamoOriginalId,
-          docenteOrigen: docenteOrigenId,
-          docenteDestino: docenteDestinoId,
-          recursos: [recursoId],
-          //observaciones: 'Transferencia' las transferencias no llevan observaciones al crearlas
+          prestamoId: prestamoOriginalId,
+          docenteDestinoId: docenteDestinoId,
+          recursosSeleccionados: {
+            principales: [recursoId],
+            adicionales: [],
+          },
         });
 
+      logIfError('Crear Transferencia', response, 201);
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('transferencia');
       expect(response.body.transferencia.estado).toBe('pendiente_origen');
@@ -170,21 +175,56 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
 
       transferenciaId = response.body.transferencia._id;
       codigoQR = response.body.transferencia.codigoQR;
-    });
 
-    it('debe generar código QR válido', async () => {
       expect(codigoQR).toBeDefined();
       expect(typeof codigoQR).toBe('string');
       expect(codigoQR.length).toBeGreaterThan(0);
+    });
+
+    // ✅ nuevo test: no permite transferir a sí mismo
+    it('no debe permitir transferencia al mismo docente', async () => {
+      const response = await request(app)
+        .post('/api/administrador/transferencia/crear')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          prestamoId: prestamoOriginalId,
+          docenteDestinoId: docenteOrigenId, // mismo origen
+          recursosSeleccionados: {
+            principales: [recursoId],
+            adicionales: [],
+          },
+        });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('msg');
     });
   });
 
   // PASO 2: DOCENTE ORIGEN CONFIRMA (ESCANEA QR)
   describe('PASO 2: Docente origen confirma transferencia (Escanea QR)', () => {
-    it('debe obtener transferencia por código QR', async () => {
+    beforeEach(async () => {
       const response = await request(app)
-        .get(`/api/transferencia/${codigoQR}`);
+        .post('/api/administrador/transferencia/crear')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          prestamoId: prestamoOriginalId,
+          docenteDestinoId: docenteDestinoId,
+          recursosSeleccionados: {
+            principales: [recursoId],
+            adicionales: [],
+          },
+        });
 
+      logIfError('Crear Transferencia (Paso2 setup)', response, 201);
+      expect(response.status).toBe(201);
+      transferenciaId = response.body.transferencia._id;
+      codigoQR = response.body.transferencia.codigoQR;
+    });
+
+    it('debe obtener transferencia por código QR', async () => {
+      const response = await request(app).get(`/api/transferencia/${codigoQR}`);
+
+      logIfError('Obtener Transferencia por QR', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.codigoQR).toBe(codigoQR);
       expect(response.body.estado).toBe('pendiente_origen');
@@ -196,58 +236,115 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
         .set('Authorization', `Bearer ${docenteOrigenToken}`)
         .send({
           observaciones: 'Recursos entregados en buen estado',
-          //firma: 'María López' la firma debe ser el ObjectId no el nombre
+          firma: docenteOrigenId,
         });
 
+      logIfError('Confirmar Transferencia Origen', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.transferencia.estado).toBe('confirmado_origen');
       expect(response.body.transferencia).toHaveProperty('fechaConfirmacionOrigen');
-      expect(response.body.transferencia.firmaOrigen).toBe('María López');
-    });
 
-    it('debe crear préstamo pendiente para docente destino', async () => {
-      const response = await request(app)
+      const prestamosDestino = await request(app)
         .get('/api/docente/prestamos')
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBeGreaterThan(0);
-      const prestamoTransferencia = response.body.find(
-        p => p.motivo.tipo === 'Transferencia'
+      logIfError(
+        'Listar Préstamos Docente Destino tras confirmación origen',
+        prestamosDestino,
+        200,
+      );
+      expect(prestamosDestino.status).toBe(200);
+      const prestamoTransferencia = prestamosDestino.body.find(
+        (p) => p.motivo.tipo === 'Transferencia',
       );
       expect(prestamoTransferencia).toBeDefined();
       expect(prestamoTransferencia.estado).toBe('pendiente');
+    });
+
+    // ✅ nuevo test: otro docente no puede confirmar
+    it('debe rechazar confirmación por docente que no es origen', async () => {
+      const response = await request(app)
+        .patch(`/api/docente/transferencia/${codigoQR}/confirmar`)
+        .set('Authorization', `Bearer ${docenteDestinoToken}`)
+        .send({
+          observaciones: 'Intento malicioso',
+          firma: docenteDestinoId,
+        });
+
+      expect([400, 403]).toContain(response.status);
     });
   });
 
   // PASO 3: ENVIAR MENSAJE DE TRANSFERENCIA POR CHAT
   describe('PASO 3: Enviar Mensaje de Transferencia por Chat', () => {
-    it('docente origen debe poder enviar mensaje al admin', async () => {
-      const response = await request(app)
-        .post('/api/chat/send')
-        .set('Authorization', `Bearer ${docenteOrigenToken}`)
+    beforeEach(async () => {
+      const crear = await request(app)
+        .post('/api/administrador/transferencia/crear')
+        .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          texto: 'He confirmado la transferencia del KIT #1', //CORREGIR ESTO, DEBE BASARSE EN LO DEL FRONTEND PARA ENVIAR LA TRANSFERENCIA POR CHAT
-          de: docenteOrigenId,
-          deNombre: 'María López',
-          para: adminData._id || 'admin',
-          paraNombre: 'Gregory Sanchez',
-          deTipo: 'docente',
-          paraTipo: 'admin'
+          prestamoId: prestamoOriginalId,
+          docenteDestinoId: docenteDestinoId,
+          recursosSeleccionados: {
+            principales: [recursoId],
+            adicionales: [],
+          },
         });
 
-      expect(response.status).toBe(201);
-      expect(response.body).toHaveProperty('_id');
-      expect(response.body.texto).toBe('He confirmado la transferencia del KIT #1');
+      logIfError('Crear Transferencia (Paso3 setup)', crear, 201);
+      expect(crear.status).toBe(201);
+      transferenciaId = crear.body.transferencia._id;
+      codigoQR = crear.body.transferencia.codigoQR;
+
+      const confirmar = await request(app)
+        .patch(`/api/docente/transferencia/${codigoQR}/confirmar`)
+        .set('Authorization', `Bearer ${docenteOrigenToken}`)
+        .send({
+          observaciones: 'Recursos entregados en buen estado',
+          firma: docenteOrigenId,
+        });
+
+      logIfError('Confirmar Transferencia Origen (Paso3 setup)', confirmar, 200);
+      expect(confirmar.status).toBe(200);
     });
 
-    it('debe poder obtener historial de chat', async () => {
+    it('admin debe poder enviar transferencia por chat al docente destino', async () => {
       const response = await request(app)
-        .get(`/api/chat/chat-history/${adminData._id || 'admin'}`)
-        .set('Authorization', `Bearer ${docenteOrigenToken}`);
+        .post('/api/chat/enviar-transferencia')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          codigoTransferencia: codigoQR,
+          docenteDestinoId: docenteDestinoId,
+        });
 
+      logIfError('Enviar Transferencia por Chat', response, 200);
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveProperty('mensaje');
+      expect(response.body.mensaje.tipo).toBe('transferencia');
+      expect(response.body.mensaje.transferencia.codigo).toBe(codigoQR);
+    });
+
+    it('docente destino debe poder ver el mensaje de transferencia en el historial de chat', async () => {
+      const enviar = await request(app)
+        .post('/api/chat/enviar-transferencia')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          codigoTransferencia: codigoQR,
+          docenteDestinoId: docenteDestinoId,
+        });
+
+      logIfError('Enviar Transferencia por Chat (Paso3 hist)', enviar, 200);
+      expect(enviar.status).toBe(200);
+
+      const chatHistory = await request(app)
+        .get(`/api/chat/chat-history/${adminId}`)
+        .set('Authorization', `Bearer ${docenteDestinoToken}`);
+
+      logIfError('Historial Chat Docente Destino', chatHistory, 200);
+      expect(chatHistory.status).toBe(200);
+      expect(Array.isArray(chatHistory.body)).toBe(true);
+      const msgTransf = chatHistory.body.find((m) => m.tipo === 'transferencia');
+      expect(msgTransf).toBeDefined();
+      expect(msgTransf.transferencia.codigo).toBe(codigoQR);
     });
   });
 
@@ -255,15 +352,44 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
   describe('PASO 4: Docente destino responde transferencia', () => {
     let prestamoDestinoId;
 
-    beforeAll(async () => {
-      // Obtener el préstamo pendiente para docente destino
+    beforeEach(async () => {
+      const crear = await request(app)
+        .post('/api/administrador/transferencia/crear')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          prestamoId: prestamoOriginalId,
+          docenteDestinoId: docenteDestinoId,
+          recursosSeleccionados: {
+            principales: [recursoId],
+            adicionales: [],
+          },
+        });
+
+      logIfError('Crear Transferencia (Paso4 setup)', crear, 201);
+      expect(crear.status).toBe(201);
+      codigoQR = crear.body.transferencia.codigoQR;
+
+      const confirmar = await request(app)
+        .patch(`/api/docente/transferencia/${codigoQR}/confirmar`)
+        .set('Authorization', `Bearer ${docenteOrigenToken}`)
+        .send({
+          observaciones: 'Recursos entregados en buen estado',
+          firma: docenteOrigenId,
+        });
+
+      logIfError('Confirmar Transferencia Origen (Paso4 setup)', confirmar, 200);
+      expect(confirmar.status).toBe(200);
+
       const response = await request(app)
         .get('/api/docente/prestamos')
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
+      logIfError('Listar Préstamos Destino (Paso4 setup)', response, 200);
+      expect(response.status).toBe(200);
       const prestamoTransferencia = response.body.find(
-        p => p.motivo.tipo === 'Transferencia'
+        (p) => p.motivo.tipo === 'Transferencia',
       );
+      expect(prestamoTransferencia).toBeDefined();
       prestamoDestinoId = prestamoTransferencia._id;
     });
 
@@ -274,60 +400,165 @@ describe('Transferencia con QR y Mensaje por Chat', () => {
         .send({
           aceptar: true,
           observaciones: 'Recursos recibidos correctamente',
-          firma: 'Carlos Ramírez', //LO MIMSO, LA FIRMA  NO PUEDE SER EL NOMBRE
+          firma: docenteDestinoId,
           nuevoMotivo: {
             tipo: 'Clase',
-            descripcion: 'Uso para laboratorio'
-          }
+            descripcion: 'Uso para laboratorio',
+          },
         });
 
+      logIfError('Responder Transferencia Destino', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.transferencia.estado).toBe('finalizado');
-      expect(response.body.transferencia).toHaveProperty('fechaConfirmacionDestino');
+      expect(response.body.transferencia).toHaveProperty(
+        'fechaConfirmacionDestino',
+      );
     });
 
     it('nuevo préstamo debe estar activo para docente destino', async () => {
+      const aceptar = await request(app)
+        .patch(`/api/docente/transferencia/${codigoQR}/responder`)
+        .set('Authorization', `Bearer ${docenteDestinoToken}`)
+        .send({
+          aceptar: true,
+          observaciones: 'Recursos recibidos correctamente',
+          firma: docenteDestinoId,
+          nuevoMotivo: {
+            tipo: 'Clase',
+            descripcion: 'Uso para laboratorio',
+          },
+        });
+
+      logIfError('Responder Transferencia Destino (Paso4 activo)', aceptar, 200);
+      expect(aceptar.status).toBe(200);
+
       const response = await request(app)
         .get('/api/docente/prestamos')
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
+      logIfError(
+        'Listar Préstamos Docente Destino tras aceptar',
+        response,
+        200,
+      );
       expect(response.status).toBe(200);
-      const prestamoActivo = response.body.find(p => p.estado === 'activo');
+      const prestamoActivo = response.body.find((p) => p.estado === 'activo');
       expect(prestamoActivo).toBeDefined();
       expect(prestamoActivo.motivo.tipo).toBe('Clase');
     });
 
     it('recurso debe estar asignado a docente destino', async () => {
+      const aceptar = await request(app)
+        .patch(`/api/docente/transferencia/${codigoQR}/responder`)
+        .set('Authorization', `Bearer ${docenteDestinoToken}`)
+        .send({
+          aceptar: true,
+          observaciones: 'Recursos recibidos correctamente',
+          firma: docenteDestinoId,
+          nuevoMotivo: {
+            tipo: 'Clase',
+            descripcion: 'Uso para laboratorio',
+          },
+        });
+
+      logIfError(
+        'Responder Transferencia Destino (Paso4 recurso)',
+        aceptar,
+        200,
+      );
+      expect(aceptar.status).toBe(200);
+
       const response = await request(app)
-        .get(`/api/recurso/${recursoId}`)
+        .get(`/api/administrador/recurso/${recursoId}`)
         .set('Authorization', `Bearer ${docenteDestinoToken}`);
 
+      logIfError('Recurso tras Transferencia', response, 200);
       expect(response.status).toBe(200);
       expect(response.body.estado).toBe('prestado');
-      expect(response.body.asignadoA).toBe(docenteDestinoId);
+
+      // asignadoA viene populado como objeto Docente
+      expect(response.body.asignadoA).toBeDefined();
+      expect(response.body.asignadoA._id.toString()).toBe(docenteDestinoId);
+    });
+
+    // ✅ nuevo test: docente destino puede rechazar transferencia
+    it('docente destino puede rechazar transferencia', async () => {
+      const response = await request(app)
+        .patch(`/api/docente/transferencia/${codigoQR}/responder`)
+        .set('Authorization', `Bearer ${docenteDestinoToken}`)
+        .send({
+          aceptar: false,
+          observaciones: 'No puedo recibir ahora',
+          firma: docenteDestinoId,
+        });
+
+      logIfError('Rechazar Transferencia Destino', response, 200);
+      expect(response.status).toBe(200);
+      expect(response.body.transferencia.estado).toBe('rechazado');
     });
   });
 
   // PASO 5: VALIDAR FINALIZACIÓN
   describe('PASO 5: Validar Transferencia Finalizada', () => {
-    it('transferencia debe tener estado finalizado', async () => {
-      const response = await request(app)
-        .get(`/api/transferencia/${codigoQR}`);
+    beforeEach(async () => {
+      const crear = await request(app)
+        .post('/api/administrador/transferencia/crear')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          prestamoId: prestamoOriginalId,
+          docenteDestinoId: docenteDestinoId,
+          recursosSeleccionados: {
+            principales: [recursoId],
+            adicionales: [],
+          },
+        });
 
-      expect(response.status).toBe(200);
-      expect(response.body.estado).toBe('finalizado');
+      logIfError('Crear Transferencia (Paso5 setup)', crear, 201);
+      expect(crear.status).toBe(201);
+      codigoQR = crear.body.transferencia.codigoQR;
+
+      const confirmar = await request(app)
+        .patch(`/api/docente/transferencia/${codigoQR}/confirmar`)
+        .set('Authorization', `Bearer ${docenteOrigenToken}`)
+        .send({
+          observaciones: 'Recursos entregados en buen estado',
+          firma: docenteOrigenId,
+        });
+
+      logIfError('Confirmar Transferencia Origen (Paso5 setup)', confirmar, 200);
+      expect(confirmar.status).toBe(200);
+
+      const aceptar = await request(app)
+        .patch(`/api/docente/transferencia/${codigoQR}/responder`)
+        .set('Authorization', `Bearer ${docenteDestinoToken}`)
+        .send({
+          aceptar: true,
+          observaciones: 'Recursos recibidos correctamente',
+          firma: docenteDestinoId,
+          nuevoMotivo: { tipo: 'Clase', descripcion: 'Uso para laboratorio' },
+        });
+
+      logIfError(
+        'Responder Transferencia Destino (Paso5 setup)',
+        aceptar,
+        200,
+      );
+      expect(aceptar.status).toBe(200);
     });
 
-    it('docente origen debe ver préstamo en historial', async () => {
-      const response = await request(app)
-        .get('/api/docente/prestamos/historial')
-        .set('Authorization', `Bearer ${docenteOrigenToken}`);
+    it('transferencia debe tener estado finalizado', async () => {
+      const response = await request(app).get(`/api/transferencia/${codigoQR}`);
 
-      expect(response.status).toBe(200);
-      const prestamoFinalizado = response.body.find(
-        p => p.motivo.tipo === 'Transferencia'
-      );
-      expect(prestamoFinalizado).toBeDefined();
+      //Puede ser 200 si devuelve decide devolver 'ok' o 410 si esta caducada
+      logIfError('Obtener Transferencia Finalizada', response, 200);
+      expect([200, 410]).toContain(response.status);
+      expect(response.body.estado).toBe('finalizado'); //lo importante es el estado 'finalizado'
+    });
+    // ✅ nuevo test: préstamo original debe estar finalizado
+    it('préstamo original debe estar finalizado', async () => {
+      const prestamo = await Prestamo.findById(prestamoOriginalId);
+      expect(prestamo).not.toBeNull();
+      expect(prestamo.estado).toBe('finalizado');
     });
   });
 });

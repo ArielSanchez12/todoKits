@@ -18,7 +18,7 @@ const TablaTransferencias = () => {
   const [fechaDesde, setFechaDesde] = useState(null);
   const [fechaHasta, setFechaHasta] = useState(null);
 
-  // ✅ NUEVOS ESTADOS PARA PAGINACIÓN
+  // ESTADOS PARA PAGINACIÓN
   const [mostrarTodos, setMostrarTodos] = useState(false);
   const REGISTROS_INICIALES = 5;
 
@@ -132,12 +132,12 @@ const TablaTransferencias = () => {
 
   const transferenciasFiltradas = transferenciasFiltradosPorFecha();
 
-  // ✅ FUNCIÓN PARA OBTENER TRANSFERENCIAS A MOSTRAR
+  // FUNCIÓN PARA OBTENER TRANSFERENCIAS A MOSTRAR
   const transferenciasMostradas = mostrarTodos 
     ? transferenciasFiltradas 
     : transferenciasFiltradas?.slice(0, REGISTROS_INICIALES);
 
-  // ✅ VERIFICAR SI HAY MÁS REGISTROS
+  // VERIFICAR SI HAY MÁS REGISTROS
   const hayMasRegistros = transferenciasFiltradas?.length > REGISTROS_INICIALES;
 
   if (loading) {
@@ -151,17 +151,17 @@ const TablaTransferencias = () => {
   return (
     <>
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* ✅ HEADER CON CONTADOR */}
+        {/* HEADER CON CONTADOR */}
         <div className="bg-black text-white p-4 rounded-t-lg">
           <div className="flex justify-between items-center gap-4 flex-wrap">
             <div>
-              <h2 className="text-xl font-bold">📋 Historial de Transferencias</h2>
+              <h2 className="text-xl font-bold">� Historial de Transferencias</h2>
               <p className="text-xs text-gray-300 mt-1">
                 Mostrando {transferenciasMostradas?.length || 0} de {transferenciasFiltradas?.length || 0} transferencias
               </p>
             </div>
 
-            {/* ✅ DATEPICKERS Y BOTÓN ACTUALIZAR */}
+            {/* DATEPICKERS Y BOTÓN ACTUALIZAR */}
             <div className="flex gap-2 items-center flex-wrap">
               <div className="flex items-center gap-1">
                 <span className="text-xs text-gray-300">Desde:</span>
@@ -207,7 +207,7 @@ const TablaTransferencias = () => {
 
           {(fechaDesde || fechaHasta) && (
             <div className="text-xs text-blue-300 mt-2">
-              📅 Filtrando:
+              � Filtrando:
               {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
               {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
             </div>
@@ -332,7 +332,7 @@ const TablaTransferencias = () => {
               </table>
             </div>
 
-            {/* ✅ BOTONES DE MOSTRAR MÁS / COLAPSAR */}
+            {/* BOTONES DE MOSTRAR MÁS/COLAPSAR */}
             {hayMasRegistros && (
               <div className="bg-white p-4 border-t border-gray-200 flex justify-center">
                 {!mostrarTodos ? (

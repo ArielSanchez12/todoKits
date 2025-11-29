@@ -200,7 +200,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
       <div className="bg-black text-white p-4 rounded-t-lg">
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <div>
-            <h2 className="text-xl font-bold">� Mis Préstamos Activos</h2>
+            <h2 className="text-xl font-bold">📦 Mis Préstamos Activos</h2>
             <p className="text-xs text-gray-300 mt-1">
               Mostrando {prestamosMostrados?.length || 0} de {prestamosFiltrados?.length || 0} préstamos
             </p>
@@ -252,7 +252,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
         {(fechaDesde || fechaHasta) && (
           <div className="text-xs text-blue-300 mt-2">
-            � Filtrando:
+            📅 Filtrando:
             {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
             {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
           </div>
@@ -481,7 +481,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
               {/* Recurso principal completo */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">� Recurso Principal</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-xs text-gray-600">Nombre:</span>
@@ -521,7 +521,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
               {Array.isArray(modalConfirmar.recursosAdicionales) &&
                 modalConfirmar.recursosAdicionales.length > 0 && (
                   <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">� Recursos Adicionales</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
                     <div className="space-y-3">
                       {modalConfirmar.recursosAdicionales.map((rec) => (
                         <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
@@ -613,7 +613,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
 
               {/* Recurso principal completo */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">� Recurso Principal</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-xs text-gray-600">Nombre:</span>
@@ -656,7 +656,7 @@ const TablaPrestamosDocente = ({ prestamos, onRefresh }) => {
               {Array.isArray(modalDevolver.recursosAdicionales) &&
                 modalDevolver.recursosAdicionales.length > 0 && (
                   <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">� Recursos Adicionales</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
                     <div className="space-y-3">
                       {modalDevolver.recursosAdicionales.map((rec) => (
                         <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">

@@ -62,7 +62,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
           {/* Información del Recurso */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              � Información del Recurso
+              📦 Información del Recurso
             </p>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -106,7 +106,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
           {/* Información del Docente */}
           <div className="bg-green-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              � Docente Responsable
+              👤 Docente Responsable
             </p>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -140,7 +140,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
           {/* Motivo */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-2">
-              � Motivo del Préstamo
+              📝 Motivo del Préstamo
             </p>
             <p className="font-semibold text-lg break-words">{prestamo.motivo?.tipo}</p>
             {prestamo.motivo?.descripcion && (
@@ -194,7 +194,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
             prestamo.recursosAdicionales.length > 0 && (
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <p className="text-sm font-semibold text-gray-700 mb-3">
-                  � Recursos Adicionales Detectados
+                  📦 Recursos Adicionales Detectados
                 </p>
                 <div className="space-y-3">
                   {prestamo.recursosAdicionales.map((rec) => (
@@ -252,7 +252,7 @@ const DetallePrestamo = ({ prestamo, onClose }) => {
           {prestamo.observaciones && (
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-gray-700 mb-2">
-                � Observaciones
+                💬 Observaciones
               </p>
               <p className="text-sm text-gray-700 whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
                 {prestamo.observaciones}

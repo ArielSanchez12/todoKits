@@ -39,7 +39,8 @@ const confirmarMail = async (req, res) => { //Una vez se hace click en el link d
 }
 
 const perfil = (req, res) => { //devuele el perfil del admin que hizo la petición (req.adminEmailBDD viene del middleware que verifica el JWT)
-    const { token, confirmEmail, createdAt, updatedAt, __v, ...datosPerfil } = req.adminEmailBDD //Quita todo lo que esta antes de ... y lo demas lo guarda en datosPerfil para almacenarlos en la respuesta req.admin
+    const adminPlano = req.adminEmailBDD.toObject();
+    const { token, confirmEmail, createdAt, updatedAt, __v, ...datosPerfil } = adminPlano //Quita todo lo que esta antes de ... y lo demas lo guarda en datosPerfil para almacenarlos en la respuesta req.admin
     res.status(200).json(datosPerfil)
 }
 

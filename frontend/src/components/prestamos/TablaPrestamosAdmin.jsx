@@ -126,7 +126,7 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
       <div className="bg-black text-white p-4 rounded-t-lg">
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <div>
-            <h2 className="text-xl font-bold">� Gestión de Préstamos</h2>
+            <h2 className="text-xl font-bold">📋 Gestión de Préstamos</h2>
             <p className="text-xs text-gray-300 mt-1">
               Mostrando {prestamosMostrados?.length || 0} de {prestamosFiltrados?.length || 0} préstamos
             </p>
@@ -178,7 +178,7 @@ const TablaPrestamosAdmin = ({ prestamos, onRefresh, onSolicitarTransferencia, d
 
         {(fechaDesde || fechaHasta) && (
           <div className="text-xs text-blue-300 mt-2">
-            � Filtrando:
+            📅 Filtrando:
             {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
             {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
           </div>

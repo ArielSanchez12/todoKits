@@ -131,7 +131,7 @@ export const CardProfileDocente = () => {
                     />
 
                     <label className="absolute bottom-0 right-0 bg-blue-400 text-white rounded-full p-2 cursor-pointer hover:bg-emerald-400 transition-colors">
-                        {loading ? '⏳' : '�'}
+                        {loading ? '⏳' : '📷'}
                         <input
                             type="file"
                             accept="image/*"

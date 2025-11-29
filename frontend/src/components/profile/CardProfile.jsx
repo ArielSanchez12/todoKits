@@ -135,7 +135,7 @@ export const CardProfile = () => {
                     />
 
                     <label className="absolute bottom-0 right-0 bg-blue-400 text-white rounded-full p-2 cursor-pointer hover:bg-emerald-400 transition-colors">
-                        {loading ? '⏳' : '�'}
+                        {loading ? '⏳' : '📷'}
                         <input
                             type="file"
                             accept="image/*"
@@ -152,7 +152,7 @@ export const CardProfile = () => {
                             className="absolute bottom-0 left-0 bg-red-500 text-white rounded-full p-2 cursor-pointer hover:bg-red-600 transition-colors"
                             title="Eliminar foto de perfil"
                         >
-                            �️
+                            🗑️
                         </button>
                     )}
                 </div>

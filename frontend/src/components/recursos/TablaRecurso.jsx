@@ -157,7 +157,7 @@ const TablaRecurso = ({ recursos, filtro, onRefresh, onEdit }) => {
       {/* HEADER CON CONTADOR */}
       <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
         <div>
-          <h2 className="text-xl font-bold">� Gestión de Recursos</h2>
+          <h2 className="text-xl font-bold">🔧 Gestión de Recursos</h2>
           <p className="text-xs text-gray-300 mt-1">
             Mostrando {recursosMostrados?.length || 0} de {recursosFiltrados?.length || 0} recursos
           </p>

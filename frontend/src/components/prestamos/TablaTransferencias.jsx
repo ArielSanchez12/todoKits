@@ -207,7 +207,7 @@ const TablaTransferencias = () => {
 
           {(fechaDesde || fechaHasta) && (
             <div className="text-xs text-blue-300 mt-2">
-              � Filtrando:
+              📅 Filtrando:
               {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
               {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
             </div>

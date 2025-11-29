@@ -3,6 +3,8 @@ import admin from "../models/admin.js"
 import mongoose from "mongoose"
 import docente from "../models/docente.js"
 import { v2 as cloudinary } from 'cloudinary'
+import Prestamo from "../models/prestamo.js"
+import Transferencia from "../models/transferencia.js"
 
 const registro = async (req, res) => {  //este endpoint es para el registro de un nuevo admin desde Register.jsx
     try {
@@ -311,11 +313,40 @@ const eliminarDocente = async (req, res) => { //eliminacion permanente de un doc
             return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
         }
 
-        const docenteEliminado = await docente.findByIdAndDelete(id);
-        if (!docenteEliminado) {
+        const docenteExistente = await docente.findById(id);
+        if (!docenteExistente) {
             return res.status(404).json({ msg: "Docente no encontrado" });
         }
 
+        // ========== VALIDACIÓN: Verificar préstamos activos ==========
+        const prestamosActivos = await Prestamo.find({
+            docente: id,
+            estado: { $in: ["pendiente", "activo"] }
+        });
+
+        if (prestamosActivos.length > 0) {
+            return res.status(400).json({ 
+                msg: "No se puede eliminar un docente con préstamos pendientes o activos" 
+            });
+        }
+
+        // ========== VALIDACIÓN: Verificar transferencias activas ==========
+        const transferenciasActivas = await Transferencia.find({
+            $or: [
+                { docenteOrigen: id },
+                { docenteDestino: id }
+            ],
+            estado: { $in: ["pendiente_origen", "confirmado_origen"] }
+        });
+
+        if (transferenciasActivas.length > 0) {
+            return res.status(400).json({ 
+                msg: "No se puede eliminar un docente con transferencias pendientes o activas" 
+            });
+        }
+
+        // Si pasa las validaciones, proceder con la eliminación
+        await docente.findByIdAndDelete(id);
         res.status(200).json({ msg: "Docente eliminado exitosamente" });
     } catch (error) {
         console.error("Error al eliminar docente:", error);
@@ -339,6 +370,35 @@ const actualizarDocente = async (req, res) => { //actualiza los datos del docent
             return res.status(404).json({ msg: "Docente no encontrado" });
         }
 
+        // ========== VALIDACIÓN: Verificar préstamos activos ==========
+        const prestamosActivos = await Prestamo.find({
+            docente: id,
+            estado: { $in: ["pendiente", "activo"] }
+        });
+
+        if (prestamosActivos.length > 0) {
+            return res.status(400).json({ 
+                msg: "No se puede editar un docente con préstamos pendientes o activos" 
+            });
+        }
+
+        // ========== VALIDACIÓN: Verificar transferencias activas ==========
+        const transferenciasActivas = await Transferencia.find({
+            $or: [
+                { docenteOrigen: id },
+                { docenteDestino: id }
+            ],
+            estado: { $in: ["pendiente_origen", "confirmado_origen"] }
+        });
+
+        if (transferenciasActivas.length > 0) {
+            return res.status(400).json({ 
+                msg: "No se puede editar un docente con transferencias pendientes o activas" 
+            });
+        }
+
+        // ========== SI PASA LAS VALIDACIONES, CONTINUAR CON LA LÓGICA EXISTENTE ==========
+        
         // Detecta si el correo fue cambiado
         const nuevoCorreo = datosDocente.emailDocente;
         const correoAnterior = docenteActual.emailDocente;

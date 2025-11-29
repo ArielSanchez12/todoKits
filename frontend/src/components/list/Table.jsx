@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router';
 import { ToastContainer, toast } from "react-toastify";
 import storeAuth from "../../context/storeAuth";
+import storePrestamos from "../../context/storePrestamos";
+import storeTransferencias from "../../context/storeTransferencias";
 
 const Table = () => {
     const navigate = useNavigate();
@@ -11,22 +13,67 @@ const Table = () => {
     const [docentes, setDocentes] = useState([]);
     const [loading, setLoading] = useState(false);
     const { rol } = storeAuth();
+    const [docentesBloqueados, setDocentesBloqueados] = useState({}); // Nuevo estado para trackear docentes bloqueados
+    const [prestamos, setPrestamos] = useState([]);
+    const [transferencias, setTransferencias] = useState([]);
 
     // ESTADOS PARA PAGINACIÓN
     const [mostrarTodos, setMostrarTodos] = useState(false);
     const REGISTROS_INICIALES = 5;
 
+    // FUNCIÓN PARA VERIFICAR SI UN DOCENTE TIENE PRÉSTAMOS/TRANSFERENCIAS ACTIVAS
+    const verificarDocenteBloqueado = (docenteId, prestamosData, transferenciasData) => {
+        // Verificar préstamos activos o pendientes del docente
+        const tienePrestamosActivos = prestamosData?.some(p =>
+            p.docente?._id === docenteId && (p.estado === "pendiente" || p.estado === "activo")
+        );
+
+        if (tienePrestamosActivos) return true;
+
+        // Verificar transferencias pendientes o confirmadas (como origen o destino)
+        const tieneTransferenciasActivas = transferenciasData?.some(t =>
+            (t.docenteOrigen?._id === docenteId || t.docenteDestino?._id === docenteId) &&
+            (t.estado === "pendiente_origen" || t.estado === "confirmado_origen")
+        );
+
+        return tieneTransferenciasActivas;
+    };
+
     const listPatients = async () => {
         setLoading(true);
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/listDocentes`;
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
             const headers = {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${storedUser.state.token}`,
             };
-            const response = await fetchDataBackend(url, null, "GET", headers);
-            setDocentes(response);
+
+            // Cargar docentes
+            const urlDocentes = `${import.meta.env.VITE_BACKEND_URL}/administrador/listDocentes`;
+            const responseDocentes = await fetchDataBackend(urlDocentes, null, "GET", headers);
+            setDocentes(responseDocentes);
+
+            // Cargar préstamos del admin
+            const urlPrestamos = `${import.meta.env.VITE_BACKEND_URL}/administrador/prestamos`;
+            const responsePrestamos = await fetchDataBackend(urlPrestamos, null, "GET", headers);
+            setPrestamos(responsePrestamos || []);
+
+            // Cargar transferencias del admin
+            const urlTransferencias = `${import.meta.env.VITE_BACKEND_URL}/administrador/transferencias`;
+            const responseTransferencias = await fetchDataBackend(urlTransferencias, null, "GET", headers);
+            setTransferencias(responseTransferencias || []);
+
+            // Verificar bloqueos para cada docente
+            const bloqueos = {};
+            responseDocentes?.forEach(docente => {
+                bloqueos[docente._id] = verificarDocenteBloqueado(
+                    docente._id,
+                    responsePrestamos || [],
+                    responseTransferencias || []
+                );
+            });
+            setDocentesBloqueados(bloqueos);
+
             toast.success("Lista actualizada correctamente");
         } catch (error) {
             console.error("Error al cargar docentes:", error);
@@ -40,21 +87,45 @@ const Table = () => {
         listPatients();
     }, []);
 
+    const handleEdit = (docente) => {
+        const estaBloqueado = docentesBloqueados[docente._id];
+
+        if (estaBloqueado) {
+            alert("No se puede editar un docente con préstamos o transferencias activas");
+            return;
+        }
+
+        navigate(`/dashboard/actualizar/${docente._id}`);
+    };
+
     const deleteDocente = async (id) => {
+        const estaBloqueado = docentesBloqueados[id];
+
+        if (estaBloqueado) {
+            alert("No se puede eliminar un docente con préstamos o transferencias activas");
+            return;
+        }
+
         const confirmDelete = confirm("¿Estás seguro de que deseas eliminar este docente?");
         if (confirmDelete) {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/deleteDocente/${id}`;
-            const storedUser = JSON.parse(localStorage.getItem("auth-token"));
-            const headers = {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${storedUser.state.token}`,
-            };
-            const response = await fetchDataBackend(url, null, "DELETE", headers);
-            if (response && response.msg === "Docente eliminado exitosamente") {
-                setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id));
-                toast.success("Docente eliminado");
-            } else {
-                toast.error(response?.msg || "Error al eliminar docente");
+            try {
+                const url = `${import.meta.env.VITE_BACKEND_URL}/administrador/deleteDocente/${id}`;
+                const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+                const headers = {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${storedUser.state.token}`,
+                };
+                const response = await fetchDataBackend(url, null, "DELETE", headers);
+
+                if (response && response.msg === "Docente eliminado exitosamente") {
+                    setDocentes((prevDocentes) => prevDocentes.filter(docente => docente._id !== id));
+                    toast.success("Docente eliminado");
+                } else {
+                    toast.error(response?.msg || "Error al eliminar docente");
+                }
+            } catch (error) {
+                console.error("Error al eliminar docente:", error);
+                toast.error(error?.msg || "Error al eliminar docente");
             }
         }
     };
@@ -82,7 +153,7 @@ const Table = () => {
             {/* HEADER CON CONTADOR */}
             <div className="flex justify-between items-center bg-black text-white p-4 rounded-t-lg">
                 <div>
-                    <h2 className="text-xl font-bold">� Lista de Docentes</h2>
+                    <h2 className="text-xl font-bold">👥 Lista de Docentes</h2>
                     <p className="text-xs text-gray-300 mt-1">
                         Mostrando {docentesMostrados.length} de {docentes.length} registros
                     </p>
@@ -114,43 +185,66 @@ const Table = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {docentesMostrados.map((docente, index) => (
-                                    <tr className="hover:bg-gray-300 text-center" key={docente._id}>
-                                        <td>{index + 1}</td>
-                                        <td>{docente.nombreDocente}</td>
-                                        <td>{docente.apellidoDocente}</td>
-                                        <td>{docente.celularDocente}</td>
-                                        <td>{docente.emailDocente}</td>
-                                        <td>
-                                            <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                                {docente.statusDocente && "Activo"}
-                                            </span>
-                                        </td>
-                                        <td className='py-2 text-center'>
-                                            <MdInfo
-                                                title="Detalles"
-                                                className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-500"
-                                                onClick={() => navigate(`/dashboard/visualizar/${docente._id}`)}
-                                            />
+                                {docentesMostrados.map((docente, index) => {
+                                    const estaBloqueado = docentesBloqueados[docente._id];
 
-                                            {rol === "Administrador" && (
-                                                <>
-                                                    <MdPublishedWithChanges
-                                                        title="Actualizar"
-                                                        className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-blue-500"
-                                                        onClick={() => navigate(`/dashboard/actualizar/${docente._id}`)}
-                                                    />
+                                    return (
+                                        <tr
+                                            className={`text-center ${estaBloqueado
+                                                    ? "bg-gray-100"
+                                                    : "hover:bg-gray-300"
+                                                }`}
+                                            key={docente._id}
+                                        >
+                                            <td className="p-2">{index + 1}</td>
+                                            <td className="p-2 font-semibold">
+                                                {docente.nombreDocente}
+                                                {estaBloqueado && (
+                                                    <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded-full">
+                                                        CON PRÉSTAMOS ACTIVOS
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="p-2">{docente.apellidoDocente}</td>
+                                            <td className="p-2">{docente.celularDocente}</td>
+                                            <td className="p-2">{docente.emailDocente}</td>
+                                            <td className="p-2">
+                                                <span className="bg-blue-100 text-green-500 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                    {docente.statusDocente && "Activo"}
+                                                </span>
+                                            </td>
+                                            <td className='py-2 text-center'>
+                                                <MdInfo
+                                                    title="Detalles"
+                                                    className="h-8 w-8 text-slate-800 cursor-pointer inline-block mr-2 hover:text-green-500"
+                                                    onClick={() => navigate(`/dashboard/visualizar/${docente._id}`)}
+                                                />
 
-                                                    <MdDeleteForever
-                                                        title="Eliminar"
-                                                        className="h-8 w-8 text-red-800 cursor-pointer inline-block hover:text-red-500"
-                                                        onClick={() => { deleteDocente(docente._id) }}
-                                                    />
-                                                </>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                                {rol === "Administrador" && (
+                                                    <>
+                                                        <MdPublishedWithChanges
+                                                            title={estaBloqueado ? "No se puede editar (tiene préstamos activos)" : "Actualizar"}
+                                                            className={`h-8 w-8 ${estaBloqueado
+                                                                    ? "text-gray-400 cursor-not-allowed"
+                                                                    : "text-slate-800 cursor-pointer hover:text-blue-500"
+                                                                } inline-block mr-2`}
+                                                            onClick={() => handleEdit(docente)}
+                                                        />
+
+                                                        <MdDeleteForever
+                                                            title={estaBloqueado ? "No se puede eliminar (tiene préstamos activos)" : "Eliminar"}
+                                                            className={`h-8 w-8 ${estaBloqueado
+                                                                    ? "text-gray-400 cursor-not-allowed"
+                                                                    : "text-red-800 cursor-pointer hover:text-red-500"
+                                                                } inline-block`}
+                                                            onClick={() => deleteDocente(docente._id)}
+                                                        />
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

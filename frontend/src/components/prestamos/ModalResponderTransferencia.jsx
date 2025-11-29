@@ -99,7 +99,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
           {/* Información del origen */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              � Docente que Transfiere
+              👤 Docente que Transfiere
             </p>
             <div className="space-y-2 text-sm">
               <p>
@@ -118,7 +118,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
           {/* Recursos a recibir */}
           <div className="bg-green-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              � Recursos que Recibirás
+              📦 Recursos que Recibirás
             </p>
             <div className="space-y-3">
               {/* Recurso Principal */}
@@ -218,7 +218,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
           {observacionesOrigen && (
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-gray-700 mb-2">
-                � Información de la Transferencia
+                💬 Información de la Transferencia
               </p>
               <p className="text-sm text-gray-700 whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
                 {observacionesOrigen}

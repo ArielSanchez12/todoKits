@@ -279,7 +279,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <div>
             <h2 className="text-xl font-bold">
-              {esDocente ? "� Mi Historial" : "� Historial del Docente"}
+              {esDocente ? "📚 Mi Historial" : "📚 Historial del Docente"}
             </h2>
             <p className="text-xs text-gray-300 mt-1">
               Mostrando {prestamosMostrados?.length || 0} de {prestamosPorEstado?.length || 0} préstamos
@@ -333,7 +333,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
         {(fechaDesde || fechaHasta) && (
           <div className="text-xs text-blue-300 mt-2">
-            � Filtrando:
+            📅 Filtrando:
             {fechaDesde && ` desde ${formatFecha(fechaDesde)}`}
             {fechaHasta && ` hasta ${formatFecha(fechaHasta)}`}
           </div>
@@ -539,7 +539,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
               {/* Recurso principal completo */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">� Recurso Principal</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-xs text-gray-600">Nombre:</span>
@@ -579,7 +579,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
               {Array.isArray(modalCancelar.recursosAdicionales) &&
                 modalCancelar.recursosAdicionales.length > 0 && (
                   <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">� Recursos Adicionales</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
                     <div className="space-y-3">
                       {modalCancelar.recursosAdicionales.map((rec) => (
                         <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">
@@ -665,7 +665,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
 
               {/* Recurso principal completo */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">� Recurso Principal</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">📦 Recurso Principal</p>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-xs text-gray-600">Nombre:</span>
@@ -710,7 +710,7 @@ const TablaHistorialDocente = ({ prestamos, onRefresh, docenteId, esDocente = fa
               {Array.isArray(modalFinalizar.recursosAdicionales) &&
                 modalFinalizar.recursosAdicionales.length > 0 && (
                   <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">� Recursos Adicionales</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">📦 Recursos Adicionales</p>
                     <div className="space-y-3">
                       {modalFinalizar.recursosAdicionales.map((rec) => (
                         <div key={rec._id} className="bg-white border border-yellow-200 rounded p-3">

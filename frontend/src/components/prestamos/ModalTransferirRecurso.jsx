@@ -140,7 +140,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
           {/* Información del préstamo actual */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-2">
-              � Préstamo Actual
+              📦 Préstamo Actual
             </p>
             <p className="text-sm">
               <span className="font-semibold">Docente:</span>{" "}
@@ -179,7 +179,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
           {/* Recurso principal (siempre seleccionado) */}
           <div className="bg-green-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              � Recurso Principal (Obligatorio)
+              ✅ Recurso Principal (Obligatorio)
             </p>
             <div className="flex items-center gap-3 p-3 bg-white rounded border border-green-200">
               <MdCheckCircle className="text-green-600" size={24} />
@@ -197,7 +197,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
             prestamo.recursosAdicionales.length > 0 && (
               <div className="bg-yellow-50 p-4 rounded-lg">
                 <p className="text-sm font-semibold text-gray-700 mb-3">
-                  � Recursos Adicionales (Opcional)
+                  📦 Recursos Adicionales (Opcional)
                 </p>
                 <p className="text-xs text-gray-600 mb-3">
                   Selecciona los recursos adicionales que deseas transferir
@@ -234,7 +234,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
           {/* Resumen */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-2">
-              � Resumen
+              📋 Resumen
             </p>
             <ul className="text-sm space-y-1">
               <li>

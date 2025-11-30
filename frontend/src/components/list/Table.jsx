@@ -197,7 +197,7 @@ const Table = () => {
                                             key={docente._id}
                                         >
                                             <td className="p-2">{index + 1}</td>
-                                            <td className="p-2 font-semibold">
+                                            <td className="p-2">
                                                 {docente.nombreDocente}
                                                 {estaBloqueado && (
                                                     <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded-full">

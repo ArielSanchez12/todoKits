@@ -160,7 +160,7 @@ const obtenerTransferenciaPorQR = async (req, res) => {
 const confirmarTransferenciaOrigen = async (req, res) => {
   try {
     const { codigoQR } = req.params;
-    const { observaciones, firma } = req.body;
+    const { observaciones } = req.body;
 
     if (!req.docenteBDD || !req.docenteBDD._id) {
       return res.status(401).json({
@@ -197,16 +197,35 @@ const confirmarTransferenciaOrigen = async (req, res) => {
       });
     }
 
-    // Actualizar transferencia
-    transferencia.estado = "confirmado_origen";
-    transferencia.observacionesOrigen = observaciones || "";
-    transferencia.firmaOrigen = firma;
-    transferencia.fechaConfirmacionOrigen = new Date();
-    await transferencia.save();
+    // Validar que la firma no haya sido asignada antes (inmutabilidad manual)
+    if (transferencia.firmaOrigen && transferencia.firmaOrigen.length > 0) {
+      return res.status(400).json({
+        msg: "Esta transferencia ya tiene firma de origen"
+      });
+    }
+
+    // USAR findByIdAndUpdate para forzar la actualización de firmaOrigen
+    const transferenciaActualizada = await Transferencia.findByIdAndUpdate(
+      transferencia._id,
+      {
+        $set: {
+          estado: "confirmado_origen",
+          observacionesOrigen: observaciones || "",
+          firmaOrigen: docenteId.toString(), // FIRMA INMUTABLE (ID del docente)
+          fechaConfirmacionOrigen: new Date()
+        }
+      },
+      { new: true }
+    )
+      .populate("docenteOrigen", "nombreDocente apellidoDocente emailDocente")
+      .populate("docenteDestino", "nombreDocente apellidoDocente emailDocente")
+      .populate("recursos")
+      .populate("recursosAdicionales")
+      .populate("prestamoOriginal");
 
     //Incluir TODA la información en observaciones
-    const nombreOrigenCompleto = `${transferencia.docenteOrigen.nombreDocente} ${transferencia.docenteOrigen.apellidoDocente}`;
-    const emailOrigen = transferencia.docenteOrigen.emailDocente;
+    const nombreOrigenCompleto = `${transferenciaActualizada.docenteOrigen.nombreDocente} ${transferenciaActualizada.docenteOrigen.apellidoDocente}`;
+    const emailOrigen = transferenciaActualizada.docenteOrigen.emailDocente;
 
     let observacionesPrestamo = `📤 Transferido por: ${nombreOrigenCompleto}
 Email: ${emailOrigen}
@@ -215,8 +234,8 @@ Fecha de transferencia: ${new Date().toLocaleString('es-ES')}
 Código de transferencia: ${codigoQR}`;
 
     // Contar recursos transferidos vs totales
-    const totalRecursosOriginales = (transferencia.prestamoOriginal?.recursosAdicionales?.length || 0) + 1;
-    const recursosTransferidos = transferencia.recursos.length + transferencia.recursosAdicionales.length;
+    const totalRecursosOriginales = (transferenciaActualizada.prestamoOriginal?.recursosAdicionales?.length || 0) + 1;
+    const recursosTransferidos = transferenciaActualizada.recursos.length + transferenciaActualizada.recursosAdicionales.length;
     const recursosNoTransferidos = totalRecursosOriginales - recursosTransferidos;
 
     if (recursosNoTransferidos > 0) {
@@ -225,30 +244,23 @@ Código de transferencia: ${codigoQR}`;
 
     // Crear préstamo pendiente para docente destino
     const nuevoPrestamoPendiente = await Prestamo.create({
-      recurso: transferencia.recursos[0]?._id,
-      docente: transferencia.docenteDestino._id,
-      admin: transferencia.admin,
+      recurso: transferenciaActualizada.recursos[0]?._id,
+      docente: transferenciaActualizada.docenteDestino._id,
+      admin: transferenciaActualizada.admin,
       motivo: {
         tipo: "Transferencia",
         descripcion: `Transferencia desde ${nombreOrigenCompleto}`,
       },
       estado: "pendiente",
       fechaPrestamo: new Date(),
-      recursosAdicionales: transferencia.recursosAdicionales.map(r => r._id),
-      observaciones: observacionesPrestamo, //AQUÍ VA TODA LA INFO
-      firmaDocente: "",
+      recursosAdicionales: transferenciaActualizada.recursosAdicionales.map(r => r._id),
+      observaciones: observacionesPrestamo,
+      firmaDocente: null, // Se asignará cuando el destino confirme
     });
-
-    // // Notificar al docente destino por Pusher (no se usa por ahora, pero queda para futuras notificaciones)
-    // pusher.trigger("chat", "transferencia-confirmada-origen", {
-    //   transferencia,
-    //   nuevoPrestamoPendiente,
-    //   para: transferencia.docenteDestino._id.toString(),
-    // });
 
     res.json({
       msg: "Transferencia confirmada. El docente destino recibirá la solicitud en sus préstamos",
-      transferencia: await transferencia.populate("prestamoOriginal"),
+      transferencia: transferenciaActualizada,
       nuevoPrestamoPendiente,
     });
   } catch (error) {
@@ -301,7 +313,7 @@ const responderTransferenciaDestino = async (req, res) => {
       });
     }
 
-    const firmaFinal = firma || `${req.docenteBDD.nombreDocente} ${req.docenteBDD.apellidoDocente}`;
+    const firmaFinal = docenteId.toString();
 
     if (aceptar) {
       // ACEPTAR TRANSFERENCIA

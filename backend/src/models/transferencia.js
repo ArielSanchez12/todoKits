@@ -57,15 +57,14 @@ const transferenciaSchema = new Schema(
       type: String,
       default: "",
     },
+    // FIRMAS: Sin immutable en el schema, la inmutabilidad se maneja en el controlador
     firmaOrigen: {
       type: String,
-      default: "",
-      immutable: true,
+      default: null, // null en lugar de ""
     },
     firmaDestino: {
       type: String,
-      default: "",
-      immutable: true,
+      default: null, // null en lugar de ""
     },
     fechaSolicitud: {
       type: Date,

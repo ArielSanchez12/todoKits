@@ -50,7 +50,7 @@ const CardPasswordDocente = () => {
                             type={showPass1 ? "text" : "password"}
                             placeholder="Ingresa tu contraseña actual"
                             className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500 pr-10"
-                            {...register("currentPasswordDocente")}
+                            {...register("passwordActualDocente")}
                         />
                         <button
                             type="button"
@@ -68,7 +68,7 @@ const CardPasswordDocente = () => {
                             )}
                         </button>
                     </div>
-                    {errors.currentPasswordDocente && <p className="text-red-800">{errors.currentPasswordDocente.message}</p>}
+                    {errors.passwordActualDocente && <p className="text-red-800">{errors.passwordActualDocente.message}</p>}
                 </div>
 
                 <div className="mb-3 relative">
@@ -78,7 +78,7 @@ const CardPasswordDocente = () => {
                             type={showPass2 ? "text" : "password"}
                             placeholder="Ingresa la nueva contraseña"
                             className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500 pr-10"
-                            {...register("newPasswordDocente")}
+                            {...register("passwordNuevoDocente")}
                         />
                         <button
                             type="button"
@@ -96,7 +96,7 @@ const CardPasswordDocente = () => {
                             )}
                         </button>
                     </div>
-                    {errors.newPasswordDocente && <p className="text-red-800">{errors.newPasswordDocente.message}</p>}
+                    {errors.passwordNuevoDocente && <p className="text-red-800">{errors.passwordNuevoDocente.message}</p>}
                 </div>
 
                 <div className="mb-3 relative">

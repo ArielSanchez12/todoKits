@@ -3,11 +3,11 @@ import { z } from "zod";
 const passwordFuerte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,12}$/;
 
 export const cardPasswordDocenteSchema = z.object({
-  currentPasswordDocente: z
+  passwordActualDocente: z
     .string()
     .min(1, "La contraseña actual es requerida"),
 
-  newPasswordDocente: z
+  passwordNuevoDocente: z
     .string()
     .trim()
     .min(8, "La contraseña debe tener al menos 8 caracteres")
@@ -23,10 +23,10 @@ export const cardPasswordDocenteSchema = z.object({
     .max(12, "La confirmación de contraseña no puede exceder los 12 caracteres")
 })
   .refine(
-    data => data.newPasswordDocente === data.confirmPasswordDocente,
+    data => data.passwordNuevoDocente === data.confirmPasswordDocente,
     { message: "Las contraseñas no coinciden", path: ["confirmPasswordDocente"] }
   )
   .refine(
-    data => data.currentPasswordDocente !== data.newPasswordDocente,
-    { message: "La nueva contraseña debe ser diferente a la actual", path: ["newPasswordDocente"] }
+    data => data.passwordActualDocente !== data.passwordNuevoDocente,
+    { message: "La nueva contraseña debe ser diferente a la actual", path: ["passwordNuevoDocente"] }
   );

@@ -98,7 +98,7 @@ const recuperarPasswordUniversal = async (req, res) => {
         // Declarar variables FUERA del if
         let usuario;
         let tipoUsuario = "admin";
-        let emailDestino = email;
+        let emailDestino = email; //el campo que espera la función de envío es 'email' para admins y docentes (aqui no se usa emailDocente)
 
         // Buscar primero en administradores
         usuario = await admin.findOne({ email });

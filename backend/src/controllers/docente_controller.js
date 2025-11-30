@@ -200,18 +200,18 @@ const actualizarPerfilDocente = async (req, res) => {
 const actualizarPasswordDocente = async (req, res) => {
   try {
     // Datos validados por Zod (incluye confirmPasswordDocente(opcional) y que newPasswordDocente sea diferente)
-    const { currentPasswordDocente, newPasswordDocente, confirmPasswordDocente } = req.validated || {};
+    const { passwordActualDocente, passwordNuevoDocente, confirmPasswordDocente } = req.validated || {};
 
     // Verificar token JWT y obtener docente
     const docenteBDD = await docente.findById(req.docenteBDD._id);
     if (!docenteBDD) return res.status(404).json({ msg: "Docente no encontrado" });
 
     // Verificar contraseña actual
-    const verificarPassword = await docenteBDD.matchPassword(currentPasswordDocente);
+    const verificarPassword = await docenteBDD.matchPassword(passwordActualDocente);
     if (!verificarPassword) return res.status(400).json({ msg: "La contraseña actual es incorrecta" });
 
-    // Aquí Zod ya verificó que newPasswordDocente !== currentPasswordDocente
-    docenteBDD.passwordDocente = await docenteBDD.encryptPassword(newPasswordDocente);
+    // Aquí Zod ya verificó que passwordNuevoDocente !== passwordActualDocente
+    docenteBDD.passwordDocente = await docenteBDD.encryptPassword(passwordNuevoDocente);
     await docenteBDD.save();
     return res.status(200).json({ msg: "Contraseña actualizada correctamente" });
   } catch (error) {

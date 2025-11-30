@@ -117,8 +117,8 @@ export const updateDocenteProfileSchema = z
 // Esquema para actualizar contraseña del docente
 export const updateDocentePasswordSchema = z
   .object({
-    currentPasswordDocente: z.string().min(1, "La contraseña actual es requerida"),
-    newPasswordDocente: z
+    passwordActualDocente: z.string().min(1, "La contraseña actual es requerida"),
+    passwordNuevoDocente: z
       .string()
       .trim()
       .min(8, "La contraseña debe tener al menos 8 caracteres")
@@ -129,11 +129,11 @@ export const updateDocentePasswordSchema = z
       ),
     confirmPasswordDocente: z.string().min(1, "La confirmación es requerida")
   })
-  .refine((data) => data.newPasswordDocente === data.confirmPasswordDocente, {
+  .refine((data) => data.passwordNuevoDocente === data.confirmPasswordDocente, {
     message: "Las contraseñas no coinciden",
     path: ["confirmPasswordDocente"]
   })
-  .refine((data) => data.currentPasswordDocente !== data.newPasswordDocente, {
+  .refine((data) => data.passwordActualDocente !== data.passwordNuevoDocente, {
     message: "La nueva contraseña debe ser diferente a la actual",
-    path: ["newPasswordDocente"]
+    path: ["passwordNuevoDocente"]
   });

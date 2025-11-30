@@ -65,7 +65,8 @@ export const updateDocenteSchema = z.object({
     .max(50, "El nombre es demasiado largo")
     .regex(soloLetras, "El nombre solo debe contener letras y espacios")
     .refine(noSoloRepetidos, "El nombre no puede ser solo letras repetidas")
-    .transform(capitalizeFirstLetter),
+    .transform(capitalizeFirstLetter)
+    .optional(),
   apellidoDocente: z
     .string()
     .trim()
@@ -73,19 +74,24 @@ export const updateDocenteSchema = z.object({
     .max(50, "El apellido es demasiado largo")
     .regex(soloLetras, "El apellido solo debe contener letras y espacios")
     .refine(noSoloRepetidos, "El apellido no puede ser solo letras repetidas")
-    .transform(capitalizeFirstLetter),
+    .transform(capitalizeFirstLetter)
+    .optional(),
   celularDocente: z
     .string()
     .trim()
-    .regex(celularRegex, "El celular debe ser un número válido de Ecuador que empiece con 09 y tenga 10 dígitos"),
+    .regex(celularRegex, "El celular debe ser un número válido de Ecuador que empiece con 09 y tenga 10 dígitos")
+    .optional(),
   emailDocente: z
     .string()
     .trim()
     .email("El correo electrónico no es válido")
     .regex(emailGmail, "El correo debe ser de Gmail y en minúsculas (ej: usuario@gmail.com)")
-    .transform(val => val.toLowerCase()),
-  avatarDocente: z.string().optional()
-});
+    .transform(val => val.toLowerCase())
+    .optional(),
+  avatarDocente: z.string().optional(),
+  removeAvatar: z.boolean().optional()
+})
+.refine((data) => Object.keys(data).length > 0, { message: "Al menos un campo debe enviarse para actualizar" });
 
 // Esquema para que el docente actualice solo su perfil (solo email y foto)
 export const updateDocenteProfileSchema = z

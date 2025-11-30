@@ -17,6 +17,7 @@ import { registerSchema } from "../schemas/registerSchema.js"
 import { updateProfileSchema, updatePasswordSchema } from "../schemas/profileSchema.js";
 import { registerDocenteSchema } from "../schemas/docenteSchema.js";
 import { updateDocenteSchema } from "../schemas/docenteSchema.js";
+import { conditionalValidate } from "../middlewares/conditionalValidation.js"
 
 const router = Router()
 
@@ -38,7 +39,7 @@ router.get("/administrador/listDocentes", verificarTokenJWT, listarDocentes)
 // Ruta para eliminar un docente (protegida)
 router.delete("/administrador/deleteDocente/:id", verificarTokenJWT, eliminarDocente)
 // Ruta para actualizar un docente (protegida)
-router.put("/administrador/updateDocente/:id", verificarTokenJWT, validate(updateDocenteSchema), actualizarDocente)
+router.put("/administrador/updateDocente/:id", verificarTokenJWT, conditionalValidate(updateDocenteSchema), actualizarDocente)
 // Ruta para obtener detalles de un docente (protegida)
 router.get("/administrador/detailsDocente/:id", verificarTokenJWT, detalleDocente)
 

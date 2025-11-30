@@ -326,8 +326,8 @@ const eliminarDocente = async (req, res) => { //eliminacion permanente de un doc
         });
 
         if (prestamosActivos.length > 0) {
-            return res.status(400).json({ 
-                msg: "No se puede eliminar un docente con préstamos pendientes o activos" 
+            return res.status(400).json({
+                msg: "No se puede eliminar un docente con préstamos pendientes o activos"
             });
         }
 
@@ -341,8 +341,8 @@ const eliminarDocente = async (req, res) => { //eliminacion permanente de un doc
         });
 
         if (transferenciasActivas.length > 0) {
-            return res.status(400).json({ 
-                msg: "No se puede eliminar un docente con transferencias pendientes o activas" 
+            return res.status(400).json({
+                msg: "No se puede eliminar un docente con transferencias pendientes o activas"
             });
         }
 
@@ -371,19 +371,19 @@ const actualizarDocente = async (req, res) => { //actualiza los datos del docent
             return res.status(404).json({ msg: "Docente no encontrado" });
         }
 
-        // ========== VALIDACIÓN: Verificar préstamos activos ==========
+        // VALIDACIÓN: Verificar préstamos activos
         const prestamosActivos = await Prestamo.find({
             docente: id,
             estado: { $in: ["pendiente", "activo"] }
         });
 
         if (prestamosActivos.length > 0) {
-            return res.status(400).json({ 
-                msg: "No se puede editar un docente con préstamos pendientes o activos" 
+            return res.status(400).json({
+                msg: "No se puede editar un docente con préstamos pendientes o activos"
             });
         }
 
-        // ========== VALIDACIÓN: Verificar transferencias activas ==========
+        // VALIDACIÓN: Verificar transferencias activas 
         const transferenciasActivas = await Transferencia.find({
             $or: [
                 { docenteOrigen: id },
@@ -393,13 +393,13 @@ const actualizarDocente = async (req, res) => { //actualiza los datos del docent
         });
 
         if (transferenciasActivas.length > 0) {
-            return res.status(400).json({ 
-                msg: "No se puede editar un docente con transferencias pendientes o activas" 
+            return res.status(400).json({
+                msg: "No se puede editar un docente con transferencias pendientes o activas"
             });
         }
 
-        // ========== SI PASA LAS VALIDACIONES, CONTINUAR CON LA LÓGICA EXISTENTE ==========
-        
+        // SI PASA LAS VALIDACIONES, CONTINUAR CON LA LÓGICA EXISTENTE 
+
         // Detecta si el correo fue cambiado
         const nuevoCorreo = datosDocente.emailDocente;
         const correoAnterior = docenteActual.emailDocente;
@@ -449,13 +449,28 @@ const actualizarDocente = async (req, res) => { //actualiza los datos del docent
             });
         }
 
-        // Actualiza el docente
-        const docenteActualizado = await docente.findByIdAndUpdate(id, datosDocente, { new: true });
+        // Actualizar solo los campos que existen en datosDocente
+        if (datosDocente.nombreDocente) docenteActual.nombreDocente = datosDocente.nombreDocente;
+        if (datosDocente.apellidoDocente) docenteActual.apellidoDocente = datosDocente.apellidoDocente;
+        if (datosDocente.celularDocente) docenteActual.celularDocente = datosDocente.celularDocente;
+
+        // Guardar los cambios
+        await docenteActual.save();
 
         res.status(200).json({
             msg: nuevoCorreo && nuevoCorreo !== correoAnterior ?
                 "Se ha enviado un correo de confirmación para actualizar tu email" :
-                "Actualización exitosa del docente"
+                "Actualización exitosa del docente",
+            docente: {
+                _id: docenteActual._id,
+                nombreDocente: docenteActual.nombreDocente,
+                apellidoDocente: docenteActual.apellidoDocente,
+                celularDocente: docenteActual.celularDocente,
+                emailDocente: docenteActual.emailDocente,
+                avatarDocente: docenteActual.avatarDocente,
+                statusDocente: docenteActual.statusDocente,
+                rolDocente: docenteActual.rolDocente
+            }
         });
     } catch (error) {
         console.error("Error al actualizar docente:", error);

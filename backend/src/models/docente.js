@@ -59,11 +59,7 @@ const docenteSchema = new Schema({
     admin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'admin'
-    },
-    tratamientos: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tratamiento'
-    }]
+    }
 }, {
     timestamps: true
 })

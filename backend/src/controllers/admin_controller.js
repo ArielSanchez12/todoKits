@@ -355,17 +355,15 @@ const eliminarDocente = async (req, res) => { //eliminacion permanente de un doc
     }
 };
 
-const actualizarDocente = async (req, res) => { //actualiza los datos del docente desde create/Form.jsx (si se entra desde listar y luego editar, saldra 'Actualizar' en el modal en lugar de 'Crear')
+const actualizarDocente = async (req, res) => {
     try {
         const { id } = req.params;
-        // Datos ya validados por Zod
         const datosDocente = req.validated || req.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(404).json({ msg: `Lo sentimos, no existe el docente ${id}` });
         }
 
-        // Busca el docente actual
         const docenteActual = await docente.findById(id);
         if (!docenteActual) {
             return res.status(404).json({ msg: "Docente no encontrado" });
@@ -383,7 +381,7 @@ const actualizarDocente = async (req, res) => { //actualiza los datos del docent
             });
         }
 
-        // VALIDACIÓN: Verificar transferencias activas 
+        // VALIDACIÓN: Verificar transferencias activas
         const transferenciasActivas = await Transferencia.find({
             $or: [
                 { docenteOrigen: id },
@@ -398,15 +396,12 @@ const actualizarDocente = async (req, res) => { //actualiza los datos del docent
             });
         }
 
-        // SI PASA LAS VALIDACIONES, CONTINUAR CON LA LÓGICA EXISTENTE 
-
         // Detecta si el correo fue cambiado
         const nuevoCorreo = datosDocente.emailDocente;
         const correoAnterior = docenteActual.emailDocente;
 
         // Si el correo fue cambiado
         if (nuevoCorreo && nuevoCorreo !== correoAnterior) {
-            // Verificar si el nuevo correo ya está en uso
             const docenteExistente = await docente.findOne({ emailDocente: nuevoCorreo });
             const adminExistente = await admin.findOne({ email: nuevoCorreo });
 
@@ -414,50 +409,134 @@ const actualizarDocente = async (req, res) => { //actualiza los datos del docent
                 return res.status(400).json({ msg: "El email ya está en uso en el sistema" });
             }
 
-            // Generar token para confirmar cambio de email
             const token = docenteActual.createToken();
-
-            // Guardar el email pendiente de confirmación
             docenteActual.pendingEmailDocente = nuevoCorreo;
-            docenteActual.token = token;
+            docenteActual.tokenDocente = token;
             await docenteActual.save();
-
-            // Enviar email de confirmación CON LA FUNCION UNIVERSAL DE auth_controller/routes o nodemailer
             await sendMailToChangeEmail(nuevoCorreo, token);
 
-            // Quitar el email de los datos a actualizar para evitar que se cambie directamente
             delete datosDocente.emailDocente;
 
-            // Actualizar otros campos
             if (datosDocente.nombreDocente) docenteActual.nombreDocente = datosDocente.nombreDocente;
             if (datosDocente.apellidoDocente) docenteActual.apellidoDocente = datosDocente.apellidoDocente;
             if (datosDocente.celularDocente) docenteActual.celularDocente = datosDocente.celularDocente;
         }
 
-        // Procesa imagen si es necesario
-        if (req.files?.imagen) {
-            await new Promise((resolve, reject) => {
-                const uploadStream = cloudinary.uploader.upload_stream(
-                    { folder: 'Docentes' },
-                    (error, result) => {
-                        if (error) return reject(error);
-                        datosDocente.avatarDocente = result.secure_url;
-                        resolve();
-                    }
-                );
-                uploadStream.end(req.files.imagen.data);
-            });
-        }
-
-        // Actualizar solo los campos que existen en datosDocente
+        // Actualizar campos básicos antes de procesar imágenes
         if (datosDocente.nombreDocente) docenteActual.nombreDocente = datosDocente.nombreDocente;
         if (datosDocente.apellidoDocente) docenteActual.apellidoDocente = datosDocente.apellidoDocente;
         if (datosDocente.celularDocente) docenteActual.celularDocente = datosDocente.celularDocente;
 
-        // Guardar los cambios
-        await docenteActual.save();
+        // Eliminar las imágenes de Cloudinary si se solicita
+        if (datosDocente.removeAvatar === true || datosDocente.removeAvatar === 'true') {
+            if (docenteActual.avatarDocente) {
+                try {
+                    const publicId = docenteActual.avatarDocente.split('/').pop().split('.')[0];
+                    await cloudinary.uploader.destroy(`Docentes/${publicId}`);
+                } catch (err) {
+                    console.warn("No se pudo eliminar avatarDocente de Cloudinary:", err);
+                }
+            }
+            if (docenteActual.avatarDocenteOriginal) {
+                try {
+                    const publicId = docenteActual.avatarDocenteOriginal.split('/').pop().split('.')[0];
+                    await cloudinary.uploader.destroy(`Docentes/originals/${publicId}`);
+                } catch (err) {
+                    console.warn("No se pudo eliminar avatarDocenteOriginal de Cloudinary:", err);
+                }
+            }
 
-        res.status(200).json({
+            docenteActual.avatarDocente = null;
+            docenteActual.avatarDocenteOriginal = null;
+            await docenteActual.save();
+            return res.status(200).json({
+                msg: "Foto de perfil eliminada correctamente",
+                docente: {
+                    _id: docenteActual._id,
+                    nombreDocente: docenteActual.nombreDocente,
+                    apellidoDocente: docenteActual.apellidoDocente,
+                    celularDocente: docenteActual.celularDocente,
+                    emailDocente: docenteActual.emailDocente,
+                    avatarDocente: null,
+                    avatarDocenteOriginal: null,
+                    statusDocente: docenteActual.statusDocente,
+                    rolDocente: docenteActual.rolDocente
+                }
+            });
+        }
+
+        // Subir imagen recortada + original
+        if (req.files?.avatarDocente || req.files?.avatarDocenteOriginal) { //si llega a fallar, cambia .avatarDocente por .imagen
+            try {
+                // Subir imagen RECORTADA (para el círculo)
+                if (req.files?.avatarDocente) {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        { folder: 'Docentes' },
+                        async (error, result) => {
+                            if (error) {
+                                return res.status(500).json({ msg: 'Error al subir imagen recortada', error });
+                            }
+                            docenteActual.avatarDocente = result.secure_url;
+
+                            // Subir imagen ORIGINAL (para el modal que muestra la foto completa al hacer click)
+                            if (req.files?.avatarDocenteOriginal) {
+                                const uploadStreamOriginal = cloudinary.uploader.upload_stream(
+                                    { folder: 'Docentes/originals' },
+                                    async (errorOriginal, resultOriginal) => {
+                                        if (errorOriginal) {
+                                            console.error("Error al subir avatarDocenteOriginal:", errorOriginal);
+                                            return res.status(500).json({ msg: 'Error al subir imagen original', errorOriginal });
+                                        }
+                                        docenteActual.avatarDocenteOriginal = resultOriginal.secure_url;
+                                        await docenteActual.save();
+                                        return res.status(200).json({
+                                            msg: "Fotos de perfil actualizadas correctamente",
+                                            docente: {
+                                                _id: docenteActual._id,
+                                                nombreDocente: docenteActual.nombreDocente,
+                                                apellidoDocente: docenteActual.apellidoDocente,
+                                                celularDocente: docenteActual.celularDocente,
+                                                emailDocente: docenteActual.emailDocente,
+                                                avatarDocente: docenteActual.avatarDocente,
+                                                avatarDocenteOriginal: docenteActual.avatarDocenteOriginal,
+                                                statusDocente: docenteActual.statusDocente,
+                                                rolDocente: docenteActual.rolDocente
+                                            }
+                                        });
+                                    }
+                                );
+                                uploadStreamOriginal.end(req.files.avatarDocenteOriginal.data);
+                            } else {
+                                await docenteActual.save();
+                                return res.status(200).json({
+                                    msg: "Foto de perfil actualizada correctamente",
+                                    docente: {
+                                        _id: docenteActual._id,
+                                        nombreDocente: docenteActual.nombreDocente,
+                                        apellidoDocente: docenteActual.apellidoDocente,
+                                        celularDocente: docenteActual.celularDocente,
+                                        emailDocente: docenteActual.emailDocente,
+                                        avatarDocente: docenteActual.avatarDocente,
+                                        avatarDocenteOriginal: docenteActual.avatarDocenteOriginal,
+                                        statusDocente: docenteActual.statusDocente,
+                                        rolDocente: docenteActual.rolDocente
+                                    }
+                                });
+                            }
+                        }
+                    );
+                    uploadStream.end(req.files.avatarDocente.data);
+                    return;
+                }
+            } catch (err) {
+                console.error("Error al procesar imágenes:", err);
+                return res.status(500).json({ msg: 'Error al procesar imágenes', err });
+            }
+        }
+
+        // Si no hay cambios de foto ni email, solo guardar los cambios de datos básicos
+        await docenteActual.save();
+        return res.status(200).json({
             msg: nuevoCorreo && nuevoCorreo !== correoAnterior ?
                 "Se ha enviado un correo de confirmación para actualizar tu email" :
                 "Actualización exitosa del docente",
@@ -468,6 +547,7 @@ const actualizarDocente = async (req, res) => { //actualiza los datos del docent
                 celularDocente: docenteActual.celularDocente,
                 emailDocente: docenteActual.emailDocente,
                 avatarDocente: docenteActual.avatarDocente,
+                avatarDocenteOriginal: docenteActual.avatarDocenteOriginal,
                 statusDocente: docenteActual.statusDocente,
                 rolDocente: docenteActual.rolDocente
             }

@@ -4,7 +4,7 @@ import Docente from "../models/docente.js";
 import Admin from "../models/admin.js";
 import pusher from "../config/pusher.js";
 
-// Obtener admin del docente autenticado
+// Docente autenticado obtiene info del admin (es cuando abre el chat y le sale en contactos el admin asignado para el)
 const obtenerAdmin = async (req, res) => {
   try {
     if (!req.docenteBDD) {
@@ -34,7 +34,7 @@ const obtenerAdmin = async (req, res) => {
   }
 };
 
-// Obtener docentes del admin autenticado
+// Admin autenticado obtiene info de los docentes (es cuando abre el chat y le sale en contactos todos los docentes asignados para el)
 const obtenerDocentes = async (req, res) => {
   try {
     if (!req.adminEmailBDD) {
@@ -82,7 +82,7 @@ const enviarMensaje = async (req, res) => {
   }
 };
 
-// Obtener historial de chat
+// Obtener historial de chat (admin obtiene chat con docente y viceversa)
 const obtenerHistorial = async (req, res) => {
   try {
     const miId = req.docenteBDD?._id || req.adminEmailBDD?._id;
@@ -108,7 +108,7 @@ const obtenerHistorial = async (req, res) => {
   }
 };
 
-// Ocultar mensaje para mí (eliminar para mí)
+// Ocultar mensaje individual para mí (eliminar para mí)
 const ocultarMensaje = async (req, res) => {
   try {
     const { id } = req.params;
@@ -127,8 +127,8 @@ const ocultarMensaje = async (req, res) => {
     pusher.trigger("chat", "mensaje-oculto", { _id: msg._id, userId: miId });
     res.json({ msg: "Ocultado", _id: msg._id });
   } catch (error) {
-    console.error("Error al ocultar mensaje:", error);
-    res.status(500).json({ msg: "Error al ocultar mensaje" });
+    console.error("Error al ocultar mensaje individual:", error);
+    res.status(500).json({ msg: "Error al ocultar mensaje individual" });
   }
 };
 
@@ -151,12 +151,12 @@ const ocultarMultiples = async (req, res) => {
     pusher.trigger("chat", "mensajes-ocultos", { ids, userId: miId });
     res.json({ msg: "Ocultados", ids });
   } catch (error) {
-    console.error("Error al ocultar múltiples:", error);
-    res.status(500).json({ msg: "Error al ocultar múltiples" });
+    console.error("Error al ocultar múltiples mensajes:", error);
+    res.status(500).json({ msg: "Error al ocultar múltiples mensajes" });
   }
 };
 
-// Obtener todos los mensajes de un usuario (obtener el historial de chat completo pero de cada docente que tenga un administrador)
+// Obtener todos los mensajes de un usuario (docente o admin) Esto obtiene TODOS los mensajes, sin importar si están ocultos o no, si es emisor o receptor, etc
 const obtenerTodosMensajes = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -168,8 +168,8 @@ const obtenerTodosMensajes = async (req, res) => {
     const mensajesDesencriptados = mensajesEncriptados.map(msg => msg.desencriptar());
     res.json(mensajesDesencriptados);
   } catch (error) {
-    console.error("Error al obtener mensajes:", error);
-    res.status(500).json({ msg: "Error al obtener mensajes", error: error.message });
+    console.error("Error al obtener todos los mensajes del usuario:", error);
+    res.status(500).json({ msg: "Error al obtener todos los mensajes del usuario", error: error.message });
   }
 };
 
@@ -238,7 +238,7 @@ const enviarTransferencia = async (req, res) => {
   }
 };
 
-// Marcar mensajes como leídos
+// Marcar mensajes (uno o varios) como leídos
 const marcarLeidos = async (req, res) => {
   try {
     const { ids } = req.body;
@@ -258,12 +258,12 @@ const marcarLeidos = async (req, res) => {
     pusher.trigger("chat", "mensajes-leidos", payload);
     res.json({ msg: "Leídos", mensajes: payload });
   } catch (error) {
-    console.error("Error al marcar leídos:", error);
-    res.status(500).json({ msg: "Error al marcar leídos" });
+    console.error("Error al marcar mensajes como leídos:", error);
+    res.status(500).json({ msg: "Error al marcar mensajes como leídos" });
   }
 };
 
-// Editar mensaje
+// Editar mensaje (uno solo)
 const editarMensaje = async (req, res) => {
   try {
     const { id } = req.params;
@@ -306,7 +306,7 @@ const editarMensaje = async (req, res) => {
   }
 };
 
-// Eliminar mensaje para ambos
+// Eliminar mensaje para ambos (un solo mesaje)
 const eliminarMensaje = async (req, res) => {
   try {
     const { id } = req.params;
@@ -330,8 +330,8 @@ const eliminarMensaje = async (req, res) => {
 
     res.json({ msg: "Eliminado", _id: dec._id });
   } catch (error) {
-    console.error("Error al eliminar mensaje:", error);
-    res.status(500).json({ msg: "Error al eliminar mensaje" });
+    console.error("Error al eliminar mensaje individual:", error);
+    res.status(500).json({ msg: "Error al eliminar mensaje individual" });
   }
 };
 
@@ -357,8 +357,8 @@ const eliminarMultiples = async (req, res) => {
 
     res.json({ msg: "Eliminados", ids: permitidos.map(m => m._id) });
   } catch (error) {
-    console.error("Error al eliminar múltiples:", error);
-    res.status(500).json({ msg: "Error al eliminar múltiples" });
+    console.error("Error al eliminar múltiples mensajes:", error);
+    res.status(500).json({ msg: "Error al eliminar múltiples mensajes" });
   }
 };
 

@@ -201,7 +201,7 @@ const Table = () => {
                                                 {docente.nombreDocente}
                                                 {estaBloqueado && (
                                                     <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded-full">
-                                                        CON PRÉSTAMOS ACTIVOS
+                                                        PRÉSTAMO O TRANSFERENCIA ACTIVA
                                                     </span>
                                                 )}
                                             </td>

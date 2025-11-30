@@ -72,7 +72,7 @@ const ModalResponderTransferencia = ({ transferencia, onClose, onSuccess }) => {
       onClose();
     } catch (error) {
       console.error("Error al responder transferencia:", error);
-      toast.error("Error al procesar la respuesta");
+      toast.error("Error. Actualiza la tabla para revisar que la transferencia siga pendiente.");
     } finally {
       setLoading(false);
     }

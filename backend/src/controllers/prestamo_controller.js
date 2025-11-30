@@ -333,7 +333,7 @@ const finalizarPrestamo = async (req, res) => {
 
     const prestamoExistente = await prestamo.findById(id);
     if (!prestamoExistente) {
-      return res.status(404).json({ msg: "Préstamo no encontrado" });
+      return res.status(404).json({ msg: "Préstamo no encontrado. Actualiza la tabla para revisar que el préstamo siga activo." });
     }
 
     // Verificar que el préstamo pertenezca al docente

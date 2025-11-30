@@ -19,7 +19,7 @@ const crearTransferencia = async (req, res) => {
       .populate("docente");
 
     if (!prestamo) {
-      return res.status(404).json({ msg: "Préstamo no encontrado" });
+      return res.status(404).json({ msg: "Préstamo no encontrado. Revisa que el docente aún tenga el préstamo activo." });
     }
 
     if (prestamo.estado !== "activo") {
@@ -294,7 +294,7 @@ const responderTransferenciaDestino = async (req, res) => {
       .populate("recursosAdicionales");
 
     if (!transferencia) {
-      return res.status(404).json({ msg: "Transferencia no encontrada" });
+      return res.status(404).json({ msg: "Transferencia no encontrada. Revisa que no haya expirado o sido cancelada." });
     }
 
     // Validar que sea el docente destino

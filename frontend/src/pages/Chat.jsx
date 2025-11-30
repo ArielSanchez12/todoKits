@@ -562,9 +562,9 @@ const Chat = () => {
                         </p>
                         {isOwn && (
                             <>
-                                {msg.estado === 'pending' && <IoTimeOutline className="text-blue-100" title="Enviando..." />}
-                                {msg.estado === 'delivered' && <IoCheckmarkDoneSharp className="text-blue-100" title="Entregado" />}
-                                {msg.estado === 'read' && <IoCheckmarkDoneSharp className="text-green-300" title="Leído" />}
+                                {msg.estado === 'pending' && <IoTimeOutline className="text-blue-200" title="Enviando..." />}
+                                {msg.estado === 'delivered' && <IoCheckmarkDoneSharp className="text-white" title="Entregado" />}
+                                {msg.estado === 'read' && <IoCheckmarkDoneSharp className="text-yellow-300" title="Leído" />}
                                 {msg.estado === 'error' && <span className="text-red-300 text-xs font-semibold">Error</span>}
                             </>
                         )}

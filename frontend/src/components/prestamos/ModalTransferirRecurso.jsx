@@ -179,7 +179,7 @@ const ModalTransferirRecurso = ({ prestamo, docentes, onClose, onSuccess }) => {
           {/* Recurso principal (siempre seleccionado) */}
           <div className="bg-green-50 p-4 rounded-lg">
             <p className="text-sm font-semibold text-gray-700 mb-3">
-              ✅ Recurso Principal (Obligatorio)
+              📦 Recurso Principal (Obligatorio)
             </p>
             <div className="flex items-center gap-3 p-3 bg-white rounded border border-green-200">
               <MdCheckCircle className="text-green-600" size={24} />

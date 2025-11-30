@@ -61,30 +61,53 @@ const Chat = () => {
     const deleteMany = async () => {
         if (!anySelected) return;
         if (!window.confirm("Eliminar mensajes seleccionados para ambos usuarios?")) return;
+
+        const idsToDelete = Array.from(selectedIds);
+
+        // ✅ Actualización optimista: marcar como softDeleted inmediatamente
+        setResponses(prev => prev.map(m =>
+            idsToDelete.includes(m._id)
+                ? { ...m, softDeleted: true, texto: "Mensaje eliminado" }
+                : m
+        ));
+
+        setSelectedIds(new Set());
+        setMultiSelectMode(false);
+        setShowContext(false);
+
         try {
             await fetch(`${BACKEND_URL}/chat/messages/delete-many`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ ids: Array.from(selectedIds) })
+                body: JSON.stringify({ ids: idsToDelete })
             });
-        } catch { }
-        setSelectedIds(new Set());
-        setMultiSelectMode(false);
-        setShowContext(false);
+        } catch (err) {
+            // Si falla, revertir (recargar historial)
+            console.error("Error al eliminar múltiples:", err);
+        }
     };
 
     // Eliminar múltiple "para mí" (ocultar)
     const deleteManyForMe = async () => {
         if (!anySelected) return;
+
+        const idsToHide = Array.from(selectedIds);
+
+        // ✅ Actualización optimista: remover de la UI inmediatamente
+        setResponses(prev => prev.filter(m => !idsToHide.includes(m._id)));
+
+        setSelectedIds(new Set());
+        setMultiSelectMode(false);
+
         try {
             await fetch(`${BACKEND_URL}/chat/messages/hide-many`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ ids: Array.from(selectedIds) })
+                body: JSON.stringify({ ids: idsToHide })
             });
-        } catch { }
-        setSelectedIds(new Set());
-        setMultiSelectMode(false);
+        } catch (err) {
+            console.error("Error al ocultar múltiples:", err);
+        }
     };
 
     // Detectar tipo de usuario
@@ -172,7 +195,7 @@ const Chat = () => {
             });
     }, [selectedContact, token]);
 
-    // Suscribirse a Pusher y reconcilia “pending” -> “delivered”
+    // Suscribirse a Pusher y reconcilia "pending" -> "delivered"
     useEffect(() => {
         if (!selectedContact) return;
 
@@ -190,8 +213,8 @@ const Chat = () => {
         }
         const channel = channelRef.current;
 
+        // ✅ Handler para nuevos mensajes
         const handleNewMessage = (data) => {
-            // ✅ Ignorar mensajes que el cliente canceló (reconciliación por clientId)
             if (data.clientId && canceledClientIdsRef.current.has(data.clientId)) return;
 
             const isBetween =
@@ -216,8 +239,82 @@ const Chat = () => {
             }
         };
 
+        // ✅ Handler para mensaje eliminado (para ambos)
+        const handleMessageDeleted = (data) => {
+            if (!data._id) return;
+            setResponses(prev => prev.map(m =>
+                m._id === data._id
+                    ? { ...m, softDeleted: true, texto: "Mensaje eliminado" }
+                    : m
+            ));
+        };
+
+        // ✅ Handler para múltiples mensajes eliminados
+        const handleMessagesDeleted = (data) => {
+            if (!data.ids || !Array.isArray(data.ids)) return;
+            setResponses(prev => prev.map(m =>
+                data.ids.includes(m._id)
+                    ? { ...m, softDeleted: true, texto: "Mensaje eliminado" }
+                    : m
+            ));
+        };
+
+        // ✅ Handler para mensaje oculto (para mí) - solo afecta al usuario que ocultó
+        const handleMessageHidden = (data) => {
+            if (!data._id || data.userId !== user._id) return;
+            setResponses(prev => prev.filter(m => m._id !== data._id));
+        };
+
+        // ✅ Handler para múltiples mensajes ocultos
+        const handleMessagesHidden = (data) => {
+            if (!data.ids || !Array.isArray(data.ids) || data.userId !== user._id) return;
+            setResponses(prev => prev.filter(m => !data.ids.includes(m._id)));
+        };
+
+        // ✅ Handler para mensaje editado
+        const handleMessageEdited = (data) => {
+            if (!data._id) return;
+            const isBetween =
+                (data.de === user._id && data.para === selectedContact?._id) ||
+                (data.de === selectedContact?._id && data.para === user._id);
+            if (!isBetween) return;
+
+            setResponses(prev => prev.map(m =>
+                m._id === data._id
+                    ? { ...m, texto: data.texto, editedAt: data.editedAt }
+                    : m
+            ));
+        };
+
+        // ✅ Handler para mensajes leídos
+        const handleMessagesRead = (data) => {
+            if (!Array.isArray(data)) return;
+            const readIds = data.map(m => m._id);
+            setResponses(prev => prev.map(m =>
+                readIds.includes(m._id)
+                    ? { ...m, estado: 'read' }
+                    : m
+            ));
+        };
+
+        // Bind de todos los eventos
         channel.bind("nuevo-mensaje", handleNewMessage);
-        return () => channel.unbind("nuevo-mensaje", handleNewMessage);
+        channel.bind("mensaje-eliminado", handleMessageDeleted);
+        channel.bind("mensajes-eliminados", handleMessagesDeleted);
+        channel.bind("mensaje-oculto", handleMessageHidden);
+        channel.bind("mensajes-ocultos", handleMessagesHidden);
+        channel.bind("mensaje-editado", handleMessageEdited);
+        channel.bind("mensajes-leidos", handleMessagesRead);
+
+        return () => {
+            channel.unbind("nuevo-mensaje", handleNewMessage);
+            channel.unbind("mensaje-eliminado", handleMessageDeleted);
+            channel.unbind("mensajes-eliminados", handleMessagesDeleted);
+            channel.unbind("mensaje-oculto", handleMessageHidden);
+            channel.unbind("mensajes-ocultos", handleMessagesHidden);
+            channel.unbind("mensaje-editado", handleMessageEdited);
+            channel.unbind("mensajes-leidos", handleMessagesRead);
+        };
     }, [selectedContact, user]);
 
     // ✅ NUEVO estado y refs para bloquear envíos repetidos
@@ -431,8 +528,8 @@ const Chat = () => {
                 )}
                 <div
                     className={`px-4 py-3 rounded-2xl ${isOwn ? "bg-blue-500 text-white rounded-br-none" : "bg-gray-300 text-gray-900 rounded-bl-none"}
-                        ${highlightedId === msg._id ? "ring-2 ring-amber-300" : ""}
-                        ${isSelected ? "ring-2 ring-blue-400" : ""}`}
+                            ${highlightedId === msg._id ? "ring-2 ring-amber-300" : ""}
+                            ${isSelected ? "ring-2 ring-blue-400" : ""}`}
                     style={{ wordBreak: "break-word" }}
                     onTouchStart={startPress}
                     onTouchEnd={clearPress}
@@ -541,11 +638,21 @@ const Chat = () => {
 
     const hideForMe = async () => {
         if (!contextMsg) return;
-        await fetch(`${BACKEND_URL}/chat/message/${contextMsg._id}/hide`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` }
-        });
+
+        const idToHide = contextMsg._id;
+
+        // ✅ Actualización optimista: remover de la UI inmediatamente
+        setResponses(prev => prev.filter(m => m._id !== idToHide));
         setShowContext(false);
+
+        try {
+            await fetch(`${BACKEND_URL}/chat/message/${idToHide}/hide`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+        } catch (err) {
+            console.error("Error al ocultar mensaje:", err);
+        }
     };
 
     // ✅ NUEVO: saltar al mensaje original y resaltarlo
@@ -631,13 +738,25 @@ const Chat = () => {
     const deleteOne = async () => {
         if (!contextMsg) return;
         if (!window.confirm("Se eliminará para ambos. ¿Continuar?")) return;
+
+        const idToDelete = contextMsg._id;
+
+        // ✅ Actualización optimista: marcar como eliminado inmediatamente
+        setResponses(prev => prev.map(m =>
+            m._id === idToDelete
+                ? { ...m, softDeleted: true, texto: "Mensaje eliminado" }
+                : m
+        ));
+        setShowContext(false);
+
         try {
-            await fetch(`${BACKEND_URL}/chat/message/${contextMsg._id}`, {
+            await fetch(`${BACKEND_URL}/chat/message/${idToDelete}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` }
             });
-        } catch { }
-        setShowContext(false);
+        } catch (err) {
+            console.error("Error al eliminar mensaje:", err);
+        }
     };
 
     // ✅ Selección múltiple (infra mínima)

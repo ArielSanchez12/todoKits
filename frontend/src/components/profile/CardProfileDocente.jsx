@@ -148,7 +148,7 @@ export const CardProfileDocente = () => {
                             className="absolute bottom-0 left-0 bg-red-500 text-white rounded-full p-2 cursor-pointer hover:bg-red-600 transition-colors"
                             title="Eliminar foto de perfil"
                         >
-                            �️
+                            🗑️
                         </button>
                     )}
                 </div>

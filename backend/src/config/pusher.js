@@ -6,7 +6,6 @@ let pusher;
 if (process.env.NODE_ENV === "test") {
   pusher = {
     trigger: async () => {
-      console.log("[TEST] pusher.trigger llamado");
       return true;
     },
   };

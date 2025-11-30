@@ -30,7 +30,9 @@ export const createRecursoSchema = z.discriminatedUnion("tipo", [
 
 export const updateRecursoSchema = z.object({
   estado: z.enum(["pendiente", "activo", "prestado"]).optional(),
-  asignadoA: z.string().optional(),
+  asignadoA: z.union([z.string(), z.null()]).optional(), // String o null
+}).refine((data) => Object.keys(data).length > 0, { 
+  message: "Al menos un campo debe enviarse para actualizar" 
 });
 
 // Schema para actualización completa (edición)

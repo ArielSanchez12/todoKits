@@ -82,13 +82,13 @@ const crearRecurso = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al crear recurso:", error);
-    
+
     // Manejar errores de validación del modelo
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({ msg: messages.join(', ') });
     }
-    
+
     res.status(500).json({ msg: "Error en el servidor" });
   }
 };
@@ -284,8 +284,8 @@ const actualizarRecursoCompleto = async (req, res) => {
 
     // VALIDAR QUE NO ESTÉ EN PRÉSTAMO ACTIVO
     if (recursoExistente.estado === "activo" || recursoExistente.estado === "prestado") {
-      return res.status(400).json({ 
-        msg: "No se puede editar un recurso que está en préstamo activo" 
+      return res.status(400).json({
+        msg: "No se puede editar un recurso que está en préstamo activo"
       });
     }
 
@@ -319,7 +319,7 @@ const actualizarRecursoCompleto = async (req, res) => {
       if (datosActualizacion.contenido && Array.isArray(datosActualizacion.contenido)) {
         datosParaActualizar.contenido = datosActualizacion.contenido.filter(c => c.trim());
       }
-    } 
+    }
     else if (tipo === "llave") {
       if (datosActualizacion.laboratorio) {
         const labEnUso = await recurso.findOne({
@@ -341,7 +341,7 @@ const actualizarRecursoCompleto = async (req, res) => {
       if (datosActualizacion.aula) {
         datosParaActualizar.aula = datosActualizacion.aula;
       }
-    } 
+    }
     else if (tipo === "proyector") {
       if (datosActualizacion.contenido && Array.isArray(datosActualizacion.contenido)) {
         datosParaActualizar.contenido = datosActualizacion.contenido.filter(c => c.trim());
@@ -355,18 +355,42 @@ const actualizarRecursoCompleto = async (req, res) => {
       { new: true, runValidators: true }
     ).populate("asignadoA", "nombreDocente apellidoDocente emailDocente");
 
+    // Formatear respuesta según tipo (igual que en obtenerRecurso y listarRecursos)
+    const recursoObj = {
+      _id: recursoActualizado._id,
+      tipo: recursoActualizado.tipo,
+      nombre: recursoActualizado.nombre,
+      estado: recursoActualizado.estado,
+      asignadoA: recursoActualizado.asignadoA,
+      admin: recursoActualizado.admin,
+      createdAt: recursoActualizado.createdAt,
+      updatedAt: recursoActualizado.updatedAt,
+    };
+
+    // Agregar campos específicos según tipo
+    if (tipo === "kit") {
+      recursoObj.laboratorio = recursoActualizado.laboratorio;
+      recursoObj.aula = recursoActualizado.aula;
+      recursoObj.contenido = recursoActualizado.contenido;
+    } else if (tipo === "llave") {
+      recursoObj.laboratorio = recursoActualizado.laboratorio;
+      recursoObj.aula = recursoActualizado.aula;
+    } else if (tipo === "proyector") {
+      recursoObj.contenido = recursoActualizado.contenido;
+    }
+
     res.status(200).json({
       msg: "Recurso actualizado exitosamente",
-      recurso: recursoActualizado,
+      recurso: recursoObj,
     });
   } catch (error) {
     console.error("Error al actualizar recurso:", error);
-    
+
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({ msg: messages.join(', ') });
     }
-    
+
     res.status(500).json({ msg: "Error en el servidor" });
   }
 };
@@ -387,8 +411,8 @@ const eliminarRecurso = async (req, res) => {
 
     // VALIDAR QUE NO ESTÉ EN PRÉSTAMO ACTIVO
     if (recursoExistente.estado === "activo" || recursoExistente.estado === "prestado") {
-      return res.status(400).json({ 
-        msg: "No se puede eliminar un recurso que está en préstamo activo" 
+      return res.status(400).json({
+        msg: "No se puede eliminar un recurso que está en préstamo activo"
       });
     }
 

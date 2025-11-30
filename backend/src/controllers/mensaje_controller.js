@@ -209,7 +209,7 @@ const enviarTransferencia = async (req, res) => {
     const finalClientId = clientId || `tx-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const mensaje = await Mensaje.create({
-      texto: `📦 Nueva transferencia de recursos`,
+      texto: `Nueva transferencia de recursos`,
       de: req.adminEmailBDD._id,
       deTipo: "admin",
       para: docenteDestinoId,

@@ -22,6 +22,13 @@ const crearPrestamo = async (req, res) => {
       });
     }
 
+    // Validar que el recurso pertenezca al admin actual
+    if (recursoExistente.admin && recursoExistente.admin.toString() !== adminId.toString()) {
+      return res.status(403).json({
+        msg: "No tienes permiso para prestar este recurso"
+      });
+    }
+
     // Validar que el docente exista
     const docenteExistente = await docente.findById(datosPrestamo.docente);
     if (!docenteExistente) {
@@ -36,9 +43,12 @@ const crearPrestamo = async (req, res) => {
 
       if (matches.length > 0) {
         const nombresRecursos = matches.map(m => `${m[1].toUpperCase()} #${m[2]}`);
+
+        // Buscar SOLO recursos que pertenezcan al admin actual
         const recursosAdicionales = await recurso.find({
           nombre: { $in: nombresRecursos },
-          _id: { $ne: datosPrestamo.recurso }
+          _id: { $ne: datosPrestamo.recurso },
+          admin: adminId  // <-- Filtrar por admin actual
         });
 
         // Validar que todos estén disponibles

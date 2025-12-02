@@ -105,7 +105,8 @@ prestamoSchema.pre('save', async function (next) {
       // Buscar recursos por nombre
       const recursos = await Recurso.find({
         nombre: { $in: nombresRecursos },
-        _id: { $ne: this.recurso } // Excluir el recurso principal
+        _id: { $ne: this.recurso }, // Excluir el recurso principal
+        admin: this.admin  // <-- FILTRAR POR ADMIN ACTUAL
       }).select('_id');
 
       this.recursosAdicionales = recursos.map(r => r._id);

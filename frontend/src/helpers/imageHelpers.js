@@ -35,7 +35,7 @@ const convertBlobToBase64 = (blob) => {
 // https://www.base64-image.de/
 
 /**
- * ✅ NUEVA FUNCIÓN: Crea un blob de imagen recortada desde un canvas
+ * Crea un blob de imagen recortada desde un canvas
  * @param {string} imageSrc - URL de la imagen original (base64 o URL)
  * @param {Object} pixelCrop - Área de recorte en píxeles {x, y, width, height}
  * @returns {Promise<Blob>} Blob de la imagen recortada (lista para subir)

@@ -1,8 +1,8 @@
 import { Link, Outlet, useLocation } from 'react-router'
-import { useState } from 'react' // ✅ NUEVO
+import { useState } from 'react'  
 import storeAuth from '../context/storeAuth'
 import storeProfile from '../context/storeProfile'
-import ModalViewImage from '../components/profile/ModalViewImage' // ✅ NUEVO
+import ModalViewImage from '../components/profile/ModalViewImage'  
 
 const Dashboard = () => {
     const location = useLocation()
@@ -12,7 +12,7 @@ const Dashboard = () => {
         urlActual.startsWith("/dashboard/visualizar");
     const { clearToken } = storeAuth()
     const { user } = storeProfile();
-    const [showViewModal, setShowViewModal] = useState(false) // ✅ NUEVO
+    const [showViewModal, setShowViewModal] = useState(false) 
 
     const userData = user?._doc || user || {};
 
@@ -27,10 +27,10 @@ const Dashboard = () => {
     const esAdministrador = userData?.rol === "Administrador";
     const esDocente = userData?.rol === "docente" || userData?.rolDocente === "Docente";
 
-    // ✅ Mostrar imagen RECORTADA en sidebar y header
+    // Mostrar imagen RECORTADA en sidebar y header
     const avatarUrl = userData.avatarDocente || userData.avatar || userData.avatarDocenteOriginal || userData.avatarOriginal || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
-    // ✅ Mostrar imagen ORIGINAL en modal
+    // Mostrar imagen ORIGINAL en modal
     const avatarOriginalUrl = userData.avatarDocenteOriginal || userData.avatarOriginal || userData.avatarDocente || userData.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
     return (
@@ -44,7 +44,7 @@ const Dashboard = () => {
                         <sup className="text-[8px] sm:text-[9px] md:text-[10px] font-bold tracking-wider px-1 py-1 rounded bg-blue-500/20 text-blue-300 ml-0.5 align-super">ESFOT</sup>
                     </h2>
 
-                    {/* ✅ Avatar del sidebar - clickeable - MUESTRA RECORTADA */}
+                    {/* Avatar del sidebar - clickeable - MUESTRA RECORTADA */}
                     <img
                         src={avatarUrl}
                         alt="img-client"
@@ -135,7 +135,7 @@ const Dashboard = () => {
                             Usuario - {userData.nombre || userData.nombreDocente} {userData.apellido || userData.apellidoDocente}
                         </div>
                         <div>
-                            {/* ✅ Avatar del header - clickeable - MUESTRA RECORTADA */}
+                            {/* Avatar del header - clickeable - MUESTRA RECORTADA */}
                             <img
                                 src={avatarUrl}
                                 alt="img-client"
@@ -156,7 +156,7 @@ const Dashboard = () => {
 
             </div>
 
-            {/* ✅ Modal de vista de imagen - MUESTRA ORIGINAL */}
+            {/* Modal de vista de imagen - MUESTRA ORIGINAL */}
             <ModalViewImage
                 imageSrc={avatarOriginalUrl}
                 isOpen={showViewModal}

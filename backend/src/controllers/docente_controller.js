@@ -112,7 +112,7 @@ const actualizarPerfilDocente = async (req, res) => {
             { folder: 'Docentes' },
             async (error, result) => {
               if (error) {
-                console.error("❌ Error al subir avatarDocente recortado:", error);
+                console.error("Error al subir avatarDocente recortado:", error);
                 return res.status(500).json({ msg: 'Error al subir imagen recortada', error });
               }
               docenteBDD.avatarDocente = result.secure_url;
@@ -164,7 +164,7 @@ const actualizarPerfilDocente = async (req, res) => {
           return;
         }
       } catch (err) {
-        console.error("❌ Error al procesar imágenes:", err);
+        console.error("Error al procesar imágenes:", err);
         return res.status(500).json({ msg: 'Error al procesar imágenes', err });
       }
     }

@@ -8,7 +8,7 @@ export const validate = (schema) => {
       const result = schema.safeParse(req.body);
 
       if (!result.success) {
-        // Zod usa 'issues' para describir los errores; soportamos también 'errors' por compatibilidad
+        // Zod usa 'issues' para describir los errores, también 'errors' por compatibilidad
         const issues = result.error?.issues || result.error?.errors || [];
         const messages = issues.map((i) => i?.message || String(i));
         return res.status(400).json({ msg: messages.join(", ") });

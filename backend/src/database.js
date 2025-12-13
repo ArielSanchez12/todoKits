@@ -8,7 +8,7 @@ const connection = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("MongoDB conectado");
+    console.log("MongoDB conectado"); //estos log si deben quedarse para saber que la conexion fue exitosa
   } catch (error) {
     console.log("Error de conexión a MongoDB:", error.message);
   }

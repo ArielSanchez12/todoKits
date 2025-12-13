@@ -8,7 +8,6 @@ import storeProfile from '../context/storeProfile'
 
 const Profile = () => {
     const { user } = storeProfile()
-    console.log(user)
     
     return (
         <>
@@ -20,7 +19,7 @@ const Profile = () => {
             {
                 user && user?.rolDocente === "Docente"
                     ? (
-                        // ✅ ESTRUCTURA PARA DOCENTE (igual al admin)
+                        // ESTRUCTURA PARA DOCENTE (igual al admin)
                         <div className='flex flex-col gap-8'>
                             {/* CardProfileDocente - Ancho completo arriba */}
                             <div className='w-full'>
@@ -39,7 +38,7 @@ const Profile = () => {
                         </div>
                     )
                     : (
-                        // ✅ ESTRUCTURA PARA ADMIN
+                        // ESTRUCTURA PARA ADMIN
                         <div className='flex flex-col gap-8'>
                             {/* CardProfile - Ancho completo arriba */}
                             <div className='w-full'>

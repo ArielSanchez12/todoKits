@@ -138,7 +138,7 @@ const storeRecursos = create((set) => ({
     }
   },
 
-  // NUEVO: Actualizar recurso completo (edición)
+  // Actualizar recurso completo (edición)
   updateRecursoCompleto: async (id, datosActualizacion) => {
     try {
       const storedAuth = JSON.parse(localStorage.getItem("auth-token"));

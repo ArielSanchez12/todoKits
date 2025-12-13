@@ -45,17 +45,15 @@ const Prestamos = () => {
     setLoadingDocentes(true);
     try {
       const data = await fetchDocentes();
-      console.log("✅ Docentes cargados:", data);
 
       if (Array.isArray(data)) {
         setDocentes(data);
-        console.log("✅ Estado docentes actualizado:", data);
       } else {
-        console.error("❌ fetchDocentes no retornó un array:", data);
+        console.error("fetchDocentes no retornó un array:", data);
         setDocentes([]);
       }
     } catch (error) {
-      console.error("❌ Error al cargar docentes:", error);
+      console.error("Error al cargar docentes:", error);
       setDocentes([]);
     } finally {
       setLoadingDocentes(false);
@@ -72,11 +70,6 @@ const Prestamos = () => {
   };
 
   const handleAbrirTransferencia = async (prestamo) => {
-    console.log("🔍 Intentando abrir transferencia");
-    console.log("📦 Préstamo:", prestamo);
-    console.log("👥 Estado docentes ANTES de abrir modal:", docentes);
-    console.log("📊 Es array?:", Array.isArray(docentes));
-    console.log("📊 Cantidad:", docentes.length);
 
     if (!Array.isArray(docentes) || docentes.length === 0) {
       toast.info("Cargando docentes disponibles...");
@@ -84,7 +77,7 @@ const Prestamos = () => {
 
       try {
         const data = await fetchDocentes();
-        console.log("✅ Docentes recargados:", data);
+
 
         if (!Array.isArray(data) || data.length === 0) {
           toast.error("No hay docentes disponibles en el sistema");
@@ -96,13 +89,12 @@ const Prestamos = () => {
         setLoadingDocentes(false);
 
         setTimeout(() => {
-          console.log("👥 Docentes al abrir modal:", data);
           setPrestamoSeleccionado(prestamo);
           setModalTransferir(true);
         }, 100);
 
       } catch (error) {
-        console.error("❌ Error al recargar docentes:", error);
+        console.error("Error al recargar docentes:", error);
         toast.error("Error al cargar docentes");
         setLoadingDocentes(false);
         return;
@@ -192,7 +184,6 @@ const Prestamos = () => {
       {vistaActual === "prestamos" ? (
         <>
           <div className="flex flex-wrap gap-2 mb-6">
-            {/* ✅ CORREGIDO: Cambiado de {{...}} a [{...}] */}
             {[
               { key: "todos", label: "Todos" },
               { key: "pendiente", label: "Pendientes" },
@@ -259,7 +250,7 @@ const Prestamos = () => {
               prestamos={prestamosFiltrados}
               onRefresh={handleRefresh}
               onSolicitarTransferencia={handleAbrirTransferencia}
-              docentes={docentes} // ✅ AGREGADO: Pasar docentes aquí
+              docentes={docentes} // Pasar docentes aquí
             />
           )}
         </>

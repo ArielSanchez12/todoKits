@@ -59,7 +59,7 @@ const storeTransferencias = create(
             `${import.meta.env.VITE_BACKEND_URL}/transferencia/${codigoQR}`
           );
 
-          // ✅ NUEVO: Manejar error 410 (transferencia caducada)
+          // Manejar error 410 (transferencia caducada)
           if (response.status === 410) {
             const data = await response.json();
             const error = new Error(data.msg || "Transferencia caducada");

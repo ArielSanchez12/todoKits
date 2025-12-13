@@ -102,7 +102,6 @@ const recuperarPasswordUniversal = async (req, res) => {
 
         // Buscar primero en administradores
         usuario = await admin.findOne({ email });
-        console.log("Admin encontrado:", !!usuario);
 
         // Si no existe en admin, buscar en docentes
         if (!usuario) {

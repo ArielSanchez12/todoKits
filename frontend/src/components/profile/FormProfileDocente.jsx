@@ -7,7 +7,7 @@ import { formProfileDocenteSchema } from "../../schemas/formProfileDocenteSchema
 const FormProfileDocente = () => {
     const { user, updateProfile } = storeProfile()
     const [showEmailWarning, setShowEmailWarning] = useState(false);
-    const [showAdminWarning, setShowAdminWarning] = useState(false); // NUEVO
+    const [showAdminWarning, setShowAdminWarning] = useState(false);
 
     const userData = user?._doc || user || {};
 

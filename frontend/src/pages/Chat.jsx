@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import Pusher from "pusher-js";
 import storeAuth from "../context/storeAuth";
-import ModalViewImage from "../components/profile/ModalViewImage" // ✅ NUEVO
+import ModalViewImage from "../components/profile/ModalViewImage" 
 import { MdQrCode, MdSearch } from "react-icons/md";
 import { IoSend, IoCheckmarkDoneSharp, IoTimeOutline, IoEllipsisVertical, IoInformationCircleOutline, IoTrashOutline } from "react-icons/io5";
 import { FiCheck } from "react-icons/fi"; // simple check para 'delivered' si quieres diferenciación
@@ -20,28 +20,28 @@ const Chat = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedImageUrl, setSelectedImageUrl] = useState("");
-    const [imageUserName, setImageUserName] = useState(""); // ✅ NUEVO: nombre para el modal
+    const [imageUserName, setImageUserName] = useState(""); // nombre para el modal
     const token = storeAuth((state) => state.token);
     const user = JSON.parse(localStorage.getItem("user")) || {};
     const [userType, setUserType] = useState("");
     const pusherRef = useRef(null);
     const channelRef = useRef(null);
     const messagesEndRef = useRef(null);
-    const [replyTarget, setReplyTarget] = useState(null); // ✅ NUEVO
-    const messagesContainerRef = useRef(null); // ✅ NUEVO
-    const pendingRead = useRef(new Set()); // ✅ NUEVO
-    const readFlushTimer = useRef(null); // ✅ NUEVO
-    const [highlightedId, setHighlightedId] = useState(null); // ✅ NUEVO
-    const highlightTimerRef = useRef(null); // ✅ NUEVO
-    const [showContext, setShowContext] = useState(false);          // ✅ NUEVO
-    const [contextMsg, setContextMsg] = useState(null);             // ✅ NUEVO
-    const [contextPos, setContextPos] = useState({ x: 0, y: 0 });   // ✅ NUEVO
-    const [multiSelectMode, setMultiSelectMode] = useState(false);  // ✅ NUEVO
+    const [replyTarget, setReplyTarget] = useState(null);   
+    const messagesContainerRef = useRef(null);   
+    const pendingRead = useRef(new Set());   
+    const readFlushTimer = useRef(null);   
+    const [highlightedId, setHighlightedId] = useState(null);   
+    const highlightTimerRef = useRef(null);  
+    const [showContext, setShowContext] = useState(false);            
+    const [contextMsg, setContextMsg] = useState(null);               
+    const [contextPos, setContextPos] = useState({ x: 0, y: 0 });     
+    const [multiSelectMode, setMultiSelectMode] = useState(false);    
     const [selectedIds, setSelectedIds] = useState(new Set());
-    const canceledClientIdsRef = useRef(new Set()); // ✅ NUEVO: ids de envíos cancelados (clientId)
+    const canceledClientIdsRef = useRef(new Set()); // ids de envíos cancelados (clientId)
 
 
-    // ✅ FALTABA: función para alternar selección
+    // función para alternar selección
     const toggleSelect = (id) => {
         if (!id) return;
         setSelectedIds(prev => {
@@ -64,7 +64,7 @@ const Chat = () => {
 
         const idsToDelete = Array.from(selectedIds);
 
-        // ✅ Actualización optimista: marcar como softDeleted inmediatamente
+        // Actualización optimista: marcar como softDeleted inmediatamente
         setResponses(prev => prev.map(m =>
             idsToDelete.includes(m._id)
                 ? { ...m, softDeleted: true, texto: "Mensaje eliminado" }
@@ -93,7 +93,7 @@ const Chat = () => {
 
         const idsToHide = Array.from(selectedIds);
 
-        // ✅ Actualización optimista: remover de la UI inmediatamente
+        // Actualización optimista: remover de la UI inmediatamente
         setResponses(prev => prev.filter(m => !idsToHide.includes(m._id)));
 
         setSelectedIds(new Set());
@@ -119,13 +119,13 @@ const Chat = () => {
         }
     }, [user]);
 
-    // ✅ Ayuda: generar id temporal para correlacionar con el evento de Pusher
+    // generar id temporal para correlacionar con el evento de Pusher
     const genClientId = () => {
         if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
         return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     };
 
-    // ✅ Diagnóstico de Pusher (opcional: comentar en prod)
+    // Diagnóstico de Pusher (opcional: comentar en prod)
     useEffect(() => {
         // Muestra estados de conexión en consola
         if (window && !window.__PUSHER_LOG__) {
@@ -213,7 +213,7 @@ const Chat = () => {
         }
         const channel = channelRef.current;
 
-        // ✅ Handler para nuevos mensajes
+        // Handler para nuevos mensajes
         const handleNewMessage = (data) => {
             if (data.clientId && canceledClientIdsRef.current.has(data.clientId)) return;
 
@@ -239,7 +239,7 @@ const Chat = () => {
             }
         };
 
-        // ✅ Handler para mensaje eliminado (para ambos)
+        // Handler para mensaje eliminado (para ambos)
         const handleMessageDeleted = (data) => {
             if (!data._id) return;
             setResponses(prev => prev.map(m =>
@@ -249,7 +249,7 @@ const Chat = () => {
             ));
         };
 
-        // ✅ Handler para múltiples mensajes eliminados
+        // Handler para múltiples mensajes eliminados
         const handleMessagesDeleted = (data) => {
             if (!data.ids || !Array.isArray(data.ids)) return;
             setResponses(prev => prev.map(m =>
@@ -259,19 +259,19 @@ const Chat = () => {
             ));
         };
 
-        // ✅ Handler para mensaje oculto (para mí) - solo afecta al usuario que ocultó
+        // Handler para mensaje oculto (para mí) - solo afecta al usuario que ocultó
         const handleMessageHidden = (data) => {
             if (!data._id || data.userId !== user._id) return;
             setResponses(prev => prev.filter(m => m._id !== data._id));
         };
 
-        // ✅ Handler para múltiples mensajes ocultos
+        // Handler para múltiples mensajes ocultos
         const handleMessagesHidden = (data) => {
             if (!data.ids || !Array.isArray(data.ids) || data.userId !== user._id) return;
             setResponses(prev => prev.filter(m => !data.ids.includes(m._id)));
         };
 
-        // ✅ Handler para mensaje editado
+        // Handler para mensaje editado
         const handleMessageEdited = (data) => {
             if (!data._id) return;
             const isBetween =
@@ -286,7 +286,7 @@ const Chat = () => {
             ));
         };
 
-        // ✅ Handler para mensajes leídos
+        // Handler para mensajes leídos
         const handleMessagesRead = (data) => {
             if (!Array.isArray(data)) return;
             const readIds = data.map(m => m._id);
@@ -317,7 +317,7 @@ const Chat = () => {
         };
     }, [selectedContact, user]);
 
-    // ✅ NUEVO estado y refs para bloquear envíos repetidos
+    // estado y refs para bloquear envíos repetidos
     const sendingRef = useRef(false);
     const [allowSend, setAllowSend] = useState(true); // Se reactiva solo cuando el usuario escribe algo
 
@@ -435,7 +435,7 @@ const Chat = () => {
         }
     }
 
-    // ✅ Función para abrir modal de imagen CON NOMBRE
+    // Función para abrir modal de imagen CON NOMBRE
     const handleOpenImage = (imageUrl, userName) => {
         setSelectedImageUrl(imageUrl);
         setImageUserName(userName || "");
@@ -475,7 +475,7 @@ const Chat = () => {
                 <p className="text-xs text-gray-500 mt-3">
                     Código: {transferencia.codigo}
                 </p>
-                {/* ✅ HORA DEL MENSAJE */}
+                {/* HORA DEL MENSAJE */}
                 <p className="text-xs text-gray-500">
                     {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
@@ -483,7 +483,7 @@ const Chat = () => {
         );
     };
 
-    // ✅ Componente interno para cada burbuja (maneja long press / context menu)
+    // Componente interno para cada burbuja (maneja long press / context menu)
     const MessageBubble = ({
         msg,
         user,
@@ -641,7 +641,7 @@ const Chat = () => {
 
         const idToHide = contextMsg._id;
 
-        // ✅ Actualización optimista: remover de la UI inmediatamente
+        // Actualización optimista: remover de la UI inmediatamente
         setResponses(prev => prev.filter(m => m._id !== idToHide));
         setShowContext(false);
 
@@ -655,7 +655,7 @@ const Chat = () => {
         }
     };
 
-    // ✅ NUEVO: saltar al mensaje original y resaltarlo
+    // saltar al mensaje original y resaltarlo
     const jumpToMessage = (id) => {
         if (!id || !messagesContainerRef.current) return;
         const el = messagesContainerRef.current.querySelector(`[data-mid="${id}"]`);
@@ -669,7 +669,7 @@ const Chat = () => {
         highlightTimerRef.current = setTimeout(() => setHighlightedId(null), 1600);
     };
 
-    // ✅ Cancelar envío (solo mensajes 'pending' míos)
+    // Cancelar envío (solo mensajes 'pending' míos)
     const cancelSend = () => {
         if (!contextMsg || contextMsg.de !== user._id || contextMsg.estado !== 'pending') return;
         const key = contextMsg.clientId || contextMsg._id;
@@ -678,7 +678,7 @@ const Chat = () => {
         setShowContext(false);
     };
 
-    // ✅ Abrir menú contextual (ajustado para pending)
+    // Abrir menú contextual (ajustado para pending)
     const openContextMenu = (e, msg) => {
         e.preventDefault();
         const clickX = e?.clientX ?? e?.touches?.[0]?.clientX ?? window.innerWidth / 2;
@@ -695,14 +695,14 @@ const Chat = () => {
         setShowContext(true);
     };
 
-    // ✅ Cerrar menú al click global
+    // Cerrar menú al click global
     useEffect(() => {
         const close = () => setShowContext(false);
         window.addEventListener("click", close);
         return () => window.removeEventListener("click", close);
     }, []);
 
-    // ✅ Reglas de edición (≤10 min, propio, no transferencia)
+    // Reglas de edición (≤10 min, propio, no transferencia)
     const canEdit = (msg) => {
         if (!msg || msg.de !== user._id) return false;
         if (msg.tipo === "transferencia" || msg.softDeleted) return false;
@@ -710,7 +710,7 @@ const Chat = () => {
         return diffMin <= 10;
     };
 
-    // ✅ Editar (prompt simple para no tocar UI)
+    // Editar (prompt simple para no tocar UI)
     const startEdit = async () => {
         if (!contextMsg) return;
         const nuevo = window.prompt("Editar mensaje:", contextMsg.texto || "");
@@ -727,21 +727,21 @@ const Chat = () => {
         } catch { }
     };
 
-    // ✅ Copiar
+    // Copiar
     const copyMsg = async () => {
         if (!contextMsg) return;
         try { await navigator.clipboard.writeText(contextMsg.texto || ""); } catch { }
         setShowContext(false);
     };
 
-    // ✅ Eliminar (para ambos) solo propios
+    // Eliminar (para ambos) solo propios
     const deleteOne = async () => {
         if (!contextMsg) return;
         if (!window.confirm("Se eliminará para ambos. ¿Continuar?")) return;
 
         const idToDelete = contextMsg._id;
 
-        // ✅ Actualización optimista: marcar como eliminado inmediatamente
+        // Actualización optimista: marcar como eliminado inmediatamente
         setResponses(prev => prev.map(m =>
             m._id === idToDelete
                 ? { ...m, softDeleted: true, texto: "Mensaje eliminado" }
@@ -759,7 +759,7 @@ const Chat = () => {
         }
     };
 
-    // ✅ Selección múltiple (infra mínima)
+    // Selección múltiple (infra mínima)
     const toggleMultiMode = () => {
         setMultiSelectMode(prev => !prev);
         setSelectedIds(new Set());
@@ -814,7 +814,7 @@ const Chat = () => {
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                // ✅ PASAR NOMBRE AL MODAL
+                                                // Pasar nombre al modal
                                                 handleOpenImage(
                                                     contact.avatarFull,
                                                     `${contact.nombreDocente || contact.nombre} ${contact.apellidoDocente || contact.apellido}`
@@ -855,7 +855,7 @@ const Chat = () => {
                 <div className="flex-1 flex flex-col h-full w-full overflow-hidden">
                     {/* HEADER DEL CHAT */}
                     <div className="bg-white border-b border-gray-300 px-3 md:px-6 py-2 md:py-4 flex items-center gap-2 md:gap-3 flex-shrink-0">
-                        {/* ✅ Botón de volver en mobile */}
+                        {/* Botón de volver en mobile */}
                         <button
                             onClick={() => setSelectedContact(null)}
                             className="md:hidden p-2 hover:bg-gray-100 rounded text-gray-600"
@@ -864,7 +864,7 @@ const Chat = () => {
                             ←
                         </button>
 
-                        {/* ✅ Círculo: recortada */}
+                        {/* Círculo: recortada */}
                         <img
                             src={selectedContact.avatarCropped}
                             alt="avatar"
@@ -1056,7 +1056,7 @@ const Chat = () => {
                 imageSrc={selectedImageUrl}
                 isOpen={showViewModal}
                 onClose={() => setShowViewModal(false)}
-                userName={imageUserName} // ✅ USAR EL NOMBRE CAPTURADO
+                userName={imageUserName} // Usar el nombre capturado
             />
 
             {/* Context menu */}

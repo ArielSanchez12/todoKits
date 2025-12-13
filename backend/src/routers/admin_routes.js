@@ -23,16 +23,15 @@ const router = Router()
 
 //Aqui ya se completa esta ruta http://localhost:3000/api/registro
 router.post('/register', validate(registerSchema), registro)
-//Verbo  Ruta     Controlador
+//     Verbo  Ruta                                Controlador
 
 router.get('/confirm/:token', confirmarMail)
 router.get('/perfil', verificarTokenJWT, perfil) //verificarTokenJWT es un MIDDLEWARE que se ejecuta antes de llegar al controlador perfil (así protegemos la ruta de acceso al perfil del administrador)
 router.put('/administrador/:id', verificarTokenJWT, validate(updateProfileSchema), actualizarPerfil)
 router.put('/administrador/actualizarpassword/:id', verificarTokenJWT, validate(updatePasswordSchema), actualizarPassword)
-// router.get('/administrador/confirm-new-email/:token', confirmarNuevoEmail); // Ruta para confirmar email nuevo después de cambiarlo (lo que se abre al hacer click en el correo)
 
 // Rutas para gestionar docentes
-// Nueva ruta para que los administradores creen docentes
+// ruta para que los administradores creen docentes
 router.post('/administrador/registerDocente', verificarTokenJWT, validate(registerDocenteSchema), registrarDocente)
 // Ruta para listar docentes (protegida)
 router.get("/administrador/listDocentes", verificarTokenJWT, listarDocentes)

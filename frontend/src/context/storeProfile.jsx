@@ -37,7 +37,7 @@ const storeProfile = create((set) => ({
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
             const isDocente = storedUser.state.rol === "Docente";
 
-            // ✅ Endpoint según el rol
+            // Endpoint según el rol
             const endpoint = isDocente
                 ? `docente/actualizarperfil/${id}`
                 : `administrador/${id}`;
@@ -60,7 +60,6 @@ const storeProfile = create((set) => ({
             await storeProfile.getState().profile();
             toast.success("Perfil actualizado correctamente");
         } catch (error) {
-            console.log(error);
             toast.error(error.response?.data?.msg);
         }
     },
@@ -70,7 +69,7 @@ const storeProfile = create((set) => ({
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
             const isDocente = storedUser.state.rol === "Docente";
 
-            // ✅ Endpoint según el rol
+            // Endpoint según el rol
             const endpoint = isDocente
                 ? `docente/actualizarpassword/${id}`
                 : `administrador/actualizarpassword/${id}`;
@@ -80,7 +79,6 @@ const storeProfile = create((set) => ({
             toast.success("Contraseña actualizada correctamente");
             return respuesta;
         } catch (error) {
-            console.log(error);
             toast.error(error.response?.data?.msg);
         }
     },

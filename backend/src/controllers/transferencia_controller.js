@@ -370,12 +370,6 @@ const responderTransferenciaDestino = async (req, res) => {
       transferencia.fechaConfirmacionDestino = new Date();
       await transferencia.save();
 
-      // // Notificar (lo mismo de arriba, queda para futuras notificaciones)
-      // pusher.trigger("prestamos", "transferencia-completada", {
-      //   transferencia,
-      //   nuevoPrestamo,
-      // });
-
       res.json({
         msg: "Transferencia aceptada exitosamente",
         nuevoPrestamo: await nuevoPrestamo.populate([
@@ -392,12 +386,6 @@ const responderTransferenciaDestino = async (req, res) => {
       transferencia.firmaDestino = firmaFinal;
       transferencia.fechaConfirmacionDestino = new Date();
       await transferencia.save();
-
-      // // Notificar por Pusher (no se usa por ahora, pero queda para futuras notificaciones)
-      // pusher.trigger("chat", "transferencia-rechazada", {
-      //   transferencia,
-      //   para: transferencia.docenteOrigen._id.toString(),
-      // });
 
       res.json({
         msg: "Transferencia rechazada",
@@ -499,13 +487,6 @@ const cancelarTransferencia = async (req, res) => {
     transferencia.observacionesOrigen += `\n[CANCELADO] ${motivoCancelacion || "Solicitud cancelada"}`;
     transferencia.fechaCancelacion = new Date();
     await transferencia.save();
-
-    // // Notificar por Pusher (no se usa por ahora, pero queda para futuras notificaciones)
-    // pusher.trigger("chat", "transferencia-cancelada", {
-    //   transferencia,
-    //   para: transferencia.docenteDestino._id.toString(),
-    //   mensaje: `La transferencia de ${transferencia.docenteOrigen.nombreDocente} ha sido cancelada`
-    // });
 
     res.json({
       msg: "Solicitud de transferencia cancelada exitosamente",

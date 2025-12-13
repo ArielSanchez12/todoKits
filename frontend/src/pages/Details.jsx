@@ -7,7 +7,7 @@ import storeRecursos from "../context/storeRecursos";
 import { ToastContainer, toast } from "react-toastify";
 import { MdAssignment } from "react-icons/md";
 import ModalPrestarRecurso from "../components/prestamos/ModalPrestarRecurso";
-import ModalViewImage from "../components/profile/ModalViewImage" // ✅ NUEVO
+import ModalViewImage from "../components/profile/ModalViewImage"   
 import TablaHistorialDocente from "../components/prestamos/TablaHistorialDocente";
 
 const Details = () => {
@@ -18,7 +18,7 @@ const Details = () => {
     const { fetchDataBackend } = useFetch();
     const { rol } = storeAuth();
     const [showModalPrestamo, setShowModalPrestamo] = useState(false);
-    const [showViewModal, setShowViewModal] = useState(false); // ✅ NUEVO
+    const [showViewModal, setShowViewModal] = useState(false);  
     const { fetchRecursos } = storeRecursos();
 
     const listDocente = async () => {
@@ -84,10 +84,10 @@ const Details = () => {
         listDocente();
     }, []);
 
-    // ✅ URL de la imagen RECORTADA para el círculo
+    //    URL de la imagen RECORTADA para el círculo
     const avatarUrl = docente?.avatarDocente || docente?.avatarDocenteOriginal || docente?.avatar || docente?.avatarOriginal || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
-    // ✅ URL de la imagen ORIGINAL para el modal
+    //    URL de la imagen ORIGINAL para el modal
     const avatarOriginalUrl = docente?.avatarDocenteOriginal || docente?.avatarOriginal || docente?.avatarDocente || docente?.avatar || "https://cdn-icons-png.flaticon.com/512/4715/4715329.png";
 
     return (
@@ -137,7 +137,7 @@ const Details = () => {
                     </div>
 
                     <div>
-                        {/* ✅ Click en imagen abre modal con ORIGINAL */}
+                        {/*    Click en imagen abre modal con ORIGINAL */}
                         <img
                             src={avatarUrl}
                             alt="avatar"
@@ -203,7 +203,7 @@ const Details = () => {
                 />
             )}
 
-            {/* ✅ Modal de vista de imagen - MUESTRA ORIGINAL */}
+            {/* Modal de vista de imagen - MUESTRA ORIGINAL */}
             <ModalViewImage
                 imageSrc={avatarOriginalUrl}
                 isOpen={showViewModal}

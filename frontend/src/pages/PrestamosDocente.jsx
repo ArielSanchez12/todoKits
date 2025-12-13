@@ -73,7 +73,7 @@ const PrestamosDocente = () => {
       setMostrarEscaner(false);
       setMostrarModalConfirmacion(true);
     } catch (error) {
-      console.error("❌ Error:", error);
+      console.error("Error:", error);
       toast.error("QR inválido o transferencia no encontrada");
       setMostrarEscaner(false);
     }

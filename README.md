@@ -9,9 +9,8 @@ Sistema web completo para la gestión de recursos con funcionalidades para admin
 - **MongoDB** con Mongoose
 - **JWT** para autenticación
 - **Cloudinary** para almacenamiento de imágenes
-- **Pusher** para notificaciones en tiempo real
+- **Pusher Channels** para chat en tiempo real
 - **Nodemailer** para envío de correos
-- **Socket.io** para chat en tiempo real
 - **Zod** para validación de esquemas
 
 ### Frontend
@@ -20,8 +19,7 @@ Sistema web completo para la gestión de recursos con funcionalidades para admin
 - **Zustand** para manejo de estado
 - **React Hook Form** + Zod para formularios
 - **React Router 7** para navegación
-- **Pusher JS** para notificaciones en tiempo real
-- **Socket.io Client** para chat
+- **Pusher Channels** para chat
 
 ---
 

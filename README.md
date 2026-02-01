@@ -5,7 +5,7 @@ Sistema web completo para la gestión de recursos con funcionalidades para admin
 ## 🛠️ Tecnologías
 
 ### Backend
-- **Node.js** con Express 5
+- **Node.js** con Express
 - **MongoDB** con Mongoose
 - **JWT** para autenticación
 - **Cloudinary** para almacenamiento de imágenes
@@ -14,11 +14,11 @@ Sistema web completo para la gestión de recursos con funcionalidades para admin
 - **Zod** para validación de esquemas
 
 ### Frontend
-- **React 18** con Vite
-- **Tailwind CSS 4** para estilos
+- **React** con Vite
+- **Tailwind CSS** para estilos
 - **Zustand** para manejo de estado
 - **React Hook Form** + Zod para formularios
-- **React Router 7** para navegación
+- **React Router** para navegación
 - **Pusher Channels** para chat
 
 ---

@@ -1,6 +1,6 @@
-# 📦 TodoKits - Sistema de Gestión de Préstamos y Recursos
+# 📦 Sistema de Gestión de Préstamos y Recursos
 
-Sistema web completo para la gestión de préstamos de recursos educativos con funcionalidades para administradores y docentes.
+Sistema web completo para la gestión de recursos con funcionalidades para administrador y docentes.
 
 ## 🛠️ Tecnologías
 
@@ -31,7 +31,7 @@ Sistema web completo para la gestión de préstamos de recursos educativos con f
 
 - **Node.js** (versión 18 o superior)
 - **MongoDB** (local o en la nube como MongoDB Atlas)
-- **npm** o **yarn**
+- **npm**
 
 ---
 
@@ -188,31 +188,6 @@ npm run dev
 
 ---
 
-## 📋 Scripts Disponibles
-
-### Backend
-
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Inicia el servidor en modo desarrollo con hot-reload |
-| `npm start` | Inicia el servidor en modo producción |
-| `npm test` | Ejecuta todos los tests |
-| `npm run test:watch` | Ejecuta tests en modo watch |
-| `npm run test:coverage` | Ejecuta tests con reporte de cobertura |
-| `npm run test:e2e` | Ejecuta tests end-to-end |
-| `npm run test:integration` | Ejecuta tests de integración |
-
-### Frontend
-
-| Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Inicia el servidor de desarrollo Vite |
-| `npm run build` | Genera el build de producción |
-| `npm run preview` | Previsualiza el build de producción |
-| `npm run lint` | Ejecuta ESLint para verificar el código |
-
----
-
 ## 🔑 Servicios Externos Requeridos
 
 Para que el proyecto funcione completamente, necesitas configurar los siguientes servicios:
@@ -239,41 +214,6 @@ Para que el proyecto funcione completamente, necesitas configurar los siguientes
 
 ---
 
-## 📁 Estructura del Proyecto
-
-```
-todoKits/
-├── backend/
-│   ├── src/
-│   │   ├── config/         # Configuración de servicios externos
-│   │   ├── controllers/    # Controladores de las rutas
-│   │   ├── helpers/        # Funciones auxiliares
-│   │   ├── middlewares/    # Middlewares (JWT, validaciones)
-│   │   ├── models/         # Modelos de Mongoose
-│   │   ├── routers/        # Definición de rutas
-│   │   ├── schemas/        # Esquemas de validación Zod
-│   │   ├── services/       # Servicios (email, etc.)
-│   │   └── test/           # Tests (e2e, integration)
-│   ├── .env.example
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/     # Componentes React
-│   │   ├── context/        # Stores de Zustand
-│   │   ├── helpers/        # Funciones auxiliares
-│   │   ├── hooks/          # Custom hooks
-│   │   ├── layout/         # Layouts de la aplicación
-│   │   ├── pages/          # Páginas/vistas
-│   │   ├── routes/         # Configuración de rutas
-│   │   └── schemas/        # Esquemas de validación
-│   └── package.json
-│
-└── README.md
-```
-
----
-
 ## 👥 Roles del Sistema
 
 - **Administrador**: Gestión completa de docentes, recursos, préstamos y transferencias
@@ -281,24 +221,3 @@ todoKits/
 
 ---
 
-## 🐛 Solución de Problemas
-
-### Error de conexión a MongoDB
-- Verifica que MongoDB esté corriendo
-- Comprueba que la URI en `.env` sea correcta
-
-### Error de CORS
-- Asegúrate de que `URL_FRONTEND` en el backend coincida con la URL del frontend
-
-### Emails no se envían
-- Verifica las credenciales de Gmail
-- Asegúrate de usar una contraseña de aplicación, no tu contraseña normal
-
-### Notificaciones en tiempo real no funcionan
-- Verifica que las credenciales de Pusher sean correctas tanto en backend como frontend
-
----
-
-## 📄 Licencia
-
-ISC

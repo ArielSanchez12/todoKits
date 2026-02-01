@@ -1,6 +1,6 @@
-# 📦 Sistema de Gestión de Préstamos y Recursos
+# 📦 Sistema de kits de los laboratorios de la ESFOT-EPN
 
-Sistema web completo para la gestión de recursos con funcionalidades para administrador y docentes.
+Sistema web completo para la gestión de kits con funcionalidades para administrador y docentes.
 
 ## 🛠️ Tecnologías
 

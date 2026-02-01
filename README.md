@@ -82,7 +82,7 @@ CLOUDINARY_CLOUD_NAME=tu-cloud-name
 CLOUDINARY_API_KEY=tu-api-key
 CLOUDINARY_API_SECRET=tu-api-secret
 
-# Pusher (para notificaciones en tiempo real)
+# Pusher (para chat en tiempo real)
 PUSHER_APP_ID=tu-app-id
 PUSHER_KEY=tu-pusher-key
 PUSHER_SECRET=tu-pusher-secret
@@ -132,12 +132,10 @@ Crea un archivo `.env` en la carpeta `frontend/`:
 # URL del backend
 VITE_BACKEND_URL=http://localhost:3000
 
-# Pusher (para notificaciones en tiempo real)
+# Pusher (para chat)
 VITE_PUSHER_KEY=tu-pusher-key
 VITE_PUSHER_CLUSTER=tu-cluster
 
-# HuggingFace API (opcional, para procesamiento de imágenes)
-VITE_HUGGINGFACE_API_KEY=tu-api-key
 ```
 
 ### 4. Ejecutar el frontend
@@ -205,10 +203,6 @@ Para que el proyecto funcione completamente, necesitas configurar los siguientes
 ### 4. Gmail (para emails)
 - Usa una cuenta de Gmail
 - Genera una [contraseña de aplicación](https://support.google.com/accounts/answer/185833) para usar con Nodemailer
-
-### 5. HuggingFace (opcional)
-- Para funcionalidades de procesamiento de imágenes
-- Obtén una API key en [HuggingFace](https://huggingface.co/)
 
 ---
 

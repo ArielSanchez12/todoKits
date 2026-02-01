@@ -1,4 +1,4 @@
-# 📦 Sistema de kits de los laboratorios de la ESFOT-EPN
+# 📦 Sistema para la gestion de kits de los laboratorios de la ESFOT-EPN
 
 Sistema web completo para la gestión de kits con funcionalidades para administrador y docentes.
 

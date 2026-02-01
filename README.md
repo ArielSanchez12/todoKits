@@ -205,11 +205,3 @@ Para que el proyecto funcione completamente, necesitas configurar los siguientes
 - Genera una [contraseña de aplicación](https://support.google.com/accounts/answer/185833) para usar con Nodemailer
 
 ---
-
-## 👥 Roles del Sistema
-
-- **Administrador**: Gestión completa de docentes, recursos, préstamos y transferencias
-- **Docente**: Visualización de préstamos propios, confirmación de recursos y chat
-
----
-
